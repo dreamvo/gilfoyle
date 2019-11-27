@@ -1,0 +1,22 @@
+site_name: Dreamvo
+site_description: 'Dreamvo is a free and open source decentralized video sharing platform for the 21th century.'
+site_author: 'Dreamvo'
+copyright: 'Copyright &copy; Dreamvo 2020 - all rights reserved'
+theme:
+  name: 'material'
+  palette:
+    primary: 'indigo'
+    accent: 'indigo'
+  language: 'en'
+  repo_name: 'dreamvo/dreamvo'
+  repo_url: 'https://github.com/dreamvo/dreamvo'
+  feature:
+    tabs: true
+extra:
+  social:
+    - type: globe
+      link: http://dreamvo.com/
+    - type: 'github-alt'
+      link: 'https://github.com/dreamvo/dreamvo'
+    - type: 'twitter'
+      link: 'https://twitter.com/dreamvoapp'
