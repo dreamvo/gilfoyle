@@ -1,0 +1,24 @@
+name: Deploy docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: install & deploy
+        run: |
+          echo "machine github.com login ${{ secrets.GITHUB_USER }} password ${{ github.token }}" > ~/.netrc
+          pip3 install mkdocs
+          mkdocs gh-deploy
