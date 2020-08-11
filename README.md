@@ -2,23 +2,55 @@
 
 Gilfoyle is a web application from the Dreamvo project that runs a self-hosted video streaming server. This application allows you to setup a production-ready video hosting & live streaming platform in minutes. Gilfoyle handles video upload, processing and streaming.
 
-It's written in Golang and runs as a single Linux binary with MySQL or PostgreSQL and Redis.
+It's written in Golang and runs as a single Linux binary with PostgreSQL and Redis.
 
 ## Table of content
 
-...
+- [Features](#features)
+- [Current status](#current-status)
+  - [Roadmap](#roadmap)
+- [Design](#design)
+  - [Goals](#goals)
+- [Documentation](#documentation)
+- [License](#license)
+
+## Features
+
+- Deploy a RESTful API to manage your videos
+- Upload videos from file or import from platforms such as: *YouTube, Dailymotion, Vimeo*
+- Handle video compression and conversion asynchronously with [FFmpeg](https://ffmpeg.org/)
+- Decentralize video storage with [IPFS](https://ipfs.io/) clustering feature
+- Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features
+- Collect analytics such as watch time and view count
 
 ## Current status
 
-...
+This project is under heavy development and not ready for production. Please consider v0 as instable.
 
-## Roadmap
+### Roadmap
 
 ...
 
 ## Design
 
-...
+### Goals
+
+1. Privacy & security by default
+
+Gilfoyle was created in an effort to bring a new privacy and watch experience to end-users. This application collects very few things about end-user and tend to keep it that way. Althrough we take security very seriously, the API was not designed to be exposed to the public network. Usually administrator would isolate the interface in a security group with access limited to other services. Gilfoyle shouldn't be the backend of your application but a private storage service used by your own API. Still, you can deploy and expose this service in production.
+
+2. Customization
+
+The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used.
+
+3. Easy to use, easy to deploy
+
+Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples. Of course, this application was designed to follow your application's scale. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
+
+## Documentation
+
+- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle)
+- For **administrators**: see [official documentation](#)
 
 ## License
 
