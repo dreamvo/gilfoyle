@@ -30,6 +30,8 @@ As this project is very recent, it's under heavy development and not suitable fo
 
 ## Design
 
+Read full specifications on the [dedicated website](https://dreamvo.github.io/specs/).
+
 ### Goals
 
 1. Privacy & security by default
