@@ -4,11 +4,12 @@ Gilfoyle is a web application from the Dreamvo project that runs a self-hosted v
 
 It's written in Golang and runs as a single Linux binary with PostgreSQL and Redis.
 
+<a href="https://www.redbubble.com/fr/people/andromeduh/shop"><img src="https://ih1.redbubble.net/image.71449494.3195/raf,750x1000,075,t,oatmeal_heather.u2.jpg" width="256" align="right" /></a>
+
 ## Table of content
 
 - [Features](#features)
 - [Current status](#current-status)
-  - [Roadmap](#roadmap)
 - [Design](#design)
   - [Goals](#goals)
 - [Documentation](#documentation)
@@ -25,11 +26,7 @@ It's written in Golang and runs as a single Linux binary with PostgreSQL and Red
 
 ## Current status
 
-This project is under heavy development and not ready for production. Please consider v0 as instable.
-
-### Roadmap
-
-...
+As this project is very recent, it's under heavy development and not suitable for production yet. Please consider v0 as instable. Want to contribute ? Check the [backlog](https://github.com/dreamvo/gilfoyle/projects/1).
 
 ## Design
 
@@ -41,11 +38,11 @@ Gilfoyle was created in an effort to bring a new privacy and watch experience to
 
 2. Customization
 
-The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used.
+The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples. Of course, this application was designed to follow your application's scale. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
 
-3. Easy to use, easy to deploy
+3. Documentation as code
 
-Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples. Of course, this application was designed to follow your application's scale. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
+We want documentation to be part of the code, so its always up-to-date and developers can understand snippets very quickly. We defines API's specifications using OpenAPI with swagger.
 
 ## Documentation
 
@@ -54,4 +51,4 @@ Some open source projects can be difficult to use because of too many configurat
 
 ## License
 
-...
+This project is licensed under the [GPL v3](LICENSE) license.
