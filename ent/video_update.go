@@ -52,29 +52,25 @@ func (vu *VideoUpdate) SetCreatedAt(t time.Time) *VideoUpdate {
 	return vu
 }
 
+// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableCreatedAt(t *time.Time) *VideoUpdate {
+	if t != nil {
+		vu.SetCreatedAt(*t)
+	}
+	return vu
+}
+
 // SetUpdatedAt sets the updated_at field.
 func (vu *VideoUpdate) SetUpdatedAt(t time.Time) *VideoUpdate {
 	vu.mutation.SetUpdatedAt(t)
 	return vu
 }
 
-// SetDeletedAt sets the deleted_at field.
-func (vu *VideoUpdate) SetDeletedAt(t time.Time) *VideoUpdate {
-	vu.mutation.SetDeletedAt(t)
-	return vu
-}
-
-// SetNillableDeletedAt sets the deleted_at field if the given value is not nil.
-func (vu *VideoUpdate) SetNillableDeletedAt(t *time.Time) *VideoUpdate {
+// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
+func (vu *VideoUpdate) SetNillableUpdatedAt(t *time.Time) *VideoUpdate {
 	if t != nil {
-		vu.SetDeletedAt(*t)
+		vu.SetUpdatedAt(*t)
 	}
-	return vu
-}
-
-// ClearDeletedAt clears the value of deleted_at.
-func (vu *VideoUpdate) ClearDeletedAt() *VideoUpdate {
-	vu.mutation.ClearDeletedAt()
 	return vu
 }
 
@@ -85,6 +81,11 @@ func (vu *VideoUpdate) Mutation() *VideoMutation {
 
 // Save executes the query and returns the number of rows/vertices matched by this operation.
 func (vu *VideoUpdate) Save(ctx context.Context) (int, error) {
+	if v, ok := vu.mutation.UUID(); ok {
+		if err := video.UUIDValidator(v); err != nil {
+			return 0, &ValidationError{Name: "uuid", err: fmt.Errorf("ent: validator failed for field \"uuid\": %w", err)}
+		}
+	}
 	if v, ok := vu.mutation.Title(); ok {
 		if err := video.TitleValidator(v); err != nil {
 			return 0, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
@@ -197,19 +198,6 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: video.FieldUpdatedAt,
 		})
 	}
-	if value, ok := vu.mutation.DeletedAt(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: video.FieldDeletedAt,
-		})
-	}
-	if vu.mutation.DeletedAtCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Column: video.FieldDeletedAt,
-		})
-	}
 	if n, err = sqlgraph.UpdateNodes(ctx, vu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{video.Label}
@@ -252,29 +240,25 @@ func (vuo *VideoUpdateOne) SetCreatedAt(t time.Time) *VideoUpdateOne {
 	return vuo
 }
 
+// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableCreatedAt(t *time.Time) *VideoUpdateOne {
+	if t != nil {
+		vuo.SetCreatedAt(*t)
+	}
+	return vuo
+}
+
 // SetUpdatedAt sets the updated_at field.
 func (vuo *VideoUpdateOne) SetUpdatedAt(t time.Time) *VideoUpdateOne {
 	vuo.mutation.SetUpdatedAt(t)
 	return vuo
 }
 
-// SetDeletedAt sets the deleted_at field.
-func (vuo *VideoUpdateOne) SetDeletedAt(t time.Time) *VideoUpdateOne {
-	vuo.mutation.SetDeletedAt(t)
-	return vuo
-}
-
-// SetNillableDeletedAt sets the deleted_at field if the given value is not nil.
-func (vuo *VideoUpdateOne) SetNillableDeletedAt(t *time.Time) *VideoUpdateOne {
+// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
+func (vuo *VideoUpdateOne) SetNillableUpdatedAt(t *time.Time) *VideoUpdateOne {
 	if t != nil {
-		vuo.SetDeletedAt(*t)
+		vuo.SetUpdatedAt(*t)
 	}
-	return vuo
-}
-
-// ClearDeletedAt clears the value of deleted_at.
-func (vuo *VideoUpdateOne) ClearDeletedAt() *VideoUpdateOne {
-	vuo.mutation.ClearDeletedAt()
 	return vuo
 }
 
@@ -285,6 +269,11 @@ func (vuo *VideoUpdateOne) Mutation() *VideoMutation {
 
 // Save executes the query and returns the updated entity.
 func (vuo *VideoUpdateOne) Save(ctx context.Context) (*Video, error) {
+	if v, ok := vuo.mutation.UUID(); ok {
+		if err := video.UUIDValidator(v); err != nil {
+			return nil, &ValidationError{Name: "uuid", err: fmt.Errorf("ent: validator failed for field \"uuid\": %w", err)}
+		}
+	}
 	if v, ok := vuo.mutation.Title(); ok {
 		if err := video.TitleValidator(v); err != nil {
 			return nil, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
@@ -393,19 +382,6 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (v *Video, err error) {
 			Type:   field.TypeTime,
 			Value:  value,
 			Column: video.FieldUpdatedAt,
-		})
-	}
-	if value, ok := vuo.mutation.DeletedAt(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: video.FieldDeletedAt,
-		})
-	}
-	if vuo.mutation.DeletedAtCleared() {
-		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Column: video.FieldDeletedAt,
 		})
 	}
 	v = &Video{config: vuo.config}

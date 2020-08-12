@@ -44,22 +44,24 @@ func (vc *VideoCreate) SetCreatedAt(t time.Time) *VideoCreate {
 	return vc
 }
 
+// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+func (vc *VideoCreate) SetNillableCreatedAt(t *time.Time) *VideoCreate {
+	if t != nil {
+		vc.SetCreatedAt(*t)
+	}
+	return vc
+}
+
 // SetUpdatedAt sets the updated_at field.
 func (vc *VideoCreate) SetUpdatedAt(t time.Time) *VideoCreate {
 	vc.mutation.SetUpdatedAt(t)
 	return vc
 }
 
-// SetDeletedAt sets the deleted_at field.
-func (vc *VideoCreate) SetDeletedAt(t time.Time) *VideoCreate {
-	vc.mutation.SetDeletedAt(t)
-	return vc
-}
-
-// SetNillableDeletedAt sets the deleted_at field if the given value is not nil.
-func (vc *VideoCreate) SetNillableDeletedAt(t *time.Time) *VideoCreate {
+// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
+func (vc *VideoCreate) SetNillableUpdatedAt(t *time.Time) *VideoCreate {
 	if t != nil {
-		vc.SetDeletedAt(*t)
+		vc.SetUpdatedAt(*t)
 	}
 	return vc
 }
@@ -114,6 +116,11 @@ func (vc *VideoCreate) preSave() error {
 	if _, ok := vc.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New("ent: missing required field \"uuid\"")}
 	}
+	if v, ok := vc.mutation.UUID(); ok {
+		if err := video.UUIDValidator(v); err != nil {
+			return &ValidationError{Name: "uuid", err: fmt.Errorf("ent: validator failed for field \"uuid\": %w", err)}
+		}
+	}
 	if _, ok := vc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New("ent: missing required field \"title\"")}
 	}
@@ -131,10 +138,12 @@ func (vc *VideoCreate) preSave() error {
 		}
 	}
 	if _, ok := vc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
+		v := video.DefaultCreatedAt()
+		vc.mutation.SetCreatedAt(v)
 	}
 	if _, ok := vc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New("ent: missing required field \"updated_at\"")}
+		v := video.DefaultUpdatedAt()
+		vc.mutation.SetUpdatedAt(v)
 	}
 	return nil
 }
@@ -202,14 +211,6 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 			Column: video.FieldUpdatedAt,
 		})
 		v.UpdatedAt = value
-	}
-	if value, ok := vc.mutation.DeletedAt(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeTime,
-			Value:  value,
-			Column: video.FieldDeletedAt,
-		})
-		v.DeletedAt = &value
 	}
 	return v, _spec
 }

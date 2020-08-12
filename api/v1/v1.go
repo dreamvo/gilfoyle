@@ -4,17 +4,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type JSONResult struct {
-	Message string      `json:"message"`
-	Data    interface{} `json:"data"`
+type JSONResponse struct {
+	Success bool        `json:"success"`
+	Message string      `json:"message,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
-func Router(r *gin.Engine) *gin.RouterGroup {
+func RegisterRoutes(r *gin.Engine) *gin.RouterGroup {
 	v1 := r.Group("/v1")
 	{
 		videos := v1.Group("/videos")
 		{
 			videos.GET("", getVideos)
+			videos.GET(":id", getVideo)
+			videos.DELETE(":id", deleteVideo)
+			videos.POST("", createVideo)
 		}
 	}
 

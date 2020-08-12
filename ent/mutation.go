@@ -37,7 +37,6 @@ type VideoMutation struct {
 	status        *video.Status
 	created_at    *time.Time
 	updated_at    *time.Time
-	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Video, error)
@@ -307,56 +306,6 @@ func (m *VideoMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// SetDeletedAt sets the deleted_at field.
-func (m *VideoMutation) SetDeletedAt(t time.Time) {
-	m.deleted_at = &t
-}
-
-// DeletedAt returns the deleted_at value in the mutation.
-func (m *VideoMutation) DeletedAt() (r time.Time, exists bool) {
-	v := m.deleted_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldDeletedAt returns the old deleted_at value of the Video.
-// If the Video object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *VideoMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldDeletedAt is allowed only on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldDeletedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
-	}
-	return oldValue.DeletedAt, nil
-}
-
-// ClearDeletedAt clears the value of deleted_at.
-func (m *VideoMutation) ClearDeletedAt() {
-	m.deleted_at = nil
-	m.clearedFields[video.FieldDeletedAt] = struct{}{}
-}
-
-// DeletedAtCleared returns if the field deleted_at was cleared in this mutation.
-func (m *VideoMutation) DeletedAtCleared() bool {
-	_, ok := m.clearedFields[video.FieldDeletedAt]
-	return ok
-}
-
-// ResetDeletedAt reset all changes of the "deleted_at" field.
-func (m *VideoMutation) ResetDeletedAt() {
-	m.deleted_at = nil
-	delete(m.clearedFields, video.FieldDeletedAt)
-}
-
 // Op returns the operation name.
 func (m *VideoMutation) Op() Op {
 	return m.op
@@ -371,7 +320,7 @@ func (m *VideoMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *VideoMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 5)
 	if m.uuid != nil {
 		fields = append(fields, video.FieldUUID)
 	}
@@ -386,9 +335,6 @@ func (m *VideoMutation) Fields() []string {
 	}
 	if m.updated_at != nil {
 		fields = append(fields, video.FieldUpdatedAt)
-	}
-	if m.deleted_at != nil {
-		fields = append(fields, video.FieldDeletedAt)
 	}
 	return fields
 }
@@ -408,8 +354,6 @@ func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case video.FieldUpdatedAt:
 		return m.UpdatedAt()
-	case video.FieldDeletedAt:
-		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -429,8 +373,6 @@ func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldCreatedAt(ctx)
 	case video.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
-	case video.FieldDeletedAt:
-		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Video field %s", name)
 }
@@ -475,13 +417,6 @@ func (m *VideoMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
-	case video.FieldDeletedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetDeletedAt(v)
-		return nil
 	}
 	return fmt.Errorf("unknown Video field %s", name)
 }
@@ -511,11 +446,7 @@ func (m *VideoMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared
 // during this mutation.
 func (m *VideoMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(video.FieldDeletedAt) {
-		fields = append(fields, video.FieldDeletedAt)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicates if this field was
@@ -528,11 +459,6 @@ func (m *VideoMutation) FieldCleared(name string) bool {
 // ClearField clears the value for the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *VideoMutation) ClearField(name string) error {
-	switch name {
-	case video.FieldDeletedAt:
-		m.ClearDeletedAt()
-		return nil
-	}
 	return fmt.Errorf("unknown Video nullable field %s", name)
 }
 
@@ -555,9 +481,6 @@ func (m *VideoMutation) ResetField(name string) error {
 		return nil
 	case video.FieldUpdatedAt:
 		m.ResetUpdatedAt()
-		return nil
-	case video.FieldDeletedAt:
-		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Video field %s", name)

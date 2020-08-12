@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"time"
+
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/ent/video"
 )
@@ -13,8 +15,49 @@ import (
 func init() {
 	videoFields := schema.Video{}.Fields()
 	_ = videoFields
+	// videoDescUUID is the schema descriptor for uuid field.
+	videoDescUUID := videoFields[0].Descriptor()
+	// video.UUIDValidator is a validator for the "uuid" field. It is called by the builders before save.
+	video.UUIDValidator = func() func(string) error {
+		validators := videoDescUUID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(uuid string) error {
+			for _, fn := range fns {
+				if err := fn(uuid); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// videoDescTitle is the schema descriptor for title field.
 	videoDescTitle := videoFields[1].Descriptor()
 	// video.TitleValidator is a validator for the "title" field. It is called by the builders before save.
-	video.TitleValidator = videoDescTitle.Validators[0].(func(string) error)
+	video.TitleValidator = func() func(string) error {
+		validators := videoDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+			validators[2].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// videoDescCreatedAt is the schema descriptor for created_at field.
+	videoDescCreatedAt := videoFields[3].Descriptor()
+	// video.DefaultCreatedAt holds the default value on creation for the created_at field.
+	video.DefaultCreatedAt = videoDescCreatedAt.Default.(func() time.Time)
+	// videoDescUpdatedAt is the schema descriptor for updated_at field.
+	videoDescUpdatedAt := videoFields[4].Descriptor()
+	// video.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	video.DefaultUpdatedAt = videoDescUpdatedAt.Default.(func() time.Time)
 }

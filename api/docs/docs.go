@@ -33,7 +33,13 @@ var doc = `{
                 "description": "get string by ID",
                 "summary": "Check service status",
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
                 }
             }
         },
@@ -46,6 +52,9 @@ var doc = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "Videos"
+                ],
                 "summary": "Query videos",
                 "responses": {
                     "200": {
@@ -53,7 +62,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/v1.JSONResult"
+                                    "$ref": "#/definitions/v1.JSONResponse"
                                 },
                                 {
                                     "type": "object",
@@ -72,7 +81,148 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResult"
+                            "$ref": "#/definitions/v1.JSONResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a video",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Create a video",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.JSONResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/ent.Video"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/videos/{id}": {
+            "get": {
+                "description": "get one video",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Get a video",
+                "parameters": [
+                    {
+                        "maxLength": 36,
+                        "minLength": 36,
+                        "type": "string",
+                        "description": "Video ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.JSONResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/ent.Video"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete one video",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Videos"
+                ],
+                "summary": "Delete a video",
+                "parameters": [
+                    {
+                        "maxLength": 36,
+                        "minLength": 36,
+                        "type": "string",
+                        "description": "Video ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResponse"
                         }
                     }
                 }
@@ -84,9 +234,6 @@ var doc = `{
             "type": "object",
             "properties": {
                 "created_at": {
-                    "type": "string"
-                },
-                "deleted_at": {
                     "type": "string"
                 },
                 "id": {
@@ -106,7 +253,7 @@ var doc = `{
                 }
             }
         },
-        "v1.JSONResult": {
+        "v1.JSONResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -114,6 +261,9 @@ var doc = `{
                 },
                 "message": {
                     "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
                 }
             }
         }

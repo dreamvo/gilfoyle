@@ -26,8 +26,6 @@ type Video struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
-	// DeletedAt holds the value of the "deleted_at" field.
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -39,7 +37,6 @@ func (*Video) scanValues() []interface{} {
 		&sql.NullString{}, // status
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
-		&sql.NullTime{},   // deleted_at
 	}
 }
 
@@ -80,12 +77,6 @@ func (v *Video) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		v.UpdatedAt = value.Time
 	}
-	if value, ok := values[5].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field deleted_at", values[5])
-	} else if value.Valid {
-		v.DeletedAt = new(time.Time)
-		*v.DeletedAt = value.Time
-	}
 	return nil
 }
 
@@ -122,10 +113,6 @@ func (v *Video) String() string {
 	builder.WriteString(v.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")
 	builder.WriteString(v.UpdatedAt.Format(time.ANSIC))
-	if v := v.DeletedAt; v != nil {
-		builder.WriteString(", deleted_at=")
-		builder.WriteString(v.Format(time.ANSIC))
-	}
 	builder.WriteByte(')')
 	return builder.String()
 }

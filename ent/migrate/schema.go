@@ -8,26 +8,32 @@ import (
 )
 
 var (
-	// VideosColumns holds the columns for the "videos" table.
-	VideosColumns = []*schema.Column{
+	// VideoColumns holds the columns for the "video" table.
+	VideoColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "uuid", Type: field.TypeString, Unique: true},
-		{Name: "title", Type: field.TypeString},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"created", "ready"}},
+		{Name: "uuid", Type: field.TypeString, Unique: true, Size: 36},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"processing", "ready"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
-	// VideosTable holds the schema information for the "videos" table.
-	VideosTable = &schema.Table{
-		Name:        "videos",
-		Columns:     VideosColumns,
-		PrimaryKey:  []*schema.Column{VideosColumns[0]},
+	// VideoTable holds the schema information for the "video" table.
+	VideoTable = &schema.Table{
+		Name:        "video",
+		Columns:     VideoColumns,
+		PrimaryKey:  []*schema.Column{VideoColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
+		Indexes: []*schema.Index{
+			{
+				Name:    "video_uuid",
+				Unique:  true,
+				Columns: []*schema.Column{VideoColumns[1]},
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		VideosTable,
+		VideoTable,
 	}
 )
 

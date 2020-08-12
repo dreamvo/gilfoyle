@@ -4,6 +4,7 @@ package video
 
 import (
 	"fmt"
+	"time"
 )
 
 const (
@@ -21,11 +22,9 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
-	FieldDeletedAt = "deleted_at"
 
 	// Table holds the table name of the video in the database.
-	Table = "videos"
+	Table = "video"
 )
 
 // Columns holds all SQL columns for video fields.
@@ -36,12 +35,17 @@ var Columns = []string{
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
-	FieldDeletedAt,
 }
 
 var (
+	// UUIDValidator is a validator for the "uuid" field. It is called by the builders before save.
+	UUIDValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// DefaultCreatedAt holds the default value on creation for the created_at field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	DefaultUpdatedAt func() time.Time
 )
 
 // Status defines the type for the status enum field.
@@ -49,8 +53,8 @@ type Status string
 
 // Status values.
 const (
-	StatusCreated Status = "created"
-	StatusReady   Status = "ready"
+	StatusProcessing Status = "processing"
+	StatusReady      Status = "ready"
 )
 
 func (s Status) String() string {
@@ -60,7 +64,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusCreated, StatusReady:
+	case StatusProcessing, StatusReady:
 		return nil
 	default:
 		return fmt.Errorf("video: invalid enum value for status field: %q", s)

@@ -3,8 +3,6 @@ definitions:
     properties:
       created_at:
         type: string
-      deleted_at:
-        type: string
       id:
         type: integer
       status:
@@ -16,12 +14,14 @@ definitions:
       uuid:
         type: string
     type: object
-  v1.JSONResult:
+  v1.JSONResponse:
     properties:
       data:
         type: object
       message:
         type: string
+      success:
+        type: boolean
     type: object
 info:
   contact: {}
@@ -33,7 +33,11 @@ paths:
     get:
       description: get string by ID
       responses:
-        "200": {}
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
       summary: Check service status
   /v1/videos:
     get:
@@ -47,7 +51,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/v1.JSONResult'
+            - $ref: '#/definitions/v1.JSONResponse'
             - properties:
                 data:
                   items:
@@ -57,6 +61,97 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.JSONResult'
+            $ref: '#/definitions/v1.JSONResponse'
       summary: Query videos
+      tags:
+      - Videos
+    post:
+      consumes:
+      - application/json
+      description: Create a video
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.JSONResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/ent.Video'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.JSONResponse'
+      summary: Create a video
+      tags:
+      - Videos
+  /v1/videos/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete one video
+      parameters:
+      - description: Video ID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.JSONResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.JSONResponse'
+      summary: Delete a video
+      tags:
+      - Videos
+    get:
+      consumes:
+      - application/json
+      description: get one video
+      parameters:
+      - description: Video ID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.JSONResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/ent.Video'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.JSONResponse'
+      summary: Get a video
+      tags:
+      - Videos
 swagger: "2.0"
