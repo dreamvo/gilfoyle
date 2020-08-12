@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+  gilfoyle:
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+      - "serve -p 3000"
+    ports:
+      - 3000:3000
+
+  db:
+    image: postgres:latest
+    restart: on-failure
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: gilfoyle
+      POSTGRES_PASSWORD: secret
+
+  adminer:
+    image: adminer:latest
+    restart: on-failure
+    ports:
+      - 8080:8080

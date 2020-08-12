@@ -41,8 +41,9 @@ func NewConfig() *Config {
 
 	// set default values
 	c.Services.DB.Dialect = "postgres"
+	c.Services.DB.Database = "gilfoyle"
 	c.Services.DB.Host = "localhost"
-	c.Services.DB.Port = "3486"
+	c.Services.DB.Port = "5432"
 	c.Services.DB.User = "postgres"
 	c.Services.DB.Password = "secret"
 
