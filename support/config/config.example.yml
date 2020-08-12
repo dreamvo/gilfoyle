@@ -1,0 +1,14 @@
+services:
+  db:
+    host: localhost
+    port: 3692
+    user: root
+    password: root
+  redis:
+    host: localhost
+    port: 3482
+    password: ''
+  ipfs:
+    gateway: gateway.ipfs.io
+settings:
+  maxFileSize: 50mb
