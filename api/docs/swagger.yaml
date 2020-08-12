@@ -1,0 +1,62 @@
+definitions:
+  ent.Video:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: integer
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      uuid:
+        type: string
+    type: object
+  v1.JSONResult:
+    properties:
+      data:
+        type: object
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+  license:
+    name: GNU General Public License v3.0
+    url: https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
+paths:
+  /healthcheck:
+    get:
+      description: get string by ID
+      responses:
+        "200": {}
+      summary: Check service status
+  /v1/videos:
+    get:
+      consumes:
+      - application/json
+      description: get latest videos
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.JSONResult'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/ent.Video'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.JSONResult'
+      summary: Query videos
+swagger: "2.0"

@@ -1,0 +1,101 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {},
+        "license": {
+            "name": "GNU General Public License v3.0",
+            "url": "https://github.com/dreamvo/gilfoyle/blob/master/LICENSE"
+        }
+    },
+    "paths": {
+        "/healthcheck": {
+            "get": {
+                "description": "get string by ID",
+                "summary": "Check service status",
+                "responses": {
+                    "200": {}
+                }
+            }
+        },
+        "/v1/videos": {
+            "get": {
+                "description": "get latest videos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Query videos",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.JSONResult"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/ent.Video"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/v1.JSONResult"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "ent.Video": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.JSONResult": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
