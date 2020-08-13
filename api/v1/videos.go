@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
-	"strconv"
 )
 
 var (
@@ -43,25 +42,14 @@ func (b createVideoBody) Validation() error {
 // @Param limit query int false "Max number of results" minimum(1) maximum(100)
 // @Param offset query int false "Number of results to ignore" minimum(0)
 func getVideos(ctx *gin.Context) {
-	limit := ctx.Query("limit")
-	limitInt, err := strconv.ParseInt(limit, 10, 64)
-
-	if err != nil || limitInt > 100 {
-		limitInt = 50
-	}
-
-	offset := ctx.Query("offset")
-	offsetInt, err := strconv.ParseInt(offset, 10, 64)
-
-	if err != nil {
-		offsetInt = 0
-	}
+	limit := ctx.GetInt("limit")
+	offset := ctx.GetInt("offset")
 
 	videos, err := db.Client.Video.
 		Query().
 		Order(ent.Desc(video.FieldCreatedAt)).
-		Limit(int(limitInt)).
-		Offset(int(offsetInt)).
+		Limit(limit).
+		Offset(offset).
 		All(context.Background())
 	if err != nil {
 		httputils.NewError(ctx, http.StatusInternalServerError, err)
