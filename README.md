@@ -1,5 +1,20 @@
 # gilfoyle
 
+<div align="left">
+  <a href="https://godoc.org/github.com/dreamvo/gilfoyle">
+    <img src="https://godoc.org/github.com/dreamvo/gilfoyle?status.svg" alt="GoDoc">
+  </a>
+  <a href="https://github.com/dreamvo/gilfoyle/actions">
+    <img src="https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master" alt="build status" />
+  </a>
+  <a href="https://goreportcard.com/report/github.com/dreamvo/gilfoyle">
+    <img src="https://goreportcard.com/badge/github.com/dreamvo/gilfoyle" alt="go report" />
+  </a>
+  <a href="https://github.com/dreamvo/gilfoyle/releases">
+    <img src="https://img.shields.io/github/release/dreamvo/gilfoyle.svg" alt="Latest version" />
+  </a>
+</div>
+
 Gilfoyle is a web application from the Dreamvo project that runs a self-hosted video streaming server. This application allows you to setup a production-ready video hosting & live streaming platform in minutes. Gilfoyle handles video upload, processing and streaming.
 
 It's written in Golang and runs as a single Linux binary with PostgreSQL and Redis.
