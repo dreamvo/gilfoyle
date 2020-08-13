@@ -1,8 +1,15 @@
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"github.com/dreamvo/gilfoyle/api"
+	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/ent/migrate"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"log"
 )
 
 var httpPort int
@@ -17,8 +24,28 @@ func init() {
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "Serve REST API",
+	Short: "RegisterRoutes REST API",
 	Run: func(cmd *cobra.Command, args []string) {
-		api.Serve(httpPort)
+		err := db.InitClient(config.NewConfig())
+		if err != nil {
+			log.Fatalf("failed opening connection: %v", err)
+		}
+		defer db.Client.Close()
+
+		// run the auto migration tool.
+		if err := db.Client.Schema.Create(
+			context.Background(),
+			migrate.WithDropIndex(true),
+			migrate.WithDropColumn(true),
+		); err != nil {
+			log.Fatalf("failed creating schema resources: %v", err)
+		}
+
+		r := gin.Default()
+
+		api.RegisterRoutes(r, httpPort)
+
+		// launch web server
+		_ = r.Run(fmt.Sprintf(":%d", httpPort))
 	},
 }

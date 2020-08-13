@@ -5,6 +5,8 @@ package video
 import (
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -12,8 +14,6 @@ const (
 	Label = "video"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldUUID holds the string denoting the uuid field in the database.
-	FieldUUID = "uuid"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -30,7 +30,6 @@ const (
 // Columns holds all SQL columns for video fields.
 var Columns = []string{
 	FieldID,
-	FieldUUID,
 	FieldTitle,
 	FieldStatus,
 	FieldCreatedAt,
@@ -38,14 +37,14 @@ var Columns = []string{
 }
 
 var (
-	// UUIDValidator is a validator for the "uuid" field. It is called by the builders before save.
-	UUIDValidator func(string) error
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	DefaultUpdatedAt func() time.Time
+	// DefaultID holds the default value on creation for the id field.
+	DefaultID func() uuid.UUID
 )
 
 // Status defines the type for the status enum field.

@@ -10,8 +10,7 @@ import (
 var (
 	// VideoColumns holds the columns for the "video" table.
 	VideoColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "uuid", Type: field.TypeString, Unique: true, Size: 36},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"processing", "ready"}},
 		{Name: "created_at", Type: field.TypeTime},
@@ -23,13 +22,6 @@ var (
 		Columns:     VideoColumns,
 		PrimaryKey:  []*schema.Column{VideoColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
-		Indexes: []*schema.Index{
-			{
-				Name:    "video_uuid",
-				Unique:  true,
-				Columns: []*schema.Column{VideoColumns[1]},
-			},
-		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{

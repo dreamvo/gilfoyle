@@ -11,6 +11,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/video"
 	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
 	"github.com/facebookincubator/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoCreate is the builder for creating a Video entity.
@@ -18,12 +19,6 @@ type VideoCreate struct {
 	config
 	mutation *VideoMutation
 	hooks    []Hook
-}
-
-// SetUUID sets the uuid field.
-func (vc *VideoCreate) SetUUID(s string) *VideoCreate {
-	vc.mutation.SetUUID(s)
-	return vc
 }
 
 // SetTitle sets the title field.
@@ -63,6 +58,12 @@ func (vc *VideoCreate) SetNillableUpdatedAt(t *time.Time) *VideoCreate {
 	if t != nil {
 		vc.SetUpdatedAt(*t)
 	}
+	return vc
+}
+
+// SetID sets the id field.
+func (vc *VideoCreate) SetID(u uuid.UUID) *VideoCreate {
+	vc.mutation.SetID(u)
 	return vc
 }
 
@@ -113,14 +114,6 @@ func (vc *VideoCreate) SaveX(ctx context.Context) *Video {
 }
 
 func (vc *VideoCreate) preSave() error {
-	if _, ok := vc.mutation.UUID(); !ok {
-		return &ValidationError{Name: "uuid", err: errors.New("ent: missing required field \"uuid\"")}
-	}
-	if v, ok := vc.mutation.UUID(); ok {
-		if err := video.UUIDValidator(v); err != nil {
-			return &ValidationError{Name: "uuid", err: fmt.Errorf("ent: validator failed for field \"uuid\": %w", err)}
-		}
-	}
 	if _, ok := vc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New("ent: missing required field \"title\"")}
 	}
@@ -145,6 +138,10 @@ func (vc *VideoCreate) preSave() error {
 		v := video.DefaultUpdatedAt()
 		vc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := vc.mutation.ID(); !ok {
+		v := video.DefaultID()
+		vc.mutation.SetID(v)
+	}
 	return nil
 }
 
@@ -156,8 +153,6 @@ func (vc *VideoCreate) sqlSave(ctx context.Context) (*Video, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	v.ID = int(id)
 	return v, nil
 }
 
@@ -167,18 +162,14 @@ func (vc *VideoCreate) createSpec() (*Video, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: video.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: video.FieldID,
 			},
 		}
 	)
-	if value, ok := vc.mutation.UUID(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: video.FieldUUID,
-		})
-		v.UUID = value
+	if id, ok := vc.mutation.ID(); ok {
+		v.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := vc.mutation.Title(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -254,8 +245,6 @@ func (vcb *VideoCreateBulk) Save(ctx context.Context) ([]*Video, error) {
 				if err != nil {
 					return nil, err
 				}
-				id := specs[i].ID.Value.(int64)
-				nodes[i].ID = int(id)
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {

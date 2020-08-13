@@ -2,36 +2,20 @@
 package api
 
 import (
-	"context"
 	"fmt"
-	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/api/v1"
-	"github.com/dreamvo/gilfoyle/config"
-	"github.com/dreamvo/gilfoyle/ent/migrate"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
-	"log"
 )
 
 // @license.name GNU General Public License v3.0
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
-// Serve runs a REST API web server
-func Serve(port int) {
-	client, err := db.NewClient(config.NewConfig())
-	if err != nil {
-		log.Fatalf("failed opening connection to sqlite: %v", err)
-	}
-	defer client.Close()
-
-	// run the auto migration tool.
-	if err := client.Schema.Create(context.Background(), migrate.WithGlobalUniqueID(true)); err != nil {
-		log.Fatalf("failed creating schema resources: %v", err)
-	}
-
+// RegisterRoutes runs a REST API web server
+func RegisterRoutes(r *gin.Engine, port int) *gin.Engine {
 	docs.SwaggerInfo.Title = "Gilfoyle server"
 	docs.SwaggerInfo.Description = " Video streaming server backed by decentralized filesystem."
 	docs.SwaggerInfo.Version = "0.1"
@@ -39,25 +23,20 @@ func Serve(port int) {
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Schemes = []string{"http", "https"}
 
-	r := gin.Default()
-
-	r.GET("/healthcheck", healthcheckHandler)
+	r.GET("/health", healthcheckHandler)
 
 	v1.RegisterRoutes(r)
 
 	// register swagger docs handler
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// launch web server
-	_ = r.Run(fmt.Sprintf(":%d", port))
+	return r
 }
 
+// @Tags health
 // @Summary Check service status
-// @Description get string by ID
-// @Success 200 {object} map[string]interface{}
-// @Router /healthcheck [get]
+// @Success 200
+// @Router /health [get]
 func healthcheckHandler(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{
-		"success": true,
-	})
+	ctx.AbortWithStatus(200)
 }

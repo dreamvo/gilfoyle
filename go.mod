@@ -11,7 +11,9 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.3 // indirect
+	github.com/mattn/go-sqlite3 v1.14.0
 	github.com/spf13/cobra v1.0.0
+	github.com/stretchr/testify v1.6.1
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7

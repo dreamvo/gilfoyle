@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/video"
+	"github.com/google/uuid"
 
 	"github.com/facebookincubator/ent"
 )
@@ -31,8 +32,7 @@ type VideoMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
-	uuid          *string
+	id            *uuid.UUID
 	title         *string
 	status        *video.Status
 	created_at    *time.Time
@@ -62,7 +62,7 @@ func newVideoMutation(c config, op Op, opts ...videoOption) *VideoMutation {
 }
 
 // withVideoID sets the id field of the mutation.
-func withVideoID(id int) videoOption {
+func withVideoID(id uuid.UUID) videoOption {
 	return func(m *VideoMutation) {
 		var (
 			err   error
@@ -112,50 +112,19 @@ func (m VideoMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that, this
+// operation is accepted only on Video creation.
+func (m *VideoMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the id value in the mutation. Note that, the id
 // is available only if it was provided to the builder.
-func (m *VideoMutation) ID() (id int, exists bool) {
+func (m *VideoMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
 	return *m.id, true
-}
-
-// SetUUID sets the uuid field.
-func (m *VideoMutation) SetUUID(s string) {
-	m.uuid = &s
-}
-
-// UUID returns the uuid value in the mutation.
-func (m *VideoMutation) UUID() (r string, exists bool) {
-	v := m.uuid
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUUID returns the old uuid value of the Video.
-// If the Video object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *VideoMutation) OldUUID(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldUUID is allowed only on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldUUID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
-	}
-	return oldValue.UUID, nil
-}
-
-// ResetUUID reset all changes of the "uuid" field.
-func (m *VideoMutation) ResetUUID() {
-	m.uuid = nil
 }
 
 // SetTitle sets the title field.
@@ -320,10 +289,7 @@ func (m *VideoMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *VideoMutation) Fields() []string {
-	fields := make([]string, 0, 5)
-	if m.uuid != nil {
-		fields = append(fields, video.FieldUUID)
-	}
+	fields := make([]string, 0, 4)
 	if m.title != nil {
 		fields = append(fields, video.FieldTitle)
 	}
@@ -344,8 +310,6 @@ func (m *VideoMutation) Fields() []string {
 // not set, or was not define in the schema.
 func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case video.FieldUUID:
-		return m.UUID()
 	case video.FieldTitle:
 		return m.Title()
 	case video.FieldStatus:
@@ -363,8 +327,6 @@ func (m *VideoMutation) Field(name string) (ent.Value, bool) {
 // or the query to the database was failed.
 func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case video.FieldUUID:
-		return m.OldUUID(ctx)
 	case video.FieldTitle:
 		return m.OldTitle(ctx)
 	case video.FieldStatus:
@@ -382,13 +344,6 @@ func (m *VideoMutation) OldField(ctx context.Context, name string) (ent.Value, e
 // type mismatch the field type.
 func (m *VideoMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case video.FieldUUID:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUUID(v)
-		return nil
 	case video.FieldTitle:
 		v, ok := value.(string)
 		if !ok {
@@ -467,9 +422,6 @@ func (m *VideoMutation) ClearField(name string) error {
 // defined in the schema.
 func (m *VideoMutation) ResetField(name string) error {
 	switch name {
-	case video.FieldUUID:
-		m.ResetUUID()
-		return nil
 	case video.FieldTitle:
 		m.ResetTitle()
 		return nil

@@ -4,6 +4,7 @@ import (
 	"github.com/facebookincubator/ent"
 	"github.com/facebookincubator/ent/schema/field"
 	"github.com/facebookincubator/ent/schema/index"
+	"github.com/google/uuid"
 	"time"
 )
 
@@ -24,10 +25,9 @@ func (Video) Config() ent.Config {
 	}
 }
 
-func (Video) Indexes() []ent.Index {
+func (Video) Index() []ent.Index {
 	return []ent.Index{
-		// unique index.
-		index.Fields("uuid").
+		index.Fields("id").
 			Unique(),
 	}
 }
@@ -35,7 +35,9 @@ func (Video) Indexes() []ent.Index {
 // Fields of the Video.
 func (Video) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("uuid").Unique().MinLen(36).MaxLen(36),
+		field.UUID("id", uuid.UUID{}).Unique().Default(func() uuid.UUID {
+			return uuid.New()
+		}),
 		field.String("title").NotEmpty().MinLen(1).MaxLen(255),
 		field.Enum("status").Values(VideoStatusProcessing, VideoStatusReady),
 		field.Time("created_at").Default(func() time.Time {

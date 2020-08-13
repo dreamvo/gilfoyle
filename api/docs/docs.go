@@ -28,41 +28,48 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/healthcheck": {
+        "/health": {
             "get": {
-                "description": "get string by ID",
+                "tags": [
+                    "health"
+                ],
                 "summary": "Check service status",
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
+                    "200": {}
                 }
             }
         },
         "/v1/videos": {
             "get": {
                 "description": "get latest videos",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Videos"
+                    "videos"
                 ],
                 "summary": "Query videos",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Max number of results",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of results to ignore",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/v1.JSONResponse"
+                                    "$ref": "#/definitions/httputils.HTTPResponse"
                                 },
                                 {
                                     "type": "object",
@@ -81,7 +88,7 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPError"
                         }
                     }
                 }
@@ -95,16 +102,29 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Videos"
+                    "videos"
                 ],
                 "summary": "Create a video",
+                "parameters": [
+                    {
+                        "maxLength": 255,
+                        "minLength": 1,
+                        "description": "Video title",
+                        "name": "title",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/v1.JSONResponse"
+                                    "$ref": "#/definitions/httputils.HTTPResponse"
                                 },
                                 {
                                     "type": "object",
@@ -120,7 +140,7 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPError"
                         }
                     }
                 }
@@ -129,14 +149,11 @@ var doc = `{
         "/v1/videos/{id}": {
             "get": {
                 "description": "get one video",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Videos"
+                    "videos"
                 ],
                 "summary": "Get a video",
                 "parameters": [
@@ -156,7 +173,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/v1.JSONResponse"
+                                    "$ref": "#/definitions/httputils.HTTPResponse"
                                 },
                                 {
                                     "type": "object",
@@ -172,27 +189,24 @@ var doc = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPError"
                         }
                     }
                 }
             },
             "delete": {
                 "description": "Delete one video",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Videos"
+                    "videos"
                 ],
                 "summary": "Delete a video",
                 "parameters": [
@@ -210,19 +224,19 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/v1.JSONResponse"
+                            "$ref": "#/definitions/httputils.HTTPError"
                         }
                     }
                 }
@@ -237,7 +251,7 @@ var doc = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "status": {
                     "type": "string"
@@ -247,23 +261,31 @@ var doc = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "uuid": {
-                    "type": "string"
                 }
             }
         },
-        "v1.JSONResponse": {
+        "httputils.HTTPError": {
             "type": "object",
             "properties": {
-                "data": {
-                    "type": "object"
+                "code": {
+                    "type": "integer",
+                    "example": 400
                 },
                 "message": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        },
+        "httputils.HTTPResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
                 },
-                "success": {
-                    "type": "boolean"
+                "data": {
+                    "type": "object"
                 }
             }
         }

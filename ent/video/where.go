@@ -7,31 +7,32 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their identifier.
-func ID(id int) predicate.Video {
+func ID(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Video {
+func IDEQ(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Video {
+func IDNEQ(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldID), id))
 	})
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Video {
+func IDIn(ids ...uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
@@ -48,7 +49,7 @@ func IDIn(ids ...int) predicate.Video {
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Video {
+func IDNotIn(ids ...uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
@@ -65,37 +66,30 @@ func IDNotIn(ids ...int) predicate.Video {
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Video {
+func IDGT(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldID), id))
 	})
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Video {
+func IDGTE(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldID), id))
 	})
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Video {
+func IDLT(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldID), id))
 	})
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Video {
+func IDLTE(id uuid.UUID) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldID), id))
-	})
-}
-
-// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
-func UUID(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUUID), v))
 	})
 }
 
@@ -117,117 +111,6 @@ func CreatedAt(v time.Time) predicate.Video {
 func UpdatedAt(v time.Time) predicate.Video {
 	return predicate.Video(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
-}
-
-// UUIDEQ applies the EQ predicate on the "uuid" field.
-func UUIDEQ(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDNEQ applies the NEQ predicate on the "uuid" field.
-func UUIDNEQ(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDIn applies the In predicate on the "uuid" field.
-func UUIDIn(vs ...string) predicate.Video {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Video(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldUUID), v...))
-	})
-}
-
-// UUIDNotIn applies the NotIn predicate on the "uuid" field.
-func UUIDNotIn(vs ...string) predicate.Video {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Video(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldUUID), v...))
-	})
-}
-
-// UUIDGT applies the GT predicate on the "uuid" field.
-func UUIDGT(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDGTE applies the GTE predicate on the "uuid" field.
-func UUIDGTE(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDLT applies the LT predicate on the "uuid" field.
-func UUIDLT(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDLTE applies the LTE predicate on the "uuid" field.
-func UUIDLTE(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDContains applies the Contains predicate on the "uuid" field.
-func UUIDContains(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDHasPrefix applies the HasPrefix predicate on the "uuid" field.
-func UUIDHasPrefix(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDHasSuffix applies the HasSuffix predicate on the "uuid" field.
-func UUIDHasSuffix(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDEqualFold applies the EqualFold predicate on the "uuid" field.
-func UUIDEqualFold(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldUUID), v))
-	})
-}
-
-// UUIDContainsFold applies the ContainsFold predicate on the "uuid" field.
-func UUIDContainsFold(v string) predicate.Video {
-	return predicate.Video(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldUUID), v))
 	})
 }
 

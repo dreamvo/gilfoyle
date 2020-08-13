@@ -2,87 +2,159 @@ package v1
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/schema"
+	"github.com/dreamvo/gilfoyle/ent/video"
+	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"net/http"
+	"strconv"
 )
 
-// @Tags Videos
+var (
+	ErrVideoTitleShort = errors.New("title is too short")
+)
+
+type createVideoBody struct {
+	Title string `json:"title"`
+}
+
+func (b createVideoBody) Validation() error {
+	switch {
+	case len(b.Title) == 0:
+		return ErrVideoTitleShort
+	default:
+		return nil
+	}
+}
+
+// @Tags videos
 // @Summary Query videos
 // @Description get latest videos
-// @Accept  json
 // @Produce  json
-// @Success 200 {object} JSONResponse{data=[]ent.Video}
-// @Failure 500 {object} JSONResponse
+// @Success 200 {object} httputils.HTTPResponse{data=[]ent.Video}
+// @Failure 500 {object} httputils.HTTPError
 // @Router /v1/videos [get]
+// @Param limit query int false "Max number of results" minimum(1) maximum(100)
+// @Param offset query int false "Number of results to ignore" minimum(0)
 func getVideos(ctx *gin.Context) {
-	ctx.JSON(200, JSONResponse{
-		Success: true,
-		Data:    []ent.Video{},
-	})
+	limit := ctx.Query("limit")
+	limitInt, err := strconv.ParseInt(limit, 10, 64)
+
+	if err != nil || limitInt > 100 {
+		limitInt = 50
+	}
+
+	offset := ctx.Query("offset")
+	offsetInt, err := strconv.ParseInt(offset, 10, 64)
+
+	if err != nil {
+		offsetInt = 0
+	}
+
+	videos, err := db.Client.Video.
+		Query().
+		Order(ent.Desc(video.FieldCreatedAt)).
+		Limit(int(limitInt)).
+		Offset(int(offsetInt)).
+		All(context.Background())
+	if err != nil {
+		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	httputils.NewResponse(ctx, http.StatusOK, videos)
 }
 
-// @Tags Videos
+// @Tags videos
 // @Summary Get a video
 // @Description get one video
-// @Accept  json
 // @Produce  json
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
-// @Success 200 {object} JSONResponse{data=ent.Video}
-// @Failure 404 {object} JSONResponse
-// @Failure 500 {object} JSONResponse
+// @Success 200 {object} httputils.HTTPResponse{data=ent.Video}
+// @Failure 404 {object} httputils.HTTPError
+// @Failure 500 {object} httputils.HTTPError
 // @Router /v1/videos/{id} [get]
 func getVideo(ctx *gin.Context) {
-	ctx.JSON(200, JSONResponse{
-		Success: true,
-		Data:    new(ent.Video),
-	})
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf("invalid UUID provided"))
+		return
+	}
+
+	v, err := db.Client.Video.Get(context.Background(), parsedUUID)
+	if err != nil {
+		httputils.NewError(ctx, http.StatusNotFound, err)
+		return
+	}
+
+	httputils.NewResponse(ctx, http.StatusOK, v)
+	return
 }
 
-// @Tags Videos
+// @Tags videos
 // @Summary Delete a video
 // @Description Delete one video
-// @Accept  json
 // @Produce  json
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
-// @Success 200 {object} JSONResponse
-// @Failure 404 {object} JSONResponse
-// @Failure 500 {object} JSONResponse
+// @Success 200 {object} httputils.HTTPResponse
+// @Failure 404 {object} httputils.HTTPError
+// @Failure 500 {object} httputils.HTTPError
 // @Router /v1/videos/{id} [delete]
 func deleteVideo(ctx *gin.Context) {
-	ctx.JSON(200, JSONResponse{
-		Success: true,
-	})
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf("invalid UUID provided"))
+		return
+	}
+
+	err = db.Client.Video.DeleteOneID(parsedUUID).Exec(context.Background())
+	if err != nil {
+		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	httputils.NewResponse(ctx, http.StatusOK, nil)
 }
 
-// @Tags Videos
+// @Tags videos
 // @Summary Create a video
 // @Description Create a video
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} JSONResponse{data=ent.Video}
-// @Failure 500 {object} JSONResponse
+// @Success 200 {object} httputils.HTTPResponse{data=ent.Video}
+// @Failure 500 {object} httputils.HTTPError
 // @Router /v1/videos [post]
+// @Param title body string true "Video title" minlength(1) maxlength(255) validate(required)
 func createVideo(ctx *gin.Context) {
-	v, err := db.Client.Video.
-		Create().
-		SetUUID(uuid.New().String()).
-		SetTitle("test").
-		SetStatus(schema.VideoStatusProcessing).
-		Save(context.Background())
-	if err != nil {
-		ctx.JSON(500, JSONResponse{
-			Success: false,
-			Message: err.Error(),
-		})
+	var body createVideoBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if err := body.Validation(); err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	ctx.JSON(200, JSONResponse{
-		Success: true,
-		Data:    v,
-	})
+	v, err := db.Client.Video.
+		Create().
+		SetTitle(body.Title).
+		SetStatus(schema.VideoStatusProcessing).
+		Save(context.Background())
+	if err != nil {
+		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	httputils.NewResponse(ctx, http.StatusOK, v)
 }

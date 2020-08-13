@@ -28,12 +28,6 @@ func (vu *VideoUpdate) Where(ps ...predicate.Video) *VideoUpdate {
 	return vu
 }
 
-// SetUUID sets the uuid field.
-func (vu *VideoUpdate) SetUUID(s string) *VideoUpdate {
-	vu.mutation.SetUUID(s)
-	return vu
-}
-
 // SetTitle sets the title field.
 func (vu *VideoUpdate) SetTitle(s string) *VideoUpdate {
 	vu.mutation.SetTitle(s)
@@ -81,11 +75,6 @@ func (vu *VideoUpdate) Mutation() *VideoMutation {
 
 // Save executes the query and returns the number of rows/vertices matched by this operation.
 func (vu *VideoUpdate) Save(ctx context.Context) (int, error) {
-	if v, ok := vu.mutation.UUID(); ok {
-		if err := video.UUIDValidator(v); err != nil {
-			return 0, &ValidationError{Name: "uuid", err: fmt.Errorf("ent: validator failed for field \"uuid\": %w", err)}
-		}
-	}
 	if v, ok := vu.mutation.Title(); ok {
 		if err := video.TitleValidator(v); err != nil {
 			return 0, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
@@ -151,7 +140,7 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   video.Table,
 			Columns: video.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: video.FieldID,
 			},
 		},
@@ -162,13 +151,6 @@ func (vu *VideoUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := vu.mutation.UUID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: video.FieldUUID,
-		})
 	}
 	if value, ok := vu.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
@@ -214,12 +196,6 @@ type VideoUpdateOne struct {
 	config
 	hooks    []Hook
 	mutation *VideoMutation
-}
-
-// SetUUID sets the uuid field.
-func (vuo *VideoUpdateOne) SetUUID(s string) *VideoUpdateOne {
-	vuo.mutation.SetUUID(s)
-	return vuo
 }
 
 // SetTitle sets the title field.
@@ -269,11 +245,6 @@ func (vuo *VideoUpdateOne) Mutation() *VideoMutation {
 
 // Save executes the query and returns the updated entity.
 func (vuo *VideoUpdateOne) Save(ctx context.Context) (*Video, error) {
-	if v, ok := vuo.mutation.UUID(); ok {
-		if err := video.UUIDValidator(v); err != nil {
-			return nil, &ValidationError{Name: "uuid", err: fmt.Errorf("ent: validator failed for field \"uuid\": %w", err)}
-		}
-	}
 	if v, ok := vuo.mutation.Title(); ok {
 		if err := video.TitleValidator(v); err != nil {
 			return nil, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
@@ -339,7 +310,7 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (v *Video, err error) {
 			Table:   video.Table,
 			Columns: video.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: video.FieldID,
 			},
 		},
@@ -349,13 +320,6 @@ func (vuo *VideoUpdateOne) sqlSave(ctx context.Context) (v *Video, err error) {
 		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing Video.ID for update")}
 	}
 	_spec.Node.ID.Value = id
-	if value, ok := vuo.mutation.UUID(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: video.FieldUUID,
-		})
-	}
 	if value, ok := vuo.mutation.Title(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,

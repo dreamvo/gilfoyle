@@ -8,7 +8,8 @@ import (
 
 var Client *ent.Client
 
-func NewClient(config *config.Config) (*ent.Client, error) {
+// InitClient init the public Client variable
+func InitClient(config *config.Config) error {
 	datasource := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s",
 		config.Services.DB.Host,
@@ -18,7 +19,9 @@ func NewClient(config *config.Config) (*ent.Client, error) {
 		config.Services.DB.Password,
 	)
 
-	Client, err := ent.Open(config.Services.DB.Dialect, datasource)
+	c, err := ent.Open(config.Services.DB.Dialect, datasource)
 
-	return Client, err
+	Client = c
+
+	return err
 }

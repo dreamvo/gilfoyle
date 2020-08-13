@@ -4,24 +4,30 @@ definitions:
       created_at:
         type: string
       id:
-        type: integer
+        type: string
       status:
         type: string
       title:
         type: string
       updated_at:
         type: string
-      uuid:
+    type: object
+  httputils.HTTPError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
         type: string
     type: object
-  v1.JSONResponse:
+  httputils.HTTPResponse:
     properties:
+      code:
+        example: 200
+        type: integer
       data:
         type: object
-      message:
-        type: string
-      success:
-        type: boolean
     type: object
 info:
   contact: {}
@@ -29,21 +35,25 @@ info:
     name: GNU General Public License v3.0
     url: https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 paths:
-  /healthcheck:
+  /health:
     get:
-      description: get string by ID
       responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
+        "200": {}
       summary: Check service status
+      tags:
+      - health
   /v1/videos:
     get:
-      consumes:
-      - application/json
       description: get latest videos
+      parameters:
+      - description: Max number of results
+        in: query
+        name: limit
+        type: integer
+      - description: Number of results to ignore
+        in: query
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -51,7 +61,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/v1.JSONResponse'
+            - $ref: '#/definitions/httputils.HTTPResponse'
             - properties:
                 data:
                   items:
@@ -61,14 +71,23 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPError'
       summary: Query videos
       tags:
-      - Videos
+      - videos
     post:
       consumes:
       - application/json
       description: Create a video
+      parameters:
+      - description: Video title
+        in: body
+        maxLength: 255
+        minLength: 1
+        name: title
+        required: true
+        schema:
+          type: string
       produces:
       - application/json
       responses:
@@ -76,7 +95,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/v1.JSONResponse'
+            - $ref: '#/definitions/httputils.HTTPResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Video'
@@ -84,14 +103,12 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPError'
       summary: Create a video
       tags:
-      - Videos
+      - videos
   /v1/videos/{id}:
     delete:
-      consumes:
-      - application/json
       description: Delete one video
       parameters:
       - description: Video ID
@@ -107,21 +124,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPError'
       summary: Delete a video
       tags:
-      - Videos
+      - videos
     get:
-      consumes:
-      - application/json
       description: get one video
       parameters:
       - description: Video ID
@@ -138,7 +153,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/v1.JSONResponse'
+            - $ref: '#/definitions/httputils.HTTPResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Video'
@@ -146,12 +161,12 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPError'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/v1.JSONResponse'
+            $ref: '#/definitions/httputils.HTTPError'
       summary: Get a video
       tags:
-      - Videos
+      - videos
 swagger: "2.0"

@@ -8,6 +8,7 @@ import (
 	"log"
 
 	"github.com/dreamvo/gilfoyle/ent/migrate"
+	"github.com/google/uuid"
 
 	"github.com/dreamvo/gilfoyle/ent/video"
 
@@ -156,7 +157,7 @@ func (c *VideoClient) UpdateOne(v *Video) *VideoUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *VideoClient) UpdateOneID(id int) *VideoUpdateOne {
+func (c *VideoClient) UpdateOneID(id uuid.UUID) *VideoUpdateOne {
 	mutation := newVideoMutation(c.config, OpUpdateOne, withVideoID(id))
 	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -173,7 +174,7 @@ func (c *VideoClient) DeleteOne(v *Video) *VideoDeleteOne {
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *VideoClient) DeleteOneID(id int) *VideoDeleteOne {
+func (c *VideoClient) DeleteOneID(id uuid.UUID) *VideoDeleteOne {
 	builder := c.Delete().Where(video.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -186,12 +187,12 @@ func (c *VideoClient) Query() *VideoQuery {
 }
 
 // Get returns a Video entity by its id.
-func (c *VideoClient) Get(ctx context.Context, id int) (*Video, error) {
+func (c *VideoClient) Get(ctx context.Context, id uuid.UUID) (*Video, error) {
 	return c.Query().Where(video.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *VideoClient) GetX(ctx context.Context, id int) *Video {
+func (c *VideoClient) GetX(ctx context.Context, id uuid.UUID) *Video {
 	v, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

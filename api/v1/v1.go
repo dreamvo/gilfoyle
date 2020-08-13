@@ -4,12 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type JSONResponse struct {
-	Success bool        `json:"success"`
-	Message string      `json:"message,omitempty"`
-	Data    interface{} `json:"data,omitempty"`
-}
-
 func RegisterRoutes(r *gin.Engine) *gin.RouterGroup {
 	v1 := r.Group("/v1")
 	{

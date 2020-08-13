@@ -13,6 +13,7 @@ import (
 	"github.com/facebookincubator/ent/dialect/sql"
 	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
 	"github.com/facebookincubator/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // VideoQuery is the builder for querying Video entities.
@@ -74,8 +75,8 @@ func (vq *VideoQuery) FirstX(ctx context.Context) *Video {
 }
 
 // FirstID returns the first Video id in the query. Returns *NotFoundError when no id was found.
-func (vq *VideoQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (vq *VideoQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = vq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -87,7 +88,7 @@ func (vq *VideoQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstXID is like FirstID, but panics if an error occurs.
-func (vq *VideoQuery) FirstXID(ctx context.Context) int {
+func (vq *VideoQuery) FirstXID(ctx context.Context) uuid.UUID {
 	id, err := vq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -121,8 +122,8 @@ func (vq *VideoQuery) OnlyX(ctx context.Context) *Video {
 }
 
 // OnlyID returns the only Video id in the query, returns an error if not exactly one id was returned.
-func (vq *VideoQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (vq *VideoQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = vq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -138,7 +139,7 @@ func (vq *VideoQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (vq *VideoQuery) OnlyIDX(ctx context.Context) int {
+func (vq *VideoQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := vq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -164,8 +165,8 @@ func (vq *VideoQuery) AllX(ctx context.Context) []*Video {
 }
 
 // IDs executes the query and returns a list of Video ids.
-func (vq *VideoQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
+func (vq *VideoQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
 	if err := vq.Select(video.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -173,7 +174,7 @@ func (vq *VideoQuery) IDs(ctx context.Context) ([]int, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (vq *VideoQuery) IDsX(ctx context.Context) []int {
+func (vq *VideoQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := vq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -237,12 +238,12 @@ func (vq *VideoQuery) Clone() *VideoQuery {
 // Example:
 //
 //	var v []struct {
-//		UUID string `json:"uuid,omitempty"`
+//		Title string `json:"title,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Video.Query().
-//		GroupBy(video.FieldUUID).
+//		GroupBy(video.FieldTitle).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -263,11 +264,11 @@ func (vq *VideoQuery) GroupBy(field string, fields ...string) *VideoGroupBy {
 // Example:
 //
 //	var v []struct {
-//		UUID string `json:"uuid,omitempty"`
+//		Title string `json:"title,omitempty"`
 //	}
 //
 //	client.Video.Query().
-//		Select(video.FieldUUID).
+//		Select(video.FieldTitle).
 //		Scan(ctx, &v)
 //
 func (vq *VideoQuery) Select(field string, fields ...string) *VideoSelect {
@@ -339,7 +340,7 @@ func (vq *VideoQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   video.Table,
 			Columns: video.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: video.FieldID,
 			},
 		},

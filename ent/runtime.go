@@ -7,6 +7,7 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/ent/video"
+	"github.com/google/uuid"
 )
 
 // The init function reads all schema descriptors with runtime
@@ -15,24 +16,6 @@ import (
 func init() {
 	videoFields := schema.Video{}.Fields()
 	_ = videoFields
-	// videoDescUUID is the schema descriptor for uuid field.
-	videoDescUUID := videoFields[0].Descriptor()
-	// video.UUIDValidator is a validator for the "uuid" field. It is called by the builders before save.
-	video.UUIDValidator = func() func(string) error {
-		validators := videoDescUUID.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(uuid string) error {
-			for _, fn := range fns {
-				if err := fn(uuid); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// videoDescTitle is the schema descriptor for title field.
 	videoDescTitle := videoFields[1].Descriptor()
 	// video.TitleValidator is a validator for the "title" field. It is called by the builders before save.
@@ -60,4 +43,8 @@ func init() {
 	videoDescUpdatedAt := videoFields[4].Descriptor()
 	// video.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	video.DefaultUpdatedAt = videoDescUpdatedAt.Default.(func() time.Time)
+	// videoDescID is the schema descriptor for id field.
+	videoDescID := videoFields[0].Descriptor()
+	// video.DefaultID holds the default value on creation for the id field.
+	video.DefaultID = videoDescID.Default.(func() uuid.UUID)
 }

@@ -9,15 +9,14 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/video"
 	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Video is the model entity for the Video schema.
 type Video struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// UUID holds the value of the "uuid" field.
-	UUID string `json:"uuid,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Status holds the value of the "status" field.
@@ -31,8 +30,7 @@ type Video struct {
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Video) scanValues() []interface{} {
 	return []interface{}{
-		&sql.NullInt64{},  // id
-		&sql.NullString{}, // uuid
+		&uuid.UUID{},      // id
 		&sql.NullString{}, // title
 		&sql.NullString{}, // status
 		&sql.NullTime{},   // created_at
@@ -46,34 +44,29 @@ func (v *Video) assignValues(values ...interface{}) error {
 	if m, n := len(values), len(video.Columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
-	value, ok := values[0].(*sql.NullInt64)
-	if !ok {
-		return fmt.Errorf("unexpected type %T for field id", value)
+	if value, ok := values[0].(*uuid.UUID); !ok {
+		return fmt.Errorf("unexpected type %T for field id", values[0])
+	} else if value != nil {
+		v.ID = *value
 	}
-	v.ID = int(value.Int64)
 	values = values[1:]
 	if value, ok := values[0].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field uuid", values[0])
-	} else if value.Valid {
-		v.UUID = value.String
-	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field title", values[1])
+		return fmt.Errorf("unexpected type %T for field title", values[0])
 	} else if value.Valid {
 		v.Title = value.String
 	}
-	if value, ok := values[2].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field status", values[2])
+	if value, ok := values[1].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field status", values[1])
 	} else if value.Valid {
 		v.Status = video.Status(value.String)
 	}
-	if value, ok := values[3].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[3])
+	if value, ok := values[2].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[2])
 	} else if value.Valid {
 		v.CreatedAt = value.Time
 	}
-	if value, ok := values[4].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[4])
+	if value, ok := values[3].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[3])
 	} else if value.Valid {
 		v.UpdatedAt = value.Time
 	}
@@ -103,8 +96,6 @@ func (v *Video) String() string {
 	var builder strings.Builder
 	builder.WriteString("Video(")
 	builder.WriteString(fmt.Sprintf("id=%v", v.ID))
-	builder.WriteString(", uuid=")
-	builder.WriteString(v.UUID)
 	builder.WriteString(", title=")
 	builder.WriteString(v.Title)
 	builder.WriteString(", status=")
