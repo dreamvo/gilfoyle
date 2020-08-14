@@ -12,7 +12,15 @@ definitions:
       updated_at:
         type: string
     type: object
-  httputils.HTTPError:
+  httputils.DataResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data:
+        type: object
+    type: object
+  httputils.ErrorResponse:
     properties:
       code:
         example: 400
@@ -20,14 +28,6 @@ definitions:
       message:
         example: status bad request
         type: string
-    type: object
-  httputils.HTTPResponse:
-    properties:
-      code:
-        example: 200
-        type: integer
-      data:
-        type: object
     type: object
 info:
   contact: {}
@@ -61,7 +61,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.HTTPResponse'
+            - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
                   items:
@@ -71,7 +71,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.HTTPError'
+            $ref: '#/definitions/httputils.ErrorResponse'
       summary: Query videos
       tags:
       - videos
@@ -95,7 +95,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.HTTPResponse'
+            - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Video'
@@ -103,7 +103,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.HTTPError'
+            $ref: '#/definitions/httputils.ErrorResponse'
       summary: Create a video
       tags:
       - videos
@@ -124,15 +124,15 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httputils.HTTPResponse'
+            $ref: '#/definitions/httputils.DataResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.HTTPError'
+            $ref: '#/definitions/httputils.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.HTTPError'
+            $ref: '#/definitions/httputils.ErrorResponse'
       summary: Delete a video
       tags:
       - videos
@@ -153,7 +153,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.HTTPResponse'
+            - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Video'
@@ -161,11 +161,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.HTTPError'
+            $ref: '#/definitions/httputils.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.HTTPError'
+            $ref: '#/definitions/httputils.ErrorResponse'
       summary: Get a video
       tags:
       - videos

@@ -2,17 +2,17 @@ package httputils
 
 import "github.com/gin-gonic/gin"
 
-// HTTPResponse example
-type HTTPResponse struct {
+// DataResponse example
+type DataResponse struct {
 	Code int         `json:"code" example:"200"`
 	Data interface{} `json:"data,omitempty"`
 }
 
-// NewResponse returns a new response
-func NewResponse(ctx *gin.Context, status int, data interface{}) {
-	er := HTTPResponse{
+// NewData returns a new response
+func NewData(ctx *gin.Context, status int, data interface{}) {
+	res := DataResponse{
 		Code: status,
 		Data: data,
 	}
-	ctx.JSON(status, er)
+	ctx.JSON(status, res)
 }

@@ -69,7 +69,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.HTTPResponse"
+                                    "$ref": "#/definitions/httputils.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -88,7 +88,7 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPError"
+                            "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     }
                 }
@@ -124,7 +124,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.HTTPResponse"
+                                    "$ref": "#/definitions/httputils.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -140,7 +140,7 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPError"
+                            "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     }
                 }
@@ -173,7 +173,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.HTTPResponse"
+                                    "$ref": "#/definitions/httputils.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -189,13 +189,13 @@ var doc = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPError"
+                            "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPError"
+                            "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     }
                 }
@@ -224,19 +224,19 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPResponse"
+                            "$ref": "#/definitions/httputils.DataResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPError"
+                            "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.HTTPError"
+                            "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     }
                 }
@@ -264,7 +264,19 @@ var doc = `{
                 }
             }
         },
-        "httputils.HTTPError": {
+        "httputils.DataResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 200
+                },
+                "data": {
+                    "type": "object"
+                }
+            }
+        },
+        "httputils.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -274,18 +286,6 @@ var doc = `{
                 "message": {
                     "type": "string",
                     "example": "status bad request"
-                }
-            }
-        },
-        "httputils.HTTPResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 200
-                },
-                "data": {
-                    "type": "object"
                 }
             }
         }

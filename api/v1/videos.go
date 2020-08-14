@@ -25,7 +25,7 @@ type createVideoBody struct {
 
 func (b createVideoBody) Validation() error {
 	switch {
-	case len(b.Title) == 0:
+	case len(b.Title) < 1:
 		return ErrVideoTitleShort
 	default:
 		return nil
@@ -36,8 +36,8 @@ func (b createVideoBody) Validation() error {
 // @Summary Query videos
 // @Description get latest videos
 // @Produce  json
-// @Success 200 {object} httputils.HTTPResponse{data=[]ent.Video}
-// @Failure 500 {object} httputils.HTTPError
+// @Success 200 {object} httputils.DataResponse{data=[]ent.Video}
+// @Failure 500 {object} httputils.ErrorResponse
 // @Router /v1/videos [get]
 // @Param limit query int false "Max number of results" minimum(1) maximum(100)
 // @Param offset query int false "Number of results to ignore" minimum(0)
@@ -56,7 +56,7 @@ func getVideos(ctx *gin.Context) {
 		return
 	}
 
-	httputils.NewResponse(ctx, http.StatusOK, videos)
+	httputils.NewData(ctx, http.StatusOK, videos)
 }
 
 // @Tags videos
@@ -64,9 +64,9 @@ func getVideos(ctx *gin.Context) {
 // @Description get one video
 // @Produce  json
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
-// @Success 200 {object} httputils.HTTPResponse{data=ent.Video}
-// @Failure 404 {object} httputils.HTTPError
-// @Failure 500 {object} httputils.HTTPError
+// @Success 200 {object} httputils.DataResponse{data=ent.Video}
+// @Failure 404 {object} httputils.ErrorResponse
+// @Failure 500 {object} httputils.ErrorResponse
 // @Router /v1/videos/{id} [get]
 func getVideo(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -83,7 +83,7 @@ func getVideo(ctx *gin.Context) {
 		return
 	}
 
-	httputils.NewResponse(ctx, http.StatusOK, v)
+	httputils.NewData(ctx, http.StatusOK, v)
 }
 
 // @Tags videos
@@ -91,9 +91,9 @@ func getVideo(ctx *gin.Context) {
 // @Description Delete one video
 // @Produce  json
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
-// @Success 200 {object} httputils.HTTPResponse
-// @Failure 404 {object} httputils.HTTPError
-// @Failure 500 {object} httputils.HTTPError
+// @Success 200 {object} httputils.DataResponse
+// @Failure 404 {object} httputils.ErrorResponse
+// @Failure 500 {object} httputils.ErrorResponse
 // @Router /v1/videos/{id} [delete]
 func deleteVideo(ctx *gin.Context) {
 	id := ctx.Param("id")
@@ -110,7 +110,7 @@ func deleteVideo(ctx *gin.Context) {
 		return
 	}
 
-	httputils.NewResponse(ctx, http.StatusOK, nil)
+	httputils.NewData(ctx, http.StatusOK, nil)
 }
 
 // @Tags videos
@@ -118,8 +118,8 @@ func deleteVideo(ctx *gin.Context) {
 // @Description Create a video
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} httputils.HTTPResponse{data=ent.Video}
-// @Failure 500 {object} httputils.HTTPError
+// @Success 200 {object} httputils.DataResponse{data=ent.Video}
+// @Failure 500 {object} httputils.ErrorResponse
 // @Router /v1/videos [post]
 // @Param title body string true "Video title" minlength(1) maxlength(255) validate(required)
 func createVideo(ctx *gin.Context) {
@@ -143,5 +143,5 @@ func createVideo(ctx *gin.Context) {
 		return
 	}
 
-	httputils.NewResponse(ctx, http.StatusOK, v)
+	httputils.NewData(ctx, http.StatusOK, v)
 }
