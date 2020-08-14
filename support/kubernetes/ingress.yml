@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: api
+spec:
+  rules:
+    - host: demo.gilfoyle.dreamvo.com
+      http:
+        paths:
+          - backend:
+              serviceName: api
+              servicePort: 8080
+            path: /
