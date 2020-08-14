@@ -19,6 +19,7 @@ func RegisterRoutes(r *gin.Engine) *gin.RouterGroup {
 			videos.GET(":id", getVideo)
 			videos.DELETE(":id", deleteVideo)
 			videos.POST("", createVideo)
+			videos.PATCH(":id", updateVideo)
 			videos.POST(":id/upload", uploadVideoFile)
 		}
 	}

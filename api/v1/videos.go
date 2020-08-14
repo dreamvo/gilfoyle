@@ -134,6 +134,48 @@ func createVideo(ctx *gin.Context) {
 }
 
 // @Tags videos
+// @Summary Update a video
+// @Description Update an existing video
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} httputils.DataResponse{data=ent.Video}
+// @Failure 400 {object} httputils.ErrorResponse
+// @Failure 500 {object} httputils.ErrorResponse
+// @Router /v1/videos/{id} [patch]
+// @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
+// @Param title body string true "Video title" minlength(1) maxlength(255) validate(required)
+func updateVideo(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	parsedUUID, err := uuid.Parse(id)
+	if err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf("invalid UUID provided"))
+		return
+	}
+
+	var body createVideoBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	v, err := db.Client.Video.
+		UpdateOneID(parsedUUID).
+		SetTitle(body.Title).
+		Save(context.Background())
+	if ent.IsValidationError(err) {
+		httputils.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+	if err != nil {
+		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	httputils.NewData(ctx, http.StatusOK, v)
+}
+
+// @Tags videos
 // @Summary Upload a video file
 // @Description Upload a new video file for a given video ID
 // @Accept  multipart/form-data

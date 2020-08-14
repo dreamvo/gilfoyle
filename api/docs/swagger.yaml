@@ -173,6 +173,49 @@ paths:
       summary: Get a video
       tags:
       - videos
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing video
+      parameters:
+      - description: Video ID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      - description: Video title
+        in: body
+        maxLength: 255
+        minLength: 1
+        name: title
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httputils.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/ent.Video'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputils.ErrorResponse'
+      summary: Update a video
+      tags:
+      - videos
   /v1/videos/{id}/upload:
     post:
       consumes:
