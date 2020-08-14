@@ -64,7 +64,7 @@ We want documentation to be part of the code, so its always up-to-date and devel
 ## Documentation
 
 - For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle)
-- For **administrators**: see [official documentation](#)
+- For **administrators**: see [API documentation](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.yaml#tag/videos) and [user guide](#)
 
 ## License
 
