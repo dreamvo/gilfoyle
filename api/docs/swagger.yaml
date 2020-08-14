@@ -78,7 +78,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a video
+      description: Create a new video
       parameters:
       - description: Video title
         in: body
@@ -100,6 +100,10 @@ paths:
                 data:
                   $ref: '#/definitions/ent.Video'
               type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputils.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -167,6 +171,47 @@ paths:
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
       summary: Get a video
+      tags:
+      - videos
+  /v1/videos/{id}/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new video file for a given video ID
+      parameters:
+      - description: Video ID
+        in: path
+        maxLength: 36
+        minLength: 36
+        name: id
+        required: true
+        type: string
+      - description: Video file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/httputils.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/ent.Video'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/httputils.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/httputils.ErrorResponse'
+      summary: Upload a video file
       tags:
       - videos
 swagger: "2.0"

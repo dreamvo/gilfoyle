@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+const (
+	defaultItemsPerPage = 50
+	maxItemsPerPage     = 100
+)
+
 func RegisterRoutes(r *gin.Engine) *gin.RouterGroup {
 	v1 := r.Group("/v1")
 	{
@@ -14,6 +19,7 @@ func RegisterRoutes(r *gin.Engine) *gin.RouterGroup {
 			videos.GET(":id", getVideo)
 			videos.DELETE(":id", deleteVideo)
 			videos.POST("", createVideo)
+			videos.POST(":id/upload", uploadVideoFile)
 		}
 	}
 
@@ -24,8 +30,8 @@ func paginateHandler(ctx *gin.Context) {
 	limit := ctx.Query("limit")
 	limitInt, err := strconv.ParseInt(limit, 10, 64)
 
-	if err != nil || limitInt > 100 {
-		limitInt = 50
+	if err != nil || limitInt > maxItemsPerPage {
+		limitInt = defaultItemsPerPage
 	}
 
 	offset := ctx.Query("offset")
