@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/ent"
@@ -122,7 +123,7 @@ func createVideo(ctx *gin.Context) {
 		SetStatus(schema.VideoStatusProcessing).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
-		httputils.NewError(ctx, http.StatusBadRequest, err)
+		httputils.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
 		return
 	}
 	if err != nil {
@@ -164,7 +165,7 @@ func updateVideo(ctx *gin.Context) {
 		SetTitle(body.Title).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
-		httputils.NewError(ctx, http.StatusBadRequest, err)
+		httputils.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
 		return
 	}
 	if err != nil {
