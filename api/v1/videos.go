@@ -84,7 +84,6 @@ func getVideo(ctx *gin.Context) {
 	}
 
 	httputils.NewResponse(ctx, http.StatusOK, v)
-	return
 }
 
 // @Tags videos
