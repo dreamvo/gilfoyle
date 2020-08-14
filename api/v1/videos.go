@@ -15,7 +15,7 @@ import (
 	"net/http"
 )
 
-type createVideoBody struct {
+type videoBody struct {
 	Title string `json:"title"`
 }
 
@@ -79,7 +79,7 @@ func getVideo(ctx *gin.Context) {
 // @Produce  json
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
 // @Success 200 {object} httputils.DataResponse
-// @Failure 404 {object} httputils.ErrorResponse
+// @Failure 400 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /v1/videos/{id} [delete]
 func deleteVideo(ctx *gin.Context) {
@@ -111,7 +111,7 @@ func deleteVideo(ctx *gin.Context) {
 // @Router /v1/videos [post]
 // @Param title body string true "Video title" minlength(1) maxlength(255) validate(required)
 func createVideo(ctx *gin.Context) {
-	var body createVideoBody
+	var body videoBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, err)
 		return
@@ -154,7 +154,7 @@ func updateVideo(ctx *gin.Context) {
 		return
 	}
 
-	var body createVideoBody
+	var body videoBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, err)
 		return
@@ -182,6 +182,7 @@ func updateVideo(ctx *gin.Context) {
 // @Accept  multipart/form-data
 // @Produce  json
 // @Success 200 {object} httputils.DataResponse{data=ent.Video}
+// @Failure 404 {object} httputils.ErrorResponse
 // @Failure 400 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /v1/videos/{id}/upload [post]
