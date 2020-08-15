@@ -16,4 +16,5 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           context: .
-          workdir: support/docker
+          dockerfile: support/docker/Dockerfile
+          tags: "latest"
