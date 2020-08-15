@@ -1,8 +1,9 @@
 name: Docker Image CI
 
-on:
-  release:
-    types: [published]
+#on:
+#  release:
+#    types: [published]
+on: [push]
 
 jobs:
   build:
@@ -15,5 +16,6 @@ jobs:
           name: dreamvo/gilfoyle
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          context: .
+          context: ../../
           workdir: support/docker
+          tags: "latest"
