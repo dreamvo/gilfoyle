@@ -16,6 +16,6 @@ jobs:
           name: dreamvo/gilfoyle
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          context: ../../
+          context: ../
           workdir: support/docker
           tags: "latest"
