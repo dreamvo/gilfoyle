@@ -1,19 +1,23 @@
 # gilfoyle
 
-<div align="left">
-  <a href="https://godoc.org/github.com/dreamvo/gilfoyle">
-    <img src="https://godoc.org/github.com/dreamvo/gilfoyle?status.svg" alt="GoDoc">
-  </a>
-  <a href="https://github.com/dreamvo/gilfoyle/actions">
-    <img src="https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master" alt="build status" />
-  </a>
-  <a href="https://goreportcard.com/report/github.com/dreamvo/gilfoyle">
-    <img src="https://goreportcard.com/badge/github.com/dreamvo/gilfoyle" alt="go report" />
-  </a>
-  <a href="https://github.com/dreamvo/gilfoyle/releases">
-    <img src="https://img.shields.io/github/release/dreamvo/gilfoyle.svg" alt="Latest version" />
-  </a>
-</div>
+<a href="https://godoc.org/github.com/dreamvo/gilfoyle">
+  <img src="https://godoc.org/github.com/dreamvo/gilfoyle?status.svg" alt="GoDoc">
+</a>
+<a href="https://github.com/dreamvo/gilfoyle/actions">
+  <img src="https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master" alt="build status" />
+</a>
+<a href="https://codeclimate.com/github/dreamvo/gilfoyle/maintainability">
+  <img src="https://api.codeclimate.com/v1/badges/055672c88626f92d7dd1/maintainability" />
+</a>
+<a href="https://goreportcard.com/report/github.com/dreamvo/gilfoyle">
+  <img src="https://goreportcard.com/badge/github.com/dreamvo/gilfoyle" alt="go report" />
+</a>
+<a href="https://codecov.io/gh/dreamvo/gilfoyle">
+  <img src="https://codecov.io/gh/dreamvo/gilfoyle/branch/master/graph/badge.svg" />
+</a>
+<a href="https://github.com/dreamvo/gilfoyle/releases">
+  <img src="https://img.shields.io/github/release/dreamvo/gilfoyle.svg" alt="Latest version" />
+</a>
 
 Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) that runs a self-hosted video streaming server. This application allows you to setup a production-ready video hosting & live streaming platform in minutes. Gilfoyle handles video upload, processing and streaming.
 
