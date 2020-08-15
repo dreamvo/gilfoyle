@@ -4,8 +4,8 @@ services:
   gilfoyle:
     restart: on-failure
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: support/docker/Dockerfile
     command:
       - "serve -p 3000"
     ports:
