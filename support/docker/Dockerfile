@@ -8,6 +8,7 @@ LABEL maintainer="Sundowndev" \
   org.label-schema.schema-version="0.1"
 
 WORKDIR /app
+RUN apk add build-base
 COPY . .
 RUN go get -v -t -d ./...
 RUN go generate ./...
