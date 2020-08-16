@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/httputils"
@@ -36,21 +37,24 @@ func TestApi(t *testing.T) {
 			defer db.Client.Close()
 
 			res, err := performRequest(r, "GET", "/v1/videos")
-			assert.Equal(nil, err, "should be equal")
+			assert.NoError(err, "should be equal")
 
-			var body httputils.DataResponse
+			var body struct {
+				Code int         `json:"code"`
+				Data []ent.Video `json:"data,omitempty"`
+			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 			assert.Equal(200, body.Code)
-			assert.Equal([]interface{}{}, body.Data)
+			assert.Equal([]ent.Video{}, body.Data)
 		})
 
 		t.Run("should return latest videos", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			for i := 0; i < 10; i++ {
+			for i := 0; i < 5; i++ {
 				_, _ = db.Client.Video.
 					Create().
 					SetTitle(fmt.Sprintf("%d", i)).
@@ -59,21 +63,24 @@ func TestApi(t *testing.T) {
 			}
 
 			res, err := performRequest(r, "GET", "/v1/videos")
-			assert.Equal(nil, err, "should be equal")
+			assert.NoError(err, "should be equal")
 
-			var body httputils.DataResponse
+			var body struct {
+				Code int         `json:"code"`
+				Data []ent.Video `json:"data,omitempty"`
+			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 			assert.Equal(200, body.Code)
-			assert.Equal(10, len(body.Data.([]interface{})))
+			assert.Equal(5, len(body.Data))
 		})
 
-		t.Run("should limit results to 5", func(t *testing.T) {
+		t.Run("should limit results to 2", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			for i := 0; i < 10; i++ {
+			for i := 0; i < 3; i++ {
 				_, _ = db.Client.Video.
 					Create().
 					SetTitle(fmt.Sprintf("%d", i)).
@@ -81,22 +88,56 @@ func TestApi(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/v1/videos?limit=5")
-			assert.Equal(nil, err, "should be equal")
+			res, err := performRequest(r, "GET", "/v1/videos?limit=2")
+			assert.NoError(err, "should be equal")
 
-			var body httputils.DataResponse
+			var body struct {
+				Code int         `json:"code"`
+				Data []ent.Video `json:"data,omitempty"`
+			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 			assert.Equal(200, body.Code)
-			assert.Equal(5, len(body.Data.([]interface{})))
+			assert.Equal(2, len(body.Data))
+		})
+
+		t.Run("should return results with offset 1", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			v, _ := db.Client.Video.
+				Create().
+				SetTitle("video1").
+				SetStatus(schema.VideoStatusProcessing).
+				Save(context.Background())
+
+			_, _ = db.Client.Video.
+				Create().
+				SetTitle("video2").
+				SetStatus(schema.VideoStatusProcessing).
+				Save(context.Background())
+
+			res, err := performRequest(r, "GET", "/v1/videos?offset=1")
+			assert.NoError(err, "should be equal")
+
+			var body struct {
+				Code int         `json:"code"`
+				Data []ent.Video `json:"data,omitempty"`
+			}
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(res.Result().StatusCode, 200, "should be equal")
+			assert.Equal(200, body.Code)
+			assert.Equal(1, len(body.Data))
+			assert.Equal(v.ID.String(), body.Data[0].ID.String())
 		})
 	})
 
 	t.Run("GET /v1/videos/{id}", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
 			res, err := performRequest(r, "GET", "/v1/videos/uuid")
-			assert.Equal(nil, err, "should be equal")
+			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
@@ -119,7 +160,7 @@ func TestApi(t *testing.T) {
 				Save(context.Background())
 
 			res, err := performRequest(r, "DELETE", "/v1/videos/"+v.ID.String())
-			assert.Equal(nil, err, "should be equal")
+			assert.NoError(err, "should be equal")
 
 			var body httputils.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
@@ -133,7 +174,7 @@ func TestApi(t *testing.T) {
 			defer db.Client.Close()
 
 			res, err := performRequest(r, "DELETE", "/v1/videos/uuid")
-			assert.Equal(nil, err, "should be equal")
+			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
