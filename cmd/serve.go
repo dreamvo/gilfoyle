@@ -24,7 +24,7 @@ func init() {
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "RegisterRoutes REST API",
+	Short: "Launch the REST API",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := db.InitClient(config.NewConfig())
 		if err != nil {
