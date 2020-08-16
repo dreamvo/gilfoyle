@@ -44,7 +44,7 @@ It's written in Golang and runs as a single Linux binary with PostgreSQL and Red
 
 ## Current status
 
-As this project is very recent, it's under heavy development and not suitable for production yet. Please consider v0 as unstable. Want to contribute ? Check the [backlog](https://github.com/dreamvo/gilfoyle/projects/1).
+It's a **Work In Progress**. As this project is very recent, it's under heavy development and not suitable for production yet. Please consider v0 as unstable. Want to contribute ? Check the [backlog](https://github.com/dreamvo/gilfoyle/projects/1).
 
 ## Design
 
@@ -52,8 +52,8 @@ Read full specifications & background in [DESIGN.md](DESIGN.md).
 
 ## Documentation
 
-- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md)
-- For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) and [API documentation](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.yaml#tag/videos)
+- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md) (WIP)
+- For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.yaml#tag/videos)
 - The [GPL v3](LICENSE) license
 
 ## Discussion
