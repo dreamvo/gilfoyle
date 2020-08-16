@@ -220,5 +220,18 @@ func TestApi(t *testing.T) {
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 		})
+
+		t.Run("should return error on invalid uid", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			res, err := performRequest(r, "DELETE", "/v1/videos/uuid")
+			assert.Equal(nil, err, "should be equal")
+
+			body, _ := ioutil.ReadAll(res.Body)
+
+			assert.Equal(res.Result().StatusCode, 400, "should be equal")
+			assert.JSONEq("{\"code\": 400, \"message\":\"invalid UUID provided\"}", string(body))
+		})
 	})
 }
