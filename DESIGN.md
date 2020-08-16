@@ -2,11 +2,39 @@
 
 Gilfoyle was created with privacy, scale and security in mind. It's only a storage server for your videos, it's a complete video streaming platform backend. It handles video file upload, processing, and streaming.
 
-## Why?
+The intend of this document is to explain the background idea as well as the technical specifications of this project.
+
+## Table of content
+
+- [Design](#design)
+  - [Table of content](#table-of-content)
+  - [Background](#background)
+  - [Project objectives](#project-objectives)
+  - [Design goals](#design-goals)
+  - [Technical choices](#technical-choices)
+    - [Database](#database)
+    - [Backend](#backend)
+  - [Dependencies](#dependencies)
+  - [Technical architecture](#technical-architecture)
+    - [Application file structure](#application-file-structure)
+    - [Class diagrams](#class-diagrams)
+    - [External interfaces](#external-interfaces)
+  - [Security](#security)
+  - [Features](#features)
+    - [Video upload](#video-upload)
+    - [Video processing](#video-processing)
+
+## Background
+
+...
 
 As you may ask, why would we create another open-source video streaming server? [PeerTube](), D.Tube, already does the job, right? But these projects has common limitations. ...
 
-## Goals
+## Project objectives
+
+...
+
+## Design goals
 
 1. Privacy & security by default
 
@@ -19,3 +47,55 @@ The service may have some configuration settings to be controlled by administrat
 3. Documentation as code
 
 We want documentation to be part of the code, so its always up-to-date and developers can understand snippets very quickly. We defines API's specifications using OpenAPI with swagger.
+
+## Technical choices
+
+...
+
+### Database
+
+...
+
+### Backend
+
+...
+
+## Dependencies
+
+...
+
+## Technical architecture
+
+### Application file structure
+
+...
+
+### Class diagrams
+
+...
+
+### External interfaces
+
+swagger, openapi...
+
+## Security
+
+...
+
+## Features
+
+### Video upload
+
+...
+
+#### Sequence diagram
+
+...
+
+### Video processing
+
+...
+
+#### Sequence diagram
+
+...
