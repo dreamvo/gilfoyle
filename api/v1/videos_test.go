@@ -146,6 +146,30 @@ func TestApi(t *testing.T) {
 			assert.Equal(400, body.Code)
 			assert.Equal("invalid UUID provided", body.Message)
 		})
+
+		t.Run("should return video", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			v, _ := db.Client.Video.
+				Create().
+				SetTitle("no u").
+				SetStatus(schema.VideoStatusProcessing).
+				Save(context.Background())
+
+			res, err := performRequest(r, "GET", "/v1/videos/"+v.ID.String())
+			assert.NoError(err, "should be equal")
+
+			var body struct {
+				Code int       `json:"code"`
+				Data ent.Video `json:"data,omitempty"`
+			}
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(200, res.Result().StatusCode, "should be equal")
+			assert.Equal(200, body.Code)
+			assert.Equal(v.Title, body.Data.Title)
+		})
 	})
 
 	t.Run("DELETE /v1/videos/{id}", func(t *testing.T) {
@@ -188,4 +212,13 @@ func TestApi(t *testing.T) {
 	t.Run("POST /v1/videos", func(t *testing.T) {})
 
 	t.Run("PATCH /v1/videos/{id}", func(t *testing.T) {})
+
+	t.Run("POST /v1/videos/{id}/upload", func(t *testing.T) {
+		t.Run("should return 200 (WIP)", func(t *testing.T) {
+			res, err := performRequest(r, "POST", "/v1/videos/uuid/upload")
+			assert.NoError(err, "should be equal")
+
+			assert.Equal(res.Result().StatusCode, 200, "should be equal")
+		})
+	})
 }
