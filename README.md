@@ -23,6 +23,7 @@ It's written in Golang and runs as a single Linux binary with PostgreSQL and Red
 - **Decentralize** video storage with [IPFS](https://ipfs.io/) clustering feature
 - Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features
 - **Collect** analytics such as watch time and view count
+- **Customize**: video transcoding (format, resolution, frame rate), file size, compression rate, authentication
 
 ## Current status
 
@@ -40,7 +41,7 @@ See [this document](DESIGN.md) for a high level design and goals.
 
 ## Contributing
 
-This project is in an early stage. We appreciate feedback and [discussions](#discussion) about the design.
+This project is in an early stage. We appreciate feedback and [discussions](#discussion) about the design and [features](#features).
 
 ## Discussion
 
