@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/dreamvo/gilfoyle/config"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -17,6 +18,11 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	err := config.NewConfig()
+	if err != nil {
+		panic(err)
+	}
+
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default ./gilfoyle.yaml")
 }
 
