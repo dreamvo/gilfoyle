@@ -42,10 +42,13 @@ type settingsConfig struct {
 var c Config
 
 // NewConfig a new config object
-func NewConfig() *Config {
-	_ = configor.Load(&c)
+func NewConfig(files ...string) error {
+	err := configor.Load(&c, files...)
+	if err != nil {
+		return err
+	}
 
-	return &c
+	return nil
 }
 
 // GetConfig helps you to get configuration data

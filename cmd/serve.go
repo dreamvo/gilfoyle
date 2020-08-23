@@ -26,7 +26,7 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "RegisterRoutes REST API",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := db.InitClient(config.NewConfig())
+		err := db.InitClient(config.GetConfig())
 		if err != nil {
 			log.Fatalf("failed opening connection: %v", err)
 		}
