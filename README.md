@@ -36,7 +36,7 @@ See [this document](DESIGN.md) for a high level design and goals.
 ## Documentation
 
 - For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md) (WIP)
-- For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.yaml#tag/videos)
+- For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
 - The [GPL v3](LICENSE) license
 
 ## Contributing
