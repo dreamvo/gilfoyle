@@ -11,18 +11,17 @@ import (
 	"github.com/swaggo/gin-swagger"
 )
 
+// @title Gilfoyle server
+// @description Video streaming server backed by decentralized filesystem.
+// @version 0.1-beta
+// @host localhost:8080
+// @BasePath /
+// @schemes http https
 // @license.name GNU General Public License v3.0
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
-// RegisterRoutes runs a REST API web server
+// RegisterRoutes adds routes to a given router instance
 func RegisterRoutes(r *gin.Engine, port int) *gin.Engine {
-	docs.SwaggerInfo.Title = "Gilfoyle server"
-	docs.SwaggerInfo.Description = " Video streaming server backed by decentralized filesystem."
-	docs.SwaggerInfo.Version = "0.1"
-	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%d", port)
-	docs.SwaggerInfo.BasePath = "/"
-	docs.SwaggerInfo.Schemes = []string{"http", "https"}
-
 	r.GET("/health", healthcheckHandler)
 
 	v1.RegisterRoutes(r)
