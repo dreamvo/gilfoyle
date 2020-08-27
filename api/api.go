@@ -2,7 +2,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/api/v1"
 	"github.com/gin-gonic/gin"
