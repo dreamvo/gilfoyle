@@ -233,8 +233,8 @@ var doc = `{
                             "$ref": "#/definitions/httputils.DataResponse"
                         }
                     },
-                    "404": {
-                        "description": "Not Found",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/httputils.ErrorResponse"
                         }
@@ -371,6 +371,12 @@ var doc = `{
                             "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httputils.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -441,12 +447,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
-	Host:        "",
-	BasePath:    "",
-	Schemes:     []string{},
-	Title:       "",
-	Description: "",
+	Version:     "0.1-beta",
+	Host:        "localhost:8080",
+	BasePath:    "/",
+	Schemes:     []string{"http", "https"},
+	Title:       "Gilfoyle server",
+	Description: "Video streaming server backed by decentralized filesystem.",
 }
 
 type s struct{}
