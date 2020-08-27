@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   ent.Video:
     properties:
@@ -29,11 +30,15 @@ definitions:
         example: status bad request
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: Video streaming server backed by decentralized filesystem.
   license:
     name: GNU General Public License v3.0
     url: https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
+  title: Gilfoyle server
+  version: 0.1-beta
 paths:
   /health:
     get:
@@ -129,8 +134,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/httputils.DataResponse'
-        "404":
-          description: Not Found
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
         "500":
@@ -250,6 +255,10 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/httputils.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
@@ -257,4 +266,7 @@ paths:
       summary: Upload a video file
       tags:
       - videos
+schemes:
+- http
+- https
 swagger: "2.0"
