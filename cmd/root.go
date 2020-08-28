@@ -8,8 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var cfgFile string
-
 var rootCmd = &cobra.Command{
 	Use:     "gilfoyle [COMMANDS] [OPTIONS]",
 	Short:   "Video streaming API server",
@@ -18,12 +16,12 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	err := config.NewConfig()
+	cfgFile := rootCmd.PersistentFlags().String("config", "", "config file path (default ./gilfoyle.yaml")
+
+	err := config.NewConfig(cfgFile)
 	if err != nil {
 		panic(err)
 	}
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file path (default ./gilfoyle.yaml")
 }
 
 // Execute is a function that executes the root command
