@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 func init() {
 	cfgFile := rootCmd.PersistentFlags().String("config", "", "config file path (default ./gilfoyle.yaml")
 
-	err := config.NewConfig(cfgFile)
+	err := config.NewConfig(*cfgFile)
 	if err != nil {
 		panic(err)
 	}
