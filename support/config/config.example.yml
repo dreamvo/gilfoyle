@@ -1,9 +1,11 @@
 services:
   db:
+    dialect: postgres
     host: localhost
     port: 3692
     user: root
     password: root
+    database: gilfoyle
   redis:
     host: localhost
     port: 3482

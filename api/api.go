@@ -15,7 +15,7 @@ import (
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
 // RegisterRoutes runs a REST API web server
-func RegisterRoutes(r *gin.Engine, port int) *gin.Engine {
+func RegisterRoutes(r *gin.Engine, port int, serveDocs bool) *gin.Engine {
 	docs.SwaggerInfo.Title = "Gilfoyle server"
 	docs.SwaggerInfo.Description = " Video streaming server backed by decentralized filesystem."
 	docs.SwaggerInfo.Version = "0.1"
@@ -27,8 +27,10 @@ func RegisterRoutes(r *gin.Engine, port int) *gin.Engine {
 
 	v1.RegisterRoutes(r)
 
-	// register swagger docs handler
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	if serveDocs {
+		// register swagger docs handler
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	return r
 }
