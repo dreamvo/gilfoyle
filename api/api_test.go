@@ -20,7 +20,7 @@ func performRequest(r http.Handler, method, path string) (*httptest.ResponseReco
 func TestApi(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.Default()
-	r = RegisterRoutes(r, 3000)
+	r = RegisterRoutes(r, 3000, false)
 
 	t.Run("GET /health", func(t *testing.T) {
 		res, err := performRequest(r, "GET", "/health")
