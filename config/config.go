@@ -36,14 +36,15 @@ type redisConfig struct {
 }
 
 type settingsConfig struct {
+	ServeDocs   bool   `yaml:"serveDocs" default:"true"`
 	MaxFileSize string `yaml:"maxFileSize" default:"50mb"`
 }
 
-var c Config
+var config Config
 
 // NewConfig a new config object
 func NewConfig(files ...string) error {
-	err := configor.Load(&c, files...)
+	err := configor.Load(&config, files...)
 	if err != nil {
 		return err
 	}
@@ -53,5 +54,5 @@ func NewConfig(files ...string) error {
 
 // GetConfig helps you to get configuration data
 func GetConfig() *Config {
-	return &c
+	return &config
 }

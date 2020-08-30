@@ -43,7 +43,7 @@ var serveCmd = &cobra.Command{
 
 		r := gin.Default()
 
-		api.RegisterRoutes(r, httpPort)
+		api.RegisterRoutes(r, httpPort, config.GetConfig().Settings.ServeDocs)
 
 		// launch web server
 		_ = r.Run(fmt.Sprintf(":%d", httpPort))

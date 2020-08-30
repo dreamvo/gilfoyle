@@ -19,13 +19,15 @@ import (
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
 // RegisterRoutes adds routes to a given router instance
-func RegisterRoutes(r *gin.Engine, port int) *gin.Engine {
+func RegisterRoutes(r *gin.Engine, port int, serveDocs bool) *gin.Engine {
 	r.GET("/health", healthcheckHandler)
 
 	v1.RegisterRoutes(r)
 
-	// register swagger docs handler
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	if serveDocs {
+		// register swagger docs handler
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	}
 
 	return r
 }
