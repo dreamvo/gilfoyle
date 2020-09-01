@@ -21,17 +21,17 @@ type ipfsConfig struct {
 }
 
 type dbConfig struct {
-	Dialect  string `yaml:"dialect" json:"dialect" default:"postgres" env:"DB_DIALECT"`
+	Dialect  string `yaml:"-" json:"-" default:"postgres"`
 	Host     string `yaml:"host" json:"host" default:"localhost" env:"DB_HOST"`
 	Port     string `yaml:"port" json:"port" default:"5432" env:"DB_PORT"`
 	User     string `yaml:"user" json:"user" default:"postgres" env:"DB_USER"`
-	Password string `yaml:"password" json:"password" default:"secret" env:"DB_PASSWORD"`
+	Password string `yaml:"password" json:"password" default:"" env:"DB_PASSWORD"`
 	Database string `yaml:"db_name" json:"db_name" default:"gilfoyle" env:"DB_NAME"`
 }
 
 type redisConfig struct {
 	Host     string `yaml:"host" json:"host" default:"localhost" env:"REDIS_HOST"`
-	Database string `yaml:"database" json:"database" default:"localhost" env:"REDIS_DATABASE"`
+	Database string `yaml:"database" json:"database" default:"0" env:"REDIS_DB"`
 	Port     string `yaml:"port" json:"port" default:"6379" env:"REDIS_PORT"`
 	Password string `yaml:"password" json:"password" default:"" env:"REDIS_PASSWORD"`
 }
