@@ -2,11 +2,17 @@
 package api
 
 import (
-	"github.com/dreamvo/gilfoyle/api/v1"
+	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+	"strconv"
+)
+
+const (
+	defaultItemsPerPage = 50
+	maxItemsPerPage     = 100
 )
 
 // @title Gilfoyle server
@@ -19,10 +25,18 @@ import (
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
 // RegisterRoutes adds routes to a given router instance
-func RegisterRoutes(r *gin.Engine, port int, serveDocs bool) *gin.Engine {
-	r.GET("/health", healthcheckHandler)
+func RegisterRoutes(r *gin.Engine, serveDocs bool) *gin.Engine {
+	r.GET("/health", healthCheckHandler)
 
-	v1.RegisterRoutes(r)
+	videos := r.Group("/videos")
+	{
+		videos.GET("", paginateHandler, getVideos)
+		videos.GET(":id", getVideo)
+		videos.DELETE(":id", deleteVideo)
+		videos.POST("", createVideo)
+		videos.PATCH(":id", updateVideo)
+		videos.POST(":id/upload", uploadVideoFile)
+	}
 
 	if serveDocs {
 		// register swagger docs handler
@@ -36,6 +50,26 @@ func RegisterRoutes(r *gin.Engine, port int, serveDocs bool) *gin.Engine {
 // @Summary Check service status
 // @Success 200
 // @Router /health [get]
-func healthcheckHandler(ctx *gin.Context) {
+func healthCheckHandler(ctx *gin.Context) {
 	ctx.AbortWithStatus(200)
+}
+
+func paginateHandler(ctx *gin.Context) {
+	limit := ctx.Query("limit")
+	limitInt, err := strconv.ParseInt(limit, 10, 64)
+
+	if err != nil || limitInt > maxItemsPerPage {
+		limitInt = defaultItemsPerPage
+	}
+
+	offset := ctx.Query("offset")
+	offsetInt, err := strconv.ParseInt(offset, 10, 64)
+
+	if err != nil {
+		offsetInt = 0
+	}
+
+	ctx.Set("limit", int(limitInt))
+	ctx.Set("offset", int(offsetInt))
+	ctx.Next()
 }

@@ -1,4 +1,4 @@
-package v1
+package api
 
 import (
 	"context"
@@ -12,31 +12,20 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
-var r *gin.Engine
-
-func performRequest(r http.Handler, method, path string) (*httptest.ResponseRecorder, error) {
-	req, err := http.NewRequest(method, path, nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w, err
-}
-
-func TestApi(t *testing.T) {
+func TestVideo(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.Default()
-	RegisterRoutes(r)
+	r = RegisterRoutes(r, false)
 
-	t.Run("GET /v1/videos", func(t *testing.T) {
+	t.Run("GET /videos", func(t *testing.T) {
 		t.Run("should return empty array", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "GET", "/v1/videos")
+			res, err := performRequest(r, "GET", "/videos")
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -62,7 +51,7 @@ func TestApi(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/v1/videos")
+			res, err := performRequest(r, "GET", "/videos")
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -88,7 +77,7 @@ func TestApi(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/v1/videos?limit=2")
+			res, err := performRequest(r, "GET", "/videos?limit=2")
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -118,7 +107,7 @@ func TestApi(t *testing.T) {
 				SetStatus(schema.VideoStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "GET", "/v1/videos?offset=1")
+			res, err := performRequest(r, "GET", "/videos?offset=1")
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -134,9 +123,9 @@ func TestApi(t *testing.T) {
 		})
 	})
 
-	t.Run("GET /v1/videos/{id}", func(t *testing.T) {
+	t.Run("GET /videos/{id}", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
-			res, err := performRequest(r, "GET", "/v1/videos/uuid")
+			res, err := performRequest(r, "GET", "/videos/uuid")
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -157,7 +146,7 @@ func TestApi(t *testing.T) {
 				SetStatus(schema.VideoStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "GET", "/v1/videos/"+v.ID.String())
+			res, err := performRequest(r, "GET", "/videos/"+v.ID.String())
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -172,7 +161,7 @@ func TestApi(t *testing.T) {
 		})
 	})
 
-	t.Run("DELETE /v1/videos/{id}", func(t *testing.T) {
+	t.Run("DELETE /videos/{id}", func(t *testing.T) {
 		t.Run("should delete newly created video", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
@@ -183,7 +172,7 @@ func TestApi(t *testing.T) {
 				SetStatus(schema.VideoStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "DELETE", "/v1/videos/"+v.ID.String())
+			res, err := performRequest(r, "DELETE", "/videos/"+v.ID.String())
 			assert.NoError(err, "should be equal")
 
 			var body httputils.DataResponse
@@ -197,7 +186,7 @@ func TestApi(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "DELETE", "/v1/videos/uuid")
+			res, err := performRequest(r, "DELETE", "/videos/uuid")
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -209,13 +198,13 @@ func TestApi(t *testing.T) {
 		})
 	})
 
-	t.Run("POST /v1/videos", func(t *testing.T) {})
+	t.Run("POST /videos", func(t *testing.T) {})
 
-	t.Run("PATCH /v1/videos/{id}", func(t *testing.T) {})
+	t.Run("PATCH /videos/{id}", func(t *testing.T) {})
 
-	t.Run("POST /v1/videos/{id}/upload", func(t *testing.T) {
+	t.Run("POST /videos/{id}/upload", func(t *testing.T) {
 		t.Run("should return 200 (WIP)", func(t *testing.T) {
-			res, err := performRequest(r, "POST", "/v1/videos/uuid/upload")
+			res, err := performRequest(r, "POST", "/videos/uuid/upload")
 			assert.NoError(err, "should be equal")
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
