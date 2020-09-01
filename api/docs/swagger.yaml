@@ -47,7 +47,7 @@ paths:
       summary: Check service status
       tags:
       - health
-  /v1/videos:
+  /videos:
     get:
       description: get latest videos
       parameters:
@@ -116,7 +116,7 @@ paths:
       summary: Create a video
       tags:
       - videos
-  /v1/videos/{id}:
+  /videos/{id}:
     delete:
       description: Delete one video
       parameters:
@@ -221,7 +221,7 @@ paths:
       summary: Update a video
       tags:
       - videos
-  /v1/videos/{id}/upload:
+  /videos/{id}/upload:
     post:
       consumes:
       - multipart/form-data

@@ -39,7 +39,7 @@ var doc = `{
                 }
             }
         },
-        "/v1/videos": {
+        "/videos": {
             "get": {
                 "description": "get latest videos",
                 "produces": [
@@ -152,7 +152,7 @@ var doc = `{
                 }
             }
         },
-        "/v1/videos/{id}": {
+        "/videos/{id}": {
             "get": {
                 "description": "get one video",
                 "produces": [
@@ -315,7 +315,7 @@ var doc = `{
                 }
             }
         },
-        "/v1/videos/{id}/upload": {
+        "/videos/{id}/upload": {
             "post": {
                 "description": "Upload a new video file for a given video ID",
                 "consumes": [
