@@ -24,14 +24,14 @@ func init() {
 
 func initConfig() {
 	if cfgFile != "" {
-		err := config.NewConfig(cfgFile)
+		err := config.New(cfgFile)
 		if err != nil {
 			panic(err)
 		}
 		return
 	}
 
-	err := config.NewConfig()
+	err := config.New()
 	if err != nil {
 		panic(err)
 	}
