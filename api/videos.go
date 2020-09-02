@@ -96,7 +96,7 @@ func deleteVideo(ctx *gin.Context) {
 		return
 	}
 
-	v, err := db.Client.Video.Get(context.Background(), parsedUUID)
+	v, _ := db.Client.Video.Get(context.Background(), parsedUUID)
 	if v == nil {
 		httputils.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
 		return
@@ -166,7 +166,7 @@ func updateVideo(ctx *gin.Context) {
 		return
 	}
 
-	v, err := db.Client.Video.Get(context.Background(), parsedUUID)
+	v, _ := db.Client.Video.Get(context.Background(), parsedUUID)
 	if v == nil {
 		httputils.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
 		return
