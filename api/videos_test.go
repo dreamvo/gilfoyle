@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"testing"
 )
 
@@ -175,11 +176,12 @@ func TestVideo(t *testing.T) {
 			res, err := performRequest(r, "DELETE", "/videos/"+v.ID.String())
 			assert.NoError(err, "should be equal")
 
-			var body httputils.DataResponse
-			_ = json.NewDecoder(res.Body).Decode(&body)
-
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
-			assert.Equal(200, body.Code)
+
+			res, err = performRequest(r, "DELETE", "/videos/"+v.ID.String())
+			assert.NoError(err, "should be equal")
+
+			assert.Equal(500, res.Code)
 		})
 
 		t.Run("should return error on invalid uid", func(t *testing.T) {
@@ -203,18 +205,18 @@ func TestVideo(t *testing.T) {
 	t.Run("PATCH /videos/{id}", func(t *testing.T) {})
 
 	t.Run("POST /videos/{id}/upload", func(t *testing.T) {
-		t.Run("should return 200 (WIP)", func(t *testing.T) {
+		t.Run("(WIP) should return 200", func(t *testing.T) {
 			res, err := performRequest(r, "POST", "/videos/uuid/upload")
 			assert.NoError(err, "should be equal")
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 		})
 
-		t.Run("should return error on invalid uid", func(t *testing.T) {
+		t.Run("should return error on invalid uuid", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "DELETE", "/v1/videos/uuid")
+			res, err := performRequest(r, "DELETE", "/videos/uuid")
 			assert.Equal(nil, err, "should be equal")
 
 			body, _ := ioutil.ReadAll(res.Body)
