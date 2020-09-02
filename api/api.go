@@ -13,6 +13,8 @@ import (
 const (
 	defaultItemsPerPage = 50
 	maxItemsPerPage     = 100
+	ErrInvalidUUID      = "invalid UUID provided"
+	ErrResourceNotFound = "resource not found"
 )
 
 // @title Gilfoyle server

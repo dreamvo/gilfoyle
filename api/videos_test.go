@@ -181,7 +181,11 @@ func TestVideo(t *testing.T) {
 			res, err = performRequest(r, "DELETE", "/videos/"+v.ID.String())
 			assert.NoError(err, "should be equal")
 
-			assert.Equal(500, res.Code)
+			var body httputils.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(404, res.Code)
+			assert.Equal("resource not found", body.Message)
 		})
 
 		t.Run("should return error on invalid uid", func(t *testing.T) {

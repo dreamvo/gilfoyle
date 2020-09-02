@@ -39,7 +39,7 @@ func getVideos(ctx *gin.Context) {
 		Offset(offset).
 		All(context.Background())
 	if err != nil {
-		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		httputils.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 
@@ -60,13 +60,17 @@ func getVideo(ctx *gin.Context) {
 
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf("invalid UUID provided"))
+		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
 		return
 	}
 
 	v, err := db.Client.Video.Get(context.Background(), parsedUUID)
+	if v == nil {
+		httputils.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
+		return
+	}
 	if err != nil {
-		httputils.NewError(ctx, http.StatusNotFound, err)
+		httputils.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 
@@ -80,6 +84,7 @@ func getVideo(ctx *gin.Context) {
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
 // @Success 200 {object} httputils.DataResponse
 // @Failure 400 {object} httputils.ErrorResponse
+// @Failure 404 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos/{id} [delete]
 func deleteVideo(ctx *gin.Context) {
@@ -87,13 +92,19 @@ func deleteVideo(ctx *gin.Context) {
 
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf("invalid UUID provided"))
+		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
+		return
+	}
+
+	v, err := db.Client.Video.Get(context.Background(), parsedUUID)
+	if v == nil {
+		httputils.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
 		return
 	}
 
 	err = db.Client.Video.DeleteOneID(parsedUUID).Exec(context.Background())
 	if err != nil {
-		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		httputils.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 
@@ -127,7 +138,7 @@ func createVideo(ctx *gin.Context) {
 		return
 	}
 	if err != nil {
-		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		httputils.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 
@@ -141,6 +152,7 @@ func createVideo(ctx *gin.Context) {
 // @Produce  json
 // @Success 200 {object} httputils.DataResponse{data=ent.Video}
 // @Failure 400 {object} httputils.ErrorResponse
+// @Failure 404 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos/{id} [patch]
 // @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
@@ -150,17 +162,23 @@ func updateVideo(ctx *gin.Context) {
 
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf("invalid UUID provided"))
+		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
+		return
+	}
+
+	v, err := db.Client.Video.Get(context.Background(), parsedUUID)
+	if v == nil {
+		httputils.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
 		return
 	}
 
 	var body videoBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, err)
+		httputils.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
 		return
 	}
 
-	v, err := db.Client.Video.
+	v, err = db.Client.Video.
 		UpdateOneID(parsedUUID).
 		SetTitle(body.Title).
 		Save(context.Background())
@@ -169,7 +187,7 @@ func updateVideo(ctx *gin.Context) {
 		return
 	}
 	if err != nil {
-		httputils.NewError(ctx, http.StatusInternalServerError, err)
+		httputils.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 
