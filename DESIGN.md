@@ -43,15 +43,15 @@ Gilfoyle handles both video and audio. It means you can use it to create your ow
 
 #### Extensibility
 
-...
+TODO
 
 #### Social features
 
-...
+TODO
 
 #### User tracking
 
-...
+TODO
 
 ## Design
 
@@ -59,28 +59,24 @@ TODO
 
 ### Dependencies
 
-...
+Of course, this list can evolve over time with no warrancy.
+
+- Go
+  - [swaggo/swag](https://github.com/swaggo/swag)
+  - [gin-gonic/gin](https://github.com/gin-gonic/gin)
+  - [facebook/ent](https://github.com/facebook/ent)
+  - [spf13/cobra](https://github.com/spf13/cobra)
+  - [lib/pq](https://github.com/lib/pq)
+  - [google/uuid](https://github.com/google/uuid)
+  - [jinzhu/configor](https://github.com/jinzhu/configor)
+  - [yaml.v2](https://github.com/go-yaml)
+- PostgreSQL
+- Redis
+- FFmpeg
+- FFprobe
 
 ### Technical architecture
-
-#### Application file structure
-
-...
 
 #### External interfaces
 
 We want documentation to be part of the code, so its always up-to-date and developers can understand snippets very quickly. We defines API's specifications using OpenAPI with swagger. The specification is defined in the code and used to generate a JSON file (`api/docs/swagger.json`).
-
-### Security
-
-TODO
-
-### Features
-
-#### Video upload
-
-...
-
-#### Video processing
-
-...
