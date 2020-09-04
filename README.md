@@ -52,7 +52,7 @@ Read full specifications & background in [DESIGN.md](DESIGN.md).
 
 ## Documentation
 
-- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md) (WIP)
+- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md)
 - For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.yaml#tag/videos)
 - The [GPL v3](LICENSE) license
 
