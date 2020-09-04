@@ -30,28 +30,20 @@ The service may have some configuration settings to be controlled by administrat
 
 #### G4: Decentralized
 
-Gilfoyle uses IPFS for two major reasons :
+We use IPFS for two major reasons :
 
 1. Making businesses able to scale storage using a private cluster
 2. Allowing administrators to exposes videos publicly
 
 #### G5: Multimedia
 
-Gilfoyle handles both video and audio. It means you can use it to create your own podcast streaming platform, or your own video streaming platform.
+The service handles both video and audio. It means you can use it to create your own podcast streaming platform, or your own video streaming platform.
 
 ### Non-goals
 
-#### Extensibility
-
-TODO
-
 #### Social features
 
-TODO
-
-#### User tracking
-
-TODO
+Gilfoyle is not another YouTube alternative. It doesn't provide social features such as likes, comments, channels or subscriptions.
 
 ## Design
 
