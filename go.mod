@@ -9,6 +9,7 @@ require (
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
 	github.com/google/uuid v1.1.1
+	github.com/jinzhu/configor v1.2.0
 	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-sqlite3 v1.14.0
@@ -19,5 +20,5 @@ require (
 	github.com/swaggo/swag v1.6.7
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/tools v0.0.0-20200811215021-48a8ffc5b207 // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
+	gopkg.in/yaml.v2 v2.3.0
 )

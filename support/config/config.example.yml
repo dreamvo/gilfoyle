@@ -1,14 +1,17 @@
 services:
   db:
+    dialect: postgres
     host: localhost
     port: 3692
     user: root
     password: root
+    db_name: gilfoyle
   redis:
     host: localhost
     port: 3482
-    password: ''
+    password: secret
   ipfs:
     gateway: gateway.ipfs.io
 settings:
-  maxFileSize: 50mb
+  max_file_size: 50mb
+  serve_docs: true
