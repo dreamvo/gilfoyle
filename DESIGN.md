@@ -1,6 +1,6 @@
 *Author: raphael@crvx.fr*
 
-Gilfoyle was created with privacy, scale and security in mind. It's only a storage server for your videos, it's a complete video streaming platform backend. It handles video file upload, processing, and streaming.
+Gilfoyle was created with privacy, scale and security in mind. It's not only a storage server for your videos, it's a complete media streaming server. It handles file upload, processing, and streaming.
 
 This is intended to be a **high level** design document. Some of the implementation details are going to be decided after the prototyping phase.
 
