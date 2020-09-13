@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle/config"
-	"gopkg.in/yaml.v2"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
 func init() {
