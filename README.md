@@ -17,13 +17,12 @@ It's written in Golang and runs as a single Linux binary with PostgreSQL and Red
 
 ## Features
 
-- **Deploy** a RESTful API and HLS server to manage and stream videos
+- **Deploy** a RESTful API and HLS server to manage and stream audio & video
 - **Upload** files or import from third-party platforms such as: *YouTube, Dailymotion, Vimeo*
 - Handle video compression and transcoding with [FFmpeg](https://ffmpeg.org/)
-- **Decentralize** video storage with [IPFS](https://ipfs.io/) clustering feature
+- **Decentralize** video storage with [IPFS](https://ipfs.io/)
 - Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features
-- **Collect** analytics such as watch time and view count
-- **Customize**: video transcoding (format, resolution, frame rate), file size, compression rate, authentication
+- **Customize**: video transcoding (format, resolution, frame rate), max. file size, compression rate, authentication
 
 ## Current status
 
@@ -41,10 +40,10 @@ See [this document](DESIGN.md) for a high level design and goals.
 
 ## Contributing
 
-This project is in an early stage. We appreciate feedback and [discussions](#discussion) about the design and [features](#features).
+This project is in an early stage. We appreciate feedbacks and [discussions](#discussion) about the design and [features](#features).
 
 ## Discussion
 
 - [Report a bug](https://github.com/dreamvo/gilfoyle/issues/new)
 - Follow us on [Twitter](https://twitter.com/dreamvoapp)
-- contact us [contact@dreamvo.com](mailto:contact@dreamvo.com)
+- Contact us at [contact@dreamvo.com](mailto:contact@dreamvo.com)
