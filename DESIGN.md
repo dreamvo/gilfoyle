@@ -16,7 +16,7 @@ To resume, Gilfoyle is a **self-hosted** and **open source** version of existing
 
 ### Goals
 
-#### G1: Performances & Scale
+#### G1: High availability
 
 We want to provide a efficient product for high scale businesses. It should be easy for any administrator to scale web service and databases on demand, because of distributed services. For example, the technical choice of etcd over Redis or CockroachDB over PostgreSQL can make the difference. You can choose to scale the server or the storage (IPFS Swarm) as you wish, independently. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
 
@@ -60,11 +60,13 @@ The service handles both video and audio. It means you can use it to create your
 
 Gilfoyle is not another YouTube alternative. It doesn't provide social features such as likes, comments, channels or subscriptions.
 
+#### Federation
+
+Federation is for P2P-based platforms for which reliability is a top priority. As we want to prioritize business usage and privacy, we cannot support federation.
+
 ## Design
 
 TODO
-
-![high leval architecture](https://i.imgur.com/JZiN0cF.png)
 
 ### Dependencies
 
@@ -85,6 +87,10 @@ Of course, this list can evolve over time with no warrancy.
 - FFprobe
 
 ### Technical architecture
+
+#### High level architecture
+
+![high level architecture](https://i.imgur.com/JZiN0cF.png)
 
 #### External interfaces
 
