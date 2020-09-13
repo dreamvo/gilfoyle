@@ -6,11 +6,11 @@ This is intended to be a **high level** design document. Some of the implementat
 
 # Overview
 
-Over time, media streaming evolved in a good way. Users can host videos for free, they can enjoy fast and adaptative streaming. But these pros often come with some conditions or limitations. For example, you are required to agree to the service's business model (YouTube, Vimeo, ...), you have to agree with the upload rate limit, bad transcoding settings making your content looking ugly. Also, at an enterprise grade, your needs may be huge but you don't want to relay on another SaaS/PaaS to host your content, as it can become very expansive. So Gilfoyle is a simple start to setup a media streaming server at your own scale. It's simple to **setup**, to **scale**, it's **customizable**, it's **decentralized** over the IPFS network, also it's free and open source.
+Over time, media streaming evolved in a good way. Users can host videos for free, they can enjoy fast and adaptative streaming. But these pros often come with some conditions or limitations. For example, you are required to agree to the service's business model (YouTube, Vimeo, ...), you have to agree with the upload rate limit, bad transcoding settings making your content looking ugly. Also, at an enterprise grade, your needs may be huge but you don't want to relay on another SaaS/PaaS to host your content, as it can become very expansive. So Gilfoyle is a simple start to setup a media streaming server at your own scale. It's simple to **setup**, to **scale**, it's **customizable**, also it's free and open source.
 
 As you may ask, why would we create another open-source video streaming server? [PeerTube](https://github.com/Chocobozzz/PeerTube), [D.Tube](https://d.tube/), already does the job, right? Yes. Gilfoyle takes those projects as an aknownledgment to create an alternate solution to the common problem. Gilfoyle is also a bit different: it's not a social network or a federated video streaming platform. It's a self-hosted service that only handle video/audio hosting, transcoding and streaming.
 
-To resume, Gilfoyle is a **self-hosted**, **decentralized** and **open source** version of existing SaaS such as [api.video](https://api.video/), [Dailymotion Cloud](https://dmcloud.net/) or [mux](https://mux.com/).
+To resume, Gilfoyle is a **self-hosted** and **open source** version of existing SaaS such as [api.video](https://api.video/), [Dailymotion Cloud](https://dmcloud.net/) or [mux](https://mux.com/).
 
 ## Goals and Non-Goals
 
@@ -18,22 +18,37 @@ To resume, Gilfoyle is a **self-hosted**, **decentralized** and **open source** 
 
 #### G1: Performances & Scale
 
-We want to provide a efficient product for high scale businesses. It should be easy for any administrator to scale web service and databases on demand, because of distributed services. For example, the technical choice of etcd over Redis or CockroachDB over PostgreSQL can make the difference. You can choose to scale the server or the storage (IPFS Swarm) as you wish, independently.
+We want to provide a efficient product for high scale businesses. It should be easy for any administrator to scale web service and databases on demand, because of distributed services. For example, the technical choice of etcd over Redis or CockroachDB over PostgreSQL can make the difference. You can choose to scale the server or the storage (IPFS Swarm) as you wish, independently. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
 
-#### G2: Privacy & Security by Default
+#### G2: Security by Default
 
-Gilfoyle was created in an effort to bring a new privacy and watch experience to end-users. This application collects very few things about end-user and tend to keep it that way. Althrough we take security very seriously, the API wasn't designed to be exposed to the public network. Usually administrator would isolate the interface in a security group with access restricted to other services. Gilfoyle shouldn't be the primary backend of your application, but a private storage service used by your own API. Still, you can deploy and expose publicly this service in production.
+This application collects very few things about end-user and tend to keep it that way. Althrough we take security very seriously, the API wasn't designed to be exposed to the public network. Usually administrator would isolate the interface in a security group with access restricted to other services. Gilfoyle shouldn't be the primary backend of your application, but a private storage service used by your own API. Still, you can deploy and expose publicly this service in production.
 
 #### G3: Customizable
 
-The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples. Of course, this application was designed to follow your application's scale. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
+The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples.
 
-#### G4: Decentralized
+#### G4: Flexible storage
 
-We use IPFS for two major reasons :
+You can choose the appropriate storage system between: **local storage**, **cloud storage**, or **IPFS store**.
 
-1. Making businesses able to scale storage using a private cluster
-2. Allowing administrators to exposes videos publicly
+##### Local storage
+
+> The local store refers to the local disk.
+
+This option is for small trafic, small and private files.
+
+##### Cloud storage
+
+> Cloud storage is an external object-based storage system, such as [AWS S3](https://aws.amazon.com/s3/), [OVH's object storage](https://www.ovhcloud.com/en-gb/public-cloud/object-storage/) or [Google Cloud Storage](https://cloud.google.com/storage/).
+
+This option is for businesses with high trafic, large and private files.
+
+##### IPFS store
+
+> IPFS is a peer-to-peer network for storing and sharing data in a distributed file system with a lot of features.
+
+This option is for P2P-based platforms who wants to decentralize content but with high trafic and large files.
 
 #### G5: Multimedia
 
@@ -48,6 +63,8 @@ Gilfoyle is not another YouTube alternative. It doesn't provide social features 
 ## Design
 
 TODO
+
+![high leval architecture](https://i.imgur.com/fYvzRzG.png)
 
 ### Dependencies
 
