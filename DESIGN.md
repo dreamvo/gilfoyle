@@ -64,7 +64,7 @@ Gilfoyle is not another YouTube alternative. It doesn't provide social features 
 
 TODO
 
-![high leval architecture](https://i.imgur.com/fYvzRzG.png)
+![high leval architecture](https://i.imgur.com/JZiN0cF.png)
 
 ### Dependencies
 
