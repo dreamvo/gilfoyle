@@ -90,7 +90,7 @@ Of course, this list can evolve over time with no warrancy.
 
 #### High level architecture
 
-![high level architecture](https://i.imgur.com/JZiN0cF.png)
+![high level architecture](https://i.imgur.com/jlGOijy.png)
 
 #### External interfaces
 
