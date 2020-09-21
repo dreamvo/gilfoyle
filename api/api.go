@@ -20,7 +20,7 @@ const (
 // @title Gilfoyle server
 // @description Video streaming server backed by decentralized filesystem.
 // @version 0.1-beta
-// @host localhost:8080
+// @host demo-v1.gilfoyle.dreamvo.com
 // @BasePath /
 // @schemes http https
 // @license.name GNU General Public License v3.0
