@@ -1,5 +1,17 @@
 basePath: /
 definitions:
+  api.CreateVideo:
+    properties:
+      title:
+        example: Sheep Discovers How To Use A Trampoline
+        type: string
+    type: object
+  api.UpdateVideo:
+    properties:
+      title:
+        example: Sheep Discovers How To Use A Trampoline
+        type: string
+    type: object
   ent.Video:
     properties:
       created_at:
@@ -96,10 +108,10 @@ paths:
       parameters:
       - description: Video title
         in: body
-        name: title
+        name: video
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/api.CreateVideo'
       produces:
       - application/json
       responses:
@@ -200,10 +212,10 @@ paths:
         type: string
       - description: Video title
         in: body
-        name: title
+        name: video
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/api.UpdateVideo'
       produces:
       - application/json
       responses:

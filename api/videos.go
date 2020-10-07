@@ -19,6 +19,14 @@ type videoBody struct {
 	Title string `json:"title"`
 }
 
+type CreateVideo struct {
+	Title string `json:"title" example:"Sheep Discovers How To Use A Trampoline"`
+}
+
+type UpdateVideo struct {
+	CreateVideo
+}
+
 // @ID getAllVideos
 // @Tags videos
 // @Summary Query videos
@@ -124,7 +132,7 @@ func deleteVideo(ctx *gin.Context) {
 // @Failure 400 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos [post]
-// @Param title body string true "Video title" validate(required)
+// @Param video body CreateVideo true "Video data" validate(required)
 func createVideo(ctx *gin.Context) {
 	var body videoBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -161,7 +169,7 @@ func createVideo(ctx *gin.Context) {
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos/{id} [patch]
 // @Param id path string true "Video ID" validate(required)
-// @Param title body string true "Video title" validate(required)
+// @Param video body UpdateVideo true "Video data" validate(required)
 func updateVideo(ctx *gin.Context) {
 	id := ctx.Param("id")
 

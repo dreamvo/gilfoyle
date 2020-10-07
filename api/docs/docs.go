@@ -120,11 +120,11 @@ var doc = `{
                 "parameters": [
                     {
                         "description": "Video title",
-                        "name": "title",
+                        "name": "video",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.CreateVideo"
                         }
                     }
                 ],
@@ -284,11 +284,11 @@ var doc = `{
                     },
                     {
                         "description": "Video title",
-                        "name": "title",
+                        "name": "video",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.UpdateVideo"
                         }
                     }
                 ],
@@ -404,6 +404,24 @@ var doc = `{
         }
     },
     "definitions": {
+        "api.CreateVideo": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
+        "api.UpdateVideo": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
         "ent.Video": {
             "type": "object",
             "properties": {
