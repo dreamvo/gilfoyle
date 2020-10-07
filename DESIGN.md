@@ -1,6 +1,6 @@
 *Author: raphael@crvx.fr*
 
-Gilfoyle was created with privacy, scale and security in mind. It's not only a storage server for your videos, it's a complete media streaming server. It handles file upload, processing, and streaming.
+Gilfoyle was created with scale in mind. It's not only a storage server for your videos, it's a complete media streaming server. It handles file upload, processing, and streaming at your own scale.
 
 This is intended to be a **high level** design document. Some of the implementation details are going to be decided after the prototyping phase.
 
@@ -16,23 +16,20 @@ To resume, Gilfoyle is a **self-hosted** and **open source** version of existing
 
 ### Goals
 
-#### G1: High availability
+#### G1: Cloud-native
 
-We want to provide a efficient product for high scale businesses. It should be easy for any administrator to scale web service and databases on demand, because of distributed services. For example, the technical choice of etcd over Redis or CockroachDB over PostgreSQL can make the difference. You can choose to scale the server or the storage (IPFS Swarm) as you wish, independently. You can even [scale your own IPFS cluster](https://cluster.ipfs.io/).
+> Cloud native applications are built from the ground up—optimized for cloud scale and performance. They’re based on microservices architectures, use managed services, and take advantage of continuous delivery to achieve reliability and faster time to market. [Read more](https://azure.microsoft.com/en-us/overview/cloudnative/)
 
-#### G2: Security by Default
-
-This application collects very few things about end-user and tend to keep it that way. Althrough we take security very seriously, the API wasn't designed to be exposed to the public network. Usually administrator would isolate the interface in a security group with access restricted to other services. Gilfoyle shouldn't be the primary backend of your application, but a private storage service used by your own API. Still, you can deploy and expose publicly this service in production.
-
-#### G3: Customizable
+We want to provide a cloud-native application for high scale businesses. It should be easy for any administrator to scale web service and databases on demand, because of distributed services. For example, the technical choice of etcd over Redis or CockroachDB over PostgreSQL can make the difference. You can choose to scale the server or the storage as you wish, independently. For example you can [scale your own IPFS cluster](https://cluster.ipfs.io/).
+#### G2: Customizable
 
 The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples.
 
-#### G4: Flexible storage
+#### G3: Flexible storage, P2P support out-of-the-box
 
 You can choose the appropriate storage system between: **local storage**, **cloud storage**, or **IPFS store**.
 
-##### Local storage
+##### Filesystem (local)
 
 > The local store refers to the local disk.
 
@@ -56,13 +53,17 @@ The service handles both video and audio. It means you can use it to create your
 
 ### Non-goals
 
+#### Security by Default
+
+Althrough we take security very seriously, the API wasn't designed to be exposed to the public network. Usually administrator would isolate the interface in a security group with access restricted to other services. Gilfoyle shouldn't be the primary backend of your application, but a private storage service used by your own API. Still, you can deploy and expose publicly this service in production.
+
 #### Social features
 
 Gilfoyle is not another YouTube alternative. It doesn't provide social features such as likes, comments, channels or subscriptions.
 
 #### Federation
 
-Federation is for P2P-based platforms for which reliability is a top priority. As we want to prioritize business usage and privacy, we cannot support federation.
+Federation is for P2P-based platforms for which reliability is a top priority. As we want to prioritize business usage, we cannot support federation.
 
 ## Design
 
