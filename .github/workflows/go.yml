@@ -28,14 +28,24 @@ jobs:
           go generate ./...
           go build -v .
 
-      - name: Lint
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.24.0
-          ./bin/golangci-lint run
-
       - name: Test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
           go test -race -coverprofile=coverage.txt -covermode=atomic -v -bench=. ./...
           bash <(curl -s https://codecov.io/bash)
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Validate OpenAPI specs
+        run: |
+          npm install -g @apidevtools/swagger-cli
+          swagger-cli validate ./api/docs/swagger.json
+
+      - name: Lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.24.0
+          ./bin/golangci-lint run
