@@ -57,8 +57,7 @@ func RegisterRoutes(r *gin.Engine, opts RouterOptions) *gin.Engine {
 // @Summary Check service status
 // @Description Check for the health of the service
 // @Produce  json
-// @Success 200 {object} httputils.DataResponse
-// @Failure 500 {object} httputils.ErrorResponse
+// @Success 200 {object} interface{}
 // @Router /health [get]
 func healthCheckHandler(ctx *gin.Context) {
 	ctx.AbortWithStatus(200)
