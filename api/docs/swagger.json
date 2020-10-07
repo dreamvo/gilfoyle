@@ -114,8 +114,6 @@
                 "operationId": "createVideo",
                 "parameters": [
                     {
-                        "maxLength": 255,
-                        "minLength": 1,
                         "description": "Video title",
                         "name": "title",
                         "in": "body",
@@ -172,8 +170,6 @@
                 "operationId": "getVideo",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
                         "description": "Video ID",
                         "name": "id",
@@ -226,8 +222,6 @@
                 "operationId": "deleteVideo",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
                         "description": "Video ID",
                         "name": "id",
@@ -277,8 +271,6 @@
                 "operationId": "updateVideo",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
                         "description": "Video ID",
                         "name": "id",
@@ -286,8 +278,6 @@
                         "required": true
                     },
                     {
-                        "maxLength": 255,
-                        "minLength": 1,
                         "description": "Video title",
                         "name": "title",
                         "in": "body",
@@ -353,8 +343,6 @@
                 "operationId": "uploadVideoFile",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
                         "description": "Video ID",
                         "name": "id",

@@ -1,4 +1,4 @@
-//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go --generatedTime
+//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go
 package api
 
 import (

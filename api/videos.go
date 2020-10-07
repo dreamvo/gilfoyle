@@ -27,8 +27,8 @@ type videoBody struct {
 // @Success 200 {object} httputils.DataResponse{data=[]ent.Video}
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos [get]
-// @Param limit query int false "Max number of results" minimum(1) maximum(100)
-// @Param offset query int false "Number of results to ignore" minimum(0)
+// @Param limit query int false "Max number of results"
+// @Param offset query int false "Number of results to ignore"
 func getVideos(ctx *gin.Context) {
 	limit := ctx.GetInt("limit")
 	offset := ctx.GetInt("offset")
@@ -52,7 +52,7 @@ func getVideos(ctx *gin.Context) {
 // @Summary Get a video
 // @Description get one video
 // @Produce  json
-// @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
+// @Param id path string true "Video ID" validate(required)
 // @Success 200 {object} httputils.DataResponse{data=ent.Video}
 // @Failure 404 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
@@ -84,7 +84,7 @@ func getVideo(ctx *gin.Context) {
 // @Summary Delete a video
 // @Description Delete one video
 // @Produce  json
-// @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
+// @Param id path string true "Video ID" validate(required)
 // @Success 200 {object} httputils.DataResponse
 // @Failure 400 {object} httputils.ErrorResponse
 // @Failure 404 {object} httputils.ErrorResponse
@@ -124,7 +124,7 @@ func deleteVideo(ctx *gin.Context) {
 // @Failure 400 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos [post]
-// @Param title body string true "Video title" minlength(1) maxlength(255) validate(required)
+// @Param title body string true "Video title" validate(required)
 func createVideo(ctx *gin.Context) {
 	var body videoBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
@@ -160,8 +160,8 @@ func createVideo(ctx *gin.Context) {
 // @Failure 404 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos/{id} [patch]
-// @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
-// @Param title body string true "Video title" minlength(1) maxlength(255) validate(required)
+// @Param id path string true "Video ID" validate(required)
+// @Param title body string true "Video title" validate(required)
 func updateVideo(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -210,7 +210,7 @@ func updateVideo(ctx *gin.Context) {
 // @Failure 400 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
 // @Router /videos/{id}/upload [post]
-// @Param id path string true "Video ID" minlength(36) maxlength(36) validate(required)
+// @Param id path string true "Video ID" validate(required)
 // @Param file formData file true "Video file"
 func uploadVideoFile(ctx *gin.Context) {
 	ctx.Status(200)
