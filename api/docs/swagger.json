@@ -38,6 +38,7 @@
                     "videos"
                 ],
                 "summary": "Query videos",
+                "operationId": "getAllVideos",
                 "parameters": [
                     {
                         "type": "integer",
@@ -94,6 +95,7 @@
                     "videos"
                 ],
                 "summary": "Create a video",
+                "operationId": "createVideo",
                 "parameters": [
                     {
                         "maxLength": 255,
@@ -151,6 +153,7 @@
                     "videos"
                 ],
                 "summary": "Get a video",
+                "operationId": "getVideo",
                 "parameters": [
                     {
                         "maxLength": 36,
@@ -204,6 +207,7 @@
                     "videos"
                 ],
                 "summary": "Delete a video",
+                "operationId": "deleteVideo",
                 "parameters": [
                     {
                         "maxLength": 36,
@@ -254,6 +258,7 @@
                     "videos"
                 ],
                 "summary": "Update a video",
+                "operationId": "updateVideo",
                 "parameters": [
                     {
                         "maxLength": 36,
@@ -329,6 +334,7 @@
                     "videos"
                 ],
                 "summary": "Upload a video file",
+                "operationId": "uploadVideoFile",
                 "parameters": [
                     {
                         "maxLength": 36,

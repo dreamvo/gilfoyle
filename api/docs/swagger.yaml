@@ -50,6 +50,7 @@ paths:
   /videos:
     get:
       description: get latest videos
+      operationId: getAllVideos
       parameters:
       - description: Max number of results
         in: query
@@ -84,6 +85,7 @@ paths:
       consumes:
       - application/json
       description: Create a new video
+      operationId: createVideo
       parameters:
       - description: Video title
         in: body
@@ -119,6 +121,7 @@ paths:
   /videos/{id}:
     delete:
       description: Delete one video
+      operationId: deleteVideo
       parameters:
       - description: Video ID
         in: path
@@ -151,6 +154,7 @@ paths:
       - videos
     get:
       description: get one video
+      operationId: getVideo
       parameters:
       - description: Video ID
         in: path
@@ -186,6 +190,7 @@ paths:
       consumes:
       - application/json
       description: Update an existing video
+      operationId: updateVideo
       parameters:
       - description: Video ID
         in: path
@@ -234,6 +239,7 @@ paths:
       consumes:
       - multipart/form-data
       description: Upload a new video file for a given video ID
+      operationId: uploadVideoFile
       parameters:
       - description: Video ID
         in: path

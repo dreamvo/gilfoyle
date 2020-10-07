@@ -49,6 +49,7 @@ var doc = `{
                     "videos"
                 ],
                 "summary": "Query videos",
+                "operationId": "getAllVideos",
                 "parameters": [
                     {
                         "type": "integer",
@@ -105,6 +106,7 @@ var doc = `{
                     "videos"
                 ],
                 "summary": "Create a video",
+                "operationId": "createVideo",
                 "parameters": [
                     {
                         "maxLength": 255,
@@ -162,6 +164,7 @@ var doc = `{
                     "videos"
                 ],
                 "summary": "Get a video",
+                "operationId": "getVideo",
                 "parameters": [
                     {
                         "maxLength": 36,
@@ -215,6 +218,7 @@ var doc = `{
                     "videos"
                 ],
                 "summary": "Delete a video",
+                "operationId": "deleteVideo",
                 "parameters": [
                     {
                         "maxLength": 36,
@@ -265,6 +269,7 @@ var doc = `{
                     "videos"
                 ],
                 "summary": "Update a video",
+                "operationId": "updateVideo",
                 "parameters": [
                     {
                         "maxLength": 36,
@@ -340,6 +345,7 @@ var doc = `{
                     "videos"
                 ],
                 "summary": "Upload a video file",
+                "operationId": "uploadVideoFile",
                 "parameters": [
                     {
                         "maxLength": 36,
