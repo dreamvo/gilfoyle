@@ -11,16 +11,14 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/video"
 	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"net/http"
 )
 
-type videoBody struct {
-	Title string `json:"title"`
-}
 
 type CreateVideo struct {
-	Title string `json:"title" example:"Sheep Discovers How To Use A Trampoline"`
+	Title string `json:"title" validate:"required,gte=1,lte=255" example:"Sheep Discovers How To Use A Trampoline"`
 }
 
 type UpdateVideo struct {
@@ -134,7 +132,13 @@ func deleteVideo(ctx *gin.Context) {
 // @Router /videos [post]
 // @Param video body CreateVideo true "Video data" validate(required)
 func createVideo(ctx *gin.Context) {
-	var body videoBody
+	err := validator.New().StructCtx(ctx, CreateVideo{})
+	if err != nil {
+		httputils.NewValidationError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	var body CreateVideo
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, err)
 		return
@@ -185,7 +189,7 @@ func updateVideo(ctx *gin.Context) {
 		return
 	}
 
-	var body videoBody
+	var body UpdateVideo
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
 		return

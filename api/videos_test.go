@@ -28,7 +28,7 @@ func TestVideo(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "GET", "/videos")
+			res, err := performRequest(r, "GET", "/videos", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -54,7 +54,7 @@ func TestVideo(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/videos")
+			res, err := performRequest(r, "GET", "/videos", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -80,7 +80,7 @@ func TestVideo(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/videos?limit=2")
+			res, err := performRequest(r, "GET", "/videos?limit=2", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -110,7 +110,7 @@ func TestVideo(t *testing.T) {
 				SetStatus(schema.VideoStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "GET", "/videos?offset=1")
+			res, err := performRequest(r, "GET", "/videos?offset=1", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -128,7 +128,7 @@ func TestVideo(t *testing.T) {
 
 	t.Run("GET /videos/{id}", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
-			res, err := performRequest(r, "GET", "/videos/uuid")
+			res, err := performRequest(r, "GET", "/videos/uuid", nil)
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -149,7 +149,7 @@ func TestVideo(t *testing.T) {
 				SetStatus(schema.VideoStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "GET", "/videos/"+v.ID.String())
+			res, err := performRequest(r, "GET", "/videos/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -175,12 +175,12 @@ func TestVideo(t *testing.T) {
 				SetStatus(schema.VideoStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "DELETE", "/videos/"+v.ID.String())
+			res, err := performRequest(r, "DELETE", "/videos/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 
-			res, err = performRequest(r, "DELETE", "/videos/"+v.ID.String())
+			res, err = performRequest(r, "DELETE", "/videos/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -194,7 +194,7 @@ func TestVideo(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "DELETE", "/videos/uuid")
+			res, err := performRequest(r, "DELETE", "/videos/uuid", nil)
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -206,28 +206,81 @@ func TestVideo(t *testing.T) {
 		})
 	})
 
-	t.Run("POST /videos", func(t *testing.T) {})
+	t.Run("POST /videos", func(t *testing.T) {
+		t.Run("should create a new video", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			res, err := performRequest(r, "POST", "/videos", CreateVideo{
+				Title: "test",
+			})
+			assert.NoError(err, "should be equal")
+
+			var body httputils.DataResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(200, res.Result().StatusCode, "should be equal")
+			assert.Equal("test", body.Data.(map[string]interface{})["title"])
+			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
+		})
+
+		t.Run("should return validation error", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			res, err := performRequest(r, "POST", "/videos", CreateVideo{
+				Title: "",
+			})
+			assert.NoError(err, "should be equal")
+
+			var body httputils.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(400, res.Result().StatusCode, "should be equal")
+			assert.Equal("ent: validator failed for field \"title\": value is less than the required length", body.Message)
+		})
+
+		t.Run("should return validation error", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			res, err := performRequest(r, "POST", "/videos", nil)
+			assert.NoError(err, "should be equal")
+
+			var body httputils.ValidationErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(400, res.Result().StatusCode, "should be equal")
+			assert.Equal("Some parameters are missing or invalid", body.Message)
+			assert.Equal(map[string]httputils.ValidationField{
+				"Title": {
+					Message: "field is invalid",
+					Type:   "string",
+				},
+			}, body.Fields)
+		})
+	})
 
 	t.Run("PATCH /videos/{id}", func(t *testing.T) {})
 
 	t.Run("POST /videos/{id}/upload", func(t *testing.T) {
 		t.Run("(WIP) should return 200", func(t *testing.T) {
-			res, err := performRequest(r, "POST", "/videos/uuid/upload")
+			res, err := performRequest(r, "POST", "/videos/uuid/upload", nil)
 			assert.NoError(err, "should be equal")
 
-			assert.Equal(res.Result().StatusCode, 200, "should be equal")
+			assert.Equal(200, res.Result().StatusCode, "should be equal")
 		})
 
 		t.Run("should return error on invalid uuid", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "DELETE", "/videos/uuid")
+			res, err := performRequest(r, "DELETE", "/videos/uuid", nil)
 			assert.Equal(nil, err, "should be equal")
 
 			body, _ := ioutil.ReadAll(res.Body)
 
-			assert.Equal(res.Result().StatusCode, 400, "should be equal")
+			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.JSONEq("{\"code\": 400, \"message\":\"invalid UUID provided\"}", string(body))
 		})
 	})
