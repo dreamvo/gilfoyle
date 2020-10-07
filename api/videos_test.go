@@ -19,7 +19,9 @@ import (
 func TestVideo(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.Default()
-	r = RegisterRoutes(r, false)
+	r = RegisterRoutes(r, RouterOptions{
+		ExposeSwaggerUI: false,
+	})
 
 	t.Run("GET /videos", func(t *testing.T) {
 		t.Run("should return empty array", func(t *testing.T) {

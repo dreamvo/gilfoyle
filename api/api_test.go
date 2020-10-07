@@ -20,7 +20,9 @@ func performRequest(r http.Handler, method, path string) (*httptest.ResponseReco
 func TestApi(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.Default()
-	r = RegisterRoutes(r, false)
+	r = RegisterRoutes(r, RouterOptions{
+		ExposeSwaggerUI: false,
+	})
 
 	t.Run("GET /health", func(t *testing.T) {
 		res, err := performRequest(r, "GET", "/health")
