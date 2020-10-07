@@ -41,11 +41,15 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed creating schema resources: %v", err)
 		}
 
-		r := gin.Default()
+		router := gin.Default()
 
-		api.RegisterRoutes(r, config.GetConfig().Settings.ServeDocs)
+		api.RegisterRoutes(router, api.RouterOptions{
+			ExposeSwaggerUI: config.GetConfig().Settings.ExposeSwaggerUI,
+		})
 
-		// launch web server
-		_ = r.Run(fmt.Sprintf(":%d", httpPort))
+		// Launch web server
+		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
+			fmt.Printf("error while launching web server: %e\n", err)
+		}
 	},
 }

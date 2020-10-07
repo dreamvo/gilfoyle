@@ -460,7 +460,7 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "0.1-beta",
-	Host:        "localhost:8080",
+	Host:        "demo-v1.gilfoyle.dreamvo.com",
 	BasePath:    "/",
 	Schemes:     []string{"http", "https"},
 	Title:       "Gilfoyle server",

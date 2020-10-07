@@ -14,7 +14,7 @@
         },
         "version": "0.1-beta"
     },
-    "host": "localhost:8080",
+    "host": "demo-v1.gilfoyle.dreamvo.com",
     "basePath": "/",
     "paths": {
         "/health": {

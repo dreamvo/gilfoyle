@@ -30,7 +30,7 @@ definitions:
         example: status bad request
         type: string
     type: object
-host: localhost:8080
+host: demo-v1.gilfoyle.dreamvo.com
 info:
   contact: {}
   description: Video streaming server backed by decentralized filesystem.

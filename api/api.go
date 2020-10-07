@@ -17,6 +17,10 @@ const (
 	ErrResourceNotFound = "resource not found"
 )
 
+type RouterOptions struct {
+	ExposeSwaggerUI bool
+}
+
 // @title Gilfoyle server
 // @description Video streaming server backed by decentralized filesystem.
 // @version 0.1-beta
@@ -27,7 +31,7 @@ const (
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
 // RegisterRoutes adds routes to a given router instance
-func RegisterRoutes(r *gin.Engine, serveDocs bool) *gin.Engine {
+func RegisterRoutes(r *gin.Engine, opts RouterOptions) *gin.Engine {
 	r.GET("/health", healthCheckHandler)
 
 	videos := r.Group("/videos")
@@ -40,7 +44,7 @@ func RegisterRoutes(r *gin.Engine, serveDocs bool) *gin.Engine {
 		videos.POST(":id/upload", uploadVideoFile)
 	}
 
-	if serveDocs {
+	if opts.ExposeSwaggerUI {
 		// register swagger docs handler
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}

@@ -19,6 +19,7 @@ type videoBody struct {
 	Title string `json:"title"`
 }
 
+// @ID getAllVideos
 // @Tags videos
 // @Summary Query videos
 // @Description get latest videos
@@ -46,6 +47,7 @@ func getVideos(ctx *gin.Context) {
 	httputils.NewData(ctx, http.StatusOK, videos)
 }
 
+// @ID getVideo
 // @Tags videos
 // @Summary Get a video
 // @Description get one video
@@ -77,6 +79,7 @@ func getVideo(ctx *gin.Context) {
 	httputils.NewData(ctx, http.StatusOK, v)
 }
 
+// @ID deleteVideo
 // @Tags videos
 // @Summary Delete a video
 // @Description Delete one video
@@ -111,6 +114,7 @@ func deleteVideo(ctx *gin.Context) {
 	httputils.NewData(ctx, http.StatusOK, nil)
 }
 
+// @ID createVideo
 // @Tags videos
 // @Summary Create a video
 // @Description Create a new video
@@ -145,6 +149,7 @@ func createVideo(ctx *gin.Context) {
 	httputils.NewData(ctx, http.StatusOK, v)
 }
 
+// @ID updateVideo
 // @Tags videos
 // @Summary Update a video
 // @Description Update an existing video
@@ -194,6 +199,7 @@ func updateVideo(ctx *gin.Context) {
 	httputils.NewData(ctx, http.StatusOK, v)
 }
 
+// @ID uploadVideoFile
 // @Tags videos
 // @Summary Upload a video file
 // @Description Upload a new video file for a given video ID
