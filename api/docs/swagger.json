@@ -19,12 +19,28 @@
     "paths": {
         "/health": {
             "get": {
+                "description": "Check for the health of the service",
+                "produces": [
+                    "application/json"
+                ],
                 "tags": [
                     "health"
                 ],
                 "summary": "Check service status",
+                "operationId": "checkHealth",
                 "responses": {
-                    "200": {}
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httputils.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/httputils.ErrorResponse"
+                        }
+                    }
                 }
             }
         },

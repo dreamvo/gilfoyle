@@ -1,4 +1,4 @@
-//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go
+//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go --generatedTime
 package api
 
 import (
@@ -52,9 +52,13 @@ func RegisterRoutes(r *gin.Engine, opts RouterOptions) *gin.Engine {
 	return r
 }
 
+// @ID checkHealth
 // @Tags health
 // @Summary Check service status
-// @Success 200
+// @Description Check for the health of the service
+// @Produce  json
+// @Success 200 {object} httputils.DataResponse
+// @Failure 500 {object} httputils.ErrorResponse
 // @Router /health [get]
 func healthCheckHandler(ctx *gin.Context) {
 	ctx.AbortWithStatus(200)
