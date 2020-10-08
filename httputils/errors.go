@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"strings"
 )
 
 // ErrorResponse example
@@ -13,14 +14,14 @@ type ErrorResponse struct {
 }
 
 type ValidationField struct {
-	Message string
-	Type    string
+	Tag  string `json:"tag"`
+	Type string `json:"type"`
 }
 
 type ValidationErrorResponse struct {
 	Code    int                        `json:"code" example:"400"`
 	Message string                     `json:"message" example:"status bad request"`
-	Fields  map[string]ValidationField `json:"fields"`
+	Fields  map[string]string `json:"fields"`
 }
 
 // NewError returns a new error response
@@ -39,13 +40,10 @@ func NewValidationError(ctx *gin.Context, status int, err error) {
 		return
 	}
 
-	fields := map[string]ValidationField{}
-
+	fields := map[string]string{}
+	
 	for _, err := range err.(validator.ValidationErrors) {
-		fields[err.Field()] = ValidationField{
-			Message: "field is invalid",
-			Type:    err.Type().String(),
-		}
+		fields[strings.ToLower(err.Field())] = err.Error()
 	}
 
 	response := ValidationErrorResponse{

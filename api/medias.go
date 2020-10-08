@@ -131,15 +131,15 @@ func deleteMedia(ctx *gin.Context) {
 // @Router /medias [post]
 // @Param media body CreateMedia true "Media data" validate(required)
 func createMedia(ctx *gin.Context) {
-	err := validator.New().StructCtx(ctx, CreateMedia{})
-	if err != nil {
-		httputils.NewValidationError(ctx, http.StatusBadRequest, err)
+	var body CreateMedia
+	if err := ctx.BindJSON(&body); err != nil {
+		httputils.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	var body CreateMedia
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, err)
+	err := validator.New().Struct(body)
+	if err != nil {
+		httputils.NewValidationError(ctx, http.StatusBadRequest, err)
 		return
 	}
 

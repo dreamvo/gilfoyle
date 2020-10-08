@@ -213,17 +213,17 @@ func TestMedias(t *testing.T) {
 			res, err := performRequest(r, "POST", "/medias", CreateMedia{
 				Title: "test",
 			})
-			assert.NoError(err, "should be equal")
+			assert.NoError(err)
 
 			var body httputils.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
-			assert.Equal(200, res.Result().StatusCode, "should be equal")
+			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test", body.Data.(map[string]interface{})["title"])
 			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
 		})
 
-		t.Run("should return ent's validation error", func(t *testing.T) {
+		t.Run("should return validation error (1)", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
@@ -232,14 +232,17 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body httputils.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
-			assert.Equal("ent: validator failed for field \"title\": value is less than the required length", body.Message)
+			assert.Equal("Some parameters are missing or invalid", body.Message)
+			assert.Equal(map[string]string{
+				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'gte' tag",
+			}, body.Fields)
 		})
 
-		t.Run("should return validation error", func(t *testing.T) {
+		t.Run("should return validation error (2)", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
@@ -251,11 +254,8 @@ func TestMedias(t *testing.T) {
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.Equal("Some parameters are missing or invalid", body.Message)
-			assert.Equal(map[string]httputils.ValidationField{
-				"Title": {
-					Message: "field is invalid",
-					Type:    "string",
-				},
+			assert.Equal(map[string]string{
+				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'required' tag",
 			}, body.Fields)
 		})
 	})
