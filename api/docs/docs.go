@@ -49,17 +49,17 @@ var doc = `{
                 }
             }
         },
-        "/videos": {
+        "/medias": {
             "get": {
-                "description": "get latest videos",
+                "description": "Get latest created medias",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Query videos",
-                "operationId": "getAllVideos",
+                "summary": "Query medias",
+                "operationId": "getAllMedias",
                 "parameters": [
                     {
                         "type": "integer",
@@ -88,7 +88,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/ent.Video"
+                                                "$ref": "#/definitions/ent.Media"
                                             }
                                         }
                                     }
@@ -105,7 +105,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "Create a new video",
+                "description": "Create a new media",
                 "consumes": [
                     "application/json"
                 ],
@@ -113,18 +113,18 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Create a video",
-                "operationId": "createVideo",
+                "summary": "Create a media",
+                "operationId": "createMedia",
                 "parameters": [
                     {
-                        "description": "Video title",
-                        "name": "video",
+                        "description": "Media data",
+                        "name": "media",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.CreateVideo"
+                            "$ref": "#/definitions/api.CreateMedia"
                         }
                     }
                 ],
@@ -140,7 +140,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -162,21 +162,21 @@ var doc = `{
                 }
             }
         },
-        "/videos/{id}": {
+        "/medias/{id}": {
             "get": {
-                "description": "get one video",
+                "description": "Get one media",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Get a video",
-                "operationId": "getVideo",
+                "summary": "Get a media",
+                "operationId": "getMedia",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -194,7 +194,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -216,19 +216,19 @@ var doc = `{
                 }
             },
             "delete": {
-                "description": "Delete one video",
+                "description": "Delete one media",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Delete a video",
-                "operationId": "deleteVideo",
+                "summary": "Delete a media",
+                "operationId": "deleteMedia",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -262,7 +262,7 @@ var doc = `{
                 }
             },
             "patch": {
-                "description": "Update an existing video",
+                "description": "Update an existing media",
                 "consumes": [
                     "application/json"
                 ],
@@ -270,25 +270,25 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Update a video",
-                "operationId": "updateVideo",
+                "summary": "Update a media",
+                "operationId": "updateMedia",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "Video title",
-                        "name": "video",
+                        "description": "Media data",
+                        "name": "media",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.UpdateVideo"
+                            "$ref": "#/definitions/api.UpdateMedia"
                         }
                     }
                 ],
@@ -304,7 +304,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -332,9 +332,9 @@ var doc = `{
                 }
             }
         },
-        "/videos/{id}/upload": {
+        "/medias/{id}/upload": {
             "post": {
-                "description": "Upload a new video file for a given video ID",
+                "description": "Upload a new media file for a given media ID",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -342,21 +342,21 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Upload a video file",
-                "operationId": "uploadVideoFile",
+                "summary": "Upload a media file",
+                "operationId": "uploadMediaFile",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "file",
-                        "description": "Video file",
+                        "description": "Media file",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -374,7 +374,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -404,8 +404,11 @@ var doc = `{
         }
     },
     "definitions": {
-        "api.CreateVideo": {
+        "api.CreateMedia": {
             "type": "object",
+            "required": [
+                "title"
+            ],
             "properties": {
                 "title": {
                     "type": "string",
@@ -413,8 +416,11 @@ var doc = `{
                 }
             }
         },
-        "api.UpdateVideo": {
+        "api.UpdateMedia": {
             "type": "object",
+            "required": [
+                "title"
+            ],
             "properties": {
                 "title": {
                     "type": "string",
@@ -422,7 +428,7 @@ var doc = `{
                 }
             }
         },
-        "ent.Video": {
+        "ent.Media": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -486,7 +492,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "/",
 	Schemes:     []string{"http", "https"},
 	Title:       "Gilfoyle server",
-	Description: "Video streaming server backed by decentralized filesystem.",
+	Description: "Media streaming server backed by decentralized filesystem.",
 }
 
 type s struct{}

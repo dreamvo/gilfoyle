@@ -22,7 +22,7 @@ type RouterOptions struct {
 }
 
 // @title Gilfoyle server
-// @description Video streaming server backed by decentralized filesystem.
+// @description Media streaming server backed by decentralized filesystem.
 // @version 0.1-beta
 // @host demo-v1.gilfoyle.dreamvo.com
 // @BasePath /
@@ -34,14 +34,14 @@ type RouterOptions struct {
 func RegisterRoutes(r *gin.Engine, opts RouterOptions) *gin.Engine {
 	r.GET("/health", healthCheckHandler)
 
-	videos := r.Group("/videos")
+	medias := r.Group("/medias")
 	{
-		videos.GET("", paginateHandler, getVideos)
-		videos.GET(":id", getVideo)
-		videos.DELETE(":id", deleteVideo)
-		videos.POST("", createVideo)
-		videos.PATCH(":id", updateVideo)
-		videos.POST(":id/upload", uploadVideoFile)
+		medias.GET("", paginateHandler, getAllMedias)
+		medias.GET(":id", getMedia)
+		medias.DELETE(":id", deleteMedia)
+		medias.POST("", createMedia)
+		medias.PATCH(":id", updateMedia)
+		medias.POST(":id/upload", uploadMediaFile)
 	}
 
 	if opts.ExposeSwaggerUI {

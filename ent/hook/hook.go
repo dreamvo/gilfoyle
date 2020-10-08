@@ -9,6 +9,19 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 )
 
+// The MediaFunc type is an adapter to allow the use of ordinary
+// function as Media mutator.
+type MediaFunc func(context.Context, *ent.MediaMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MediaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.MediaMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MediaMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The VideoFunc type is an adapter to allow the use of ordinary
 // function as Video mutator.
 type VideoFunc func(context.Context, *ent.VideoMutation) (ent.Value, error)

@@ -1,18 +1,22 @@
 basePath: /
 definitions:
-  api.CreateVideo:
+  api.CreateMedia:
     properties:
       title:
         example: Sheep Discovers How To Use A Trampoline
         type: string
+    required:
+    - title
     type: object
-  api.UpdateVideo:
+  api.UpdateMedia:
     properties:
       title:
         example: Sheep Discovers How To Use A Trampoline
         type: string
+    required:
+    - title
     type: object
-  ent.Video:
+  ent.Media:
     properties:
       created_at:
         type: string
@@ -45,7 +49,7 @@ definitions:
 host: demo-v1.gilfoyle.dreamvo.com
 info:
   contact: {}
-  description: Video streaming server backed by decentralized filesystem.
+  description: Media streaming server backed by decentralized filesystem.
   license:
     name: GNU General Public License v3.0
     url: https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
@@ -66,10 +70,10 @@ paths:
       summary: Check service status
       tags:
       - health
-  /videos:
+  /medias:
     get:
-      description: get latest videos
-      operationId: getAllVideos
+      description: Get latest created medias
+      operationId: getAllMedias
       parameters:
       - description: Max number of results
         in: query
@@ -90,28 +94,28 @@ paths:
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/ent.Video'
+                    $ref: '#/definitions/ent.Media'
                   type: array
               type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Query videos
+      summary: Query medias
       tags:
-      - videos
+      - Medias
     post:
       consumes:
       - application/json
-      description: Create a new video
-      operationId: createVideo
+      description: Create a new media
+      operationId: createMedia
       parameters:
-      - description: Video title
+      - description: Media data
         in: body
-        name: video
+        name: media
         required: true
         schema:
-          $ref: '#/definitions/api.CreateVideo'
+          $ref: '#/definitions/api.CreateMedia'
       produces:
       - application/json
       responses:
@@ -122,7 +126,7 @@ paths:
             - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/ent.Video'
+                  $ref: '#/definitions/ent.Media'
               type: object
         "400":
           description: Bad Request
@@ -132,15 +136,15 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Create a video
+      summary: Create a media
       tags:
-      - videos
-  /videos/{id}:
+      - Medias
+  /medias/{id}:
     delete:
-      description: Delete one video
-      operationId: deleteVideo
+      description: Delete one media
+      operationId: deleteMedia
       parameters:
-      - description: Video ID
+      - description: Media ID
         in: path
         name: id
         required: true
@@ -164,14 +168,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Delete a video
+      summary: Delete a media
       tags:
-      - videos
+      - Medias
     get:
-      description: get one video
-      operationId: getVideo
+      description: Get one media
+      operationId: getMedia
       parameters:
-      - description: Video ID
+      - description: Media ID
         in: path
         name: id
         required: true
@@ -186,7 +190,7 @@ paths:
             - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/ent.Video'
+                  $ref: '#/definitions/ent.Media'
               type: object
         "404":
           description: Not Found
@@ -196,26 +200,26 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Get a video
+      summary: Get a media
       tags:
-      - videos
+      - Medias
     patch:
       consumes:
       - application/json
-      description: Update an existing video
-      operationId: updateVideo
+      description: Update an existing media
+      operationId: updateMedia
       parameters:
-      - description: Video ID
+      - description: Media ID
         in: path
         name: id
         required: true
         type: string
-      - description: Video title
+      - description: Media data
         in: body
-        name: video
+        name: media
         required: true
         schema:
-          $ref: '#/definitions/api.UpdateVideo'
+          $ref: '#/definitions/api.UpdateMedia'
       produces:
       - application/json
       responses:
@@ -226,7 +230,7 @@ paths:
             - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/ent.Video'
+                  $ref: '#/definitions/ent.Media'
               type: object
         "400":
           description: Bad Request
@@ -240,22 +244,22 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Update a video
+      summary: Update a media
       tags:
-      - videos
-  /videos/{id}/upload:
+      - Medias
+  /medias/{id}/upload:
     post:
       consumes:
       - multipart/form-data
-      description: Upload a new video file for a given video ID
-      operationId: uploadVideoFile
+      description: Upload a new media file for a given media ID
+      operationId: uploadMediaFile
       parameters:
-      - description: Video ID
+      - description: Media identifier
         in: path
         name: id
         required: true
         type: string
-      - description: Video file
+      - description: Media file
         in: formData
         name: file
         required: true
@@ -270,7 +274,7 @@ paths:
             - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/ent.Video'
+                  $ref: '#/definitions/ent.Media'
               type: object
         "400":
           description: Bad Request
@@ -284,9 +288,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Upload a video file
+      summary: Upload a media file
       tags:
-      - videos
+      - Medias
 schemes:
 - http
 - https

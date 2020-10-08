@@ -210,6 +210,30 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
+// The MediaQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type MediaQueryRuleFunc func(context.Context, *ent.MediaQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f MediaQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.MediaQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.MediaQuery", q)
+}
+
+// The MediaMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type MediaMutationRuleFunc func(context.Context, *ent.MediaMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f MediaMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.MediaMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.MediaMutation", m)
+}
+
 // The VideoQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type VideoQueryRuleFunc func(context.Context, *ent.VideoQuery) error

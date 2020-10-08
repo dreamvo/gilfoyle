@@ -6,5 +6,8 @@ import (
 	"github.com/facebookincubator/ent/dialect/sql"
 )
 
+// Media is the predicate function for media builders.
+type Media func(*sql.Selector)
+
 // Video is the predicate function for video builders.
 type Video func(*sql.Selector)
