@@ -228,7 +228,7 @@ func TestMedias(t *testing.T) {
 			defer db.Client.Close()
 
 			res, err := performRequest(r, "POST", "/medias", CreateMedia{
-				Title: "",
+				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis eos quia. Sed autem inventore iure ducimus voluptas voluptas.",
 			})
 			assert.NoError(err, "should be equal")
 
@@ -238,7 +238,7 @@ func TestMedias(t *testing.T) {
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.Equal("Some parameters are missing or invalid", body.Message)
 			assert.Equal(map[string]string{
-				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'gte' tag",
+				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'lte' tag",
 			}, body.Fields)
 		})
 
