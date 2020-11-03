@@ -34,8 +34,8 @@ func TestConfig(t *testing.T) {
 				},
 			},
 			Settings: settingsConfig{
-				ServeDocs:   true,
-				MaxFileSize: "50mb",
+				ExposeSwaggerUI: true,
+				MaxFileSize:     "50mb",
 			},
 		}, GetConfig(), "should be equal")
 	})

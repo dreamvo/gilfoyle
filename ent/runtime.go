@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/ent/video"
 	"github.com/google/uuid"
@@ -14,6 +15,39 @@ import (
 // code (default values, validators or hooks) and stitches it
 // to their package variables.
 func init() {
+	mediaFields := schema.Media{}.Fields()
+	_ = mediaFields
+	// mediaDescTitle is the schema descriptor for title field.
+	mediaDescTitle := mediaFields[1].Descriptor()
+	// media.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	media.TitleValidator = func() func(string) error {
+		validators := mediaDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+			validators[2].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// mediaDescCreatedAt is the schema descriptor for created_at field.
+	mediaDescCreatedAt := mediaFields[3].Descriptor()
+	// media.DefaultCreatedAt holds the default value on creation for the created_at field.
+	media.DefaultCreatedAt = mediaDescCreatedAt.Default.(func() time.Time)
+	// mediaDescUpdatedAt is the schema descriptor for updated_at field.
+	mediaDescUpdatedAt := mediaFields[4].Descriptor()
+	// media.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
+	// mediaDescID is the schema descriptor for id field.
+	mediaDescID := mediaFields[0].Descriptor()
+	// media.DefaultID holds the default value on creation for the id field.
+	media.DefaultID = mediaDescID.Default.(func() uuid.UUID)
 	videoFields := schema.Video{}.Fields()
 	_ = videoFields
 	// videoDescTitle is the schema descriptor for title field.

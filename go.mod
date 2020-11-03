@@ -8,6 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
+	github.com/go-playground/validator/v10 v10.4.0
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/configor v1.2.0
 	github.com/lib/pq v1.8.0

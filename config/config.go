@@ -37,8 +37,8 @@ type redisConfig struct {
 }
 
 type settingsConfig struct {
-	ServeDocs   bool   `yaml:"serve_docs" json:"serve_docs" default:"true"`
-	MaxFileSize string `yaml:"max_file_size" json:"max_file_size" default:"50mb"`
+	ExposeSwaggerUI bool   `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
+	MaxFileSize     string `yaml:"max_file_size" json:"max_file_size" default:"50mb"`
 }
 
 var config Config

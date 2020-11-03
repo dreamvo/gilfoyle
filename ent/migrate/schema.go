@@ -8,6 +8,21 @@ import (
 )
 
 var (
+	// MediaColumns holds the columns for the "media" table.
+	MediaColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "title", Type: field.TypeString, Size: 255},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"processing", "ready"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// MediaTable holds the schema information for the "media" table.
+	MediaTable = &schema.Table{
+		Name:        "media",
+		Columns:     MediaColumns,
+		PrimaryKey:  []*schema.Column{MediaColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+	}
 	// VideoColumns holds the columns for the "video" table.
 	VideoColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -25,6 +40,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		MediaTable,
 		VideoTable,
 	}
 )

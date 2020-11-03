@@ -30,25 +30,36 @@ var doc = `{
     "paths": {
         "/health": {
             "get": {
-                "tags": [
-                    "health"
-                ],
-                "summary": "Check service status",
-                "responses": {
-                    "200": {}
-                }
-            }
-        },
-        "/v1/videos": {
-            "get": {
-                "description": "get latest videos",
+                "description": "Check for the health of the service",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "health"
                 ],
-                "summary": "Query videos",
+                "summary": "Check service status",
+                "operationId": "checkHealth",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias": {
+            "get": {
+                "description": "Get latest created medias",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Medias"
+                ],
+                "summary": "Query medias",
+                "operationId": "getAllMedias",
                 "parameters": [
                     {
                         "type": "integer",
@@ -77,7 +88,7 @@ var doc = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/ent.Video"
+                                                "$ref": "#/definitions/ent.Media"
                                             }
                                         }
                                     }
@@ -94,7 +105,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "Create a new video",
+                "description": "Create a new media",
                 "consumes": [
                     "application/json"
                 ],
@@ -102,19 +113,18 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Create a video",
+                "summary": "Create a media",
+                "operationId": "createMedia",
                 "parameters": [
                     {
-                        "maxLength": 255,
-                        "minLength": 1,
-                        "description": "Video title",
-                        "name": "title",
+                        "description": "Media data",
+                        "name": "media",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.CreateMedia"
                         }
                     }
                 ],
@@ -130,7 +140,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -152,22 +162,21 @@ var doc = `{
                 }
             }
         },
-        "/v1/videos/{id}": {
+        "/medias/{id}": {
             "get": {
-                "description": "get one video",
+                "description": "Get one media",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Get a video",
+                "summary": "Get a media",
+                "operationId": "getMedia",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -185,7 +194,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -207,20 +216,19 @@ var doc = `{
                 }
             },
             "delete": {
-                "description": "Delete one video",
+                "description": "Delete one media",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Delete a video",
+                "summary": "Delete a media",
+                "operationId": "deleteMedia",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -239,6 +247,12 @@ var doc = `{
                             "$ref": "#/definitions/httputils.ErrorResponse"
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/httputils.ErrorResponse"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -248,7 +262,7 @@ var doc = `{
                 }
             },
             "patch": {
-                "description": "Update an existing video",
+                "description": "Update an existing media",
                 "consumes": [
                     "application/json"
                 ],
@@ -256,28 +270,25 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Update a video",
+                "summary": "Update a media",
+                "operationId": "updateMedia",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media ID",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "maxLength": 255,
-                        "minLength": 1,
-                        "description": "Video title",
-                        "name": "title",
+                        "description": "Media data",
+                        "name": "media",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/api.UpdateMedia"
                         }
                     }
                 ],
@@ -293,7 +304,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -302,6 +313,12 @@ var doc = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/httputils.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/httputils.ErrorResponse"
                         }
@@ -315,9 +332,9 @@ var doc = `{
                 }
             }
         },
-        "/v1/videos/{id}/upload": {
+        "/medias/{id}/upload": {
             "post": {
-                "description": "Upload a new video file for a given video ID",
+                "description": "Upload a new media file for a given media ID",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -325,22 +342,21 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "videos"
+                    "Medias"
                 ],
-                "summary": "Upload a video file",
+                "summary": "Upload a media file",
+                "operationId": "uploadMediaFile",
                 "parameters": [
                     {
-                        "maxLength": 36,
-                        "minLength": 36,
                         "type": "string",
-                        "description": "Video ID",
+                        "description": "Media identifier",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
                         "type": "file",
-                        "description": "Video file",
+                        "description": "Media file",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -358,7 +374,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Video"
+                                            "$ref": "#/definitions/ent.Media"
                                         }
                                     }
                                 }
@@ -388,7 +404,31 @@ var doc = `{
         }
     },
     "definitions": {
-        "ent.Video": {
+        "api.CreateMedia": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
+        "api.UpdateMedia": {
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
+        "ent.Media": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -448,11 +488,11 @@ type swaggerInfo struct {
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
 	Version:     "0.1-beta",
-	Host:        "localhost:8080",
+	Host:        "demo-v1.gilfoyle.dreamvo.com",
 	BasePath:    "/",
 	Schemes:     []string{"http", "https"},
 	Title:       "Gilfoyle server",
-	Description: "Video streaming server backed by decentralized filesystem.",
+	Description: "Media streaming server backed by decentralized filesystem.",
 }
 
 type s struct{}

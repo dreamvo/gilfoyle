@@ -24,7 +24,7 @@ func init() {
 
 var serveCmd = &cobra.Command{
 	Use:   "serve",
-	Short: "RegisterRoutes REST API",
+	Short: "Launch the REST API",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := db.InitClient(config.GetConfig())
 		if err != nil {
@@ -41,11 +41,15 @@ var serveCmd = &cobra.Command{
 			log.Fatalf("failed creating schema resources: %v", err)
 		}
 
-		r := gin.Default()
+		router := gin.Default()
 
-		api.RegisterRoutes(r, httpPort, config.GetConfig().Settings.ServeDocs)
+		api.RegisterRoutes(router, api.RouterOptions{
+			ExposeSwaggerUI: config.GetConfig().Settings.ExposeSwaggerUI,
+		})
 
-		// launch web server
-		_ = r.Run(fmt.Sprintf(":%d", httpPort))
+		// Launch web server
+		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
+			fmt.Printf("error while launching web server: %e\n", err)
+		}
 	},
 }
