@@ -3,7 +3,10 @@ package httputils
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
+	en_translations "github.com/go-playground/validator/v10/translations/en"
 	"strings"
 )
 
@@ -22,6 +25,29 @@ type ValidationErrorResponse struct {
 	Code    int               `json:"code" example:"400"`
 	Message string            `json:"message" example:"status bad request"`
 	Fields  map[string]string `json:"fields"`
+}
+
+// use a single instance , it caches struct info
+var (
+	uni         *ut.UniversalTranslator
+	validate    *validator.Validate
+	translation ut.Translator
+)
+
+func init() {
+	enTrans := en.New()
+	uni = ut.New(enTrans, enTrans)
+
+	// this is usually know or extracted from http 'Accept-Language' header
+	// also see uni.FindTranslator(...)
+	trans, _ := uni.GetTranslator("en")
+
+	translation = trans
+	validate = validator.New()
+
+	if err := en_translations.RegisterDefaultTranslations(validate, trans); err != nil {
+		panic(err)
+	}
 }
 
 // NewError returns a new error response
@@ -43,7 +69,7 @@ func NewValidationError(ctx *gin.Context, err error) {
 	fields := map[string]string{}
 
 	for _, err := range err.(validator.ValidationErrors) {
-		fields[strings.ToLower(err.Field())] = err.Error()
+		fields[strings.ToLower(err.Field())] = err.Translate(translation)
 	}
 
 	response := ValidationErrorResponse{

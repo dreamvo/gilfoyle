@@ -2,7 +2,6 @@ package httputils
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -12,7 +11,7 @@ func ValidateBody(ctx *gin.Context, obj interface{}) error {
 		return err
 	}
 
-	if err := validator.New().Struct(obj); err != nil {
+	if err := validate.Struct(obj); err != nil {
 		return err
 	}
 
