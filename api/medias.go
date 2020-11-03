@@ -11,7 +11,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"net/http"
 )
@@ -98,7 +97,7 @@ func getMedia(ctx *gin.Context) {
 func deleteMedia(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	parsedUUID, err := uuid.Parse(id)
+	parsedUUID, err := httputils.ValidateUUID(id)
 	if err != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
 		return
@@ -132,14 +131,9 @@ func deleteMedia(ctx *gin.Context) {
 // @Param media body CreateMedia true "Media data" validate(required)
 func createMedia(ctx *gin.Context) {
 	var body CreateMedia
-	if err := ctx.BindJSON(&body); err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, err)
-		return
-	}
 
-	err := validator.New().Struct(body)
-	if err != nil {
-		httputils.NewValidationError(ctx, http.StatusBadRequest, err)
+	if err := httputils.ValidateBody(ctx, &body); err != nil {
+		httputils.NewValidationError(ctx, err)
 		return
 	}
 
@@ -174,9 +168,16 @@ func createMedia(ctx *gin.Context) {
 // @Param id path string true "Media ID" validate(required)
 // @Param media body UpdateMedia true "Media data" validate(required)
 func updateMedia(ctx *gin.Context) {
+	var body CreateMedia
+
+	if err := httputils.ValidateBody(ctx, &body); err != nil {
+		httputils.NewValidationError(ctx, err)
+		return
+	}
+
 	id := ctx.Param("id")
 
-	parsedUUID, err := uuid.Parse(id)
+	parsedUUID, err := httputils.ValidateUUID(id)
 	if err != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
 		return
@@ -185,12 +186,6 @@ func updateMedia(ctx *gin.Context) {
 	v, _ := db.Client.Media.Get(context.Background(), parsedUUID)
 	if v == nil {
 		httputils.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
-		return
-	}
-
-	var body UpdateMedia
-	if err := ctx.ShouldBindJSON(&body); err != nil {
-		httputils.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
 		return
 	}
 

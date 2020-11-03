@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
+	"net/http"
 	"testing"
 )
 
@@ -27,7 +28,7 @@ func TestMedias(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "GET", "/medias", nil)
+			res, err := performRequest(r, http.MethodGet, "/medias", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -53,7 +54,7 @@ func TestMedias(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/medias", nil)
+			res, err := performRequest(r, http.MethodGet, "/medias", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -79,7 +80,7 @@ func TestMedias(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := performRequest(r, "GET", "/medias?limit=2", nil)
+			res, err := performRequest(r, http.MethodGet, "/medias?limit=2", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -109,7 +110,7 @@ func TestMedias(t *testing.T) {
 				SetStatus(schema.MediaStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "GET", "/medias?offset=1", nil)
+			res, err := performRequest(r, http.MethodGet, "/medias?offset=1", nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -127,7 +128,7 @@ func TestMedias(t *testing.T) {
 
 	t.Run("GET /medias/{id}", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
-			res, err := performRequest(r, "GET", "/medias/uuid", nil)
+			res, err := performRequest(r, http.MethodGet, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -148,7 +149,7 @@ func TestMedias(t *testing.T) {
 				SetStatus(schema.MediaStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "GET", "/medias/"+v.ID.String(), nil)
+			res, err := performRequest(r, http.MethodGet, "/medias/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
 			var body struct {
@@ -174,12 +175,12 @@ func TestMedias(t *testing.T) {
 				SetStatus(schema.MediaStatusProcessing).
 				Save(context.Background())
 
-			res, err := performRequest(r, "DELETE", "/medias/"+v.ID.String(), nil)
+			res, err := performRequest(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
 			assert.Equal(res.Result().StatusCode, 200, "should be equal")
 
-			res, err = performRequest(r, "DELETE", "/medias/"+v.ID.String(), nil)
+			res, err = performRequest(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -193,7 +194,7 @@ func TestMedias(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "DELETE", "/medias/uuid", nil)
+			res, err := performRequest(r, http.MethodDelete, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ErrorResponse
@@ -210,7 +211,7 @@ func TestMedias(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "POST", "/medias", CreateMedia{
+			res, err := performRequest(r, http.MethodPost, "/medias", CreateMedia{
 				Title: "test",
 			})
 			assert.NoError(err)
@@ -227,7 +228,7 @@ func TestMedias(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "POST", "/medias", CreateMedia{
+			res, err := performRequest(r, http.MethodPost, "/medias", CreateMedia{
 				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis eos quia. Sed autem inventore iure ducimus voluptas voluptas.",
 			})
 			assert.NoError(err, "should be equal")
@@ -246,7 +247,57 @@ func TestMedias(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, "POST", "/medias", nil)
+			res, err := performRequest(r, http.MethodPost, "/medias", nil)
+			assert.NoError(err, "should be equal")
+
+			var body httputils.ValidationErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(400, res.Result().StatusCode, "should be equal")
+			assert.Equal("Bad request", body.Message)
+			assert.Equal(map[string]string(nil), body.Fields)
+		})
+	})
+
+	t.Run("PATCH /medias/{id}", func(t *testing.T) {
+		t.Run("should update a media", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			m, err := db.Client.Media.
+				Create().
+				SetTitle("test").
+				SetStatus(schema.MediaStatusProcessing).
+				Save(context.Background())
+			assert.NoError(err)
+
+			res, err := performRequest(r, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
+				Title: "test2",
+			})
+			assert.NoError(err)
+
+			var body httputils.DataResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(200, res.Result().StatusCode)
+			assert.Equal("test2", body.Data.(map[string]interface{})["title"])
+			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
+		})
+
+		t.Run("should return validation error", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			m, err := db.Client.Media.
+				Create().
+				SetTitle("test").
+				SetStatus(schema.MediaStatusProcessing).
+				Save(context.Background())
+			assert.NoError(err)
+
+			res, err := performRequest(r, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
+				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis eos quia. Sed autem inventore iure ducimus voluptas voluptas.",
+			})
 			assert.NoError(err, "should be equal")
 
 			var body httputils.ValidationErrorResponse
@@ -255,10 +306,11 @@ func TestMedias(t *testing.T) {
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.Equal("Some parameters are missing or invalid", body.Message)
 			assert.Equal(map[string]string{
-				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'required' tag",
+				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'lte' tag",
 			}, body.Fields)
 		})
-	})
 
-	t.Run("PATCH /medias/{id}", func(t *testing.T) {})
+		t.Run("should return validation error because of bad UUID", func(t *testing.T) {})
+		t.Run("should return resource not found", func(t *testing.T) {})
+	})
 }
