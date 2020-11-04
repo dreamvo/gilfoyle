@@ -34,13 +34,13 @@ func TestApi(t *testing.T) {
 		assert.NoError(err)
 
 		var body struct {
-			Code int               `json:"code"`
-			Data map[string]string `json:"data,omitempty"`
+			Code int                 `json:"code"`
+			Data HealthCheckResponse `json:"data,omitempty"`
 		}
 		_ = json.NewDecoder(res.Body).Decode(&body)
 
 		assert.Equal(200, body.Code)
-		assert.Equal(config.Version, body.Data["tag"])
-		assert.Equal(config.Commit, body.Data["commit"])
+		assert.Equal(config.Version, body.Data.Tag)
+		assert.Equal(config.Commit, body.Data.Commit)
 	})
 }

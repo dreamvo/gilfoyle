@@ -20,6 +20,11 @@ const (
 	ErrResourceNotFound = "resource not found"
 )
 
+type HealthCheckResponse struct {
+	Tag    string `json:"tag"`
+	Commit string `json:"commit"`
+}
+
 // @title Gilfoyle server
 // @description Cloud-native media hosting & streaming server for businesses.
 // @version v1
@@ -56,12 +61,12 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 // @Summary Check service status
 // @Description Check for the health of the service
 // @Produce  json
-// @Success 200 {object} httputils.DataResponse{data=map[string]string}
+// @Success 200 {object} httputils.DataResponse{data=HealthCheckResponse}
 // @Router /health [get]
 func healthCheckHandler(ctx *gin.Context) {
-	httputils.NewData(ctx, http.StatusOK, map[string]string{
-		"tag":    config.Version,
-		"commit": config.Commit,
+	httputils.NewData(ctx, http.StatusOK, HealthCheckResponse{
+		Tag:    config.Version,
+		Commit: config.Commit,
 	})
 }
 
