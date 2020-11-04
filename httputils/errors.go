@@ -29,9 +29,9 @@ type ValidationErrorResponse struct {
 
 // use a single instance , it caches struct info
 var (
-	uni         *ut.UniversalTranslator
-	validate    *validator.Validate
-	translation ut.Translator
+	uni        *ut.UniversalTranslator
+	validate   *validator.Validate
+	translator ut.Translator
 )
 
 func init() {
@@ -42,7 +42,7 @@ func init() {
 	// also see uni.FindTranslator(...)
 	trans, _ := uni.GetTranslator("en")
 
-	translation = trans
+	translator = trans
 	validate = validator.New()
 
 	if err := en_translations.RegisterDefaultTranslations(validate, trans); err != nil {
@@ -69,7 +69,7 @@ func NewValidationError(ctx *gin.Context, err error) {
 	fields := map[string]string{}
 
 	for _, err := range err.(validator.ValidationErrors) {
-		fields[strings.ToLower(err.Field())] = err.Translate(translation)
+		fields[strings.ToLower(err.Field())] = err.Translate(translator)
 	}
 
 	response := ValidationErrorResponse{
