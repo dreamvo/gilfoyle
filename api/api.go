@@ -64,7 +64,7 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 // @Success 200 {object} httputils.DataResponse{data=HealthCheckResponse}
 // @Router /health [get]
 func healthCheckHandler(ctx *gin.Context) {
-	httputils.NewData(ctx, http.StatusOK, HealthCheckResponse{
+	httputils.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
 		Tag:    config.Version,
 		Commit: config.Commit,
 	})

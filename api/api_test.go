@@ -33,14 +33,11 @@ func TestApi(t *testing.T) {
 		res, err := performRequest(r, "GET", "/health", nil)
 		assert.NoError(err)
 
-		var body struct {
-			Code int                 `json:"code"`
-			Data HealthCheckResponse `json:"data,omitempty"`
-		}
+		var body HealthCheckResponse
 		_ = json.NewDecoder(res.Body).Decode(&body)
 
-		assert.Equal(200, body.Code)
-		assert.Equal(config.Version, body.Data.Tag)
-		assert.Equal(config.Commit, body.Data.Commit)
+		assert.Equal(200, res.Result().StatusCode)
+		assert.Equal(config.Version, body.Tag)
+		assert.Equal(config.Commit, body.Commit)
 	})
 }
