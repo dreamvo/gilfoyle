@@ -5,14 +5,14 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "Media streaming server backed by decentralized filesystem.",
+        "description": "Cloud-native media hosting \u0026 streaming server for businesses.",
         "title": "Gilfoyle server",
         "contact": {},
         "license": {
             "name": "GNU General Public License v3.0",
             "url": "https://github.com/dreamvo/gilfoyle/blob/master/LICENSE"
         },
-        "version": "0.1-beta"
+        "version": "v1"
     },
     "host": "demo-v1.gilfoyle.dreamvo.com",
     "basePath": "/",
@@ -32,7 +32,22 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httputils.DataResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }

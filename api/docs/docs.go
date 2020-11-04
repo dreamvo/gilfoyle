@@ -43,7 +43,22 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/httputils.DataResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
                 }
@@ -487,12 +502,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "0.1-beta",
+	Version:     "v1",
 	Host:        "demo-v1.gilfoyle.dreamvo.com",
 	BasePath:    "/",
 	Schemes:     []string{"http", "https"},
 	Title:       "Gilfoyle server",
-	Description: "Media streaming server backed by decentralized filesystem.",
+	Description: "Cloud-native media hosting & streaming server for businesses.",
 }
 
 type s struct{}

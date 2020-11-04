@@ -49,12 +49,12 @@ definitions:
 host: demo-v1.gilfoyle.dreamvo.com
 info:
   contact: {}
-  description: Media streaming server backed by decentralized filesystem.
+  description: Cloud-native media hosting & streaming server for businesses.
   license:
     name: GNU General Public License v3.0
     url: https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
   title: Gilfoyle server
-  version: 0.1-beta
+  version: v1
 paths:
   /health:
     get:
@@ -66,7 +66,14 @@ paths:
         "200":
           description: OK
           schema:
-            type: object
+            allOf:
+            - $ref: '#/definitions/httputils.DataResponse'
+            - properties:
+                data:
+                  additionalProperties:
+                    type: string
+                  type: object
+              type: object
       summary: Check service status
       tags:
       - health
