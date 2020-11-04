@@ -27,7 +27,7 @@ type ValidationErrorResponse struct {
 	Fields  map[string]string `json:"fields"`
 }
 
-// use a single instance , it caches struct info
+// use single instances, it caches struct info
 var (
 	uni        *ut.UniversalTranslator
 	validate   *validator.Validate
@@ -38,8 +38,6 @@ func init() {
 	enTrans := en.New()
 	uni = ut.New(enTrans, enTrans)
 
-	// this is usually know or extracted from http 'Accept-Language' header
-	// also see uni.FindTranslator(...)
 	trans, _ := uni.GetTranslator("en")
 
 	translator = trans

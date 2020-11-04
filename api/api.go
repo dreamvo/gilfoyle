@@ -3,6 +3,7 @@ package api
 
 import (
 	_ "github.com/dreamvo/gilfoyle/api/docs"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
@@ -17,13 +18,9 @@ const (
 	ErrResourceNotFound = "resource not found"
 )
 
-type RouterOptions struct {
-	ExposeSwaggerUI bool
-}
-
 // @title Gilfoyle server
-// @description Media streaming server backed by decentralized filesystem.
-// @version 0.1-beta
+// @description Cloud-native media hosting & streaming server for businesses.
+// @version v1
 // @host demo-v1.gilfoyle.dreamvo.com
 // @BasePath /
 // @schemes http https
@@ -31,7 +28,7 @@ type RouterOptions struct {
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
 // RegisterRoutes adds routes to a given router instance
-func RegisterRoutes(r *gin.Engine, opts RouterOptions) *gin.Engine {
+func RegisterRoutes(r *gin.Engine) *gin.Engine {
 	r.GET("/health", healthCheckHandler)
 
 	medias := r.Group("/medias")
@@ -44,8 +41,8 @@ func RegisterRoutes(r *gin.Engine, opts RouterOptions) *gin.Engine {
 		medias.POST(":id/upload", uploadMediaFile)
 	}
 
-	if opts.ExposeSwaggerUI {
-		// register swagger docs handler
+	if config.GetConfig().Settings.ExposeSwaggerUI {
+		// Register swagger docs handler
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 

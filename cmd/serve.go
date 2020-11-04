@@ -43,9 +43,7 @@ var serveCmd = &cobra.Command{
 
 		router := gin.Default()
 
-		api.RegisterRoutes(router, api.RouterOptions{
-			ExposeSwaggerUI: config.GetConfig().Settings.ExposeSwaggerUI,
-		})
+		api.RegisterRoutes(router)
 
 		// Launch web server
 		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
