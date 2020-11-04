@@ -239,7 +239,7 @@ func TestMedias(t *testing.T) {
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.Equal("Some parameters are missing or invalid", body.Message)
 			assert.Equal(map[string]string{
-				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'lte' tag",
+				"title": "Title must be at maximum 255 characters in length",
 			}, body.Fields)
 		})
 
@@ -306,7 +306,7 @@ func TestMedias(t *testing.T) {
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.Equal("Some parameters are missing or invalid", body.Message)
 			assert.Equal(map[string]string{
-				"title": "Key: 'CreateMedia.Title' Error:Field validation for 'Title' failed on the 'lte' tag",
+				"title": "Title must be at maximum 255 characters in length",
 			}, body.Fields)
 		})
 
