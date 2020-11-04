@@ -51,10 +51,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "object",
-                                            "additionalProperties": {
-                                                "type": "string"
-                                            }
+                                            "$ref": "#/definitions/api.HealthCheckResponse"
                                         }
                                     }
                                 }
@@ -428,6 +425,17 @@ var doc = `{
                 "title": {
                     "type": "string",
                     "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
+        "api.HealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "commit": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
                 }
             }
         },
