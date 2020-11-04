@@ -13,9 +13,7 @@ import (
 func TestMediaFiles(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.Default()
-	r = RegisterRoutes(r, RouterOptions{
-		ExposeSwaggerUI: false,
-	})
+	r = RegisterRoutes(r)
 
 	t.Run("POST /medias/{id}/upload", func(t *testing.T) {
 		t.Run("(WIP) should return 200", func(t *testing.T) {

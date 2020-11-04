@@ -19,9 +19,7 @@ import (
 func TestMedias(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.Default()
-	r = RegisterRoutes(r, RouterOptions{
-		ExposeSwaggerUI: false,
-	})
+	r = RegisterRoutes(r)
 
 	t.Run("GET /medias", func(t *testing.T) {
 		t.Run("should return empty array", func(t *testing.T) {

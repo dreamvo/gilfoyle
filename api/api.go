@@ -4,10 +4,12 @@ package api
 import (
 	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+	"net/http"
 	"strconv"
 )
 
@@ -54,10 +56,13 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 // @Summary Check service status
 // @Description Check for the health of the service
 // @Produce  json
-// @Success 200 {object} interface{}
+// @Success 200 {object} httputils.DataResponse{data=map[string]string}
 // @Router /health [get]
 func healthCheckHandler(ctx *gin.Context) {
-	ctx.AbortWithStatus(200)
+	httputils.NewData(ctx, http.StatusOK, map[string]string{
+		"tag":    config.Version,
+		"commit": config.Commit,
+	})
 }
 
 func paginateHandler(ctx *gin.Context) {

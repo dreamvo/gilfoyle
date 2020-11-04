@@ -10,9 +10,10 @@ LABEL maintainer="Sundowndev" \
 WORKDIR /app
 RUN apk add build-base
 COPY . .
+RUN apk add git
 RUN go get -v -t -d ./...
 RUN go generate ./...
-RUN go build -v -o gilfoyle .
+RUN go build -v -ldflags="-s -w -X 'github.com/dreamvo/gilfoyle/config.Version=$(git describe --abbrev=0 --tags)' -X 'github.com/dreamvo/gilfoyle/config.Commit=$(git rev-parse --short HEAD)'" -v -o gilfoyle .
 
 FROM scratch
 COPY --from=0 /app/gilfoyle /bin/gilfoyle
