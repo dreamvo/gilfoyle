@@ -15,6 +15,6 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print program version",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Gilyfoyle version %s commit %s\n", config.Version, config.Commit)
+		fmt.Printf("Gilfoyle version %s commit %s\n", config.Version, config.Commit)
 	},
 }
