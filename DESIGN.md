@@ -20,7 +20,8 @@ To resume, Gilfoyle is a **self-hosted** and **open source** version of existing
 
 > Cloud native applications are built from the ground up—optimized for cloud scale and performance. They’re based on microservices architectures, use managed services, and take advantage of continuous delivery to achieve reliability and faster time to market. [Read more](https://azure.microsoft.com/en-us/overview/cloudnative/)
 
-We want to provide a cloud-native application for high scale businesses. It should be easy for any administrator to scale web service and databases on demand, because of distributed services. For example, the technical choice of etcd over Redis or CockroachDB over PostgreSQL can make the difference. You can choose to scale the server or the storage as you wish, independently. For example you can [scale your own IPFS cluster](https://cluster.ipfs.io/).
+We want to provide a cloud-native application for high scale businesses. That's why it should be easy for any user to scale and mutate web services and databases on demand. Cloud-native also means extensible configuration for distributed environments, it defines how "cloud-friendly" your application is.
+
 #### G2: Customizable
 
 The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples.
@@ -29,15 +30,15 @@ The service may have some configuration settings to be controlled by administrat
 
 You can choose the appropriate storage system between: **local storage**, **cloud storage**, or **IPFS store**.
 
-##### Filesystem (local)
+##### Local storage
 
-> The local store refers to the local disk.
+> The local storage refers to the physical disk of the server.
 
 This option is for small trafic, small and private files.
 
-##### Cloud storage
+##### Object storage
 
-> Cloud storage is an external object-based storage system, such as [AWS S3](https://aws.amazon.com/s3/), [OVH's object storage](https://www.ovhcloud.com/en-gb/public-cloud/object-storage/) or [Google Cloud Storage](https://cloud.google.com/storage/).
+> Cloud storage is an external object storage system, such as [AWS S3](https://aws.amazon.com/s3/) (or any S3 compatible alternative), [OpenStack Object Storage (swift)](https://www.ovhcloud.com/en-gb/public-cloud/object-storage/) or [Google Cloud Storage](https://cloud.google.com/storage/).
 
 This option is for businesses with high trafic, large and private files.
 
@@ -45,7 +46,7 @@ This option is for businesses with high trafic, large and private files.
 
 > IPFS is a peer-to-peer network for storing and sharing data in a distributed file system with a lot of features.
 
-This option is for P2P-based platforms who wants to decentralize content but with high trafic and large files.
+This option is for P2P-based platforms who wants to decentralize public content, with high trafic and large files.
 
 #### G5: Multimedia
 
