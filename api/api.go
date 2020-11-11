@@ -36,7 +36,7 @@ type HealthCheckResponse struct {
 
 // RegisterRoutes adds routes to a given router instance
 func RegisterRoutes(r *gin.Engine) *gin.Engine {
-	r.GET("/health", healthCheckHandler)
+	r.GET("/healthz", healthCheckHandler)
 
 	medias := r.Group("/medias")
 	{
@@ -62,7 +62,7 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 // @Description Check for the health of the service
 // @Produce  json
 // @Success 200 {object} httputils.DataResponse{data=HealthCheckResponse}
-// @Router /health [get]
+// @Router /healthz [get]
 func healthCheckHandler(ctx *gin.Context) {
 	httputils.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
 		Tag:    config.Version,

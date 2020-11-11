@@ -29,8 +29,8 @@ func TestApi(t *testing.T) {
 	r = gin.Default()
 	r = RegisterRoutes(r)
 
-	t.Run("GET /health", func(t *testing.T) {
-		res, err := performRequest(r, "GET", "/health", nil)
+	t.Run("GET /healthz", func(t *testing.T) {
+		res, err := performRequest(r, "GET", "/healthz", nil)
 		assert.NoError(err)
 
 		var body HealthCheckResponse
