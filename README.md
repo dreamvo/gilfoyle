@@ -4,8 +4,6 @@ Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) th
 
 It's written in Golang and runs as a single Linux binary with PostgreSQL and Redis.
 
-<a href="https://www.redbubble.com/fr/people/andromeduh/shop"><img src="https://ih1.redbubble.net/image.71449494.3195/raf,750x1000,075,t,oatmeal_heather.u2.jpg" width="256" align="right" /></a>
-
 ## Table of content
 
 - [Features](#features)
@@ -22,7 +20,7 @@ It's written in Golang and runs as a single Linux binary with PostgreSQL and Red
 - Handle video compression and transcoding with [FFmpeg](https://ffmpeg.org/)
 - **Decentralize** video storage with [IPFS](https://ipfs.io/)
 - Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features
-- **Customize**: video transcoding (format, resolution, frame rate), max. file size, compression rate, authentication
+- **Customize**: video transcoding (format, resolution, frame rate), compression rate, authentication
 
 ## Current status
 
