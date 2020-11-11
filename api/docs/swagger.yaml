@@ -63,7 +63,7 @@ info:
   title: Gilfoyle server
   version: v1
 paths:
-  /health:
+  /healthz:
     get:
       description: Check for the health of the service
       operationId: checkHealth
