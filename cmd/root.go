@@ -12,8 +12,8 @@ var cfgFile string
 
 var rootCmd = &cobra.Command{
 	Use:     "gilfoyle [COMMANDS] [OPTIONS]",
-	Short:   "Video streaming API server",
-	Long:    "Gilfoyle is a web application from the Dreamvo project that runs a self-hosted video streaming server.",
+	Short:   "Cloud-native media streaming server",
+	Long:    "Gilfoyle is a web application from the Dreamvo project that runs a self-hosted media streaming server.",
 	Example: "gilfoyle serve -p 8080 --config ./gilfoyle.yml",
 }
 
