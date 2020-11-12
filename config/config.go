@@ -26,7 +26,6 @@ type SettingsConfig struct {
 
 type storageConfig struct {
 	Class      string           `yaml:"class" json:"class" default:"fs" env:"STORAGE_CLASS"`
-	CachePath  string           `yaml:"cache_path" json:"cache_path" default:"/tmp" env:"CACHE_PATH"`
 	Filesystem FileSystemConfig `yaml:"fs" json:"fs"`
 	S3         S3Config         `yaml:"s3" json:"s3"`
 	GCS        GCSConfig        `yaml:"gcs" json:"gcs"`
