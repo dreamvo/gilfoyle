@@ -26,19 +26,19 @@ We want to provide a cloud-native application for high scale businesses. That's 
 
 The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples.
 
-#### G3: Flexible storage, P2P support out-of-the-box
+#### G3: Stateless architecture, flexible storage
 
-You can choose the appropriate storage system between: **local storage**, **cloud storage**, or **IPFS store**.
+You can choose the appropriate storage system between: **filesystem**, **object storage**, or **IPFS store**.
 
-##### Local storage
+##### Filesystem
 
-> The local storage refers to the physical disk of the server.
+> Filesystem refers to the actual physical disk of the running machine.
 
-This option is for small trafic, small and private files.
+This option is for stateful architectures.
 
 ##### Object storage
 
-> Cloud storage is an external object storage system, such as [AWS S3](https://aws.amazon.com/s3/) (or any S3 compatible alternative), [OpenStack Object Storage (swift)](https://www.ovhcloud.com/en-gb/public-cloud/object-storage/) or [Google Cloud Storage](https://cloud.google.com/storage/).
+> Cloud storage is an external object storage system, such as [AWS S3](https://aws.amazon.com/s3/) (or any S3-compatible alternative), [OpenStack Object Storage (swift)](https://www.ovhcloud.com/en-gb/public-cloud/object-storage/) or [Google Cloud Storage](https://cloud.google.com/storage/).
 
 This option is for businesses with high trafic, large and private files.
 
