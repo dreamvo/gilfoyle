@@ -40,7 +40,7 @@ type FileSystemConfig struct {
 type S3Config struct {
 	Hostname        string `yaml:"hostname" json:"hostname" default:"" env:"S3_HOSTNAME"`
 	Port            string `yaml:"port" json:"port" default:"" env:"S3_PORT"`
-	AccessKeyId     string `yaml:"access_key_id" json:"access_key_id" env:"S3_ACCESS_KEY_ID"`
+	AccessKeyID     string `yaml:"access_key_id" json:"access_key_id" env:"S3_ACCESS_KEY_ID"`
 	SecretAccessKey string `yaml:"secret_access_key" json:"secret_access_key" env:"S3_SECRET_ACCESS_KEY"`
 	Region          string `yaml:"region" json:"region" env:"S3_REGION"`
 	Bucket          string `yaml:"bucket" json:"bucket" env:"S3_BUCKET"`
