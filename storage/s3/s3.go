@@ -21,7 +21,7 @@ func NewStorage(cfg config.S3Config) (*Storage, error) {
 	ctx := context.Background()
 
 	s, err := minio.New(cfg.Hostname, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.AccessKeyId, cfg.SecretAccessKey, ""),
+		Creds:  credentials.NewStaticV4(cfg.AccessKeyID, cfg.SecretAccessKey, ""),
 		Secure: cfg.EnableSSL,
 	})
 	if err != nil {
