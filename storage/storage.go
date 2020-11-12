@@ -2,12 +2,13 @@ package storage
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/storage/ipfs"
+	"github.com/dreamvo/gilfoyle/storage/s3"
 	"github.com/ulule/gostorages"
 	"github.com/ulule/gostorages/fs"
 	"github.com/ulule/gostorages/gcs"
-	"github.com/ulule/gostorages/s3"
 )
 
 const (
@@ -18,25 +19,21 @@ const (
 )
 
 // New creates a new storage instance
-func New(k config.StorageClass) (gostorages.Storage, error) {
-	switch k {
+func New(storageClass config.StorageClass) (gostorages.Storage, error) {
+	cfg := config.GetConfig().Storage
+
+	switch storageClass {
 	case Filesystem:
-		s := fs.NewStorage(fs.Config{Root: config.GetConfig().Storage.CachePath})
+		s := fs.NewStorage(fs.Config{Root: cfg.CachePath})
 		return s, nil
 	case GoogleCloudStorage:
-		s, err := gcs.NewStorage(context.Background(), config.GetConfig().Storage.GCS.CredentialsFile, config.GetConfig().Storage.GCS.Bucket)
+		s, err := gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)
 		return s, err
 	case AmazonS3:
-		s, err := s3.NewStorage(s3.Config{
-			AccessKeyID:     config.GetConfig().Storage.S3.AccessKeyId,
-			SecretAccessKey: config.GetConfig().Storage.S3.SecretAccessKey,
-			Region:          config.GetConfig().Storage.S3.Region,
-			Bucket:          config.GetConfig().Storage.S3.Bucket,
-		})
-		return s, err
+		return s3.NewStorage(cfg.S3)
 	case IPFS:
-		return nil, errors.New("not implemented yet")
+		return ipfs.NewStorage(cfg.IPFS)
 	default:
-		return nil, errors.New("wrong storage kind")
+		return nil, fmt.Errorf("storage class %s does not exist", storageClass)
 	}
 }

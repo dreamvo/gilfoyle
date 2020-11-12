@@ -14,11 +14,11 @@ func TestConfig(t *testing.T) {
 		assert.Nil(err)
 
 		assert.Equal(&Config{
-			Services: servicesConfig{
-				IPFS: ipfsConfig{
+			Services: ServicesConfig{
+				IPFS: IPFSConfig{
 					Gateway: "gateway.ipfs.io",
 				},
-				DB: dbConfig{
+				DB: DatabaseConfig{
 					Dialect:  "postgres",
 					Host:     "localhost",
 					Port:     "5432",
@@ -26,14 +26,14 @@ func TestConfig(t *testing.T) {
 					Password: "",
 					Database: "gilfoyle",
 				},
-				Redis: redisConfig{
+				Redis: RedisConfig{
 					Host:     "localhost",
 					Port:     "6379",
 					Database: "0",
 					Password: "",
 				},
 			},
-			Settings: settingsConfig{
+			Settings: SettingsConfig{
 				ExposeSwaggerUI: true,
 				MaxFileSize:     "50mb",
 			},
