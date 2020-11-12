@@ -34,7 +34,7 @@ func TestConfig(t *testing.T) {
 				ExposeSwaggerUI: true,
 				MaxFileSize:     "50Mi"},
 			Storage: storageConfig{
-				Class:     "fs",
+				Class: "fs",
 				Filesystem: FileSystemConfig{
 					DataPath: "/data",
 				},
