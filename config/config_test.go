@@ -35,7 +35,6 @@ func TestConfig(t *testing.T) {
 				MaxFileSize:     "50Mi"},
 			Storage: storageConfig{
 				Class:     "fs",
-				CachePath: "/tmp",
 				Filesystem: FileSystemConfig{
 					DataPath: "/data",
 				},
