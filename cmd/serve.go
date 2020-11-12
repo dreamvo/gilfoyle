@@ -7,9 +7,11 @@ import (
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
+	"github.com/dreamvo/gilfoyle/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"log"
+	"go.uber.org/zap"
+	"os"
 )
 
 var httpPort int
@@ -26,9 +28,21 @@ var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Launch the REST API",
 	Run: func(cmd *cobra.Command, args []string) {
+		logger := logger.New()
+
+		logger.Info("Initializing API server")
+		logger.Info("Environment", zap.Bool("debug", config.GetConfig().Settings.Debug))
+
+		if !config.GetConfig().Settings.Debug {
+			gin.SetMode(gin.ReleaseMode)
+		} else {
+			_ = os.Setenv("PGSSLMODE", "disable")
+			gin.SetMode(gin.DebugMode)
+		}
+
 		err := db.InitClient(config.GetConfig())
 		if err != nil {
-			log.Fatalf("failed opening connection: %v", err)
+			logger.Fatal("failed opening connection: %v", zap.Error(err))
 		}
 		defer db.Client.Close()
 
@@ -38,16 +52,47 @@ var serveCmd = &cobra.Command{
 			migrate.WithDropIndex(true),
 			migrate.WithDropColumn(true),
 		); err != nil {
-			log.Fatalf("failed creating schema resources: %v", err)
+			logger.Fatal("failed creating schema resources", zap.Error(err))
 		}
 
-		router := gin.Default()
+		logger.Info("Successfully executed database auto migration")
+
+		router := gin.New()
+
+		router.Use(gin.Recovery())
+
+		router.Use(func(ctx *gin.Context) {
+			path := ctx.Request.URL.Path
+			raw := ctx.Request.URL.RawQuery
+			errorMsg := ctx.Errors.ByType(gin.ErrorTypePrivate).String()
+
+			if raw != "" {
+				path = path + "?" + raw
+			}
+
+			log := logger.With(
+				zap.String("Method", ctx.Request.Method),
+				zap.String("Path", path),
+				zap.Int("StatusCode", ctx.Writer.Status()),
+				zap.Int("BodySize", ctx.Writer.Size()),
+				zap.String("UserAgent", ctx.Request.UserAgent()),
+			)
+
+			if errorMsg != "" {
+				log.Error("Incoming HTTP Request",
+					zap.String("ErrorMessage", errorMsg),
+				)
+				return
+			}
+
+			log.Info("Incoming HTTP Request")
+		})
 
 		api.RegisterRoutes(router)
 
 		// Launch web server
 		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
-			fmt.Printf("error while launching web server: %e\n", err)
+			logger.Fatal("error while launching web server", zap.Error(err))
 		}
 	},
 }
