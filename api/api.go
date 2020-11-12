@@ -2,6 +2,7 @@
 package api
 
 import (
+	"errors"
 	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/httputils"
@@ -52,6 +53,10 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		// Register swagger docs handler
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
+
+	r.Use(func (ctx *gin.Context){
+		httputils.NewError(ctx, http.StatusNotFound, errors.New("resource not found"))
+	})
 
 	return r
 }

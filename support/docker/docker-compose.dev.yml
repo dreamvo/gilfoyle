@@ -7,7 +7,9 @@ services:
       context: ../../
       dockerfile: support/docker/Dockerfile
     command:
-      - "serve -p 3000"
+      - "serve"
+      - "-p"
+      - "3000"
     ports:
       - 3000:3000
 

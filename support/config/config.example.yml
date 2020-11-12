@@ -1,17 +1,33 @@
 services:
   db:
-    dialect: postgres
     host: localhost
-    port: 5432
+    port: "5432"
     user: postgres
     password: secret
     db_name: gilfoyle
   redis:
     host: localhost
-    port: 3482
+    database: "0"
+    port: "3482"
     password: secret
+settings:
+  expose_swagger_ui: true
+  max_file_size: 50mb
+storage:
+  class: fs
+  fs:
+    data_path: /data
+  s3:
+    hostname: ""
+    port: ""
+    access_key_id: ""
+    secret_access_key: ""
+    region: ""
+    bucket: ""
+    enable_ssl: true
+    use_path_style: false
+  gcs:
+    credentials_file: ""
+    bucket: ""
   ipfs:
     gateway: gateway.ipfs.io
-settings:
-  max_file_size: 50mb
-  serve_docs: true
