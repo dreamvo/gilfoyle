@@ -23,6 +23,7 @@ require (
 	github.com/swaggo/gin-swagger v1.2.0
 	github.com/swaggo/swag v1.6.7
 	github.com/ulule/gostorages v0.2.3
+	go.uber.org/zap v1.10.0
 	golang.org/x/tools v0.0.0-20200811215021-48a8ffc5b207 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 )
