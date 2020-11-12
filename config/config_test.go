@@ -15,9 +15,6 @@ func TestConfig(t *testing.T) {
 
 		assert.Equal(&Config{
 			Services: ServicesConfig{
-				IPFS: IPFSConfig{
-					Gateway: "gateway.ipfs.io",
-				},
 				DB: DatabaseConfig{
 					Dialect:  "postgres",
 					Host:     "localhost",
@@ -28,14 +25,35 @@ func TestConfig(t *testing.T) {
 				},
 				Redis: RedisConfig{
 					Host:     "localhost",
-					Port:     "6379",
 					Database: "0",
+					Port:     "6379",
 					Password: "",
 				},
 			},
 			Settings: SettingsConfig{
 				ExposeSwaggerUI: true,
-				MaxFileSize:     "50mb",
+				MaxFileSize:     "50Mi"},
+			Storage: storageConfig{
+				Class:     "fs",
+				CachePath: "/tmp",
+				Filesystem: FileSystemConfig{
+					DataPath: "/data",
+				},
+				S3: S3Config{
+					Hostname:        "",
+					Port:            "",
+					AccessKeyID:     "",
+					SecretAccessKey: "",
+					Region:          "",
+					Bucket:          "",
+					EnableSSL:       true,
+					UsePathStyle:    false,
+				},
+				GCS: GCSConfig{
+					CredentialsFile: "",
+					Bucket:          ""},
+				IPFS: IPFSConfig{
+					Gateway: "gateway.ipfs.io"},
 			},
 		}, GetConfig(), "should be equal")
 	})
@@ -71,7 +89,7 @@ func TestConfig(t *testing.T) {
 		assert.Equal("redis_port", GetConfig().Services.Redis.Port)
 		assert.Equal("redis_host", GetConfig().Services.Redis.Host)
 
-		assert.Equal("ipfs_gateway", GetConfig().Services.IPFS.Gateway)
+		assert.Equal("ipfs_gateway", GetConfig().Storage.IPFS.Gateway)
 	})
 
 	t.Run("should not return error on bad file path", func(t *testing.T) {
