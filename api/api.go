@@ -3,6 +3,7 @@ package api
 
 import (
 	"errors"
+	"github.com/dreamvo/gilfoyle"
 	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/httputils"
@@ -49,7 +50,7 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		medias.POST(":id/upload", uploadMediaFile)
 	}
 
-	if config.GetConfig().Settings.ExposeSwaggerUI {
+	if gilfoyle.Config.Settings.ExposeSwaggerUI {
 		// Register swagger docs handler
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}

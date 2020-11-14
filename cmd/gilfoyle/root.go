@@ -2,7 +2,6 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle"
-	"github.com/dreamvo/gilfoyle/config"
 	"go.uber.org/zap"
 	"os"
 
@@ -21,20 +20,18 @@ var rootCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "Config file path")
-
-	gilfoyle.NewLogger()
 }
 
 func initConfig() {
 	if cfgFile != "" {
-		err := config.New(cfgFile)
+		_, err := gilfoyle.NewConfig(cfgFile)
 		if err != nil {
 			panic(err)
 		}
 		return
 	}
 
-	err := config.New()
+	_, err := gilfoyle.NewConfig()
 	if err != nil {
 		panic(err)
 	}

@@ -6,7 +6,6 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api"
 	"github.com/dreamvo/gilfoyle/api/db"
-	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -31,16 +30,16 @@ var serveCmd = &cobra.Command{
 		logger := gilfoyle.Logger
 
 		logger.Info("Initializing API server")
-		logger.Info("Environment", zap.Bool("debug", config.GetConfig().Settings.Debug))
+		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
 
-		if !config.GetConfig().Settings.Debug {
+		if !gilfoyle.Config.Settings.Debug {
 			gin.SetMode(gin.ReleaseMode)
 		} else {
 			_ = os.Setenv("PGSSLMODE", "disable")
 			gin.SetMode(gin.DebugMode)
 		}
 
-		err := db.InitClient(config.GetConfig())
+		err := db.InitClient(&gilfoyle.Config)
 		if err != nil {
 			logger.Fatal("failed opening connection: %v", zap.Error(err))
 		}

@@ -6,19 +6,23 @@ import (
 )
 
 var (
-	once   sync.Once
-	Logger *zap.Logger
+	loggerOnce sync.Once
+	Logger     *zap.Logger
 )
 
-func NewLogger() *zap.Logger {
-	once.Do(func() {
-		logger, err := zap.NewProduction()
-		if err != nil {
-			panic(err)
-		}
+func init() {
+	_, err := NewLogger()
+	if err != nil {
+		panic(err)
+	}
+}
 
-		Logger = logger
+func NewLogger() (*zap.Logger, error) {
+	var err error
+
+	loggerOnce.Do(func() {
+		Logger, err = zap.NewProduction()
 	})
 
-	return Logger
+	return Logger, err
 }
