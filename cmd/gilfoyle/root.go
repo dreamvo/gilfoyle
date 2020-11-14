@@ -1,8 +1,9 @@
-package cmd
+package gilfoyle
 
 import (
-	"fmt"
+	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/config"
+	"go.uber.org/zap"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -11,7 +12,7 @@ import (
 var cfgFile string
 
 var rootCmd = &cobra.Command{
-	Use:     "gilfoyle [COMMANDS] [OPTIONS]",
+	Use:     "gilfoyle [OPTIONS] [COMMANDS]",
 	Short:   "Cloud-native media streaming server",
 	Long:    "Gilfoyle is a web application from the Dreamvo project that runs a self-hosted media streaming server.",
 	Example: "gilfoyle serve -p 8080 --config ./gilfoyle.yml",
@@ -20,6 +21,8 @@ var rootCmd = &cobra.Command{
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "Config file path")
+
+	gilfoyle.NewLogger()
 }
 
 func initConfig() {
@@ -40,7 +43,7 @@ func initConfig() {
 // Execute is a function that executes the root command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		gilfoyle.Logger.Error("Root command failed to initialize", zap.Error(err))
 		os.Exit(1)
 	}
 }

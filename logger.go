@@ -1,4 +1,4 @@
-package logger
+package gilfoyle
 
 import (
 	"go.uber.org/zap"
@@ -10,7 +10,7 @@ var (
 	Logger *zap.Logger
 )
 
-func New() *zap.Logger {
+func NewLogger() *zap.Logger {
 	once.Do(func() {
 		logger, err := zap.NewProduction()
 		if err != nil {

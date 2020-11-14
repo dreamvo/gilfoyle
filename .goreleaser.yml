@@ -3,7 +3,10 @@ before:
     - go generate ./...
     - go mod download
 builds:
-  - env:
+  - id: "gilfoyle"
+    dir: .
+    main: ./cmd/main.go
+    env:
       - CGO_ENABLED=0
       - GO111MODULE=on
     binary: gilfoyle
