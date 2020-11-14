@@ -31,6 +31,7 @@ jobs:
         with:
           debug: true
           coverageCommand: go test -race -coverprofile=c.out -covermode=atomic -v -bench=. ./...
+          prefix: ${{ github.event.repository.name }}
           coverageLocations: |
             ${{github.workspace}}/c.out:gocov
 
