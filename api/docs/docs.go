@@ -28,7 +28,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/health": {
+        "/healthz": {
             "get": {
                 "description": "Check for the health of the service",
                 "produces": [

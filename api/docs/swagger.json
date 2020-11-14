@@ -17,7 +17,7 @@
     "host": "demo-v1.gilfoyle.dreamvo.com",
     "basePath": "/",
     "paths": {
-        "/health": {
+        "/healthz": {
             "get": {
                 "description": "Check for the health of the service",
                 "produces": [

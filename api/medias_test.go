@@ -18,7 +18,7 @@ import (
 
 func TestMedias(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.Default()
+	r = gin.New()
 	r = RegisterRoutes(r)
 
 	t.Run("GET /medias", func(t *testing.T) {

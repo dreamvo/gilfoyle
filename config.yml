@@ -13,6 +13,7 @@ services:
 settings:
   expose_swagger_ui: true
   max_file_size: 50mb
+  debug: true
 storage:
   class: fs
   fs:
