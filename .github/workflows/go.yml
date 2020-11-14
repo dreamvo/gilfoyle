@@ -30,9 +30,9 @@ jobs:
           CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_TOKEN }}
         with:
           debug: true
-          coverageCommand: go test -race -coverprofile=coverage.txt -covermode=atomic -v -bench=. ./...
+          coverageCommand: go test -race -coverprofile=c.out -covermode=atomic -v -bench=. ./...
           coverageLocations: |
-            ${{github.workspace}}/coverage.txt:lcov
+            ${{github.workspace}}/c.out:gocov
 
       - name: Lint
         run: |
