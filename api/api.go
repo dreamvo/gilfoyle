@@ -54,7 +54,7 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
-	r.Use(func (ctx *gin.Context){
+	r.Use(func(ctx *gin.Context) {
 		httputils.NewError(ctx, http.StatusNotFound, errors.New("resource not found"))
 	})
 
