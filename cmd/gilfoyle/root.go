@@ -1,8 +1,8 @@
 package gilfoyle
 
 import (
+	"fmt"
 	"github.com/dreamvo/gilfoyle"
-	"go.uber.org/zap"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -40,7 +40,7 @@ func initConfig() {
 // Execute is a function that executes the root command
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		gilfoyle.Logger.Error("Root command failed to initialize", zap.Error(err))
+		fmt.Printf("root command failed to initialize: %s\n", err)
 		os.Exit(1)
 	}
 }
