@@ -12,7 +12,7 @@ import (
 
 func TestMediaFiles(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.Default()
+	r = gin.New()
 	r = RegisterRoutes(r)
 
 	t.Run("POST /medias/{id}/upload", func(t *testing.T) {
