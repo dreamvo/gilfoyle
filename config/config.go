@@ -1,17 +1,13 @@
 package config
 
-import (
-	"github.com/jinzhu/configor"
-)
-
-// StorageClass is a choice of storage backend
+// StorageClass is a kind of storage backend
 type StorageClass string
 
 // Config defines the application's settings
 type Config struct {
 	Services ServicesConfig `yaml:"services" json:"services"`
 	Settings SettingsConfig `yaml:"settings" json:"settings"`
-	Storage  storageConfig  `yaml:"storage" json:"storage"`
+	Storage  StorageConfig  `yaml:"storage" json:"storage"`
 }
 
 type ServicesConfig struct {
@@ -25,7 +21,7 @@ type SettingsConfig struct {
 	Debug           bool   `yaml:"debug" json:"debug" default:"false" env:"DEBUG"`
 }
 
-type storageConfig struct {
+type StorageConfig struct {
 	Class      string           `yaml:"class" json:"class" default:"fs" env:"STORAGE_CLASS"`
 	Filesystem FileSystemConfig `yaml:"fs" json:"fs"`
 	S3         S3Config         `yaml:"s3" json:"s3"`
@@ -71,23 +67,4 @@ type RedisConfig struct {
 	Database string `yaml:"database" json:"database" default:"0" env:"REDIS_DB"`
 	Port     string `yaml:"port" json:"port" default:"6379" env:"REDIS_PORT"`
 	Password string `yaml:"password" json:"password" default:"" env:"REDIS_PASSWORD"`
-}
-
-var config Config
-
-// New creates a new config object
-// and load values from environment variables or config file.
-// File paths can be both relative and absolute.
-func New(files ...string) error {
-	err := configor.Load(&config, files...)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// GetConfig helps you to get configuration data
-func GetConfig() *Config {
-	return &config
 }

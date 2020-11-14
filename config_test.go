@@ -1,6 +1,7 @@
-package config
+package gilfoyle
 
 import (
+	"github.com/dreamvo/gilfoyle/config"
 	assertTest "github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -10,12 +11,12 @@ func TestConfig(t *testing.T) {
 	assert := assertTest.New(t)
 
 	t.Run("should set default values", func(t *testing.T) {
-		err := New()
+		_, err := NewConfig()
 		assert.Nil(err)
 
-		assert.Equal(&Config{
-			Services: ServicesConfig{
-				DB: DatabaseConfig{
+		assert.Equal(&config.Config{
+			Services: config.ServicesConfig{
+				DB: config.DatabaseConfig{
 					Dialect:  "postgres",
 					Host:     "localhost",
 					Port:     "5432",
@@ -23,24 +24,24 @@ func TestConfig(t *testing.T) {
 					Password: "",
 					Database: "gilfoyle",
 				},
-				Redis: RedisConfig{
+				Redis: config.RedisConfig{
 					Host:     "localhost",
 					Database: "0",
 					Port:     "6379",
 					Password: "",
 				},
 			},
-			Settings: SettingsConfig{
+			Settings: config.SettingsConfig{
 				ExposeSwaggerUI: true,
 				MaxFileSize:     "50Mi",
 				Debug:           false,
 			},
-			Storage: storageConfig{
+			Storage: config.StorageConfig{
 				Class: "fs",
-				Filesystem: FileSystemConfig{
+				Filesystem: config.FileSystemConfig{
 					DataPath: "/data",
 				},
-				S3: S3Config{
+				S3: config.S3Config{
 					Hostname:        "",
 					Port:            "",
 					AccessKeyID:     "",
@@ -50,13 +51,13 @@ func TestConfig(t *testing.T) {
 					EnableSSL:       true,
 					UsePathStyle:    false,
 				},
-				GCS: GCSConfig{
+				GCS: config.GCSConfig{
 					CredentialsFile: "",
 					Bucket:          ""},
-				IPFS: IPFSConfig{
+				IPFS: config.IPFSConfig{
 					Gateway: "gateway.ipfs.io"},
 			},
-		}, GetConfig(), "should be equal")
+		}, &Config, "should be equal")
 	})
 
 	t.Run("should set values from env vars", func(t *testing.T) {
@@ -75,26 +76,26 @@ func TestConfig(t *testing.T) {
 
 		_ = os.Setenv("IPFS_GATEWAY", "ipfs_gateway")
 
-		err := New()
+		_, err := NewConfig()
 		assert.Nil(err)
 
-		assert.Equal("postgres", GetConfig().Services.DB.Dialect)
-		assert.Equal("host", GetConfig().Services.DB.Host)
-		assert.Equal("port", GetConfig().Services.DB.Port)
-		assert.Equal("user", GetConfig().Services.DB.User)
-		assert.Equal("database", GetConfig().Services.DB.Database)
-		assert.Equal("password", GetConfig().Services.DB.Password)
+		assert.Equal("postgres", Config.Services.DB.Dialect)
+		assert.Equal("host", Config.Services.DB.Host)
+		assert.Equal("port", Config.Services.DB.Port)
+		assert.Equal("user", Config.Services.DB.User)
+		assert.Equal("database", Config.Services.DB.Database)
+		assert.Equal("password", Config.Services.DB.Password)
 
-		assert.Equal("redis_db", GetConfig().Services.Redis.Database)
-		assert.Equal("redis_pass", GetConfig().Services.Redis.Password)
-		assert.Equal("redis_port", GetConfig().Services.Redis.Port)
-		assert.Equal("redis_host", GetConfig().Services.Redis.Host)
+		assert.Equal("redis_db", Config.Services.Redis.Database)
+		assert.Equal("redis_pass", Config.Services.Redis.Password)
+		assert.Equal("redis_port", Config.Services.Redis.Port)
+		assert.Equal("redis_host", Config.Services.Redis.Host)
 
-		assert.Equal("ipfs_gateway", GetConfig().Storage.IPFS.Gateway)
+		assert.Equal("ipfs_gateway", Config.Storage.IPFS.Gateway)
 	})
 
 	t.Run("should not return error on bad file path", func(t *testing.T) {
-		err := New("/path/to/file.wat")
+		_, err := NewConfig("/path/to/file.wat")
 		assert.Nil(err)
 	})
 }
