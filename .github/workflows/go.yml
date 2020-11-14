@@ -1,6 +1,6 @@
 name: Go
 
-on: [push]
+on: [ push ]
 
 jobs:
   build:
@@ -25,11 +25,14 @@ jobs:
           go build -v .
 
       - name: Test
+        uses: paambaati/codeclimate-action@v2.7.4
         env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: |
-          go test -race -coverprofile=coverage.txt -covermode=atomic -v -bench=. ./...
-          bash <(curl -s https://codecov.io/bash)
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_TOKEN }}
+        with:
+          debug: true
+          coverageCommand: go test -race -coverprofile=coverage.txt -covermode=atomic -v -bench=. ./...
+          coverageLocations: |
+            ${{github.workspace}}/coverage.txt:lcov
 
       - name: Lint
         run: |
