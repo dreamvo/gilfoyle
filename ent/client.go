@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/dreamvo/gilfoyle/ent/video"
 
 	"github.com/facebookincubator/ent/dialect"
 	"github.com/facebookincubator/ent/dialect/sql"
@@ -24,8 +23,6 @@ type Client struct {
 	Schema *migrate.Schema
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
-	// Video is the client for interacting with the Video builders.
-	Video *VideoClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -40,7 +37,6 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Media = NewMediaClient(c.config)
-	c.Video = NewVideoClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -74,7 +70,6 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:    ctx,
 		config: cfg,
 		Media:  NewMediaClient(cfg),
-		Video:  NewVideoClient(cfg),
 	}, nil
 }
 
@@ -91,7 +86,6 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		config: cfg,
 		Media:  NewMediaClient(cfg),
-		Video:  NewVideoClient(cfg),
 	}, nil
 }
 
@@ -121,7 +115,6 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Media.Use(hooks...)
-	c.Video.Use(hooks...)
 }
 
 // MediaClient is a client for the Media schema.
@@ -210,92 +203,4 @@ func (c *MediaClient) GetX(ctx context.Context, id uuid.UUID) *Media {
 // Hooks returns the client hooks.
 func (c *MediaClient) Hooks() []Hook {
 	return c.hooks.Media
-}
-
-// VideoClient is a client for the Video schema.
-type VideoClient struct {
-	config
-}
-
-// NewVideoClient returns a client for the Video from the given config.
-func NewVideoClient(c config) *VideoClient {
-	return &VideoClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `video.Hooks(f(g(h())))`.
-func (c *VideoClient) Use(hooks ...Hook) {
-	c.hooks.Video = append(c.hooks.Video, hooks...)
-}
-
-// Create returns a create builder for Video.
-func (c *VideoClient) Create() *VideoCreate {
-	mutation := newVideoMutation(c.config, OpCreate)
-	return &VideoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// BulkCreate returns a builder for creating a bulk of Video entities.
-func (c *VideoClient) CreateBulk(builders ...*VideoCreate) *VideoCreateBulk {
-	return &VideoCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Video.
-func (c *VideoClient) Update() *VideoUpdate {
-	mutation := newVideoMutation(c.config, OpUpdate)
-	return &VideoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *VideoClient) UpdateOne(v *Video) *VideoUpdateOne {
-	mutation := newVideoMutation(c.config, OpUpdateOne, withVideo(v))
-	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *VideoClient) UpdateOneID(id uuid.UUID) *VideoUpdateOne {
-	mutation := newVideoMutation(c.config, OpUpdateOne, withVideoID(id))
-	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Video.
-func (c *VideoClient) Delete() *VideoDelete {
-	mutation := newVideoMutation(c.config, OpDelete)
-	return &VideoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a delete builder for the given entity.
-func (c *VideoClient) DeleteOne(v *Video) *VideoDeleteOne {
-	return c.DeleteOneID(v.ID)
-}
-
-// DeleteOneID returns a delete builder for the given id.
-func (c *VideoClient) DeleteOneID(id uuid.UUID) *VideoDeleteOne {
-	builder := c.Delete().Where(video.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &VideoDeleteOne{builder}
-}
-
-// Query returns a query builder for Video.
-func (c *VideoClient) Query() *VideoQuery {
-	return &VideoQuery{config: c.config}
-}
-
-// Get returns a Video entity by its id.
-func (c *VideoClient) Get(ctx context.Context, id uuid.UUID) (*Video, error) {
-	return c.Query().Where(video.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *VideoClient) GetX(ctx context.Context, id uuid.UUID) *Video {
-	v, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return v
-}
-
-// Hooks returns the client hooks.
-func (c *VideoClient) Hooks() []Hook {
-	return c.hooks.Video
 }

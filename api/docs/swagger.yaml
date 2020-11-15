@@ -8,6 +8,31 @@ definitions:
     required:
     - title
     type: object
+  api.FileFormat:
+    properties:
+      bit_rate:
+        type: string
+      duration:
+        example: "0"
+        type: string
+      filename:
+        type: string
+      format_long_name:
+        type: string
+      format_name:
+        type: string
+      nb_programs:
+        type: integer
+      nb_streams:
+        type: integer
+      probe_score:
+        type: integer
+      size:
+        type: string
+      start_time:
+        example: "0"
+        type: string
+    type: object
   api.HealthCheckResponse:
     properties:
       commit:
@@ -286,7 +311,7 @@ paths:
             - $ref: '#/definitions/httputils.DataResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/ent.Media'
+                  $ref: '#/definitions/api.FileFormat'
               type: object
         "400":
           description: Bad Request

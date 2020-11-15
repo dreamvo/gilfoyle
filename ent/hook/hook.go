@@ -22,19 +22,6 @@ func (f MediaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return f(ctx, mv)
 }
 
-// The VideoFunc type is an adapter to allow the use of ordinary
-// function as Video mutator.
-type VideoFunc func(context.Context, *ent.VideoMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f VideoFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	mv, ok := m.(*ent.VideoMutation)
-	if !ok {
-		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.VideoMutation", m)
-	}
-	return f(ctx, mv)
-}
-
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 
