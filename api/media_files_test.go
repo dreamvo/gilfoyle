@@ -16,13 +16,6 @@ func TestMediaFiles(t *testing.T) {
 	r = RegisterRoutes(r)
 
 	t.Run("POST /medias/{id}/upload", func(t *testing.T) {
-		t.Run("(WIP) should return 200", func(t *testing.T) {
-			res, err := performRequest(r, "POST", "/medias/uuid/upload", nil)
-			assert.NoError(err, "should be equal")
-
-			assert.Equal(200, res.Result().StatusCode, "should be equal")
-		})
-
 		t.Run("should return error on invalid uuid", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
@@ -35,5 +28,12 @@ func TestMediaFiles(t *testing.T) {
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
 			assert.JSONEq("{\"code\": 400, \"message\":\"invalid UUID provided\"}", string(body))
 		})
+
+		//t.Run("(WIP) should return 200", func(t *testing.T) {
+		//	res, err := performRequest(r, "POST", "/medias/uuid/upload", nil)
+		//	assert.NoError(err, "should be equal")
+		//
+		//	assert.Equal(200, res.Result().StatusCode, "should be equal")
+		//})
 	})
 }
