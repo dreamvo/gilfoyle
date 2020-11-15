@@ -63,7 +63,7 @@ func uploadMediaFile(ctx *gin.Context) {
 	}
 
 	path := fmt.Sprintf("%s/%s", id, "original")
-	stat, err := gilfoyle.Storage.Stat(context.Background(), path)
+	stat, _ := gilfoyle.Storage.Stat(context.Background(), path)
 	if stat != nil {
 		httputils.NewError(ctx, http.StatusBadRequest, errors.New("a file already exists for this media"))
 		return
