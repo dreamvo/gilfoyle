@@ -48,12 +48,12 @@ func TestS3(t *testing.T) {
 
 		ctx := context.Background()
 
-		before := time.Now()
+		before := time.Now().Add(-1 * time.Second)
 
 		err = storage.Save(ctx, bytes.NewBufferString("hello"), "world")
 		assert.NoError(err)
 
-		now := time.Now().Add(5 * time.Second)
+		now := time.Now().Add(2 * time.Second)
 
 		stat, err := storage.Stat(ctx, "world")
 		assert.NoError(err)
