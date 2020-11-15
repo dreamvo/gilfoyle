@@ -33,7 +33,7 @@ func TestConfig(t *testing.T) {
 			},
 			Settings: config.SettingsConfig{
 				ExposeSwaggerUI: true,
-				MaxFileSize:     "50Mi",
+				MaxFileSize:     524288000,
 				Debug:           false,
 			},
 			Storage: config.StorageConfig{
