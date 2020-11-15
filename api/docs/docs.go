@@ -45,7 +45,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -92,7 +92,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -111,7 +111,7 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -146,7 +146,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -162,13 +162,13 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -200,7 +200,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -216,13 +216,13 @@ var doc = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -250,25 +250,25 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httputils.DataResponse"
+                            "$ref": "#/definitions/util.DataResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -310,7 +310,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -326,19 +326,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -380,7 +380,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -396,19 +396,19 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -508,7 +508,7 @@ var doc = `{
                 }
             }
         },
-        "httputils.DataResponse": {
+        "util.DataResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -520,7 +520,7 @@ var doc = `{
                 }
             }
         },
-        "httputils.ErrorResponse": {
+        "util.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {

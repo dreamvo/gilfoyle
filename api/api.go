@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/dreamvo/gilfoyle"
 	_ "github.com/dreamvo/gilfoyle/api/docs"
+	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
-	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
@@ -43,9 +43,9 @@ func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 	// TODO(sundowndev): update Gin to enable this feature. See https://github.com/gin-gonic/gin/commits/master/recovery.go
 	//r.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
 	//	if err, ok := recovered.(string); ok {
-	//		httputils.NewError(ctx, http.StatusInternalServerError, errors.New(err))
+	//		util.NewError(ctx, http.StatusInternalServerError, errors.New(err))
 	//	}
-	//	httputils.NewError(ctx, http.StatusInternalServerError, errors.New("an unexpected error occurred"))
+	//	util.NewError(ctx, http.StatusInternalServerError, errors.New("an unexpected error occurred"))
 	//}))
 
 	r.Use(func(ctx *gin.Context) {
@@ -98,7 +98,7 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 	}
 
 	r.Use(func(ctx *gin.Context) {
-		httputils.NewError(ctx, http.StatusNotFound, errors.New("resource not found"))
+		util.NewError(ctx, http.StatusNotFound, errors.New("resource not found"))
 	})
 
 	return r
@@ -109,10 +109,10 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 // @Summary Check service status
 // @Description Check for the health of the service
 // @Produce  json
-// @Success 200 {object} httputils.DataResponse{data=HealthCheckResponse}
+// @Success 200 {object} util.DataResponse{data=HealthCheckResponse}
 // @Router /healthz [get]
 func healthCheckHandler(ctx *gin.Context) {
-	httputils.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
+	util.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
 		Tag:    config.Version,
 		Commit: config.Commit,
 	})

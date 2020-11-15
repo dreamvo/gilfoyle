@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/schema"
-	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
@@ -129,7 +129,7 @@ func TestMedias(t *testing.T) {
 			res, err := performRequest(r, http.MethodGet, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
@@ -181,7 +181,7 @@ func TestMedias(t *testing.T) {
 			res, err = performRequest(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(404, res.Code)
@@ -195,7 +195,7 @@ func TestMedias(t *testing.T) {
 			res, err := performRequest(r, http.MethodDelete, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(res.Result().StatusCode, 400, "should be equal")
@@ -214,7 +214,7 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err)
 
-			var body httputils.DataResponse
+			var body util.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(200, res.Result().StatusCode)
@@ -231,7 +231,7 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ValidationErrorResponse
+			var body util.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
@@ -248,7 +248,7 @@ func TestMedias(t *testing.T) {
 			res, err := performRequest(r, http.MethodPost, "/medias", nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ValidationErrorResponse
+			var body util.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
@@ -274,7 +274,7 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err)
 
-			var body httputils.DataResponse
+			var body util.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(200, res.Result().StatusCode)
@@ -298,7 +298,7 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ValidationErrorResponse
+			var body util.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
