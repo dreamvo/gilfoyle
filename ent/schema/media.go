@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// MediaStatusAwaitingUpload relates to the pending state of a media
+const MediaStatusAwaitingUpload = "AwaitingUpload"
+
 // MediaStatusErrored relates to the errored state of a media
 const MediaStatusErrored = "Errored"
 
@@ -42,7 +45,7 @@ func (Media) Fields() []ent.Field {
 			return uuid.New()
 		}),
 		field.String("title").NotEmpty().MinLen(1).MaxLen(255),
-		field.Enum("status").Values(MediaStatusErrored, MediaStatusProcessing, MediaStatusReady),
+		field.Enum("status").Values(MediaStatusAwaitingUpload, MediaStatusProcessing, MediaStatusReady, MediaStatusErrored),
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()
 		}),
