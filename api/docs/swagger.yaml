@@ -99,7 +99,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/api.HealthCheckResponse'
@@ -127,7 +127,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   items:
@@ -137,7 +137,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Query medias
       tags:
       - Medias
@@ -160,7 +160,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Media'
@@ -168,11 +168,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Create a media
       tags:
       - Medias
@@ -192,19 +192,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httputils.DataResponse'
+            $ref: '#/definitions/util.DataResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Delete a media
       tags:
       - Medias
@@ -224,7 +224,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Media'
@@ -232,11 +232,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Get a media
       tags:
       - Medias
@@ -264,7 +264,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Media'
@@ -272,15 +272,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Update a media
       tags:
       - Medias
@@ -308,7 +308,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/api.FileFormat'
@@ -316,15 +316,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Upload a media file
       tags:
       - Medias
