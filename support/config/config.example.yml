@@ -3,16 +3,17 @@ services:
     host: localhost
     port: "5432"
     user: postgres
-    password: secret
+    password: ""
     db_name: gilfoyle
   redis:
     host: localhost
     database: "0"
-    port: "3482"
-    password: secret
+    port: "6379"
+    password: ""
 settings:
   expose_swagger_ui: true
-  max_file_size: 50mb
+  max_file_size: 524288000
+  debug: false
 storage:
   class: fs
   fs:
