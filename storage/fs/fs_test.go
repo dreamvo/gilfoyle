@@ -3,42 +3,107 @@ package fs
 import (
 	"bytes"
 	"context"
-	"errors"
 	"github.com/dreamvo/gilfoyle/storage"
+	assertTest "github.com/stretchr/testify/assert"
 	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
 
-func Test(t *testing.T) {
-	dir, err := ioutil.TempDir("", "storage-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	s := NewStorage(Config{Root: dir})
-	ctx := context.Background()
+func removeDir(path string) {
+	_ = os.RemoveAll(path)
+}
 
-	if _, err = s.Stat(ctx, "doesnotexist"); !errors.Is(err, storage.ErrNotExist) {
-		t.Errorf("expected not exists, got %v", err)
+func TestFS(t *testing.T) {
+	assert := assertTest.New(t)
+
+	cfg := Config{
+		Root: "./tmp",
 	}
 
-	before := time.Now()
-	if err := s.Save(ctx, bytes.NewBufferString("hello"), "world"); err != nil {
-		t.Fatal(err)
-	}
-	now := time.Now()
+	t.Run("should return error file does not exist", func(t *testing.T) {
+		s := NewStorage(cfg)
+		defer removeDir(cfg.Root)
 
-	stat, err := s.Stat(ctx, "world")
-	if err != nil {
-		t.Errorf("unexpected error %v", err)
-	}
-	if stat.Size != 5 {
-		t.Errorf("expected size to be %d, got %d", 5, stat.Size)
-	}
-	if stat.ModifiedTime.Before(before) {
-		t.Errorf("expected modtime to be after %v, got %v", before, stat.ModifiedTime)
-	}
-	if stat.ModifiedTime.After(now) {
-		t.Errorf("expected modtime to be before %v, got %v", now, stat.ModifiedTime)
-	}
+		ctx := context.Background()
+
+		_, err := s.Stat(ctx, "doesnotexist")
+		assert.EqualError(err, storage.ErrNotExist.Error())
+	})
+
+	t.Run("should create file", func(t *testing.T) {
+		s := NewStorage(cfg)
+		defer removeDir(cfg.Root)
+
+		ctx := context.Background()
+
+		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
+		assert.NoError(err)
+	})
+
+	t.Run("should get metadata of file", func(t *testing.T) {
+		s := NewStorage(cfg)
+		defer removeDir(cfg.Root)
+
+		ctx := context.Background()
+
+		before := time.Now().Add(-1 * time.Second)
+
+		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
+		assert.NoError(err)
+
+		now := time.Now().Add(2 * time.Second)
+
+		stat, err := s.Stat(ctx, "world")
+		assert.NoError(err)
+
+		assert.Equal(int64(5), stat.Size)
+		assert.Equal(false, stat.ModifiedTime.Before(before))
+		assert.Equal(false, stat.ModifiedTime.After(now))
+	})
+
+	t.Run("should create then delete file", func(t *testing.T) {
+		s := NewStorage(cfg)
+		defer removeDir(cfg.Root)
+
+		ctx := context.Background()
+
+		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
+		assert.NoError(err)
+
+		err = s.Delete(ctx, "world")
+		assert.NoError(err)
+
+		_, err = s.Stat(ctx, "world")
+		assert.EqualError(err, storage.ErrNotExist.Error())
+	})
+
+	t.Run("should create then open file", func(t *testing.T) {
+		s := NewStorage(cfg)
+		defer removeDir(cfg.Root)
+
+		ctx := context.Background()
+
+		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
+		assert.NoError(err)
+
+		f, err := s.Open(ctx, "world")
+		assert.NoError(err)
+		defer f.Close()
+
+		b, err := ioutil.ReadAll(f)
+		assert.NoError(err)
+		assert.Equal("hello", string(b))
+	})
+
+	t.Run("should try to open a non existing file", func(t *testing.T) {
+		s := NewStorage(cfg)
+		defer removeDir(cfg.Root)
+
+		ctx := context.Background()
+
+		_, err := s.Open(ctx, "world")
+		assert.EqualError(err, storage.ErrNotExist.Error())
+	})
 }
