@@ -8,11 +8,14 @@ import (
 	"time"
 )
 
+// MediaStatusErrored relates to the errored state of a media
+const MediaStatusErrored = "Errored"
+
 // MediaStatusProcessing relates to the initial state of a media
-const MediaStatusProcessing = "processing"
+const MediaStatusProcessing = "Processing"
 
 // MediaStatusReady relates to the final state of a media
-const MediaStatusReady = "ready"
+const MediaStatusReady = "Ready"
 
 // Media holds the schema definition for the Media entity.
 type Media struct {
@@ -39,7 +42,7 @@ func (Media) Fields() []ent.Field {
 			return uuid.New()
 		}),
 		field.String("title").NotEmpty().MinLen(1).MaxLen(255),
-		field.Enum("status").Values(MediaStatusProcessing, MediaStatusReady),
+		field.Enum("status").Values(MediaStatusErrored, MediaStatusProcessing, MediaStatusReady),
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()
 		}),

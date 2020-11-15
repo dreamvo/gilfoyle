@@ -52,8 +52,9 @@ type Status string
 
 // Status values.
 const (
-	StatusProcessing Status = "processing"
-	StatusReady      Status = "ready"
+	StatusErrored    Status = "Errored"
+	StatusProcessing Status = "Processing"
+	StatusReady      Status = "Ready"
 )
 
 func (s Status) String() string {
@@ -63,7 +64,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusProcessing, StatusReady:
+	case StatusErrored, StatusProcessing, StatusReady:
 		return nil
 	default:
 		return fmt.Errorf("media: invalid enum value for status field: %q", s)

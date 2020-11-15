@@ -14,8 +14,6 @@ type Tx struct {
 	config
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
-	// Video is the client for interacting with the Video builders.
-	Video *VideoClient
 
 	// lazily loaded.
 	client     *Client
@@ -152,7 +150,6 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Media = NewMediaClient(tx.config)
-	tx.Video = NewVideoClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

@@ -17,13 +17,26 @@ import (
 	"time"
 )
 
+type FileFormat struct {
+	Filename         string  `json:"filename"`
+	NBStreams        int     `json:"nb_streams"`
+	NBPrograms       int     `json:"nb_programs"`
+	FormatName       string  `json:"format_name"`
+	FormatLongName   string  `json:"format_long_name"`
+	StartTimeSeconds float64 `json:"start_time,string"`
+	DurationSeconds  float64 `json:"duration,string"`
+	Size             string  `json:"size"`
+	BitRate          string  `json:"bit_rate"`
+	ProbeScore       int     `json:"probe_score"`
+}
+
 // @ID uploadMediaFile
 // @Tags Medias
 // @Summary Upload a media file
 // @Description Upload a new media file for a given media ID
 // @Accept  multipart/form-data
 // @Produce  json
-// @Success 200 {object} httputils.DataResponse{data=ffprobe.Format}
+// @Success 200 {object} httputils.DataResponse{data=FileFormat}
 // @Failure 404 {object} httputils.ErrorResponse
 // @Failure 400 {object} httputils.ErrorResponse
 // @Failure 500 {object} httputils.ErrorResponse
@@ -100,5 +113,16 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	httputils.NewData(ctx, http.StatusOK, data.Format)
+	httputils.NewData(ctx, http.StatusOK, FileFormat{
+		Filename:         data.Format.Filename,
+		NBStreams:        data.Format.NBStreams,
+		NBPrograms:       data.Format.NBPrograms,
+		FormatName:       data.Format.FormatName,
+		FormatLongName:   data.Format.FormatLongName,
+		StartTimeSeconds: data.Format.StartTimeSeconds,
+		DurationSeconds:  data.Format.DurationSeconds,
+		Size:             data.Format.Size,
+		BitRate:          data.Format.BitRate,
+		ProbeScore:       data.Format.ProbeScore,
+	})
 }

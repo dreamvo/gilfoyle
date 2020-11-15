@@ -233,27 +233,3 @@ func (f MediaMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation)
 	}
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.MediaMutation", m)
 }
-
-// The VideoQueryRuleFunc type is an adapter to allow the use of ordinary
-// functions as a query rule.
-type VideoQueryRuleFunc func(context.Context, *ent.VideoQuery) error
-
-// EvalQuery return f(ctx, q).
-func (f VideoQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
-	if q, ok := q.(*ent.VideoQuery); ok {
-		return f(ctx, q)
-	}
-	return Denyf("ent/privacy: unexpected query type %T, expect *ent.VideoQuery", q)
-}
-
-// The VideoMutationRuleFunc type is an adapter to allow the use of ordinary
-// functions as a mutation rule.
-type VideoMutationRuleFunc func(context.Context, *ent.VideoMutation) error
-
-// EvalMutation calls f(ctx, m).
-func (f VideoMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
-	if m, ok := m.(*ent.VideoMutation); ok {
-		return f(ctx, m)
-	}
-	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.VideoMutation", m)
-}

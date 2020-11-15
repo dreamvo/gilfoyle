@@ -386,7 +386,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Media"
+                                            "$ref": "#/definitions/api.FileFormat"
                                         }
                                     }
                                 }
@@ -425,6 +425,43 @@ var doc = `{
                 "title": {
                     "type": "string",
                     "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
+        "api.FileFormat": {
+            "type": "object",
+            "properties": {
+                "bit_rate": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "format_long_name": {
+                    "type": "string"
+                },
+                "format_name": {
+                    "type": "string"
+                },
+                "nb_programs": {
+                    "type": "integer"
+                },
+                "nb_streams": {
+                    "type": "integer"
+                },
+                "probe_score": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "0"
                 }
             }
         },
