@@ -13,14 +13,14 @@ type Storage struct {
 	root string
 }
 
-// NewStorage returns a new filesystem storage.
-func NewStorage(cfg Config) *Storage {
-	return &Storage{root: cfg.Root}
-}
-
 // Config is the configuration for Storage.
 type Config struct {
 	Root string
+}
+
+// NewStorage returns a new filesystem storage.
+func NewStorage(cfg Config) *Storage {
+	return &Storage{root: cfg.Root}
 }
 
 func (fs *Storage) abs(path string) string {
