@@ -219,7 +219,7 @@ func TestMedias(t *testing.T) {
 
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test", body.Data.(map[string]interface{})["title"])
-			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
+			assert.Equal("Processing", body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error (1)", func(t *testing.T) {
@@ -279,7 +279,7 @@ func TestMedias(t *testing.T) {
 
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test2", body.Data.(map[string]interface{})["title"])
-			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
+			assert.Equal("Processing", body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error", func(t *testing.T) {
