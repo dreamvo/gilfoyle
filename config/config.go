@@ -16,9 +16,9 @@ type ServicesConfig struct {
 }
 
 type SettingsConfig struct {
-	ExposeSwaggerUI bool   `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
-	MaxFileSize     string `yaml:"max_file_size" json:"max_file_size" default:"50Mi"`
-	Debug           bool   `yaml:"debug" json:"debug" default:"false" env:"DEBUG"`
+	ExposeSwaggerUI bool  `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
+	MaxFileSize     int64 `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
+	Debug           bool  `yaml:"debug" json:"debug" default:"false" env:"DEBUG"`
 }
 
 type StorageConfig struct {

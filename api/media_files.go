@@ -62,6 +62,11 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
+	if file.Size > gilfoyle.Config.Settings.MaxFileSize {
+		httputils.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("uploaded file's size exceed limit of %v", gilfoyle.Config.Settings.MaxFileSize))
+		return
+	}
+
 	fileReader, err := file.Open()
 	if err != nil {
 		httputils.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error opening uploaded file: %e", err))
