@@ -61,7 +61,7 @@ definitions:
       updated_at:
         type: string
     type: object
-  httputils.DataResponse:
+  util.DataResponse:
     properties:
       code:
         example: 200
@@ -69,7 +69,7 @@ definitions:
       data:
         type: object
     type: object
-  httputils.ErrorResponse:
+  util.ErrorResponse:
     properties:
       code:
         example: 400
