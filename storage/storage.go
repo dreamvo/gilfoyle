@@ -3,8 +3,17 @@ package storage
 import (
 	"context"
 	"errors"
+	"github.com/dreamvo/gilfoyle/config"
 	"io"
 	"time"
+)
+
+const (
+	Filesystem         config.StorageClass = "fs"
+	GoogleCloudStorage config.StorageClass = "gcs"
+	AmazonS3           config.StorageClass = "s3"
+	_                  config.StorageClass = "ipfs"
+	_                  config.StorageClass = "openstack"
 )
 
 // Storage is the storage interface.
@@ -22,4 +31,4 @@ type Stat struct {
 }
 
 // ErrNotExist is a sentinel error returned by the Open and the Stat methods.
-var ErrNotExist = errors.New("does not exist")
+var ErrNotExist = errors.New("file does not exist")
