@@ -140,7 +140,7 @@ func createMedia(ctx *gin.Context) {
 	v, err := db.Client.Media.
 		Create().
 		SetTitle(body.Title).
-		SetStatus(schema.MediaStatusProcessing).
+		SetStatus(schema.MediaStatusAwaitingUpload).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
 		util.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))

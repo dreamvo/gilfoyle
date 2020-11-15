@@ -12,7 +12,7 @@ var (
 	MediaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "title", Type: field.TypeString, Size: 255},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"Errored", "Processing", "Ready"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"AwaitingUpload", "Errored", "Processing", "Ready"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
