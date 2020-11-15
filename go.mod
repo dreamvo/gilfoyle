@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	cloud.google.com/go v0.58.0 // indirect
-	cloud.google.com/go/storage v1.9.0 // indirect
+	cloud.google.com/go/storage v1.9.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/facebookincubator/ent v0.3.0
 	github.com/gin-gonic/gin v1.4.0
@@ -37,6 +37,7 @@ require (
 	golang.org/x/sys v0.0.0-20201109165425-215b40eba54c // indirect
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/tools v0.0.0-20201013201025-64a9e34f3752 // indirect
+	google.golang.org/api v0.26.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/vansante/go-ffprobe.v2 v2.0.2

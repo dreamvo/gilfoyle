@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/dreamvo/gilfoyle/storage/fs"
+	"github.com/dreamvo/gilfoyle/storage/gcs"
 	"github.com/dreamvo/gilfoyle/storage/s3"
-	"github.com/ulule/gostorages"
-	"github.com/ulule/gostorages/fs"
-	"github.com/ulule/gostorages/gcs"
 )
 
 const (
@@ -19,11 +19,11 @@ const (
 )
 
 var (
-	Storage gostorages.Storage
+	Storage storage.Storage
 )
 
 // NewStorage creates a new storage instance
-func NewStorage(storageClass config.StorageClass) (gostorages.Storage, error) {
+func NewStorage(storageClass config.StorageClass) (storage.Storage, error) {
 	var err error
 
 	cfg := Config.Storage
