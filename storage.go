@@ -10,14 +10,6 @@ import (
 	"github.com/dreamvo/gilfoyle/storage/s3"
 )
 
-const (
-	Filesystem         config.StorageClass = "fs"
-	GoogleCloudStorage config.StorageClass = "gcs"
-	AmazonS3           config.StorageClass = "s3"
-	_                  config.StorageClass = "ipfs"
-	_                  config.StorageClass = "openstack"
-)
-
 var (
 	Storage storage.Storage
 )
@@ -29,13 +21,13 @@ func NewStorage(storageClass config.StorageClass) (storage.Storage, error) {
 	cfg := Config.Storage
 
 	switch storageClass {
-	case Filesystem:
+	case storage.Filesystem:
 		Storage = fs.NewStorage(fs.Config{Root: cfg.Filesystem.DataPath})
 		return Storage, nil
-	case GoogleCloudStorage:
+	case storage.GoogleCloudStorage:
 		Storage, err = gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)
 		return Storage, err
-	case AmazonS3:
+	case storage.AmazonS3:
 		Storage, err = s3.NewStorage(cfg.S3)
 		return Storage, err
 	//case IPFS:
