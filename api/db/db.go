@@ -8,20 +8,18 @@ import (
 
 var Client *ent.Client
 
-// InitClient init the public Client variable
-func InitClient(config *config.Config) error {
+// InitClient initialize a database connection
+func InitClient(config config.DatabaseConfig) (err error) {
 	datasource := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s",
-		config.Services.DB.Host,
-		config.Services.DB.Port,
-		config.Services.DB.User,
-		config.Services.DB.Database,
-		config.Services.DB.Password,
+		config.Host,
+		config.Port,
+		config.User,
+		config.Database,
+		config.Password,
 	)
 
-	c, err := ent.Open(config.Services.DB.Dialect, datasource)
-
-	Client = c
+	Client, err = ent.Open(config.Dialect, datasource)
 
 	return err
 }

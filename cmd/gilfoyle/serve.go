@@ -6,6 +6,7 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api"
 	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -24,8 +25,9 @@ func init() {
 }
 
 var serveCmd = &cobra.Command{
-	Use:   "serve",
-	Short: "Launch the REST API",
+	Use:     "serve",
+	Short:   "Launch REST API",
+	Example: "gilfoyle serve -p 3000 -c /app/config.yml",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := gilfoyle.Logger
 
@@ -39,9 +41,9 @@ var serveCmd = &cobra.Command{
 			gin.SetMode(gin.DebugMode)
 		}
 
-		err := db.InitClient(&gilfoyle.Config)
+		err := db.InitClient(gilfoyle.Config.Services.DB)
 		if err != nil {
-			logger.Fatal("failed opening connection: %v", zap.Error(err))
+			logger.Fatal("failed opening connection", zap.Error(err))
 		}
 		defer db.Client.Close()
 
@@ -56,37 +58,14 @@ var serveCmd = &cobra.Command{
 
 		logger.Info("Successfully executed database auto migration")
 
+		_, err = gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		if err != nil {
+			logger.Fatal("Error initializing storage backend", zap.Error(err))
+		}
+
 		router := gin.New()
 
-		router.Use(gin.Recovery())
-
-		router.Use(func(ctx *gin.Context) {
-			path := ctx.Request.URL.Path
-			raw := ctx.Request.URL.RawQuery
-			errorMsg := ctx.Errors.ByType(gin.ErrorTypePrivate).String()
-
-			if raw != "" {
-				path = path + "?" + raw
-			}
-
-			log := logger.With(
-				zap.String("Method", ctx.Request.Method),
-				zap.String("Path", path),
-				zap.Int("StatusCode", ctx.Writer.Status()),
-				zap.Int("BodySize", ctx.Writer.Size()),
-				zap.String("UserAgent", ctx.Request.UserAgent()),
-			)
-
-			if errorMsg != "" {
-				log.Error("Incoming HTTP Request",
-					zap.String("ErrorMessage", errorMsg),
-				)
-				return
-			}
-
-			log.Info("Incoming HTTP Request")
-		})
-
+		api.RegisterMiddlewares(router)
 		api.RegisterRoutes(router)
 
 		// Launch web server
