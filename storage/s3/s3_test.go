@@ -12,7 +12,6 @@ import (
 )
 
 func TestS3(t *testing.T) {
-	t.Skip()
 	assert := assertTest.New(t)
 
 	cfg := config.S3Config{
@@ -54,7 +53,7 @@ func TestS3(t *testing.T) {
 		err = storage.Save(ctx, bytes.NewBufferString("hello"), "world")
 		assert.NoError(err)
 
-		now := time.Now().Add(3 * time.Second)
+		now := time.Now().Add(5 * time.Second)
 
 		stat, err := storage.Stat(ctx, "world")
 		assert.NoError(err)
