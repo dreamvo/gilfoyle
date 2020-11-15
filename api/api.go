@@ -11,6 +11,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
@@ -35,6 +36,47 @@ type HealthCheckResponse struct {
 // @schemes http https
 // @license.name GNU General Public License v3.0
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
+
+// RegisterMiddlewares adds middlewares to a given router instance
+func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
+	// Recovery middleware recovers from any panics and writes a 500 if there was one.
+	// TODO(sundowndev): update Gin to enable this feature. See https://github.com/gin-gonic/gin/commits/master/recovery.go
+	//r.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
+	//	if err, ok := recovered.(string); ok {
+	//		httputils.NewError(ctx, http.StatusInternalServerError, errors.New(err))
+	//	}
+	//	httputils.NewError(ctx, http.StatusInternalServerError, errors.New("an unexpected error occurred"))
+	//}))
+
+	r.Use(func(ctx *gin.Context) {
+		path := ctx.Request.URL.Path
+		raw := ctx.Request.URL.RawQuery
+		errorMsg := ctx.Errors.ByType(gin.ErrorTypePrivate).String()
+
+		if raw != "" {
+			path = path + "?" + raw
+		}
+
+		log := gilfoyle.Logger.With(
+			zap.String("Method", ctx.Request.Method),
+			zap.String("Path", path),
+			zap.Int("StatusCode", ctx.Writer.Status()),
+			zap.Int("BodySize", ctx.Writer.Size()),
+			zap.String("UserAgent", ctx.Request.UserAgent()),
+		)
+
+		if errorMsg != "" {
+			log.Error("Incoming HTTP Request",
+				zap.String("ErrorMessage", errorMsg),
+			)
+			return
+		}
+
+		log.Info("Incoming HTTP Request")
+	})
+
+	return r
+}
 
 // RegisterRoutes adds routes to a given router instance
 func RegisterRoutes(r *gin.Engine) *gin.Engine {
