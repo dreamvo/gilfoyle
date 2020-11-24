@@ -92,8 +92,8 @@ Of course, this list can evolve over time with no warrancy.
 
 #### High level architecture
 
-![high level architecture](https://i.imgur.com/jlGOijy.png)
+![high level architecture](https://i.imgur.com/iyhen9k.png)
 
 #### External interfaces
 
-We want documentation to be part of the code, so its always up-to-date and developers can understand snippets very quickly. We defines API's specifications using OpenAPI with swagger. The specification is defined in the code and used to generate a JSON file (`api/docs/swagger.json`).
+We want documentation to be part of the code, so its always up-to-date and developers can understand snippets very quickly. We defines API's specifications using OpenAPI with swagger. The specification is defined in the code and used to generate a JSON file (see [swagger.yaml](https://github.com/dreamvo/gilfoyle/blob/master/api/docs/swagger.yaml)).
