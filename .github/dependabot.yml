@@ -1,6 +1,7 @@
 version: 2
 updates:
-- package-ecosystem: go
+# Enable version updates for Go modules
+- package-ecosystem: gomod
   directory: '/'
   schedule:
     interval: daily
@@ -29,3 +30,10 @@ updates:
     prefix: fix
     prefix-development: chore
     include: scope
+# Enable version updates for Docker
+- package-ecosystem: "docker"
+  # Look for a `Dockerfile` in the `root` directory
+  directory: "/support/docker/"
+  # Check for updates once a week
+  schedule:
+    interval: "weekly"
