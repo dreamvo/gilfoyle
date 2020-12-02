@@ -1,4 +1,4 @@
-FROM golang:1.14-alpine
+FROM golang:1.15.5-alpine
 LABEL maintainer="Sundowndev" \
   org.label-schema.name="Gilfoyle" \
   org.label-schema.description="Video streaming server backed by decentralized filesystem." \
