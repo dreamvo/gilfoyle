@@ -39,6 +39,8 @@ type HealthCheckResponse struct {
 
 // RegisterMiddlewares adds middlewares to a given router instance
 func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
+	r.Use(gin.Recovery())
+
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	// TODO(sundowndev): update Gin to enable this feature. See https://github.com/gin-gonic/gin/commits/master/recovery.go
 	//r.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
@@ -49,6 +51,8 @@ func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 	//}))
 
 	r.Use(func(ctx *gin.Context) {
+		ctx.Next()
+
 		path := ctx.Request.URL.Path
 		raw := ctx.Request.URL.RawQuery
 		errorMsg := ctx.Errors.ByType(gin.ErrorTypePrivate).String()
