@@ -1,9 +1,15 @@
 name: OpenAPI
 
-on: [push,pull_request]
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
 
 jobs:
-  build:
+  validate:
     name: Validate
     runs-on: ubuntu-latest
     steps:
