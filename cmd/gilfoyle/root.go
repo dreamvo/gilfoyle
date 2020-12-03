@@ -9,6 +9,7 @@ import (
 )
 
 var cfgFile string
+var httpPort int
 
 var rootCmd = &cobra.Command{
 	Use:     "gilfoyle [OPTIONS] [COMMANDS]",
