@@ -3,6 +3,7 @@ package gilfoyle
 import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
+	"github.com/dreamvo/gilfoyle/dashboard/restapi"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -64,8 +65,8 @@ var dashboardCmd = &cobra.Command{
 
 		router.Use(gin.Recovery())
 
-		// TODO(sundowndev): fix static assets serving
-		router.Static("/", "../../dashboard/dist/")
+		restapi.RegisterStaticRoutes(router)
+		restapi.RegisterAPIRoutes(router)
 
 		// Launch web server
 		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
