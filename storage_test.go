@@ -19,4 +19,14 @@ func TestStorage(t *testing.T) {
 		_, err := NewStorage(storage.Filesystem)
 		assert.NoError(err)
 	})
+
+	t.Run("should initialize S3 storage", func(t *testing.T) {
+		_, err := NewStorage(storage.AmazonS3)
+		assert.NoError(err)
+	})
+
+	t.Run("should initialize GCS storage", func(t *testing.T) {
+		_, err := NewStorage(storage.GoogleCloudStorage)
+		assert.NoError(err)
+	})
 }
