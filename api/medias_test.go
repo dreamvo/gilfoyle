@@ -124,7 +124,7 @@ func TestMedias(t *testing.T) {
 		})
 	})
 
-	t.Run("GET /medias/{id}", func(t *testing.T) {
+	t.Run("GET /medias/:id", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
 			res, err := performRequest(r, http.MethodGet, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
@@ -162,7 +162,7 @@ func TestMedias(t *testing.T) {
 		})
 	})
 
-	t.Run("DELETE /medias/{id}", func(t *testing.T) {
+	t.Run("DELETE /medias/:id", func(t *testing.T) {
 		t.Run("should delete newly created media", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
@@ -257,7 +257,7 @@ func TestMedias(t *testing.T) {
 		})
 	})
 
-	t.Run("PATCH /medias/{id}", func(t *testing.T) {
+	t.Run("PATCH /medias/:id", func(t *testing.T) {
 		t.Run("should update a media", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()

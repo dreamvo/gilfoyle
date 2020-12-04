@@ -32,7 +32,7 @@ func TestApi(t *testing.T) {
 	r = RegisterRoutes(r)
 
 	t.Run("GET /healthz", func(t *testing.T) {
-		res, err := performRequest(r, "GET", "/healthz", nil)
+		res, err := performRequest(r, http.MethodGet, "/healthz", nil)
 		assert.NoError(err)
 
 		var body HealthCheckResponse
@@ -44,7 +44,7 @@ func TestApi(t *testing.T) {
 	})
 
 	t.Run("GET /404notfound", func(t *testing.T) {
-		res, err := performRequest(r, "GET", "/404notfound", nil)
+		res, err := performRequest(r, http.MethodGet, "/404notfound", nil)
 		assert.NoError(err)
 
 		var body util.ErrorResponse
