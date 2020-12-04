@@ -7,12 +7,15 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
+	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gopkg.in/vansante/go-ffprobe.v2"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -43,9 +46,7 @@ type FileFormat struct {
 // @Param id path string true "Media identifier" validate(required)
 // @Param file formData file true "Media file"
 func uploadMediaFile(ctx *gin.Context) {
-	id := ctx.Param("id")
-
-	parsedUUID, err := uuid.Parse(id)
+	parsedUUID, err := util.ValidateUUID(ctx.Param("id"))
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
 		return
@@ -61,9 +62,8 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s", id, "original")
-	stat, _ := gilfoyle.Storage.Stat(context.Background(), path)
-	if stat != nil {
+	path := fmt.Sprintf("%s/%s", parsedUUID.String(), "original")
+	if v.Status != media.StatusAwaitingUpload {
 		util.NewError(ctx, http.StatusBadRequest, errors.New("a file already exists for this media"))
 		return
 	}
@@ -75,7 +75,7 @@ func uploadMediaFile(ctx *gin.Context) {
 	}
 
 	if file.Size > gilfoyle.Config.Settings.MaxFileSize {
-		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("uploaded file's size exceed limit of %v", gilfoyle.Config.Settings.MaxFileSize))
+		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf("uploaded file's size exceed limit of %v", gilfoyle.Config.Settings.MaxFileSize))
 		return
 	}
 
@@ -94,7 +94,7 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	tmpPath := fmt.Sprintf("%s/%s", os.TempDir(), uuid.New().String())
+	tmpPath := filepath.Join(os.TempDir(), uuid.New().String())
 
 	if err = ctx.SaveUploadedFile(file, tmpPath); err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error saving temporary file: %s", err))
@@ -109,6 +109,19 @@ func uploadMediaFile(ctx *gin.Context) {
 
 	if err = gilfoyle.Storage.Save(ctx, f, path); err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error saving uploaded file: %s", err))
+		return
+	}
+
+	v, err = db.Client.Media.
+		UpdateOneID(parsedUUID).
+		SetStatus(media.StatusProcessing).
+		Save(context.Background())
+	if ent.IsValidationError(err) {
+		util.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
+		return
+	}
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 

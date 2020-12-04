@@ -1,24 +1,126 @@
 package api
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/dreamvo/gilfoyle"
+	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/api/util"
+	"github.com/dreamvo/gilfoyle/ent/enttest"
+	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/schema"
+	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
+	"io"
+	"mime/multipart"
 	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"testing"
 )
+
+func removeDir(path string) {
+	_ = os.RemoveAll(path)
+}
 
 func TestMediaFiles(t *testing.T) {
 	assert := assertTest.New(t)
 	r = gin.New()
 	r = RegisterRoutes(r)
 
-	t.Run("POST /medias/{id}/upload", func(t *testing.T) {
-		t.Run("(WIP) should return 200", func(t *testing.T) {
-			_, err := performRequest(r, http.MethodPost, "/medias/uuid/upload", nil)
-			assert.NoError(err, "should be equal")
+	_, err := gilfoyle.NewConfig()
+	if err != nil {
+		panic(err)
+	}
 
-			//assert.Equal(200, res.Result().StatusCode, "should be equal")
+	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
+	defer removeDir(gilfoyle.Config.Storage.Filesystem.DataPath)
+
+	_, err = gilfoyle.NewStorage(storage.Filesystem)
+	if err != nil {
+		panic(err)
+	}
+
+	t.Run("POST /medias/:id/upload", func(t *testing.T) {
+		t.Run("should upload file and return probe", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			m, _ := db.Client.Media.
+				Create().
+				SetTitle("test").
+				SetStatus(schema.MediaStatusAwaitingUpload).
+				Save(context.Background())
+
+			payload := &bytes.Buffer{}
+			writer := multipart.NewWriter(payload)
+
+			filePath := "./__mocks__/SampleVideo_1280x720_1mb.mp4"
+
+			file, err := os.Open(filePath)
+			assert.NoError(err)
+			defer file.Close()
+
+			part1, err := writer.CreateFormFile("file", filepath.Base(filePath))
+			assert.NoError(err)
+
+			_, err = io.Copy(part1, file)
+			assert.NoError(err)
+
+			err = writer.Close()
+			assert.NoError(err)
+
+			req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/medias/%s/upload", m.ID), payload)
+			assert.NoError(err)
+
+			req.Header.Add("Content-Type", "multipart/form-data")
+			req.Header.Set("Content-Type", writer.FormDataContentType())
+
+			res := httptest.NewRecorder()
+			r.ServeHTTP(res, req)
+
+			var body util.DataResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(200, res.Result().StatusCode)
+			assert.Equal(map[string]interface{}{
+				"bit_rate":         "",
+				"duration":         "5.312",
+				"filename":         "pipe:",
+				"format_long_name": "QuickTime / MOV",
+				"format_name":      "mov,mp4,m4a,3gp,3g2,mj2",
+				"nb_programs":      float64(0),
+				"nb_streams":       float64(2),
+				"probe_score":      float64(100),
+				"size":             "",
+				"start_time":       "0",
+			}, body.Data)
+
+			m, _ = db.Client.Media.Get(context.Background(), m.ID)
+
+			assert.Equal(media.StatusProcessing, m.Status)
 		})
+
+		t.Run("should return 400 for invalid UUID", func(t *testing.T) {
+			res, err := performRequest(r, http.MethodPost, "/medias/uuid/upload", nil)
+			assert.NoError(err)
+
+			var body util.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(400, res.Result().StatusCode)
+			assert.Equal(400, body.Code)
+			assert.Equal(ErrInvalidUUID, body.Message)
+		})
+
+		t.Run("should return 404 for non-existing media", func(t *testing.T) {})
+		t.Run("should return 400 for file missing", func(t *testing.T) {})
+		t.Run("should return 400 for file size too high", func(t *testing.T) {})
+		t.Run("should return error for invalid media file", func(t *testing.T) {})
 	})
 }
