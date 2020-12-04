@@ -87,6 +87,10 @@ func TestMediaFiles(t *testing.T) {
 			var body util.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
+			stat, err := os.Stat(filepath.Join("./data", m.ID.String(), "original"))
+			assert.NoError(err)
+			assert.Equal(int64(1055736), stat.Size())
+
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal(map[string]interface{}{
 				"bit_rate":         "",
@@ -118,7 +122,21 @@ func TestMediaFiles(t *testing.T) {
 			assert.Equal(ErrInvalidUUID, body.Message)
 		})
 
-		t.Run("should return 404 for non-existing media", func(t *testing.T) {})
+		t.Run("should return 404 for non-existing media", func(t *testing.T) {
+			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer db.Client.Close()
+
+			res, err := performRequest(r, http.MethodPost, "/medias/7b959619-7271-4fbb-a70c-b6b5b40aecaf/upload", nil)
+			assert.NoError(err)
+
+			var body util.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(404, res.Result().StatusCode)
+			assert.Equal(404, body.Code)
+			assert.Equal("media could not be found", body.Message)
+		})
+
 		t.Run("should return 400 for file missing", func(t *testing.T) {})
 		t.Run("should return 400 for file size too high", func(t *testing.T) {})
 		t.Run("should return error for invalid media file", func(t *testing.T) {})
