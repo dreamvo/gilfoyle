@@ -52,8 +52,8 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	v, err := db.Client.Media.Get(context.Background(), parsedUUID)
-	if v == nil {
+	m, err := db.Client.Media.Get(context.Background(), parsedUUID)
+	if m == nil {
 		util.NewError(ctx, http.StatusNotFound, errors.New("media could not be found"))
 		return
 	}
@@ -63,7 +63,7 @@ func uploadMediaFile(ctx *gin.Context) {
 	}
 
 	path := fmt.Sprintf("%s/%s", parsedUUID.String(), "original")
-	if v.Status != media.StatusAwaitingUpload {
+	if m.Status != media.StatusAwaitingUpload {
 		util.NewError(ctx, http.StatusBadRequest, errors.New("a file already exists for this media"))
 		return
 	}
@@ -112,8 +112,8 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	v, err = db.Client.Media.
-		UpdateOneID(parsedUUID).
+	_, err = db.Client.Media.
+		UpdateOneID(m.ID).
 		SetStatus(media.StatusProcessing).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
