@@ -48,7 +48,7 @@ func TestMedias(t *testing.T) {
 				_, _ = db.Client.Media.
 					Create().
 					SetTitle(fmt.Sprintf("%d", i)).
-					SetStatus(schema.MediaStatusProcessing).
+					SetStatus(schema.MediaStatusAwaitingUpload).
 					Save(context.Background())
 			}
 
@@ -74,7 +74,7 @@ func TestMedias(t *testing.T) {
 				_, _ = db.Client.Media.
 					Create().
 					SetTitle(fmt.Sprintf("%d", i)).
-					SetStatus(schema.MediaStatusProcessing).
+					SetStatus(schema.MediaStatusAwaitingUpload).
 					Save(context.Background())
 			}
 
@@ -99,13 +99,13 @@ func TestMedias(t *testing.T) {
 			v, _ := db.Client.Media.
 				Create().
 				SetTitle("video1").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			_, _ = db.Client.Media.
 				Create().
 				SetTitle("video2").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			res, err := performRequest(r, http.MethodGet, "/medias?offset=1", nil)
@@ -144,7 +144,7 @@ func TestMedias(t *testing.T) {
 			v, _ := db.Client.Media.
 				Create().
 				SetTitle("no u").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			res, err := performRequest(r, http.MethodGet, "/medias/"+v.ID.String(), nil)
@@ -170,7 +170,7 @@ func TestMedias(t *testing.T) {
 			v, _ := db.Client.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			res, err := performRequest(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
@@ -219,7 +219,7 @@ func TestMedias(t *testing.T) {
 
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test", body.Data.(map[string]interface{})["title"])
-			assert.Equal("Processing", body.Data.(map[string]interface{})["status"])
+			assert.Equal("AwaitingUpload", body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error (1)", func(t *testing.T) {
@@ -265,7 +265,7 @@ func TestMedias(t *testing.T) {
 			m, err := db.Client.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 			assert.NoError(err)
 
@@ -279,7 +279,7 @@ func TestMedias(t *testing.T) {
 
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test2", body.Data.(map[string]interface{})["title"])
-			assert.Equal("Processing", body.Data.(map[string]interface{})["status"])
+			assert.Equal("AwaitingUpload", body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error", func(t *testing.T) {
@@ -289,7 +289,7 @@ func TestMedias(t *testing.T) {
 			m, err := db.Client.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 			assert.NoError(err)
 
