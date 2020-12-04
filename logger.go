@@ -22,6 +22,19 @@ func (lumberjackSink) Sync() error {
 	return nil
 }
 
+func NewLumberjackSink(*url.URL) (zap.Sink, error) {
+	lumberJackLogger := lumberjack.Logger{
+		Filename:   "logs/server.log", //Filename is the file to write logs to
+		MaxSize:    50,                //MB
+		MaxBackups: 30,                //MaxBackups is the maximum number of old log files to retain.
+		MaxAge:     90,                //days
+		Compress:   false,
+	}
+	return lumberjackSink{
+		Logger: &lumberJackLogger,
+	}, nil
+}
+
 func init() {
 	_, err := NewLogger()
 	if err != nil {
@@ -33,20 +46,20 @@ func NewLogger() (*zap.Logger, error) {
 	var err error
 
 	loggerOnce.Do(func() {
-		lumberJackLogger := lumberjack.Logger{
-			Filename:   "logs/server.log", //Filename is the file to write logs to
-			MaxSize:    50,                //MB
-			MaxBackups: 30,                //MaxBackups is the maximum number of old log files to retain.
-			MaxAge:     90,                //days
-			Compress:   false,
+
+		err = zap.RegisterSink("lumberjack", NewLumberjackSink)
+		if err != nil {
+			return
 		}
-		zap.RegisterSink("lumberjack", func(*url.URL) (zap.Sink, error) {
-			return lumberjackSink{
-				Logger: &lumberJackLogger,
-			}, nil
-		})
+
+		var logLevel zapcore.Level
+		if Config.Settings.Debug {
+			logLevel = zapcore.DebugLevel
+		} else {
+			logLevel = zapcore.InfoLevel
+		}
 		zapConfig := zap.Config{
-			Level:             zap.NewAtomicLevelAt(zapcore.DebugLevel),
+			Level:             zap.NewAtomicLevelAt(logLevel),
 			Development:       false,
 			DisableCaller:     false,
 			DisableStacktrace: false,
