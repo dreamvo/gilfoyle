@@ -37,6 +37,15 @@ type HealthCheckResponse struct {
 // @license.name GNU General Public License v3.0
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
+func NewServer() *gin.Engine {
+	r := gin.New()
+
+	RegisterMiddlewares(r)
+	RegisterRoutes(r)
+
+	return r
+}
+
 // RegisterMiddlewares adds middlewares to a given router instance
 func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 	r.Use(gin.Recovery())

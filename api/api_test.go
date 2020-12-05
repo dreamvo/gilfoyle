@@ -27,9 +27,7 @@ func performRequest(r http.Handler, method, path string, body interface{}) (*htt
 
 func TestApi(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.New()
-	r = RegisterMiddlewares(r)
-	r = RegisterRoutes(r)
+	r = NewServer()
 
 	t.Run("GET /healthz", func(t *testing.T) {
 		res, err := performRequest(r, http.MethodGet, "/healthz", nil)

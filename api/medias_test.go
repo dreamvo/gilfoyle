@@ -9,7 +9,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/schema"
-	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
 	"net/http"
@@ -18,8 +17,7 @@ import (
 
 func TestMedias(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.New()
-	r = RegisterRoutes(r)
+	r = NewServer()
 
 	t.Run("GET /medias", func(t *testing.T) {
 		t.Run("should return empty array", func(t *testing.T) {

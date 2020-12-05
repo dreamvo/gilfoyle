@@ -12,7 +12,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
-	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
 	"io"
@@ -30,8 +29,7 @@ func removeDir(path string) {
 
 func TestMediaFiles(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.New()
-	r = RegisterRoutes(r)
+	r = NewServer()
 
 	_, err := gilfoyle.NewConfig()
 	if err != nil {

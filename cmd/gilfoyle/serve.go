@@ -63,10 +63,7 @@ var serveCmd = &cobra.Command{
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}
 
-		router := gin.New()
-
-		api.RegisterMiddlewares(router)
-		api.RegisterRoutes(router)
+		router := api.NewServer()
 
 		// Launch web server
 		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
