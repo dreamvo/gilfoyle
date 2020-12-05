@@ -10,9 +10,9 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 	"github.com/google/uuid"
 )
 
@@ -55,23 +55,23 @@ func (mq *MediaQuery) Order(o ...OrderFunc) *MediaQuery {
 
 // First returns the first Media entity in the query. Returns *NotFoundError when no media was found.
 func (mq *MediaQuery) First(ctx context.Context) (*Media, error) {
-	ms, err := mq.Limit(1).All(ctx)
+	nodes, err := mq.Limit(1).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if len(ms) == 0 {
+	if len(nodes) == 0 {
 		return nil, &NotFoundError{media.Label}
 	}
-	return ms[0], nil
+	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
 func (mq *MediaQuery) FirstX(ctx context.Context) *Media {
-	m, err := mq.First(ctx)
+	node, err := mq.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
-	return m
+	return node
 }
 
 // FirstID returns the first Media id in the query. Returns *NotFoundError when no id was found.
@@ -87,8 +87,8 @@ func (mq *MediaQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	return ids[0], nil
 }
 
-// FirstXID is like FirstID, but panics if an error occurs.
-func (mq *MediaQuery) FirstXID(ctx context.Context) uuid.UUID {
+// FirstIDX is like FirstID, but panics if an error occurs.
+func (mq *MediaQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := mq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -98,13 +98,13 @@ func (mq *MediaQuery) FirstXID(ctx context.Context) uuid.UUID {
 
 // Only returns the only Media entity in the query, returns an error if not exactly one entity was returned.
 func (mq *MediaQuery) Only(ctx context.Context) (*Media, error) {
-	ms, err := mq.Limit(2).All(ctx)
+	nodes, err := mq.Limit(2).All(ctx)
 	if err != nil {
 		return nil, err
 	}
-	switch len(ms) {
+	switch len(nodes) {
 	case 1:
-		return ms[0], nil
+		return nodes[0], nil
 	case 0:
 		return nil, &NotFoundError{media.Label}
 	default:
@@ -114,11 +114,11 @@ func (mq *MediaQuery) Only(ctx context.Context) (*Media, error) {
 
 // OnlyX is like Only, but panics if an error occurs.
 func (mq *MediaQuery) OnlyX(ctx context.Context) *Media {
-	m, err := mq.Only(ctx)
+	node, err := mq.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return m
+	return node
 }
 
 // OnlyID returns the only Media id in the query, returns an error if not exactly one id was returned.
@@ -157,11 +157,11 @@ func (mq *MediaQuery) All(ctx context.Context) ([]*Media, error) {
 
 // AllX is like All, but panics if an error occurs.
 func (mq *MediaQuery) AllX(ctx context.Context) []*Media {
-	ms, err := mq.All(ctx)
+	nodes, err := mq.All(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return ms
+	return nodes
 }
 
 // IDs executes the query and returns a list of Media ids.
@@ -219,6 +219,9 @@ func (mq *MediaQuery) ExistX(ctx context.Context) bool {
 // Clone returns a duplicate of the query builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
 func (mq *MediaQuery) Clone() *MediaQuery {
+	if mq == nil {
+		return nil
+	}
 	return &MediaQuery{
 		config:     mq.config,
 		limit:      mq.limit,
@@ -363,7 +366,7 @@ func (mq *MediaQuery) querySpec() *sqlgraph.QuerySpec {
 	if ps := mq.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
-				ps[i](selector)
+				ps[i](selector, media.ValidColumn)
 			}
 		}
 	}
@@ -382,7 +385,7 @@ func (mq *MediaQuery) sqlQuery() *sql.Selector {
 		p(selector)
 	}
 	for _, p := range mq.order {
-		p(selector)
+		p(selector, media.ValidColumn)
 	}
 	if offset := mq.offset; offset != nil {
 		// limit is mandatory for offset clause. We start
@@ -617,8 +620,17 @@ func (mgb *MediaGroupBy) BoolX(ctx context.Context) bool {
 }
 
 func (mgb *MediaGroupBy) sqlScan(ctx context.Context, v interface{}) error {
+	for _, f := range mgb.fields {
+		if !media.ValidColumn(f) {
+			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
+		}
+	}
+	selector := mgb.sqlQuery()
+	if err := selector.Err(); err != nil {
+		return err
+	}
 	rows := &sql.Rows{}
-	query, args := mgb.sqlQuery().Query()
+	query, args := selector.Query()
 	if err := mgb.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
@@ -631,7 +643,7 @@ func (mgb *MediaGroupBy) sqlQuery() *sql.Selector {
 	columns := make([]string, 0, len(mgb.fields)+len(mgb.fns))
 	columns = append(columns, mgb.fields...)
 	for _, fn := range mgb.fns {
-		columns = append(columns, fn(selector))
+		columns = append(columns, fn(selector, media.ValidColumn))
 	}
 	return selector.Select(columns...).GroupBy(mgb.fields...)
 }
@@ -851,6 +863,11 @@ func (ms *MediaSelect) BoolX(ctx context.Context) bool {
 }
 
 func (ms *MediaSelect) sqlScan(ctx context.Context, v interface{}) error {
+	for _, f := range ms.fields {
+		if !media.ValidColumn(f) {
+			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for selection", f)}
+		}
+	}
 	rows := &sql.Rows{}
 	query, args := ms.sqlQuery().Query()
 	if err := ms.driver.Query(ctx, query, args, rows); err != nil {

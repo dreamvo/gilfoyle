@@ -36,6 +36,16 @@ var Columns = []string{
 	FieldUpdatedAt,
 }
 
+// ValidColumn reports if the column name is valid (part of the table columns).
+func ValidColumn(column string) bool {
+	for i := range Columns {
+		if column == Columns[i] {
+			return true
+		}
+	}
+	return false
+}
+
 var (
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
@@ -53,9 +63,9 @@ type Status string
 // Status values.
 const (
 	StatusAwaitingUpload Status = "AwaitingUpload"
-	StatusErrored        Status = "Errored"
 	StatusProcessing     Status = "Processing"
 	StatusReady          Status = "Ready"
+	StatusErrored        Status = "Errored"
 )
 
 func (s Status) String() string {
@@ -65,7 +75,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusAwaitingUpload, StatusErrored, StatusProcessing, StatusReady:
+	case StatusAwaitingUpload, StatusProcessing, StatusReady, StatusErrored:
 		return nil
 	default:
 		return fmt.Errorf("media: invalid enum value for status field: %q", s)

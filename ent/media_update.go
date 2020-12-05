@@ -9,22 +9,21 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 )
 
 // MediaUpdate is the builder for updating Media entities.
 type MediaUpdate struct {
 	config
-	hooks      []Hook
-	mutation   *MediaMutation
-	predicates []predicate.Media
+	hooks    []Hook
+	mutation *MediaMutation
 }
 
 // Where adds a new predicate for the builder.
 func (mu *MediaUpdate) Where(ps ...predicate.Media) *MediaUpdate {
-	mu.predicates = append(mu.predicates, ps...)
+	mu.mutation.predicates = append(mu.mutation.predicates, ps...)
 	return mu
 }
 
@@ -73,29 +72,25 @@ func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
 }
 
-// Save executes the query and returns the number of rows/vertices matched by this operation.
+// Save executes the query and returns the number of nodes affected by the update operation.
 func (mu *MediaUpdate) Save(ctx context.Context) (int, error) {
-	if v, ok := mu.mutation.Title(); ok {
-		if err := media.TitleValidator(v); err != nil {
-			return 0, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
-		}
-	}
-	if v, ok := mu.mutation.Status(); ok {
-		if err := media.StatusValidator(v); err != nil {
-			return 0, &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
-		}
-	}
 	var (
 		err      error
 		affected int
 	)
 	if len(mu.hooks) == 0 {
+		if err = mu.check(); err != nil {
+			return 0, err
+		}
 		affected, err = mu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*MediaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = mu.check(); err != nil {
+				return 0, err
 			}
 			mu.mutation = mutation
 			affected, err = mu.sqlSave(ctx)
@@ -134,6 +129,21 @@ func (mu *MediaUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (mu *MediaUpdate) check() error {
+	if v, ok := mu.mutation.Title(); ok {
+		if err := media.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
+		}
+	}
+	if v, ok := mu.mutation.Status(); ok {
+		if err := media.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -145,7 +155,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			},
 		},
 	}
-	if ps := mu.predicates; len(ps) > 0 {
+	if ps := mu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -245,27 +255,23 @@ func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 
 // Save executes the query and returns the updated entity.
 func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
-	if v, ok := muo.mutation.Title(); ok {
-		if err := media.TitleValidator(v); err != nil {
-			return nil, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
-		}
-	}
-	if v, ok := muo.mutation.Status(); ok {
-		if err := media.StatusValidator(v); err != nil {
-			return nil, &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
-		}
-	}
 	var (
 		err  error
 		node *Media
 	)
 	if len(muo.hooks) == 0 {
+		if err = muo.check(); err != nil {
+			return nil, err
+		}
 		node, err = muo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*MediaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = muo.check(); err != nil {
+				return nil, err
 			}
 			muo.mutation = mutation
 			node, err = muo.sqlSave(ctx)
@@ -284,11 +290,11 @@ func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
 
 // SaveX is like Save, but panics if an error occurs.
 func (muo *MediaUpdateOne) SaveX(ctx context.Context) *Media {
-	m, err := muo.Save(ctx)
+	node, err := muo.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return m
+	return node
 }
 
 // Exec executes the query on the entity.
@@ -304,7 +310,22 @@ func (muo *MediaUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (m *Media, err error) {
+// check runs all checks and user-defined validators on the builder.
+func (muo *MediaUpdateOne) check() error {
+	if v, ok := muo.mutation.Title(); ok {
+		if err := media.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
+		}
+	}
+	if v, ok := muo.mutation.Status(); ok {
+		if err := media.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
+func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   media.Table,
@@ -348,9 +369,9 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (m *Media, err error) {
 			Column: media.FieldUpdatedAt,
 		})
 	}
-	m = &Media{config: muo.config}
-	_spec.Assign = m.assignValues
-	_spec.ScanValues = m.scanValues()
+	_node = &Media{config: muo.config}
+	_spec.Assign = _node.assignValues
+	_spec.ScanValues = _node.scanValues()
 	if err = sqlgraph.UpdateNode(ctx, muo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -359,5 +380,5 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (m *Media, err error) {
 		}
 		return nil, err
 	}
-	return m, nil
+	return _node, nil
 }

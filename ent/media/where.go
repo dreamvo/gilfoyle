@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/predicate"
-	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql"
 	"github.com/google/uuid"
 )
 

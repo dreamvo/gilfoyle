@@ -6,7 +6,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/facebookincubator/ent/dialect"
+	"github.com/facebook/ent/dialect"
 )
 
 // Tx is a transactional client that is created by calling Client.Tx().
@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
+	// MediaFile is the client for interacting with the MediaFile builders.
+	MediaFile *MediaFileClient
 
 	// lazily loaded.
 	client     *Client
@@ -150,6 +152,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Media = NewMediaClient(tx.config)
+	tx.MediaFile = NewMediaFileClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

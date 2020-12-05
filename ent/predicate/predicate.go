@@ -3,8 +3,11 @@
 package predicate
 
 import (
-	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql"
 )
 
 // Media is the predicate function for media builders.
 type Media func(*sql.Selector)
+
+// MediaFile is the predicate function for mediafile builders.
+type MediaFile func(*sql.Selector)

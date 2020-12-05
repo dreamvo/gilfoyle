@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 	"github.com/google/uuid"
 )
 
@@ -74,20 +74,24 @@ func (mc *MediaCreate) Mutation() *MediaMutation {
 
 // Save creates the Media in the database.
 func (mc *MediaCreate) Save(ctx context.Context) (*Media, error) {
-	if err := mc.preSave(); err != nil {
-		return nil, err
-	}
 	var (
 		err  error
 		node *Media
 	)
+	mc.defaults()
 	if len(mc.hooks) == 0 {
+		if err = mc.check(); err != nil {
+			return nil, err
+		}
 		node, err = mc.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*MediaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = mc.check(); err != nil {
+				return nil, err
 			}
 			mc.mutation = mutation
 			node, err = mc.sqlSave(ctx)
@@ -113,7 +117,24 @@ func (mc *MediaCreate) SaveX(ctx context.Context) *Media {
 	return v
 }
 
-func (mc *MediaCreate) preSave() error {
+// defaults sets the default values of the builder before save.
+func (mc *MediaCreate) defaults() {
+	if _, ok := mc.mutation.CreatedAt(); !ok {
+		v := media.DefaultCreatedAt()
+		mc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := mc.mutation.UpdatedAt(); !ok {
+		v := media.DefaultUpdatedAt()
+		mc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := mc.mutation.ID(); !ok {
+		v := media.DefaultID()
+		mc.mutation.SetID(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (mc *MediaCreate) check() error {
 	if _, ok := mc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New("ent: missing required field \"title\"")}
 	}
@@ -131,34 +152,28 @@ func (mc *MediaCreate) preSave() error {
 		}
 	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
-		v := media.DefaultCreatedAt()
-		mc.mutation.SetCreatedAt(v)
+		return &ValidationError{Name: "created_at", err: errors.New("ent: missing required field \"created_at\"")}
 	}
 	if _, ok := mc.mutation.UpdatedAt(); !ok {
-		v := media.DefaultUpdatedAt()
-		mc.mutation.SetUpdatedAt(v)
-	}
-	if _, ok := mc.mutation.ID(); !ok {
-		v := media.DefaultID()
-		mc.mutation.SetID(v)
+		return &ValidationError{Name: "updated_at", err: errors.New("ent: missing required field \"updated_at\"")}
 	}
 	return nil
 }
 
 func (mc *MediaCreate) sqlSave(ctx context.Context) (*Media, error) {
-	m, _spec := mc.createSpec()
+	_node, _spec := mc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, mc.driver, _spec); err != nil {
 		if cerr, ok := isSQLConstraintError(err); ok {
 			err = cerr
 		}
 		return nil, err
 	}
-	return m, nil
+	return _node, nil
 }
 
 func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 	var (
-		m     = &Media{config: mc.config}
+		_node = &Media{config: mc.config}
 		_spec = &sqlgraph.CreateSpec{
 			Table: media.Table,
 			ID: &sqlgraph.FieldSpec{
@@ -168,7 +183,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 		}
 	)
 	if id, ok := mc.mutation.ID(); ok {
-		m.ID = id
+		_node.ID = id
 		_spec.ID.Value = id
 	}
 	if value, ok := mc.mutation.Title(); ok {
@@ -177,7 +192,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Value:  value,
 			Column: media.FieldTitle,
 		})
-		m.Title = value
+		_node.Title = value
 	}
 	if value, ok := mc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -185,7 +200,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Value:  value,
 			Column: media.FieldStatus,
 		})
-		m.Status = value
+		_node.Status = value
 	}
 	if value, ok := mc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -193,7 +208,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Value:  value,
 			Column: media.FieldCreatedAt,
 		})
-		m.CreatedAt = value
+		_node.CreatedAt = value
 	}
 	if value, ok := mc.mutation.UpdatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
@@ -201,9 +216,9 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Value:  value,
 			Column: media.FieldUpdatedAt,
 		})
-		m.UpdatedAt = value
+		_node.UpdatedAt = value
 	}
-	return m, _spec
+	return _node, _spec
 }
 
 // MediaCreateBulk is the builder for creating a bulk of Media entities.
@@ -220,13 +235,14 @@ func (mcb *MediaCreateBulk) Save(ctx context.Context) ([]*Media, error) {
 	for i := range mcb.builders {
 		func(i int, root context.Context) {
 			builder := mcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-				if err := builder.preSave(); err != nil {
-					return nil, err
-				}
 				mutation, ok := m.(*MediaMutation)
 				if !ok {
 					return nil, fmt.Errorf("unexpected mutation type %T", m)
+				}
+				if err := builder.check(); err != nil {
+					return nil, err
 				}
 				builder.mutation = mutation
 				nodes[i], specs[i] = builder.createSpec()

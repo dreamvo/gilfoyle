@@ -138,5 +138,6 @@ func TestMediaFiles(t *testing.T) {
 		t.Run("should return 400 for file missing", func(t *testing.T) {})
 		t.Run("should return 400 for file size too high", func(t *testing.T) {})
 		t.Run("should return error for invalid media file", func(t *testing.T) {})
+		t.Run("should set media status to errored on upload error", func(t *testing.T) {})
 	})
 }

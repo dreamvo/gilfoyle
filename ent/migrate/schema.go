@@ -3,8 +3,9 @@
 package migrate
 
 import (
-	"github.com/facebookincubator/ent/dialect/sql/schema"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/entsql"
+	"github.com/facebook/ent/dialect/sql/schema"
+	"github.com/facebook/ent/schema/field"
 )
 
 var (
@@ -12,7 +13,7 @@ var (
 	MediaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "title", Type: field.TypeString, Size: 255},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"AwaitingUpload", "Errored", "Processing", "Ready"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"AwaitingUpload", "Processing", "Ready", "Errored"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
@@ -22,10 +23,32 @@ var (
 		Columns:     MediaColumns,
 		PrimaryKey:  []*schema.Column{MediaColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{},
+		Annotation:  &entsql.Annotation{Table: "media"},
+	}
+	// MediafileColumns holds the columns for the "mediafile" table.
+	MediafileColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "video_bitrate", Type: field.TypeInt16},
+		{Name: "scaled_width", Type: field.TypeInt16},
+		{Name: "encoder_preset", Type: field.TypeEnum, Enums: []string{"ultrafast", "veryfast", "fast", "medium", "slow", "veryslow"}},
+		{Name: "framerate", Type: field.TypeInt8},
+		{Name: "duration_seconds", Type: field.TypeInt64},
+		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"audio", "video"}},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// MediafileTable holds the schema information for the "mediafile" table.
+	MediafileTable = &schema.Table{
+		Name:        "mediafile",
+		Columns:     MediafileColumns,
+		PrimaryKey:  []*schema.Column{MediafileColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{},
+		Annotation:  &entsql.Annotation{Table: "mediafile"},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MediaTable,
+		MediafileTable,
 	}
 )
 

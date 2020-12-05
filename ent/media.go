@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql"
 	"github.com/google/uuid"
 )
 
