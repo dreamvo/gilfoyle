@@ -137,4 +137,6 @@ func uploadMediaFile(ctx *gin.Context) {
 		BitRate:          data.Format.BitRate,
 		ProbeScore:       data.Format.ProbeScore,
 	})
+
+	// TODO(sundowndev): start background job(s) here
 }

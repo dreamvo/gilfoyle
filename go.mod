@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.58.0 // indirect
 	cloud.google.com/go/storage v1.9.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
+	github.com/facebook/ent v0.5.1
 	github.com/facebookincubator/ent v0.3.0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-openapi/spec v0.19.9 // indirect
@@ -21,7 +22,7 @@ require (
 	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
-	github.com/mattn/go-sqlite3 v1.14.0
+	github.com/mattn/go-sqlite3 v1.14.5
 	github.com/minio/minio-go/v7 v7.0.5
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
