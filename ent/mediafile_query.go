@@ -241,7 +241,7 @@ func (mfq *MediaFileQuery) Clone() *MediaFileQuery {
 // Example:
 //
 //	var v []struct {
-//		VideoBitrate int16 `json:"video_bitrate,omitempty"`
+//		VideoBitrate int64 `json:"video_bitrate,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
@@ -267,7 +267,7 @@ func (mfq *MediaFileQuery) GroupBy(field string, fields ...string) *MediaFileGro
 // Example:
 //
 //	var v []struct {
-//		VideoBitrate int16 `json:"video_bitrate,omitempty"`
+//		VideoBitrate int64 `json:"video_bitrate,omitempty"`
 //	}
 //
 //	client.MediaFile.Query().

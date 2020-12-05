@@ -28,11 +28,11 @@ var (
 	// MediafileColumns holds the columns for the "mediafile" table.
 	MediafileColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
-		{Name: "video_bitrate", Type: field.TypeInt16},
+		{Name: "video_bitrate", Type: field.TypeInt64},
 		{Name: "scaled_width", Type: field.TypeInt16},
-		{Name: "encoder_preset", Type: field.TypeEnum, Enums: []string{"ultrafast", "veryfast", "fast", "medium", "slow", "veryslow"}},
+		{Name: "encoder_preset", Type: field.TypeEnum, Enums: []string{"source", "ultrafast", "veryfast", "fast", "medium", "slow", "veryslow"}},
 		{Name: "framerate", Type: field.TypeInt8},
-		{Name: "duration_seconds", Type: field.TypeInt64},
+		{Name: "duration_seconds", Type: field.TypeFloat64},
 		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"audio", "video"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},

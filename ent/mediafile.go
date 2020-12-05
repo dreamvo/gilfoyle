@@ -18,7 +18,7 @@ type MediaFile struct {
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
 	// VideoBitrate holds the value of the "video_bitrate" field.
-	VideoBitrate int16 `json:"video_bitrate,omitempty"`
+	VideoBitrate int64 `json:"video_bitrate,omitempty"`
 	// ScaledWidth holds the value of the "scaled_width" field.
 	ScaledWidth int16 `json:"scaled_width,omitempty"`
 	// EncoderPreset holds the value of the "encoder_preset" field.
@@ -26,7 +26,7 @@ type MediaFile struct {
 	// Framerate holds the value of the "framerate" field.
 	Framerate int8 `json:"framerate,omitempty"`
 	// DurationSeconds holds the value of the "duration_seconds" field.
-	DurationSeconds int64 `json:"duration_seconds,omitempty"`
+	DurationSeconds float64 `json:"duration_seconds,omitempty"`
 	// MediaType holds the value of the "media_type" field.
 	MediaType mediafile.MediaType `json:"media_type,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -38,15 +38,15 @@ type MediaFile struct {
 // scanValues returns the types for scanning values from sql.Rows.
 func (*MediaFile) scanValues() []interface{} {
 	return []interface{}{
-		&uuid.UUID{},      // id
-		&sql.NullInt64{},  // video_bitrate
-		&sql.NullInt64{},  // scaled_width
-		&sql.NullString{}, // encoder_preset
-		&sql.NullInt64{},  // framerate
-		&sql.NullInt64{},  // duration_seconds
-		&sql.NullString{}, // media_type
-		&sql.NullTime{},   // created_at
-		&sql.NullTime{},   // updated_at
+		&uuid.UUID{},       // id
+		&sql.NullInt64{},   // video_bitrate
+		&sql.NullInt64{},   // scaled_width
+		&sql.NullString{},  // encoder_preset
+		&sql.NullInt64{},   // framerate
+		&sql.NullFloat64{}, // duration_seconds
+		&sql.NullString{},  // media_type
+		&sql.NullTime{},    // created_at
+		&sql.NullTime{},    // updated_at
 	}
 }
 
@@ -65,7 +65,7 @@ func (mf *MediaFile) assignValues(values ...interface{}) error {
 	if value, ok := values[0].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field video_bitrate", values[0])
 	} else if value.Valid {
-		mf.VideoBitrate = int16(value.Int64)
+		mf.VideoBitrate = value.Int64
 	}
 	if value, ok := values[1].(*sql.NullInt64); !ok {
 		return fmt.Errorf("unexpected type %T for field scaled_width", values[1])
@@ -82,10 +82,10 @@ func (mf *MediaFile) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		mf.Framerate = int8(value.Int64)
 	}
-	if value, ok := values[4].(*sql.NullInt64); !ok {
+	if value, ok := values[4].(*sql.NullFloat64); !ok {
 		return fmt.Errorf("unexpected type %T for field duration_seconds", values[4])
 	} else if value.Valid {
-		mf.DurationSeconds = value.Int64
+		mf.DurationSeconds = value.Float64
 	}
 	if value, ok := values[5].(*sql.NullString); !ok {
 		return fmt.Errorf("unexpected type %T for field media_type", values[5])

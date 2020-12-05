@@ -19,6 +19,7 @@ const (
 )
 
 const (
+	MediaFileEncoderPresetSource    = "source"
 	MediaFileEncoderPresetUltraFast = "ultrafast"
 	MediaFileEncoderPresetVeryFast  = "veryfast"
 	MediaFileEncoderPresetFast      = "fast"
@@ -51,9 +52,10 @@ func (MediaFile) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Unique().Default(func() uuid.UUID {
 			return uuid.New()
 		}),
-		field.Int16("video_bitrate").Min(0).Max(5000),
+		field.Int64("video_bitrate").Min(0),
 		field.Int16("scaled_width").Min(144).Max(2160),
 		field.Enum("encoder_preset").Values(
+			MediaFileEncoderPresetSource,
 			MediaFileEncoderPresetUltraFast,
 			MediaFileEncoderPresetVeryFast,
 			MediaFileEncoderPresetFast,
@@ -62,7 +64,7 @@ func (MediaFile) Fields() []ent.Field {
 			MediaFileEncoderPresetVerySlow,
 		),
 		field.Int8("framerate").Min(12).Max(60),
-		field.Int64("duration_seconds").Min(0),
+		field.Float("duration_seconds").Min(0),
 		field.Enum("media_type").Values(MediaFileTypeAudio, MediaFileTypeVideo),
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()

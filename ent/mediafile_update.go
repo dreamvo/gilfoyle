@@ -28,14 +28,14 @@ func (mfu *MediaFileUpdate) Where(ps ...predicate.MediaFile) *MediaFileUpdate {
 }
 
 // SetVideoBitrate sets the video_bitrate field.
-func (mfu *MediaFileUpdate) SetVideoBitrate(i int16) *MediaFileUpdate {
+func (mfu *MediaFileUpdate) SetVideoBitrate(i int64) *MediaFileUpdate {
 	mfu.mutation.ResetVideoBitrate()
 	mfu.mutation.SetVideoBitrate(i)
 	return mfu
 }
 
 // AddVideoBitrate adds i to video_bitrate.
-func (mfu *MediaFileUpdate) AddVideoBitrate(i int16) *MediaFileUpdate {
+func (mfu *MediaFileUpdate) AddVideoBitrate(i int64) *MediaFileUpdate {
 	mfu.mutation.AddVideoBitrate(i)
 	return mfu
 }
@@ -73,15 +73,15 @@ func (mfu *MediaFileUpdate) AddFramerate(i int8) *MediaFileUpdate {
 }
 
 // SetDurationSeconds sets the duration_seconds field.
-func (mfu *MediaFileUpdate) SetDurationSeconds(i int64) *MediaFileUpdate {
+func (mfu *MediaFileUpdate) SetDurationSeconds(f float64) *MediaFileUpdate {
 	mfu.mutation.ResetDurationSeconds()
-	mfu.mutation.SetDurationSeconds(i)
+	mfu.mutation.SetDurationSeconds(f)
 	return mfu
 }
 
-// AddDurationSeconds adds i to duration_seconds.
-func (mfu *MediaFileUpdate) AddDurationSeconds(i int64) *MediaFileUpdate {
-	mfu.mutation.AddDurationSeconds(i)
+// AddDurationSeconds adds f to duration_seconds.
+func (mfu *MediaFileUpdate) AddDurationSeconds(f float64) *MediaFileUpdate {
+	mfu.mutation.AddDurationSeconds(f)
 	return mfu
 }
 
@@ -236,14 +236,14 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mfu.mutation.VideoBitrate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: mediafile.FieldVideoBitrate,
 		})
 	}
 	if value, ok := mfu.mutation.AddedVideoBitrate(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: mediafile.FieldVideoBitrate,
 		})
@@ -285,14 +285,14 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := mfu.mutation.DurationSeconds(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt64,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: mediafile.FieldDurationSeconds,
 		})
 	}
 	if value, ok := mfu.mutation.AddedDurationSeconds(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt64,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: mediafile.FieldDurationSeconds,
 		})
@@ -337,14 +337,14 @@ type MediaFileUpdateOne struct {
 }
 
 // SetVideoBitrate sets the video_bitrate field.
-func (mfuo *MediaFileUpdateOne) SetVideoBitrate(i int16) *MediaFileUpdateOne {
+func (mfuo *MediaFileUpdateOne) SetVideoBitrate(i int64) *MediaFileUpdateOne {
 	mfuo.mutation.ResetVideoBitrate()
 	mfuo.mutation.SetVideoBitrate(i)
 	return mfuo
 }
 
 // AddVideoBitrate adds i to video_bitrate.
-func (mfuo *MediaFileUpdateOne) AddVideoBitrate(i int16) *MediaFileUpdateOne {
+func (mfuo *MediaFileUpdateOne) AddVideoBitrate(i int64) *MediaFileUpdateOne {
 	mfuo.mutation.AddVideoBitrate(i)
 	return mfuo
 }
@@ -382,15 +382,15 @@ func (mfuo *MediaFileUpdateOne) AddFramerate(i int8) *MediaFileUpdateOne {
 }
 
 // SetDurationSeconds sets the duration_seconds field.
-func (mfuo *MediaFileUpdateOne) SetDurationSeconds(i int64) *MediaFileUpdateOne {
+func (mfuo *MediaFileUpdateOne) SetDurationSeconds(f float64) *MediaFileUpdateOne {
 	mfuo.mutation.ResetDurationSeconds()
-	mfuo.mutation.SetDurationSeconds(i)
+	mfuo.mutation.SetDurationSeconds(f)
 	return mfuo
 }
 
-// AddDurationSeconds adds i to duration_seconds.
-func (mfuo *MediaFileUpdateOne) AddDurationSeconds(i int64) *MediaFileUpdateOne {
-	mfuo.mutation.AddDurationSeconds(i)
+// AddDurationSeconds adds f to duration_seconds.
+func (mfuo *MediaFileUpdateOne) AddDurationSeconds(f float64) *MediaFileUpdateOne {
+	mfuo.mutation.AddDurationSeconds(f)
 	return mfuo
 }
 
@@ -543,14 +543,14 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 	_spec.Node.ID.Value = id
 	if value, ok := mfuo.mutation.VideoBitrate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: mediafile.FieldVideoBitrate,
 		})
 	}
 	if value, ok := mfuo.mutation.AddedVideoBitrate(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: mediafile.FieldVideoBitrate,
 		})
@@ -592,14 +592,14 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 	}
 	if value, ok := mfuo.mutation.DurationSeconds(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt64,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: mediafile.FieldDurationSeconds,
 		})
 	}
 	if value, ok := mfuo.mutation.AddedDurationSeconds(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt64,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: mediafile.FieldDurationSeconds,
 		})

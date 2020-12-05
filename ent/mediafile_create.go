@@ -22,7 +22,7 @@ type MediaFileCreate struct {
 }
 
 // SetVideoBitrate sets the video_bitrate field.
-func (mfc *MediaFileCreate) SetVideoBitrate(i int16) *MediaFileCreate {
+func (mfc *MediaFileCreate) SetVideoBitrate(i int64) *MediaFileCreate {
 	mfc.mutation.SetVideoBitrate(i)
 	return mfc
 }
@@ -46,8 +46,8 @@ func (mfc *MediaFileCreate) SetFramerate(i int8) *MediaFileCreate {
 }
 
 // SetDurationSeconds sets the duration_seconds field.
-func (mfc *MediaFileCreate) SetDurationSeconds(i int64) *MediaFileCreate {
-	mfc.mutation.SetDurationSeconds(i)
+func (mfc *MediaFileCreate) SetDurationSeconds(f float64) *MediaFileCreate {
+	mfc.mutation.SetDurationSeconds(f)
 	return mfc
 }
 
@@ -244,7 +244,7 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := mfc.mutation.VideoBitrate(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeInt64,
 			Value:  value,
 			Column: mediafile.FieldVideoBitrate,
 		})
@@ -276,7 +276,7 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := mfc.mutation.DurationSeconds(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt64,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: mediafile.FieldDurationSeconds,
 		})

@@ -94,7 +94,7 @@ func IDLTE(id uuid.UUID) predicate.MediaFile {
 }
 
 // VideoBitrate applies equality check predicate on the "video_bitrate" field. It's identical to VideoBitrateEQ.
-func VideoBitrate(v int16) predicate.MediaFile {
+func VideoBitrate(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldVideoBitrate), v))
 	})
@@ -115,7 +115,7 @@ func Framerate(v int8) predicate.MediaFile {
 }
 
 // DurationSeconds applies equality check predicate on the "duration_seconds" field. It's identical to DurationSecondsEQ.
-func DurationSeconds(v int64) predicate.MediaFile {
+func DurationSeconds(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldDurationSeconds), v))
 	})
@@ -136,21 +136,21 @@ func UpdatedAt(v time.Time) predicate.MediaFile {
 }
 
 // VideoBitrateEQ applies the EQ predicate on the "video_bitrate" field.
-func VideoBitrateEQ(v int16) predicate.MediaFile {
+func VideoBitrateEQ(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldVideoBitrate), v))
 	})
 }
 
 // VideoBitrateNEQ applies the NEQ predicate on the "video_bitrate" field.
-func VideoBitrateNEQ(v int16) predicate.MediaFile {
+func VideoBitrateNEQ(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldVideoBitrate), v))
 	})
 }
 
 // VideoBitrateIn applies the In predicate on the "video_bitrate" field.
-func VideoBitrateIn(vs ...int16) predicate.MediaFile {
+func VideoBitrateIn(vs ...int64) predicate.MediaFile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -167,7 +167,7 @@ func VideoBitrateIn(vs ...int16) predicate.MediaFile {
 }
 
 // VideoBitrateNotIn applies the NotIn predicate on the "video_bitrate" field.
-func VideoBitrateNotIn(vs ...int16) predicate.MediaFile {
+func VideoBitrateNotIn(vs ...int64) predicate.MediaFile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -184,28 +184,28 @@ func VideoBitrateNotIn(vs ...int16) predicate.MediaFile {
 }
 
 // VideoBitrateGT applies the GT predicate on the "video_bitrate" field.
-func VideoBitrateGT(v int16) predicate.MediaFile {
+func VideoBitrateGT(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldVideoBitrate), v))
 	})
 }
 
 // VideoBitrateGTE applies the GTE predicate on the "video_bitrate" field.
-func VideoBitrateGTE(v int16) predicate.MediaFile {
+func VideoBitrateGTE(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldVideoBitrate), v))
 	})
 }
 
 // VideoBitrateLT applies the LT predicate on the "video_bitrate" field.
-func VideoBitrateLT(v int16) predicate.MediaFile {
+func VideoBitrateLT(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldVideoBitrate), v))
 	})
 }
 
 // VideoBitrateLTE applies the LTE predicate on the "video_bitrate" field.
-func VideoBitrateLTE(v int16) predicate.MediaFile {
+func VideoBitrateLTE(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldVideoBitrate), v))
 	})
@@ -412,21 +412,21 @@ func FramerateLTE(v int8) predicate.MediaFile {
 }
 
 // DurationSecondsEQ applies the EQ predicate on the "duration_seconds" field.
-func DurationSecondsEQ(v int64) predicate.MediaFile {
+func DurationSecondsEQ(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldDurationSeconds), v))
 	})
 }
 
 // DurationSecondsNEQ applies the NEQ predicate on the "duration_seconds" field.
-func DurationSecondsNEQ(v int64) predicate.MediaFile {
+func DurationSecondsNEQ(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldDurationSeconds), v))
 	})
 }
 
 // DurationSecondsIn applies the In predicate on the "duration_seconds" field.
-func DurationSecondsIn(vs ...int64) predicate.MediaFile {
+func DurationSecondsIn(vs ...float64) predicate.MediaFile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -443,7 +443,7 @@ func DurationSecondsIn(vs ...int64) predicate.MediaFile {
 }
 
 // DurationSecondsNotIn applies the NotIn predicate on the "duration_seconds" field.
-func DurationSecondsNotIn(vs ...int64) predicate.MediaFile {
+func DurationSecondsNotIn(vs ...float64) predicate.MediaFile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -460,28 +460,28 @@ func DurationSecondsNotIn(vs ...int64) predicate.MediaFile {
 }
 
 // DurationSecondsGT applies the GT predicate on the "duration_seconds" field.
-func DurationSecondsGT(v int64) predicate.MediaFile {
+func DurationSecondsGT(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldDurationSeconds), v))
 	})
 }
 
 // DurationSecondsGTE applies the GTE predicate on the "duration_seconds" field.
-func DurationSecondsGTE(v int64) predicate.MediaFile {
+func DurationSecondsGTE(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldDurationSeconds), v))
 	})
 }
 
 // DurationSecondsLT applies the LT predicate on the "duration_seconds" field.
-func DurationSecondsLT(v int64) predicate.MediaFile {
+func DurationSecondsLT(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldDurationSeconds), v))
 	})
 }
 
 // DurationSecondsLTE applies the LTE predicate on the "duration_seconds" field.
-func DurationSecondsLTE(v int64) predicate.MediaFile {
+func DurationSecondsLTE(v float64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldDurationSeconds), v))
 	})

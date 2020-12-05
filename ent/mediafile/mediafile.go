@@ -60,13 +60,13 @@ func ValidColumn(column string) bool {
 
 var (
 	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
-	VideoBitrateValidator func(int16) error
+	VideoBitrateValidator func(int64) error
 	// ScaledWidthValidator is a validator for the "scaled_width" field. It is called by the builders before save.
 	ScaledWidthValidator func(int16) error
 	// FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
 	FramerateValidator func(int8) error
 	// DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
-	DurationSecondsValidator func(int64) error
+	DurationSecondsValidator func(float64) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
@@ -80,6 +80,7 @@ type EncoderPreset string
 
 // EncoderPreset values.
 const (
+	EncoderPresetSource    EncoderPreset = "source"
 	EncoderPresetUltrafast EncoderPreset = "ultrafast"
 	EncoderPresetVeryfast  EncoderPreset = "veryfast"
 	EncoderPresetFast      EncoderPreset = "fast"
@@ -95,7 +96,7 @@ func (ep EncoderPreset) String() string {
 // EncoderPresetValidator is a validator for the "encoder_preset" field enum values. It is called by the builders before save.
 func EncoderPresetValidator(ep EncoderPreset) error {
 	switch ep {
-	case EncoderPresetUltrafast, EncoderPresetVeryfast, EncoderPresetFast, EncoderPresetMedium, EncoderPresetSlow, EncoderPresetVeryslow:
+	case EncoderPresetSource, EncoderPresetUltrafast, EncoderPresetVeryfast, EncoderPresetFast, EncoderPresetMedium, EncoderPresetSlow, EncoderPresetVeryslow:
 		return nil
 	default:
 		return fmt.Errorf("mediafile: invalid enum value for encoder_preset field: %q", ep)

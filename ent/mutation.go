@@ -501,15 +501,15 @@ type MediaFileMutation struct {
 	op                  Op
 	typ                 string
 	id                  *uuid.UUID
-	video_bitrate       *int16
-	addvideo_bitrate    *int16
+	video_bitrate       *int64
+	addvideo_bitrate    *int64
 	scaled_width        *int16
 	addscaled_width     *int16
 	encoder_preset      *mediafile.EncoderPreset
 	framerate           *int8
 	addframerate        *int8
-	duration_seconds    *int64
-	addduration_seconds *int64
+	duration_seconds    *float64
+	addduration_seconds *float64
 	media_type          *mediafile.MediaType
 	created_at          *time.Time
 	updated_at          *time.Time
@@ -605,13 +605,13 @@ func (m *MediaFileMutation) ID() (id uuid.UUID, exists bool) {
 }
 
 // SetVideoBitrate sets the video_bitrate field.
-func (m *MediaFileMutation) SetVideoBitrate(i int16) {
+func (m *MediaFileMutation) SetVideoBitrate(i int64) {
 	m.video_bitrate = &i
 	m.addvideo_bitrate = nil
 }
 
 // VideoBitrate returns the video_bitrate value in the mutation.
-func (m *MediaFileMutation) VideoBitrate() (r int16, exists bool) {
+func (m *MediaFileMutation) VideoBitrate() (r int64, exists bool) {
 	v := m.video_bitrate
 	if v == nil {
 		return
@@ -623,7 +623,7 @@ func (m *MediaFileMutation) VideoBitrate() (r int16, exists bool) {
 // If the MediaFile object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *MediaFileMutation) OldVideoBitrate(ctx context.Context) (v int16, err error) {
+func (m *MediaFileMutation) OldVideoBitrate(ctx context.Context) (v int64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldVideoBitrate is allowed only on UpdateOne operations")
 	}
@@ -638,7 +638,7 @@ func (m *MediaFileMutation) OldVideoBitrate(ctx context.Context) (v int16, err e
 }
 
 // AddVideoBitrate adds i to video_bitrate.
-func (m *MediaFileMutation) AddVideoBitrate(i int16) {
+func (m *MediaFileMutation) AddVideoBitrate(i int64) {
 	if m.addvideo_bitrate != nil {
 		*m.addvideo_bitrate += i
 	} else {
@@ -647,7 +647,7 @@ func (m *MediaFileMutation) AddVideoBitrate(i int16) {
 }
 
 // AddedVideoBitrate returns the value that was added to the video_bitrate field in this mutation.
-func (m *MediaFileMutation) AddedVideoBitrate() (r int16, exists bool) {
+func (m *MediaFileMutation) AddedVideoBitrate() (r int64, exists bool) {
 	v := m.addvideo_bitrate
 	if v == nil {
 		return
@@ -813,13 +813,13 @@ func (m *MediaFileMutation) ResetFramerate() {
 }
 
 // SetDurationSeconds sets the duration_seconds field.
-func (m *MediaFileMutation) SetDurationSeconds(i int64) {
-	m.duration_seconds = &i
+func (m *MediaFileMutation) SetDurationSeconds(f float64) {
+	m.duration_seconds = &f
 	m.addduration_seconds = nil
 }
 
 // DurationSeconds returns the duration_seconds value in the mutation.
-func (m *MediaFileMutation) DurationSeconds() (r int64, exists bool) {
+func (m *MediaFileMutation) DurationSeconds() (r float64, exists bool) {
 	v := m.duration_seconds
 	if v == nil {
 		return
@@ -831,7 +831,7 @@ func (m *MediaFileMutation) DurationSeconds() (r int64, exists bool) {
 // If the MediaFile object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *MediaFileMutation) OldDurationSeconds(ctx context.Context) (v int64, err error) {
+func (m *MediaFileMutation) OldDurationSeconds(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldDurationSeconds is allowed only on UpdateOne operations")
 	}
@@ -845,17 +845,17 @@ func (m *MediaFileMutation) OldDurationSeconds(ctx context.Context) (v int64, er
 	return oldValue.DurationSeconds, nil
 }
 
-// AddDurationSeconds adds i to duration_seconds.
-func (m *MediaFileMutation) AddDurationSeconds(i int64) {
+// AddDurationSeconds adds f to duration_seconds.
+func (m *MediaFileMutation) AddDurationSeconds(f float64) {
 	if m.addduration_seconds != nil {
-		*m.addduration_seconds += i
+		*m.addduration_seconds += f
 	} else {
-		m.addduration_seconds = &i
+		m.addduration_seconds = &f
 	}
 }
 
 // AddedDurationSeconds returns the value that was added to the duration_seconds field in this mutation.
-func (m *MediaFileMutation) AddedDurationSeconds() (r int64, exists bool) {
+func (m *MediaFileMutation) AddedDurationSeconds() (r float64, exists bool) {
 	v := m.addduration_seconds
 	if v == nil {
 		return
@@ -1078,7 +1078,7 @@ func (m *MediaFileMutation) OldField(ctx context.Context, name string) (ent.Valu
 func (m *MediaFileMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case mediafile.FieldVideoBitrate:
-		v, ok := value.(int16)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1106,7 +1106,7 @@ func (m *MediaFileMutation) SetField(name string, value ent.Value) error {
 		m.SetFramerate(v)
 		return nil
 	case mediafile.FieldDurationSeconds:
-		v, ok := value.(int64)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1179,7 +1179,7 @@ func (m *MediaFileMutation) AddedField(name string) (ent.Value, bool) {
 func (m *MediaFileMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	case mediafile.FieldVideoBitrate:
-		v, ok := value.(int16)
+		v, ok := value.(int64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -1200,7 +1200,7 @@ func (m *MediaFileMutation) AddField(name string, value ent.Value) error {
 		m.AddFramerate(v)
 		return nil
 	case mediafile.FieldDurationSeconds:
-		v, ok := value.(int64)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

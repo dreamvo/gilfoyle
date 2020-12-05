@@ -10,12 +10,15 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/schema"
+	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gopkg.in/vansante/go-ffprobe.v2"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -115,6 +118,29 @@ func uploadMediaFile(ctx *gin.Context) {
 	_, err = db.Client.Media.
 		UpdateOneID(m.ID).
 		SetStatus(media.StatusProcessing).
+		Save(context.Background())
+	if ent.IsValidationError(err) {
+		util.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
+		return
+	}
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
+		return
+	}
+
+	bitrate, err := strconv.ParseInt(data.Streams[0].BitRate, 10, 64)
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.New("failed to parse bitrate from stream"))
+		return
+	}
+
+	_, err = db.Client.MediaFile.Create().
+		SetVideoBitrate(bitrate).
+		SetEncoderPreset(schema.MediaFileEncoderPresetSource).
+		SetDurationSeconds(data.Format.DurationSeconds).
+		SetScaledWidth(int16(data.Streams[0].Width)).
+		SetFramerate(transcoding.ParseFrameRates(data.Streams[0].RFrameRate)).
+		SetMediaType(schema.MediaFileTypeVideo).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
 		util.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))

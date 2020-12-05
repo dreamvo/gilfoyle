@@ -53,21 +53,7 @@ func init() {
 	// mediafileDescVideoBitrate is the schema descriptor for video_bitrate field.
 	mediafileDescVideoBitrate := mediafileFields[1].Descriptor()
 	// mediafile.VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
-	mediafile.VideoBitrateValidator = func() func(int16) error {
-		validators := mediafileDescVideoBitrate.Validators
-		fns := [...]func(int16) error{
-			validators[0].(func(int16) error),
-			validators[1].(func(int16) error),
-		}
-		return func(video_bitrate int16) error {
-			for _, fn := range fns {
-				if err := fn(video_bitrate); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	mediafile.VideoBitrateValidator = mediafileDescVideoBitrate.Validators[0].(func(int64) error)
 	// mediafileDescScaledWidth is the schema descriptor for scaled_width field.
 	mediafileDescScaledWidth := mediafileFields[2].Descriptor()
 	// mediafile.ScaledWidthValidator is a validator for the "scaled_width" field. It is called by the builders before save.
@@ -107,7 +93,7 @@ func init() {
 	// mediafileDescDurationSeconds is the schema descriptor for duration_seconds field.
 	mediafileDescDurationSeconds := mediafileFields[5].Descriptor()
 	// mediafile.DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
-	mediafile.DurationSecondsValidator = mediafileDescDurationSeconds.Validators[0].(func(int64) error)
+	mediafile.DurationSecondsValidator = mediafileDescDurationSeconds.Validators[0].(func(float64) error)
 	// mediafileDescCreatedAt is the schema descriptor for created_at field.
 	mediafileDescCreatedAt := mediafileFields[7].Descriptor()
 	// mediafile.DefaultCreatedAt holds the default value on creation for the created_at field.
