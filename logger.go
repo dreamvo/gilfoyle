@@ -24,10 +24,10 @@ func (lumberjackSink) Sync() error {
 
 func NewLumberjackSink(*url.URL) (zap.Sink, error) {
 	lumberJackLogger := lumberjack.Logger{
-		Filename:   "logs/server.log", //Filename is the file to write logs to
-		MaxSize:    50,                //MB
-		MaxBackups: 30,                //MaxBackups is the maximum number of old log files to retain.
-		MaxAge:     90,                //days
+		Filename:   "logs/server.log", // Filename is the file to write logs to.
+		MaxSize:    50,                // Max file size in Mb.
+		MaxBackups: 30,                // MaxBackups is the maximum number of old log files to retain.
+		MaxAge:     90,                // Max file age in days.
 		Compress:   false,
 	}
 	return lumberjackSink{
