@@ -128,7 +128,13 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	bitrate, err := strconv.ParseInt(data.Streams[0].BitRate, 10, 64)
+	videoStream := data.StreamType(ffprobe.StreamVideo)
+	if len(videoStream) != 1 {
+		util.NewError(ctx, http.StatusBadRequest, errors.New("uploaded media must have 1 video stream"))
+		return
+	}
+
+	bitrate, err := strconv.ParseInt(videoStream[0].BitRate, 10, 64)
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, errors.New("failed to parse bitrate from stream"))
 		return

@@ -10,6 +10,7 @@ import (
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
 	_ "github.com/mattn/go-sqlite3"
@@ -106,6 +107,17 @@ func TestMediaFiles(t *testing.T) {
 			m, _ = db.Client.Media.Get(context.Background(), m.ID)
 
 			assert.Equal(media.StatusProcessing, m.Status)
+
+			mediaFile, _ := db.Client.MediaFile.
+				Query().
+				Where(mediafile.MediaTypeEQ(schema.MediaFileTypeVideo)).
+				First(context.Background())
+			assert.Equal(int8(25), mediaFile.Framerate)
+			assert.Equal(5.312, mediaFile.DurationSeconds)
+			assert.Equal(int16(1280), mediaFile.ScaledWidth)
+			assert.Equal(mediafile.EncoderPreset(schema.MediaFileEncoderPresetSource), mediaFile.EncoderPreset)
+			assert.Equal(int64(1205959), mediaFile.VideoBitrate)
+			assert.Equal(mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {
