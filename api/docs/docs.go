@@ -344,9 +344,9 @@ var doc = `{
                 }
             }
         },
-        "/medias/{id}/upload": {
+        "/medias/{id}/upload/audio": {
             "post": {
-                "description": "Upload a new media file for a given media ID",
+                "description": "Upload a new audio file for a given media ID",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -356,8 +356,8 @@ var doc = `{
                 "tags": [
                     "Medias"
                 ],
-                "summary": "Upload a media file",
-                "operationId": "uploadMediaFile",
+                "summary": "Upload a audio file",
+                "operationId": "UploadAudio",
                 "parameters": [
                     {
                         "type": "string",
@@ -368,7 +368,77 @@ var doc = `{
                     },
                     {
                         "type": "file",
-                        "description": "Media file",
+                        "description": "Audio file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/util.DataResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/api.FileFormat"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{id}/upload/video": {
+            "post": {
+                "description": "Upload a new video file for a given media ID",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Medias"
+                ],
+                "summary": "Upload a video file",
+                "operationId": "UploadVideo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Video file",
                         "name": "file",
                         "in": "formData",
                         "required": true

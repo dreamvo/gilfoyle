@@ -286,19 +286,19 @@ paths:
       summary: Update a media
       tags:
       - Medias
-  /medias/{id}/upload:
+  /medias/{id}/upload/audio:
     post:
       consumes:
       - multipart/form-data
-      description: Upload a new media file for a given media ID
-      operationId: uploadMediaFile
+      description: Upload a new audio file for a given media ID
+      operationId: UploadAudio
       parameters:
       - description: Media identifier
         in: path
         name: id
         required: true
         type: string
-      - description: Media file
+      - description: Audio file
         in: formData
         name: file
         required: true
@@ -327,7 +327,51 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/util.ErrorResponse'
-      summary: Upload a media file
+      summary: Upload a audio file
+      tags:
+      - Medias
+  /medias/{id}/upload/video:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new video file for a given media ID
+      operationId: UploadVideo
+      parameters:
+      - description: Media identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Video file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.FileFormat'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Upload a video file
       tags:
       - Medias
 schemes:
