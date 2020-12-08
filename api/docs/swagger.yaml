@@ -1,13 +1,5 @@
 basePath: /
 definitions:
-  api.AddMediaAttachment:
-    properties:
-      key:
-        example: subtitle_fr_FR
-        type: string
-    required:
-    - key
-    type: object
   api.CreateMedia:
     properties:
       title:
@@ -469,6 +461,8 @@ paths:
       tags:
       - Attachments
     post:
+      consumes:
+      - multipart/form-data
       description: Add attachment to a media
       operationId: addMediaAttachment
       parameters:
@@ -482,12 +476,6 @@ paths:
         name: file
         required: true
         type: file
-      - description: Attachment metadata
-        in: body
-        name: attachment
-        required: true
-        schema:
-          $ref: '#/definitions/api.AddMediaAttachment'
       produces:
       - application/json
       responses:
@@ -506,7 +494,7 @@ paths:
       summary: Add attachment to a media
       tags:
       - Attachments
-  /medias/{media_id}/attachments/{attachment_id}:
+  /medias/{media_id}/attachments/{key}:
     delete:
       description: Delete attachment of a media
       operationId: deleteMediaAttachment
@@ -516,9 +504,9 @@ paths:
         name: media_id
         required: true
         type: string
-      - description: Attachment identifier
+      - description: Attachment unique identifier
         in: path
-        name: attachment_id
+        name: key
         required: true
         type: string
       produces:

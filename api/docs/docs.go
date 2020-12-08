@@ -521,6 +521,9 @@ var doc = `{
             },
             "post": {
                 "description": "Add attachment to a media",
+                "consumes": [
+                    "multipart/form-data"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -543,15 +546,6 @@ var doc = `{
                         "name": "file",
                         "in": "formData",
                         "required": true
-                    },
-                    {
-                        "description": "Attachment metadata",
-                        "name": "attachment",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.AddMediaAttachment"
-                        }
                     }
                 ],
                 "responses": {
@@ -576,7 +570,7 @@ var doc = `{
                 }
             }
         },
-        "/medias/{media_id}/attachments/{attachment_id}": {
+        "/medias/{media_id}/attachments/{key}": {
             "delete": {
                 "description": "Delete attachment of a media",
                 "produces": [
@@ -597,8 +591,8 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "Attachment identifier",
-                        "name": "attachment_id",
+                        "description": "Attachment unique identifier",
+                        "name": "key",
                         "in": "path",
                         "required": true
                     }
@@ -703,18 +697,6 @@ var doc = `{
         }
     },
     "definitions": {
-        "api.AddMediaAttachment": {
-            "type": "object",
-            "required": [
-                "key"
-            ],
-            "properties": {
-                "key": {
-                    "type": "string",
-                    "example": "subtitle_fr_FR"
-                }
-            }
-        },
         "api.CreateMedia": {
             "type": "object",
             "required": [
