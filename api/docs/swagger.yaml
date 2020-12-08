@@ -1,5 +1,13 @@
 basePath: /
 definitions:
+  api.AddMediaAttachment:
+    properties:
+      key:
+        example: subtitle_fr_FR
+        type: string
+    required:
+    - key
+    type: object
   api.CreateMedia:
     properties:
       title:
@@ -286,87 +294,6 @@ paths:
       summary: Update a media
       tags:
       - Medias
-  /medias/{id}/attachments:
-    get:
-      description: Get attachments of a media
-      operationId: getMediaAttachments
-      parameters:
-      - description: Media identifier
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/util.DataResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: Get attachments of a media
-      tags:
-      - Attachments
-    post:
-      description: Add attachment to a media
-      operationId: addMediaAttachment
-      parameters:
-      - description: Media identifier
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Attachment file
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/util.DataResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: Add attachment to a media
-      tags:
-      - Attachments
-  /medias/{id}/attachments/{attachment_id}:
-    delete:
-      description: Delete attachment of a media
-      operationId: deleteMediaAttachment
-      parameters:
-      - description: Media identifier
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Attachment identifier
-        in: path
-        name: attachment_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/util.DataResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: Delete attachment of a media
-      tags:
-      - Attachments
   /medias/{id}/upload/audio:
     post:
       consumes:
@@ -455,6 +382,101 @@ paths:
       summary: Upload a video file
       tags:
       - Medias
+  /medias/{media_id}/attachments:
+    get:
+      description: Get attachments of a media
+      operationId: getMediaAttachments
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get attachments of a media
+      tags:
+      - Attachments
+    post:
+      description: Add attachment to a media
+      operationId: addMediaAttachment
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Attachment file
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Attachment metadata
+        in: body
+        name: attachment
+        required: true
+        schema:
+          $ref: '#/definitions/api.AddMediaAttachment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Add attachment to a media
+      tags:
+      - Attachments
+  /medias/{media_id}/attachments/{attachment_id}:
+    delete:
+      description: Delete attachment of a media
+      operationId: deleteMediaAttachment
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Attachment identifier
+        in: path
+        name: attachment_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Delete attachment of a media
+      tags:
+      - Attachments
   /metrics:
     get:
       description: Get metrics about this Gilfoyle instance

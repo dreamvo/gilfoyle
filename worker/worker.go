@@ -1,7 +1,7 @@
 package worker
 
 const (
-//transcodingQueue string = "transcoding"
+//videoTranscodingQueue string = "videoTranscoding"
 //thumbnailGenerationQueue string = "thumbnailGeneration"
 //previewGenerationQueue string = "previewGeneration"
 )
