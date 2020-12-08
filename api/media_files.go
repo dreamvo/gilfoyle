@@ -35,20 +35,20 @@ type FileFormat struct {
 	ProbeScore       int     `json:"probe_score"`
 }
 
-// @ID uploadMediaFile
+// @ID UploadVideo
 // @Tags Medias
-// @Summary Upload a media file
-// @Description Upload a new media file for a given media ID
+// @Summary Upload a video file
+// @Description Upload a new video file for a given media ID
 // @Accept  multipart/form-data
 // @Produce  json
 // @Success 200 {object} util.DataResponse{data=FileFormat}
 // @Failure 404 {object} util.ErrorResponse
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 500 {object} util.ErrorResponse
-// @Router /medias/{id}/upload [post]
+// @Router /medias/{id}/upload/video [post]
 // @Param id path string true "Media identifier" validate(required)
-// @Param file formData file true "Media file"
-func uploadMediaFile(ctx *gin.Context) {
+// @Param file formData file true "Video file"
+func uploadVideoFile(ctx *gin.Context) {
 	parsedUUID, err := util.ValidateUUID(ctx.Param("id"))
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
@@ -185,4 +185,21 @@ func uploadMediaFile(ctx *gin.Context) {
 	})
 
 	// TODO(sundowndev): start background job(s) here
+}
+
+// @ID UploadAudio
+// @Tags Medias
+// @Summary Upload a audio file
+// @Description Upload a new audio file for a given media ID
+// @Accept  multipart/form-data
+// @Produce  json
+// @Success 200 {object} util.DataResponse{data=FileFormat}
+// @Failure 404 {object} util.ErrorResponse
+// @Failure 400 {object} util.ErrorResponse
+// @Failure 500 {object} util.ErrorResponse
+// @Router /medias/{id}/upload/audio [post]
+// @Param id path string true "Media identifier" validate(required)
+// @Param file formData file true "Audio file"
+func uploadAudioFile(ctx *gin.Context) {
+	ctx.Status(200)
 }

@@ -45,7 +45,7 @@ func TestMediaFiles(t *testing.T) {
 		panic(err)
 	}
 
-	t.Run("POST /medias/:id/upload", func(t *testing.T) {
+	t.Run("POST /medias/:id/upload/video", func(t *testing.T) {
 		t.Run("should upload file and return probe", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
@@ -74,7 +74,7 @@ func TestMediaFiles(t *testing.T) {
 			err = writer.Close()
 			assert.NoError(err)
 
-			req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/medias/%s/upload", m.ID), payload)
+			req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/medias/%s/upload/video", m.ID), payload)
 			assert.NoError(err)
 
 			req.Header.Add("Content-Type", "multipart/form-data")
@@ -122,7 +122,7 @@ func TestMediaFiles(t *testing.T) {
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {
-			res, err := performRequest(r, http.MethodPost, "/medias/uuid/upload", nil)
+			res, err := performRequest(r, http.MethodPost, "/medias/uuid/upload/video", nil)
 			assert.NoError(err)
 
 			var body util.ErrorResponse
@@ -137,7 +137,7 @@ func TestMediaFiles(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
 
-			res, err := performRequest(r, http.MethodPost, "/medias/7b959619-7271-4fbb-a70c-b6b5b40aecaf/upload", nil)
+			res, err := performRequest(r, http.MethodPost, "/medias/7b959619-7271-4fbb-a70c-b6b5b40aecaf/upload/video", nil)
 			assert.NoError(err)
 
 			var body util.ErrorResponse

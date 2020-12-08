@@ -103,7 +103,8 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		medias.DELETE(":id", deleteMedia)
 		medias.POST("", createMedia)
 		medias.PATCH(":id", updateMedia)
-		medias.POST(":id/upload", uploadMediaFile)
+		medias.POST(":id/upload/video", uploadVideoFile)
+		medias.POST(":id/upload/audio", uploadAudioFile)
 	}
 
 	if gilfoyle.Config.Settings.ExposeSwaggerUI {
