@@ -23,18 +23,18 @@ const (
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 
-	// EdgeFiles holds the string denoting the files edge name in mutations.
-	EdgeFiles = "files"
+	// EdgeMediaFiles holds the string denoting the media_files edge name in mutations.
+	EdgeMediaFiles = "media_files"
 
 	// Table holds the table name of the media in the database.
 	Table = "media"
-	// FilesTable is the table the holds the files relation/edge.
-	FilesTable = "media_file"
-	// FilesInverseTable is the table name for the MediaFile entity.
+	// MediaFilesTable is the table the holds the media_files relation/edge.
+	MediaFilesTable = "media_file"
+	// MediaFilesInverseTable is the table name for the MediaFile entity.
 	// It exists in this package in order to avoid circular dependency with the "mediafile" package.
-	FilesInverseTable = "media_file"
-	// FilesColumn is the table column denoting the files relation/edge.
-	FilesColumn = "media"
+	MediaFilesInverseTable = "media_file"
+	// MediaFilesColumn is the table column denoting the media_files relation/edge.
+	MediaFilesColumn = "media"
 )
 
 // Columns holds all SQL columns for media fields.

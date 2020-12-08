@@ -65,7 +65,7 @@ func (Media) Fields() []ent.Field {
 // Edges of the Media.
 func (Media) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("files", MediaFile.Type).
+		edge.To("media_files", MediaFile.Type).
 			StorageKey(edge.Column("media")),
 	}
 }

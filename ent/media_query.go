@@ -27,7 +27,7 @@ type MediaQuery struct {
 	unique     []string
 	predicates []predicate.Media
 	// eager-loading edges.
-	withFiles *MediaFileQuery
+	withMediaFiles *MediaFileQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,8 +57,8 @@ func (mq *MediaQuery) Order(o ...OrderFunc) *MediaQuery {
 	return mq
 }
 
-// QueryFiles chains the current query on the files edge.
-func (mq *MediaQuery) QueryFiles() *MediaFileQuery {
+// QueryMediaFiles chains the current query on the media_files edge.
+func (mq *MediaQuery) QueryMediaFiles() *MediaFileQuery {
 	query := &MediaFileQuery{config: mq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := mq.prepareQuery(ctx); err != nil {
@@ -71,7 +71,7 @@ func (mq *MediaQuery) QueryFiles() *MediaFileQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(media.Table, media.FieldID, selector),
 			sqlgraph.To(mediafile.Table, mediafile.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, media.FilesTable, media.FilesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.MediaFilesTable, media.MediaFilesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -249,27 +249,27 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		return nil
 	}
 	return &MediaQuery{
-		config:     mq.config,
-		limit:      mq.limit,
-		offset:     mq.offset,
-		order:      append([]OrderFunc{}, mq.order...),
-		unique:     append([]string{}, mq.unique...),
-		predicates: append([]predicate.Media{}, mq.predicates...),
-		withFiles:  mq.withFiles.Clone(),
+		config:         mq.config,
+		limit:          mq.limit,
+		offset:         mq.offset,
+		order:          append([]OrderFunc{}, mq.order...),
+		unique:         append([]string{}, mq.unique...),
+		predicates:     append([]predicate.Media{}, mq.predicates...),
+		withMediaFiles: mq.withMediaFiles.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
 	}
 }
 
-//  WithFiles tells the query-builder to eager-loads the nodes that are connected to
-// the "files" edge. The optional arguments used to configure the query builder of the edge.
-func (mq *MediaQuery) WithFiles(opts ...func(*MediaFileQuery)) *MediaQuery {
+//  WithMediaFiles tells the query-builder to eager-loads the nodes that are connected to
+// the "media_files" edge. The optional arguments used to configure the query builder of the edge.
+func (mq *MediaQuery) WithMediaFiles(opts ...func(*MediaFileQuery)) *MediaQuery {
 	query := &MediaFileQuery{config: mq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	mq.withFiles = query
+	mq.withMediaFiles = query
 	return mq
 }
 
@@ -340,7 +340,7 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 		nodes       = []*Media{}
 		_spec       = mq.querySpec()
 		loadedTypes = [1]bool{
-			mq.withFiles != nil,
+			mq.withMediaFiles != nil,
 		}
 	)
 	_spec.ScanValues = func() []interface{} {
@@ -364,17 +364,17 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 		return nodes, nil
 	}
 
-	if query := mq.withFiles; query != nil {
+	if query := mq.withMediaFiles; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
 		nodeids := make(map[uuid.UUID]*Media)
 		for i := range nodes {
 			fks = append(fks, nodes[i].ID)
 			nodeids[nodes[i].ID] = nodes[i]
-			nodes[i].Edges.Files = []*MediaFile{}
+			nodes[i].Edges.MediaFiles = []*MediaFile{}
 		}
 		query.withFKs = true
 		query.Where(predicate.MediaFile(func(s *sql.Selector) {
-			s.Where(sql.InValues(media.FilesColumn, fks...))
+			s.Where(sql.InValues(media.MediaFilesColumn, fks...))
 		}))
 		neighbors, err := query.All(ctx)
 		if err != nil {
@@ -389,7 +389,7 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 			if !ok {
 				return nil, fmt.Errorf(`unexpected foreign-key "media" returned %v for node %v`, *fk, n.ID)
 			}
-			node.Edges.Files = append(node.Edges.Files, n)
+			node.Edges.MediaFiles = append(node.Edges.MediaFiles, n)
 		}
 	}
 

@@ -426,25 +426,25 @@ func UpdatedAtLTE(v time.Time) predicate.Media {
 	})
 }
 
-// HasFiles applies the HasEdge predicate on the "files" edge.
-func HasFiles() predicate.Media {
+// HasMediaFiles applies the HasEdge predicate on the "media_files" edge.
+func HasMediaFiles() predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(FilesTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+			sqlgraph.To(MediaFilesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MediaFilesTable, MediaFilesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasFilesWith applies the HasEdge predicate on the "files" edge with a given conditions (other predicates).
-func HasFilesWith(preds ...predicate.MediaFile) predicate.Media {
+// HasMediaFilesWith applies the HasEdge predicate on the "media_files" edge with a given conditions (other predicates).
+func HasMediaFilesWith(preds ...predicate.MediaFile) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(FilesInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+			sqlgraph.To(MediaFilesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MediaFilesTable, MediaFilesColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

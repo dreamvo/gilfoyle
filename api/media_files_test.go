@@ -111,7 +111,8 @@ func TestMediaFiles(t *testing.T) {
 			mediaFile, _ := db.Client.MediaFile.
 				Query().
 				Where(mediafile.MediaTypeEQ(schema.MediaFileTypeVideo)).
-				First(context.Background())
+				Only(context.Background())
+
 			assert.Equal(int8(25), mediaFile.Framerate)
 			assert.Equal(5.312, mediaFile.DurationSeconds)
 			assert.Equal(int16(1280), mediaFile.ScaledWidth)

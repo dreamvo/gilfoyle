@@ -68,19 +68,19 @@ func (mc *MediaCreate) SetID(u uuid.UUID) *MediaCreate {
 	return mc
 }
 
-// AddFileIDs adds the files edge to MediaFile by ids.
-func (mc *MediaCreate) AddFileIDs(ids ...uuid.UUID) *MediaCreate {
-	mc.mutation.AddFileIDs(ids...)
+// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+func (mc *MediaCreate) AddMediaFileIDs(ids ...uuid.UUID) *MediaCreate {
+	mc.mutation.AddMediaFileIDs(ids...)
 	return mc
 }
 
-// AddFiles adds the files edges to MediaFile.
-func (mc *MediaCreate) AddFiles(m ...*MediaFile) *MediaCreate {
+// AddMediaFiles adds the media_files edges to MediaFile.
+func (mc *MediaCreate) AddMediaFiles(m ...*MediaFile) *MediaCreate {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return mc.AddFileIDs(ids...)
+	return mc.AddMediaFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -234,12 +234,12 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 		})
 		_node.UpdatedAt = value
 	}
-	if nodes := mc.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := mc.mutation.MediaFilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

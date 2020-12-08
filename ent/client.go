@@ -208,15 +208,15 @@ func (c *MediaClient) GetX(ctx context.Context, id uuid.UUID) *Media {
 	return obj
 }
 
-// QueryFiles queries the files edge of a Media.
-func (c *MediaClient) QueryFiles(m *Media) *MediaFileQuery {
+// QueryMediaFiles queries the media_files edge of a Media.
+func (c *MediaClient) QueryMediaFiles(m *Media) *MediaFileQuery {
 	query := &MediaFileQuery{config: c.config}
 	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
 		id := m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(media.Table, media.FieldID, id),
 			sqlgraph.To(mediafile.Table, mediafile.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, media.FilesTable, media.FilesColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.MediaFilesTable, media.MediaFilesColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil

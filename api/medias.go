@@ -70,7 +70,11 @@ func getMedia(ctx *gin.Context) {
 		return
 	}
 
-	v, err := db.Client.Media.Get(context.Background(), parsedUUID)
+	v, err := db.Client.Media.
+		Query().
+		Where(media.ID(parsedUUID)).
+		WithMediaFiles().
+		Only(context.Background())
 	if v == nil {
 		util.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
 		return

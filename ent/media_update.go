@@ -61,19 +61,19 @@ func (mu *MediaUpdate) SetUpdatedAt(t time.Time) *MediaUpdate {
 	return mu
 }
 
-// AddFileIDs adds the files edge to MediaFile by ids.
-func (mu *MediaUpdate) AddFileIDs(ids ...uuid.UUID) *MediaUpdate {
-	mu.mutation.AddFileIDs(ids...)
+// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+func (mu *MediaUpdate) AddMediaFileIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.AddMediaFileIDs(ids...)
 	return mu
 }
 
-// AddFiles adds the files edges to MediaFile.
-func (mu *MediaUpdate) AddFiles(m ...*MediaFile) *MediaUpdate {
+// AddMediaFiles adds the media_files edges to MediaFile.
+func (mu *MediaUpdate) AddMediaFiles(m ...*MediaFile) *MediaUpdate {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return mu.AddFileIDs(ids...)
+	return mu.AddMediaFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -81,25 +81,25 @@ func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
 }
 
-// ClearFiles clears all "files" edges to type MediaFile.
-func (mu *MediaUpdate) ClearFiles() *MediaUpdate {
-	mu.mutation.ClearFiles()
+// ClearMediaFiles clears all "media_files" edges to type MediaFile.
+func (mu *MediaUpdate) ClearMediaFiles() *MediaUpdate {
+	mu.mutation.ClearMediaFiles()
 	return mu
 }
 
-// RemoveFileIDs removes the files edge to MediaFile by ids.
-func (mu *MediaUpdate) RemoveFileIDs(ids ...uuid.UUID) *MediaUpdate {
-	mu.mutation.RemoveFileIDs(ids...)
+// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+func (mu *MediaUpdate) RemoveMediaFileIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.RemoveMediaFileIDs(ids...)
 	return mu
 }
 
-// RemoveFiles removes files edges to MediaFile.
-func (mu *MediaUpdate) RemoveFiles(m ...*MediaFile) *MediaUpdate {
+// RemoveMediaFiles removes media_files edges to MediaFile.
+func (mu *MediaUpdate) RemoveMediaFiles(m ...*MediaFile) *MediaUpdate {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return mu.RemoveFileIDs(ids...)
+	return mu.RemoveMediaFileIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -229,12 +229,12 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: media.FieldUpdatedAt,
 		})
 	}
-	if mu.mutation.FilesCleared() {
+	if mu.mutation.MediaFilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -245,12 +245,12 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mu.mutation.RemovedFilesIDs(); len(nodes) > 0 && !mu.mutation.FilesCleared() {
+	if nodes := mu.mutation.RemovedMediaFilesIDs(); len(nodes) > 0 && !mu.mutation.MediaFilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -264,12 +264,12 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mu.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := mu.mutation.MediaFilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -333,19 +333,19 @@ func (muo *MediaUpdateOne) SetUpdatedAt(t time.Time) *MediaUpdateOne {
 	return muo
 }
 
-// AddFileIDs adds the files edge to MediaFile by ids.
-func (muo *MediaUpdateOne) AddFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
-	muo.mutation.AddFileIDs(ids...)
+// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+func (muo *MediaUpdateOne) AddMediaFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.AddMediaFileIDs(ids...)
 	return muo
 }
 
-// AddFiles adds the files edges to MediaFile.
-func (muo *MediaUpdateOne) AddFiles(m ...*MediaFile) *MediaUpdateOne {
+// AddMediaFiles adds the media_files edges to MediaFile.
+func (muo *MediaUpdateOne) AddMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return muo.AddFileIDs(ids...)
+	return muo.AddMediaFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -353,25 +353,25 @@ func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
 }
 
-// ClearFiles clears all "files" edges to type MediaFile.
-func (muo *MediaUpdateOne) ClearFiles() *MediaUpdateOne {
-	muo.mutation.ClearFiles()
+// ClearMediaFiles clears all "media_files" edges to type MediaFile.
+func (muo *MediaUpdateOne) ClearMediaFiles() *MediaUpdateOne {
+	muo.mutation.ClearMediaFiles()
 	return muo
 }
 
-// RemoveFileIDs removes the files edge to MediaFile by ids.
-func (muo *MediaUpdateOne) RemoveFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
-	muo.mutation.RemoveFileIDs(ids...)
+// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+func (muo *MediaUpdateOne) RemoveMediaFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.RemoveMediaFileIDs(ids...)
 	return muo
 }
 
-// RemoveFiles removes files edges to MediaFile.
-func (muo *MediaUpdateOne) RemoveFiles(m ...*MediaFile) *MediaUpdateOne {
+// RemoveMediaFiles removes media_files edges to MediaFile.
+func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
 		ids[i] = m[i].ID
 	}
-	return muo.RemoveFileIDs(ids...)
+	return muo.RemoveMediaFileIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -499,12 +499,12 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Column: media.FieldUpdatedAt,
 		})
 	}
-	if muo.mutation.FilesCleared() {
+	if muo.mutation.MediaFilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -515,12 +515,12 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := muo.mutation.RemovedFilesIDs(); len(nodes) > 0 && !muo.mutation.FilesCleared() {
+	if nodes := muo.mutation.RemovedMediaFilesIDs(); len(nodes) > 0 && !muo.mutation.MediaFilesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -534,12 +534,12 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := muo.mutation.FilesIDs(); len(nodes) > 0 {
+	if nodes := muo.mutation.MediaFilesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   media.FilesTable,
-			Columns: []string{media.FilesColumn},
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

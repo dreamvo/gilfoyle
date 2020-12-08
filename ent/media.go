@@ -32,20 +32,20 @@ type Media struct {
 
 // MediaEdges holds the relations/edges for other nodes in the graph.
 type MediaEdges struct {
-	// Files holds the value of the files edge.
-	Files []*MediaFile
+	// MediaFiles holds the value of the media_files edge.
+	MediaFiles []*MediaFile
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// FilesOrErr returns the Files value or an error if the edge
+// MediaFilesOrErr returns the MediaFiles value or an error if the edge
 // was not loaded in eager-loading.
-func (e MediaEdges) FilesOrErr() ([]*MediaFile, error) {
+func (e MediaEdges) MediaFilesOrErr() ([]*MediaFile, error) {
 	if e.loadedTypes[0] {
-		return e.Files, nil
+		return e.MediaFiles, nil
 	}
-	return nil, &NotLoadedError{edge: "files"}
+	return nil, &NotLoadedError{edge: "media_files"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -94,9 +94,9 @@ func (m *Media) assignValues(values ...interface{}) error {
 	return nil
 }
 
-// QueryFiles queries the files edge of the Media.
-func (m *Media) QueryFiles() *MediaFileQuery {
-	return (&MediaClient{config: m.config}).QueryFiles(m)
+// QueryMediaFiles queries the media_files edge of the Media.
+func (m *Media) QueryMediaFiles() *MediaFileQuery {
+	return (&MediaClient{config: m.config}).QueryMediaFiles(m)
 }
 
 // Update returns a builder for updating this Media.

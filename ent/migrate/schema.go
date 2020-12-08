@@ -45,7 +45,7 @@ var (
 		PrimaryKey: []*schema.Column{MediaFileColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "media_file_media_files",
+				Symbol:  "media_file_media_media_files",
 				Columns: []*schema.Column{MediaFileColumns[9]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},

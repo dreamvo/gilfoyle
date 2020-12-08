@@ -84,7 +84,7 @@ func (MediaFile) Fields() []ent.Field {
 func (MediaFile) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("media", Media.Type).
-			Ref("files").
+			Ref("media_files").
 			Required().
 			Unique(),
 	}

@@ -33,20 +33,20 @@ const (
 // nodes in the graph.
 type MediaMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	title         *string
-	status        *media.Status
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	files         map[uuid.UUID]struct{}
-	removedfiles  map[uuid.UUID]struct{}
-	clearedfiles  bool
-	done          bool
-	oldValue      func(context.Context) (*Media, error)
-	predicates    []predicate.Media
+	op                 Op
+	typ                string
+	id                 *uuid.UUID
+	title              *string
+	status             *media.Status
+	created_at         *time.Time
+	updated_at         *time.Time
+	clearedFields      map[string]struct{}
+	media_files        map[uuid.UUID]struct{}
+	removedmedia_files map[uuid.UUID]struct{}
+	clearedmedia_files bool
+	done               bool
+	oldValue           func(context.Context) (*Media, error)
+	predicates         []predicate.Media
 }
 
 var _ ent.Mutation = (*MediaMutation)(nil)
@@ -282,57 +282,57 @@ func (m *MediaMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// AddFileIDs adds the files edge to MediaFile by ids.
-func (m *MediaMutation) AddFileIDs(ids ...uuid.UUID) {
-	if m.files == nil {
-		m.files = make(map[uuid.UUID]struct{})
+// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+func (m *MediaMutation) AddMediaFileIDs(ids ...uuid.UUID) {
+	if m.media_files == nil {
+		m.media_files = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.files[ids[i]] = struct{}{}
+		m.media_files[ids[i]] = struct{}{}
 	}
 }
 
-// ClearFiles clears the files edge to MediaFile.
-func (m *MediaMutation) ClearFiles() {
-	m.clearedfiles = true
+// ClearMediaFiles clears the media_files edge to MediaFile.
+func (m *MediaMutation) ClearMediaFiles() {
+	m.clearedmedia_files = true
 }
 
-// FilesCleared returns if the edge files was cleared.
-func (m *MediaMutation) FilesCleared() bool {
-	return m.clearedfiles
+// MediaFilesCleared returns if the edge media_files was cleared.
+func (m *MediaMutation) MediaFilesCleared() bool {
+	return m.clearedmedia_files
 }
 
-// RemoveFileIDs removes the files edge to MediaFile by ids.
-func (m *MediaMutation) RemoveFileIDs(ids ...uuid.UUID) {
-	if m.removedfiles == nil {
-		m.removedfiles = make(map[uuid.UUID]struct{})
+// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+func (m *MediaMutation) RemoveMediaFileIDs(ids ...uuid.UUID) {
+	if m.removedmedia_files == nil {
+		m.removedmedia_files = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.removedfiles[ids[i]] = struct{}{}
+		m.removedmedia_files[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedFiles returns the removed ids of files.
-func (m *MediaMutation) RemovedFilesIDs() (ids []uuid.UUID) {
-	for id := range m.removedfiles {
+// RemovedMediaFiles returns the removed ids of media_files.
+func (m *MediaMutation) RemovedMediaFilesIDs() (ids []uuid.UUID) {
+	for id := range m.removedmedia_files {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// FilesIDs returns the files ids in the mutation.
-func (m *MediaMutation) FilesIDs() (ids []uuid.UUID) {
-	for id := range m.files {
+// MediaFilesIDs returns the media_files ids in the mutation.
+func (m *MediaMutation) MediaFilesIDs() (ids []uuid.UUID) {
+	for id := range m.media_files {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetFiles reset all changes of the "files" edge.
-func (m *MediaMutation) ResetFiles() {
-	m.files = nil
-	m.clearedfiles = false
-	m.removedfiles = nil
+// ResetMediaFiles reset all changes of the "media_files" edge.
+func (m *MediaMutation) ResetMediaFiles() {
+	m.media_files = nil
+	m.clearedmedia_files = false
+	m.removedmedia_files = nil
 }
 
 // Op returns the operation name.
@@ -502,8 +502,8 @@ func (m *MediaMutation) ResetField(name string) error {
 // mutation.
 func (m *MediaMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.files != nil {
-		edges = append(edges, media.EdgeFiles)
+	if m.media_files != nil {
+		edges = append(edges, media.EdgeMediaFiles)
 	}
 	return edges
 }
@@ -512,9 +512,9 @@ func (m *MediaMutation) AddedEdges() []string {
 // the given edge name.
 func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case media.EdgeFiles:
-		ids := make([]ent.Value, 0, len(m.files))
-		for id := range m.files {
+	case media.EdgeMediaFiles:
+		ids := make([]ent.Value, 0, len(m.media_files))
+		for id := range m.media_files {
 			ids = append(ids, id)
 		}
 		return ids
@@ -526,8 +526,8 @@ func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 // mutation.
 func (m *MediaMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedfiles != nil {
-		edges = append(edges, media.EdgeFiles)
+	if m.removedmedia_files != nil {
+		edges = append(edges, media.EdgeMediaFiles)
 	}
 	return edges
 }
@@ -536,9 +536,9 @@ func (m *MediaMutation) RemovedEdges() []string {
 // the given edge name.
 func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case media.EdgeFiles:
-		ids := make([]ent.Value, 0, len(m.removedfiles))
-		for id := range m.removedfiles {
+	case media.EdgeMediaFiles:
+		ids := make([]ent.Value, 0, len(m.removedmedia_files))
+		for id := range m.removedmedia_files {
 			ids = append(ids, id)
 		}
 		return ids
@@ -550,8 +550,8 @@ func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
 // mutation.
 func (m *MediaMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedfiles {
-		edges = append(edges, media.EdgeFiles)
+	if m.clearedmedia_files {
+		edges = append(edges, media.EdgeMediaFiles)
 	}
 	return edges
 }
@@ -560,8 +560,8 @@ func (m *MediaMutation) ClearedEdges() []string {
 // cleared in this mutation.
 func (m *MediaMutation) EdgeCleared(name string) bool {
 	switch name {
-	case media.EdgeFiles:
-		return m.clearedfiles
+	case media.EdgeMediaFiles:
+		return m.clearedmedia_files
 	}
 	return false
 }
@@ -579,8 +579,8 @@ func (m *MediaMutation) ClearEdge(name string) error {
 // defined in the schema.
 func (m *MediaMutation) ResetEdge(name string) error {
 	switch name {
-	case media.EdgeFiles:
-		m.ResetFiles()
+	case media.EdgeMediaFiles:
+		m.ResetMediaFiles()
 		return nil
 	}
 	return fmt.Errorf("unknown Media edge %s", name)
