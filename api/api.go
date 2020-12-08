@@ -105,6 +105,14 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		medias.PATCH(":id", updateMedia)
 		medias.POST(":id/upload/video", uploadVideoFile)
 		medias.POST(":id/upload/audio", uploadAudioFile)
+		medias.GET(":id/attachments", getMediaAttachments)
+		medias.POST(":id/attachments", addMediaAttachments)
+		medias.DELETE(":id/attachments/:attachment_id", deleteMediaAttachments)
+	}
+
+	metrics := r.Group("/metrics")
+	{
+		metrics.GET("", getMetrics)
 	}
 
 	if gilfoyle.Config.Settings.ExposeSwaggerUI {

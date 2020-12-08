@@ -7,7 +7,6 @@ require (
 	cloud.google.com/go/storage v1.9.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/facebook/ent v0.5.1
-	github.com/facebookincubator/ent v0.3.0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/go-openapi/spec v0.19.9 // indirect
 	github.com/go-openapi/swag v0.19.9 // indirect
@@ -40,8 +39,8 @@ require (
 	google.golang.org/api v0.26.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
-	gopkg.in/vansante/go-ffprobe.v2 v2.0.2
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	gopkg.in/vansante/go-ffprobe.v2 v2.0.2
 	gopkg.in/yaml.v2 v2.3.0
 	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	honnef.co/go/tools v0.0.1-2020.1.6 // indirect

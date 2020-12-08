@@ -35,7 +35,7 @@ type FileFormat struct {
 	ProbeScore       int     `json:"probe_score"`
 }
 
-// @ID UploadVideo
+// @ID uploadVideo
 // @Tags Medias
 // @Summary Upload a video file
 // @Description Upload a new video file for a given media ID
@@ -187,7 +187,7 @@ func uploadVideoFile(ctx *gin.Context) {
 	// TODO(sundowndev): start background job(s) here
 }
 
-// @ID UploadAudio
+// @ID uploadAudio
 // @Tags Medias
 // @Summary Upload a audio file
 // @Description Upload a new audio file for a given media ID

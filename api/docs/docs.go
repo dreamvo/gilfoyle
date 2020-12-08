@@ -344,6 +344,126 @@ var doc = `{
                 }
             }
         },
+        "/medias/{id}/attachments": {
+            "get": {
+                "description": "Get attachments of a media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Get attachments of a media",
+                "operationId": "getMediaAttachments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add attachment to a media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Add attachment to a media",
+                "operationId": "addMediaAttachment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Attachment file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{id}/attachments/{attachment_id}": {
+            "delete": {
+                "description": "Delete attachment of a media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Delete attachment of a media",
+                "operationId": "deleteMediaAttachment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attachment identifier",
+                        "name": "attachment_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/medias/{id}/upload/audio": {
             "post": {
                 "description": "Upload a new audio file for a given media ID",
@@ -357,7 +477,7 @@ var doc = `{
                     "Medias"
                 ],
                 "summary": "Upload a audio file",
-                "operationId": "UploadAudio",
+                "operationId": "uploadAudio",
                 "parameters": [
                     {
                         "type": "string",
@@ -427,7 +547,7 @@ var doc = `{
                     "Medias"
                 ],
                 "summary": "Upload a video file",
-                "operationId": "UploadVideo",
+                "operationId": "uploadVideo",
                 "parameters": [
                     {
                         "type": "string",
@@ -473,6 +593,33 @@ var doc = `{
                         "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/metrics": {
+            "get": {
+                "description": "Get metrics about this Gilfoyle instance",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Metrics"
+                ],
+                "summary": "Get instance metrics",
+                "operationId": "getMetrics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
                         }
                     },
                     "500": {

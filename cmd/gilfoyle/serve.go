@@ -7,6 +7,7 @@ import (
 	"github.com/dreamvo/gilfoyle/api"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -47,11 +48,19 @@ var serveCmd = &cobra.Command{
 		}
 		defer db.Client.Close()
 
+		var dbClient *ent.Client
+		if !gilfoyle.Config.Settings.Debug {
+			dbClient = db.Client.Debug()
+		} else {
+			dbClient = db.Client
+		}
+
 		// run the auto migration tool.
-		if err := db.Client.Schema.Create(
+		if err := dbClient.Schema.Create(
 			context.Background(),
 			migrate.WithDropIndex(true),
 			migrate.WithDropColumn(true),
+			migrate.WithForeignKeys(true),
 		); err != nil {
 			logger.Fatal("failed creating schema resources", zap.Error(err))
 		}
