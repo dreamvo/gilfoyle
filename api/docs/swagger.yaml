@@ -477,6 +477,39 @@ paths:
       summary: Delete attachment of a media
       tags:
       - Attachments
+  /medias/{media_id}/stream/{preset}:
+    get:
+      description: Get stream from media file
+      operationId: streamMedia
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Encoder preset
+        in: path
+        name: preset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              description: application/octet-stream
+              type: string
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get stream from media file
+      tags:
+      - Stream
   /metrics:
     get:
       description: Get metrics about this Gilfoyle instance

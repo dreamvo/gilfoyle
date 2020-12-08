@@ -20,8 +20,11 @@ import (
 const (
 	defaultItemsPerPage = 50
 	maxItemsPerPage     = 100
-	ErrInvalidUUID      = "invalid UUID provided"
-	ErrResourceNotFound = "resource not found"
+)
+
+var (
+	ErrInvalidUUID      = errors.New("invalid UUID provided")
+	ErrResourceNotFound = errors.New("resource not found")
 )
 
 type HealthCheckResponse struct {
@@ -108,6 +111,7 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		medias.GET(":id/attachments", getMediaAttachments)
 		medias.POST(":id/attachments", addMediaAttachments)
 		medias.DELETE(":id/attachments/:attachment_id", deleteMediaAttachments)
+		medias.GET(":id/stream/:preset", streamMedia)
 	}
 
 	metrics := r.Group("/metrics")

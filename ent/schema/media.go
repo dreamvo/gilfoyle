@@ -67,6 +67,6 @@ func (Media) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("media_files", MediaFile.Type).
 			StorageKey(edge.Column("media")).
-			StructTag(`json:"media_files"`),
+			StructTag(`json:"media_files,omitempty"`),
 	}
 }

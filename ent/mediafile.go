@@ -43,7 +43,7 @@ type MediaFile struct {
 // MediaFileEdges holds the relations/edges for other nodes in the graph.
 type MediaFileEdges struct {
 	// Media holds the value of the media edge.
-	Media *Media `json"media"`
+	Media *Media `json"media,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool

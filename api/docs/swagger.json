@@ -614,6 +614,55 @@
                 }
             }
         },
+        "/medias/{media_id}/stream/{preset}": {
+            "get": {
+                "description": "Get stream from media file",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stream"
+                ],
+                "summary": "Get stream from media file",
+                "operationId": "streamMedia",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Encoder preset",
+                        "name": "preset",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        },
+                        "headers": {
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/octet-stream"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/metrics": {
             "get": {
                 "description": "Get metrics about this Gilfoyle instance",

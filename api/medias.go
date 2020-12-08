@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
@@ -66,7 +65,7 @@ func getMedia(ctx *gin.Context) {
 
 	parsedUUID, err := uuid.Parse(id)
 	if err != nil {
-		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
+		util.NewError(ctx, http.StatusBadRequest, ErrInvalidUUID)
 		return
 	}
 
@@ -76,7 +75,7 @@ func getMedia(ctx *gin.Context) {
 		WithMediaFiles().
 		Only(context.Background())
 	if v == nil {
-		util.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
+		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
 		return
 	}
 	if err != nil {
@@ -103,13 +102,13 @@ func deleteMedia(ctx *gin.Context) {
 
 	parsedUUID, err := util.ValidateUUID(id)
 	if err != nil {
-		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
+		util.NewError(ctx, http.StatusBadRequest, ErrInvalidUUID)
 		return
 	}
 
 	v, _ := db.Client.Media.Get(context.Background(), parsedUUID)
 	if v == nil {
-		util.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
+		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
 		return
 	}
 
@@ -183,13 +182,13 @@ func updateMedia(ctx *gin.Context) {
 
 	parsedUUID, err := util.ValidateUUID(id)
 	if err != nil {
-		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
+		util.NewError(ctx, http.StatusBadRequest, ErrInvalidUUID)
 		return
 	}
 
 	m, _ := db.Client.Media.Get(context.Background(), parsedUUID)
 	if m == nil {
-		util.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
+		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
 		return
 	}
 
