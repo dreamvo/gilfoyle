@@ -1,4 +1,4 @@
-//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go
+//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go --parseDependency
 package api
 
 import (

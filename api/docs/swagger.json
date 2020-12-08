@@ -776,26 +776,104 @@
                 }
             }
         },
+        "dialect.Driver": {
+            "type": "object"
+        },
         "ent.Media": {
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
                     "type": "string"
                 },
                 "edges": {
-                    "type": "MediaEdges"
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaQuery when eager-loading is set.",
+                    "type": "object",
+                    "$ref": "#/definitions/ent.MediaEdges"
                 },
                 "id": {
+                    "description": "ID of the ent.",
                     "type": "string"
                 },
                 "status": {
+                    "description": "Status holds the value of the \"status\" field.",
                     "type": "string"
                 },
                 "title": {
+                    "description": "Title holds the value of the \"title\" field.",
                     "type": "string"
                 },
                 "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
+                }
+            }
+        },
+        "ent.MediaEdges": {
+            "type": "object",
+            "properties": {
+                "media_files": {
+                    "description": "MediaFiles holds the value of the media_files edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.MediaFile"
+                    }
+                }
+            }
+        },
+        "ent.MediaFile": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "duration_seconds": {
+                    "description": "DurationSeconds holds the value of the \"duration_seconds\" field.",
+                    "type": "number"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
+                    "type": "object",
+                    "$ref": "#/definitions/ent.MediaFileEdges"
+                },
+                "encoder_preset": {
+                    "description": "EncoderPreset holds the value of the \"encoder_preset\" field.",
+                    "type": "string"
+                },
+                "framerate": {
+                    "description": "Framerate holds the value of the \"framerate\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "media_type": {
+                    "description": "MediaType holds the value of the \"media_type\" field.",
+                    "type": "string"
+                },
+                "scaled_width": {
+                    "description": "ScaledWidth holds the value of the \"scaled_width\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "video_bitrate": {
+                    "description": "VideoBitrate holds the value of the \"video_bitrate\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.MediaFileEdges": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "description": "Media holds the value of the media edge.",
+                    "type": "object",
+                    "$ref": "#/definitions/ent.Media"
                 }
             }
         },
