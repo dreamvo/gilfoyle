@@ -16,12 +16,14 @@ import (
 )
 
 var httpPort int
+var addr string
 
 func init() {
 	// Register command
 	rootCmd.AddCommand(serveCmd)
 
 	// Register flags
+	serveCmd.PersistentFlags().StringVar(&addr, "addr", "", "Interface binding for the web server")
 	serveCmd.PersistentFlags().IntVarP(&httpPort, "port", "p", 3000, "HTTP port")
 }
 
@@ -75,7 +77,7 @@ var serveCmd = &cobra.Command{
 		router := api.NewServer()
 
 		// Launch web server
-		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
+		if err := router.Run(fmt.Sprintf("%s:%d", addr, httpPort)); err != nil {
 			logger.Fatal("error while launching web server", zap.Error(err))
 		}
 	},

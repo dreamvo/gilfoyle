@@ -51,7 +51,7 @@ type FileFormat struct {
 func uploadVideoFile(ctx *gin.Context) {
 	parsedUUID, err := util.ValidateUUID(ctx.Param("id"))
 	if err != nil {
-		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf(ErrInvalidUUID))
+		util.NewError(ctx, http.StatusBadRequest, ErrInvalidUUID)
 		return
 	}
 
