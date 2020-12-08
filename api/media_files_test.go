@@ -130,7 +130,7 @@ func TestMediaFiles(t *testing.T) {
 
 			assert.Equal(400, res.Result().StatusCode)
 			assert.Equal(400, body.Code)
-			assert.Equal(ErrInvalidUUID, body.Message)
+			assert.EqualError(ErrInvalidUUID, body.Message)
 		})
 
 		t.Run("should return 404 for non-existing media", func(t *testing.T) {
