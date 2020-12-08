@@ -13,6 +13,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/dreamvo/gilfoyle/transcoding"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
 	"io"
@@ -86,7 +87,11 @@ func TestMediaFiles(t *testing.T) {
 			var body util.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
-			stat, err := os.Stat(filepath.Join("./data", m.ID.String(), "original"))
+			stat, err := os.Stat(filepath.Join(
+				gilfoyle.Config.Storage.Filesystem.DataPath,
+				m.ID.String(),
+				transcoding.SourceFileName,
+			))
 			assert.NoError(err)
 			assert.Equal(int64(1055736), stat.Size())
 

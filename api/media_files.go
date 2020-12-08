@@ -65,7 +65,7 @@ func uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s", parsedUUID.String(), "original")
+	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.SourceFileName)
 
 	if m.Status != media.StatusAwaitingUpload {
 		util.NewError(ctx, http.StatusBadRequest, errors.New("a file already exists for this media"))
