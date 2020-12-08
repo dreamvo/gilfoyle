@@ -6,7 +6,6 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/api/util"
-	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -27,11 +26,6 @@ var (
 	ErrResourceNotFound = errors.New("resource not found")
 )
 
-type HealthCheckResponse struct {
-	Tag    string `json:"tag"`
-	Commit string `json:"commit"`
-}
-
 // @title Gilfoyle server
 // @description Cloud-native media hosting & streaming server for businesses.
 // @version v1
@@ -43,10 +37,8 @@ type HealthCheckResponse struct {
 
 func NewServer() *gin.Engine {
 	r := gin.New()
-
 	RegisterMiddlewares(r)
 	RegisterRoutes(r)
-
 	return r
 }
 
@@ -98,6 +90,7 @@ func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 // RegisterRoutes adds routes to a given router instance
 func RegisterRoutes(r *gin.Engine) *gin.Engine {
 	r.GET("/healthz", healthCheckHandler)
+	r.GET("/metricsz", getMetrics)
 
 	medias := r.Group("/medias")
 	{
@@ -114,11 +107,6 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 		medias.GET(":id/stream/:preset", streamMedia)
 	}
 
-	metrics := r.Group("/metrics")
-	{
-		metrics.GET("", getMetrics)
-	}
-
 	if gilfoyle.Config.Settings.ExposeSwaggerUI {
 		// Register swagger docs handler
 		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -129,20 +117,6 @@ func RegisterRoutes(r *gin.Engine) *gin.Engine {
 	})
 
 	return r
-}
-
-// @ID checkHealth
-// @Tags health
-// @Summary Check service status
-// @Description Check for the health of the service
-// @Produce  json
-// @Success 200 {object} util.DataResponse{data=HealthCheckResponse}
-// @Router /healthz [get]
-func healthCheckHandler(ctx *gin.Context) {
-	util.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
-		Tag:    config.Version,
-		Commit: config.Commit,
-	})
 }
 
 func paginateHandler(ctx *gin.Context) {

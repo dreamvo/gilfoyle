@@ -11,7 +11,6 @@ import (
 )
 
 func TestIPFS(t *testing.T) {
-	// TODO(sundowndev): test this package
 	t.Skip()
 
 	assert := assertTest.New(t)
