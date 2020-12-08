@@ -1,4 +1,4 @@
-package httputils
+package util
 
 import (
 	"fmt"
@@ -52,7 +52,9 @@ func init() {
 
 // NewError returns a new error response
 func NewError(ctx *gin.Context, status int, err error) {
-	gilfoyle.Logger.Error("HTTP request resulted in an error", zap.Error(err))
+	if status >= 500 {
+		gilfoyle.Logger.Error("HTTP request resulted in an internal error", zap.Error(err))
+	}
 
 	response := ErrorResponse{
 		Code:    status,

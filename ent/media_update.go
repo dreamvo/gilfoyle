@@ -8,23 +8,24 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // MediaUpdate is the builder for updating Media entities.
 type MediaUpdate struct {
 	config
-	hooks      []Hook
-	mutation   *MediaMutation
-	predicates []predicate.Media
+	hooks    []Hook
+	mutation *MediaMutation
 }
 
 // Where adds a new predicate for the builder.
 func (mu *MediaUpdate) Where(ps ...predicate.Media) *MediaUpdate {
-	mu.predicates = append(mu.predicates, ps...)
+	mu.mutation.predicates = append(mu.mutation.predicates, ps...)
 	return mu
 }
 
@@ -60,12 +61,19 @@ func (mu *MediaUpdate) SetUpdatedAt(t time.Time) *MediaUpdate {
 	return mu
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (mu *MediaUpdate) SetNillableUpdatedAt(t *time.Time) *MediaUpdate {
-	if t != nil {
-		mu.SetUpdatedAt(*t)
-	}
+// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+func (mu *MediaUpdate) AddMediaFileIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.AddMediaFileIDs(ids...)
 	return mu
+}
+
+// AddMediaFiles adds the media_files edges to MediaFile.
+func (mu *MediaUpdate) AddMediaFiles(m ...*MediaFile) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.AddMediaFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -73,29 +81,47 @@ func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
 }
 
-// Save executes the query and returns the number of rows/vertices matched by this operation.
+// ClearMediaFiles clears all "media_files" edges to type MediaFile.
+func (mu *MediaUpdate) ClearMediaFiles() *MediaUpdate {
+	mu.mutation.ClearMediaFiles()
+	return mu
+}
+
+// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+func (mu *MediaUpdate) RemoveMediaFileIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.RemoveMediaFileIDs(ids...)
+	return mu
+}
+
+// RemoveMediaFiles removes media_files edges to MediaFile.
+func (mu *MediaUpdate) RemoveMediaFiles(m ...*MediaFile) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.RemoveMediaFileIDs(ids...)
+}
+
+// Save executes the query and returns the number of nodes affected by the update operation.
 func (mu *MediaUpdate) Save(ctx context.Context) (int, error) {
-	if v, ok := mu.mutation.Title(); ok {
-		if err := media.TitleValidator(v); err != nil {
-			return 0, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
-		}
-	}
-	if v, ok := mu.mutation.Status(); ok {
-		if err := media.StatusValidator(v); err != nil {
-			return 0, &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
-		}
-	}
 	var (
 		err      error
 		affected int
 	)
+	mu.defaults()
 	if len(mu.hooks) == 0 {
+		if err = mu.check(); err != nil {
+			return 0, err
+		}
 		affected, err = mu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*MediaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = mu.check(); err != nil {
+				return 0, err
 			}
 			mu.mutation = mutation
 			affected, err = mu.sqlSave(ctx)
@@ -134,6 +160,29 @@ func (mu *MediaUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (mu *MediaUpdate) defaults() {
+	if _, ok := mu.mutation.UpdatedAt(); !ok {
+		v := media.UpdateDefaultUpdatedAt()
+		mu.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (mu *MediaUpdate) check() error {
+	if v, ok := mu.mutation.Title(); ok {
+		if err := media.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
+		}
+	}
+	if v, ok := mu.mutation.Status(); ok {
+		if err := media.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -145,7 +194,7 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			},
 		},
 	}
-	if ps := mu.predicates; len(ps) > 0 {
+	if ps := mu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -179,6 +228,60 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Value:  value,
 			Column: media.FieldUpdatedAt,
 		})
+	}
+	if mu.mutation.MediaFilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedMediaFilesIDs(); len(nodes) > 0 && !mu.mutation.MediaFilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.MediaFilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -230,12 +333,19 @@ func (muo *MediaUpdateOne) SetUpdatedAt(t time.Time) *MediaUpdateOne {
 	return muo
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (muo *MediaUpdateOne) SetNillableUpdatedAt(t *time.Time) *MediaUpdateOne {
-	if t != nil {
-		muo.SetUpdatedAt(*t)
-	}
+// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+func (muo *MediaUpdateOne) AddMediaFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.AddMediaFileIDs(ids...)
 	return muo
+}
+
+// AddMediaFiles adds the media_files edges to MediaFile.
+func (muo *MediaUpdateOne) AddMediaFiles(m ...*MediaFile) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.AddMediaFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -243,29 +353,47 @@ func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
 }
 
+// ClearMediaFiles clears all "media_files" edges to type MediaFile.
+func (muo *MediaUpdateOne) ClearMediaFiles() *MediaUpdateOne {
+	muo.mutation.ClearMediaFiles()
+	return muo
+}
+
+// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+func (muo *MediaUpdateOne) RemoveMediaFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.RemoveMediaFileIDs(ids...)
+	return muo
+}
+
+// RemoveMediaFiles removes media_files edges to MediaFile.
+func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.RemoveMediaFileIDs(ids...)
+}
+
 // Save executes the query and returns the updated entity.
 func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
-	if v, ok := muo.mutation.Title(); ok {
-		if err := media.TitleValidator(v); err != nil {
-			return nil, &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
-		}
-	}
-	if v, ok := muo.mutation.Status(); ok {
-		if err := media.StatusValidator(v); err != nil {
-			return nil, &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
-		}
-	}
 	var (
 		err  error
 		node *Media
 	)
+	muo.defaults()
 	if len(muo.hooks) == 0 {
+		if err = muo.check(); err != nil {
+			return nil, err
+		}
 		node, err = muo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*MediaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = muo.check(); err != nil {
+				return nil, err
 			}
 			muo.mutation = mutation
 			node, err = muo.sqlSave(ctx)
@@ -284,11 +412,11 @@ func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
 
 // SaveX is like Save, but panics if an error occurs.
 func (muo *MediaUpdateOne) SaveX(ctx context.Context) *Media {
-	m, err := muo.Save(ctx)
+	node, err := muo.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
-	return m
+	return node
 }
 
 // Exec executes the query on the entity.
@@ -304,7 +432,30 @@ func (muo *MediaUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (m *Media, err error) {
+// defaults sets the default values of the builder before save.
+func (muo *MediaUpdateOne) defaults() {
+	if _, ok := muo.mutation.UpdatedAt(); !ok {
+		v := media.UpdateDefaultUpdatedAt()
+		muo.mutation.SetUpdatedAt(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (muo *MediaUpdateOne) check() error {
+	if v, ok := muo.mutation.Title(); ok {
+		if err := media.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
+		}
+	}
+	if v, ok := muo.mutation.Status(); ok {
+		if err := media.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	return nil
+}
+
+func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
 			Table:   media.Table,
@@ -348,9 +499,63 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (m *Media, err error) {
 			Column: media.FieldUpdatedAt,
 		})
 	}
-	m = &Media{config: muo.config}
-	_spec.Assign = m.assignValues
-	_spec.ScanValues = m.scanValues()
+	if muo.mutation.MediaFilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedMediaFilesIDs(); len(nodes) > 0 && !muo.mutation.MediaFilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.MediaFilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.MediaFilesTable,
+			Columns: []string{media.MediaFilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	_node = &Media{config: muo.config}
+	_spec.Assign = _node.assignValues
+	_spec.ScanValues = _node.scanValues()
 	if err = sqlgraph.UpdateNode(ctx, muo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -359,5 +564,5 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (m *Media, err error) {
 		}
 		return nil, err
 	}
-	return m, nil
+	return _node, nil
 }

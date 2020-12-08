@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/gin-gonic/gin"
 	assertTest "github.com/stretchr/testify/assert"
@@ -26,11 +27,10 @@ func performRequest(r http.Handler, method, path string, body interface{}) (*htt
 
 func TestApi(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.New()
-	r = RegisterRoutes(r)
+	r = NewServer()
 
 	t.Run("GET /healthz", func(t *testing.T) {
-		res, err := performRequest(r, "GET", "/healthz", nil)
+		res, err := performRequest(r, http.MethodGet, "/healthz", nil)
 		assert.NoError(err)
 
 		var body HealthCheckResponse
@@ -39,5 +39,17 @@ func TestApi(t *testing.T) {
 		assert.Equal(200, res.Result().StatusCode)
 		assert.Equal(config.Version, body.Tag)
 		assert.Equal(config.Commit, body.Commit)
+	})
+
+	t.Run("GET /404notfound", func(t *testing.T) {
+		res, err := performRequest(r, http.MethodGet, "/404notfound", nil)
+		assert.NoError(err)
+
+		var body util.ErrorResponse
+		_ = json.NewDecoder(res.Body).Decode(&body)
+
+		assert.Equal(404, res.Result().StatusCode)
+		assert.Equal(404, body.Code)
+		assert.Equal("resource not found", body.Message)
 	})
 }

@@ -10,7 +10,7 @@ LABEL maintainer="Sundowndev" \
 WORKDIR /app
 RUN apk add build-base
 COPY . .
-RUN apk add git
+RUN apk add git ffmpeg
 RUN go get -v -t -d ./...
 RUN go generate ./...
 RUN go build -v -ldflags="-s -w -X 'github.com/dreamvo/gilfoyle/config.Version=$(git describe --abbrev=0 --tags)' -X 'github.com/dreamvo/gilfoyle/config.Commit=$(git rev-parse --short HEAD)'" -v -o gilfoyle .

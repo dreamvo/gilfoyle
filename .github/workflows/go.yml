@@ -3,10 +3,10 @@ name: Go
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
     branches:
-    - master
+      - master
 
 jobs:
   build:
@@ -31,6 +31,9 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+      - name: Install ffmpeg
+        run: sudo apt install ffmpeg -y
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 

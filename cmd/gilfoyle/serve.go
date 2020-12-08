@@ -6,6 +6,8 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api"
 	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -14,18 +16,21 @@ import (
 )
 
 var httpPort int
+var addr string
 
 func init() {
 	// Register command
 	rootCmd.AddCommand(serveCmd)
 
 	// Register flags
+	serveCmd.PersistentFlags().StringVar(&addr, "addr", "", "Interface binding for the web server")
 	serveCmd.PersistentFlags().IntVarP(&httpPort, "port", "p", 3000, "HTTP port")
 }
 
 var serveCmd = &cobra.Command{
-	Use:   "serve",
-	Short: "Launch the REST API",
+	Use:     "serve",
+	Short:   "Launch REST API",
+	Example: "gilfoyle serve -p 3000 -c /app/config.yml",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := gilfoyle.Logger
 
@@ -39,58 +44,40 @@ var serveCmd = &cobra.Command{
 			gin.SetMode(gin.DebugMode)
 		}
 
-		err := db.InitClient(&gilfoyle.Config)
+		err := db.InitClient(gilfoyle.Config.Services.DB)
 		if err != nil {
-			logger.Fatal("failed opening connection: %v", zap.Error(err))
+			logger.Fatal("failed opening connection", zap.Error(err))
 		}
 		defer db.Client.Close()
 
+		var dbClient *ent.Client
+		if !gilfoyle.Config.Settings.Debug {
+			dbClient = db.Client.Debug()
+		} else {
+			dbClient = db.Client
+		}
+
 		// run the auto migration tool.
-		if err := db.Client.Schema.Create(
+		if err := dbClient.Schema.Create(
 			context.Background(),
 			migrate.WithDropIndex(true),
 			migrate.WithDropColumn(true),
+			migrate.WithForeignKeys(true),
 		); err != nil {
 			logger.Fatal("failed creating schema resources", zap.Error(err))
 		}
 
 		logger.Info("Successfully executed database auto migration")
 
-		router := gin.New()
+		_, err = gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		if err != nil {
+			logger.Fatal("Error initializing storage backend", zap.Error(err))
+		}
 
-		router.Use(gin.Recovery())
-
-		router.Use(func(ctx *gin.Context) {
-			path := ctx.Request.URL.Path
-			raw := ctx.Request.URL.RawQuery
-			errorMsg := ctx.Errors.ByType(gin.ErrorTypePrivate).String()
-
-			if raw != "" {
-				path = path + "?" + raw
-			}
-
-			log := logger.With(
-				zap.String("Method", ctx.Request.Method),
-				zap.String("Path", path),
-				zap.Int("StatusCode", ctx.Writer.Status()),
-				zap.Int("BodySize", ctx.Writer.Size()),
-				zap.String("UserAgent", ctx.Request.UserAgent()),
-			)
-
-			if errorMsg != "" {
-				log.Error("Incoming HTTP Request",
-					zap.String("ErrorMessage", errorMsg),
-				)
-				return
-			}
-
-			log.Info("Incoming HTTP Request")
-		})
-
-		api.RegisterRoutes(router)
+		router := api.NewServer()
 
 		// Launch web server
-		if err := router.Run(fmt.Sprintf(":%d", httpPort)); err != nil {
+		if err := router.Run(fmt.Sprintf("%s:%d", addr, httpPort)); err != nil {
 			logger.Fatal("error while launching web server", zap.Error(err))
 		}
 	},

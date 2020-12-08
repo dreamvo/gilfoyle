@@ -23,8 +23,18 @@ const (
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 
+	// EdgeMediaFiles holds the string denoting the media_files edge name in mutations.
+	EdgeMediaFiles = "media_files"
+
 	// Table holds the table name of the media in the database.
 	Table = "media"
+	// MediaFilesTable is the table the holds the media_files relation/edge.
+	MediaFilesTable = "media_file"
+	// MediaFilesInverseTable is the table name for the MediaFile entity.
+	// It exists in this package in order to avoid circular dependency with the "mediafile" package.
+	MediaFilesInverseTable = "media_file"
+	// MediaFilesColumn is the table column denoting the media_files relation/edge.
+	MediaFilesColumn = "media"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -36,6 +46,16 @@ var Columns = []string{
 	FieldUpdatedAt,
 }
 
+// ValidColumn reports if the column name is valid (part of the table columns).
+func ValidColumn(column string) bool {
+	for i := range Columns {
+		if column == Columns[i] {
+			return true
+		}
+	}
+	return false
+}
+
 var (
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
@@ -43,6 +63,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultID holds the default value on creation for the id field.
 	DefaultID func() uuid.UUID
 )
@@ -52,8 +74,10 @@ type Status string
 
 // Status values.
 const (
-	StatusProcessing Status = "processing"
-	StatusReady      Status = "ready"
+	StatusAwaitingUpload Status = "AwaitingUpload"
+	StatusProcessing     Status = "Processing"
+	StatusReady          Status = "Ready"
+	StatusErrored        Status = "Errored"
 )
 
 func (s Status) String() string {
@@ -63,7 +87,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusProcessing, StatusReady:
+	case StatusAwaitingUpload, StatusProcessing, StatusReady, StatusErrored:
 		return nil
 	default:
 		return fmt.Errorf("media: invalid enum value for status field: %q", s)

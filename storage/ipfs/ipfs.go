@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/dreamvo/gilfoyle/config"
-	"github.com/ulule/gostorages"
+	"github.com/dreamvo/gilfoyle/storage"
 	"io"
 )
 
@@ -21,7 +21,7 @@ func (s *Storage) Save(ctx context.Context, content io.Reader, path string) erro
 }
 
 // Stat returns path metadata.
-func (s *Storage) Stat(ctx context.Context, path string) (*gostorages.Stat, error) {
+func (s *Storage) Stat(ctx context.Context, path string) (*storage.Stat, error) {
 	return nil, errors.New("not implemented yet")
 }
 
