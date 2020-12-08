@@ -85,6 +85,7 @@ func (MediaFile) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("media", Media.Type).
 			Ref("media_files").
+			StructTag(`json"media"`).
 			Required().
 			Unique(),
 	}
