@@ -35,7 +35,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Instance"
                 ],
                 "summary": "Check service status",
                 "operationId": "checkHealth",
@@ -674,14 +674,14 @@ var doc = `{
                 }
             }
         },
-        "/metrics": {
+        "/metricsz": {
             "get": {
                 "description": "Get metrics about this Gilfoyle instance",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Metrics"
+                    "Instance"
                 ],
                 "summary": "Get instance metrics",
                 "operationId": "getMetrics",

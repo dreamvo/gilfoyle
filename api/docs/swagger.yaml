@@ -116,7 +116,7 @@ paths:
               type: object
       summary: Check service status
       tags:
-      - health
+      - Instance
   /medias:
     get:
       description: Get latest created medias
@@ -510,7 +510,7 @@ paths:
       summary: Get stream from media file
       tags:
       - Stream
-  /metrics:
+  /metricsz:
     get:
       description: Get metrics about this Gilfoyle instance
       operationId: getMetrics
@@ -527,7 +527,7 @@ paths:
             $ref: '#/definitions/util.ErrorResponse'
       summary: Get instance metrics
       tags:
-      - Metrics
+      - Instance
 schemes:
 - http
 - https
