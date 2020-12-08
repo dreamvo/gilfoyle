@@ -25,8 +25,8 @@ var (
 		ForeignKeys: []*schema.ForeignKey{},
 		Annotation:  &entsql.Annotation{Table: "media"},
 	}
-	// MediafileColumns holds the columns for the "mediafile" table.
-	MediafileColumns = []*schema.Column{
+	// MediaFileColumns holds the columns for the "media_file" table.
+	MediaFileColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "video_bitrate", Type: field.TypeInt64},
 		{Name: "scaled_width", Type: field.TypeInt16},
@@ -36,21 +36,31 @@ var (
 		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"audio", "video"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "media", Type: field.TypeUUID, Nullable: true},
 	}
-	// MediafileTable holds the schema information for the "mediafile" table.
-	MediafileTable = &schema.Table{
-		Name:        "mediafile",
-		Columns:     MediafileColumns,
-		PrimaryKey:  []*schema.Column{MediafileColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{},
-		Annotation:  &entsql.Annotation{Table: "mediafile"},
+	// MediaFileTable holds the schema information for the "media_file" table.
+	MediaFileTable = &schema.Table{
+		Name:       "media_file",
+		Columns:    MediaFileColumns,
+		PrimaryKey: []*schema.Column{MediaFileColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "media_file_media_files",
+				Columns: []*schema.Column{MediaFileColumns[9]},
+
+				RefColumns: []*schema.Column{MediaColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Annotation: &entsql.Annotation{Table: "media_file"},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MediaTable,
-		MediafileTable,
+		MediaFileTable,
 	}
 )
 
 func init() {
+	MediaFileTable.ForeignKeys[0].RefTable = MediaTable
 }

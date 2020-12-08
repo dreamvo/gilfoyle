@@ -44,6 +44,8 @@ func init() {
 	mediaDescUpdatedAt := mediaFields[4].Descriptor()
 	// media.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
+	// media.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	media.UpdateDefaultUpdatedAt = mediaDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// mediaDescID is the schema descriptor for id field.
 	mediaDescID := mediaFields[0].Descriptor()
 	// media.DefaultID holds the default value on creation for the id field.
@@ -102,6 +104,8 @@ func init() {
 	mediafileDescUpdatedAt := mediafileFields[8].Descriptor()
 	// mediafile.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	mediafile.DefaultUpdatedAt = mediafileDescUpdatedAt.Default.(func() time.Time)
+	// mediafile.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	mediafile.UpdateDefaultUpdatedAt = mediafileDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// mediafileDescID is the schema descriptor for id field.
 	mediafileDescID := mediafileFields[0].Descriptor()
 	// mediafile.DefaultID holds the default value on creation for the id field.

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/google/uuid"
@@ -33,6 +34,33 @@ type MediaFile struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the MediaFileQuery when eager-loading is set.
+	Edges MediaFileEdges `json:"edges"`
+	media *uuid.UUID
+}
+
+// MediaFileEdges holds the relations/edges for other nodes in the graph.
+type MediaFileEdges struct {
+	// Media holds the value of the media edge.
+	Media *Media
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// MediaOrErr returns the Media value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MediaFileEdges) MediaOrErr() (*Media, error) {
+	if e.loadedTypes[0] {
+		if e.Media == nil {
+			// The edge media was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: media.Label}
+		}
+		return e.Media, nil
+	}
+	return nil, &NotLoadedError{edge: "media"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -47,6 +75,13 @@ func (*MediaFile) scanValues() []interface{} {
 		&sql.NullString{},  // media_type
 		&sql.NullTime{},    // created_at
 		&sql.NullTime{},    // updated_at
+	}
+}
+
+// fkValues returns the types for scanning foreign-keys values from sql.Rows.
+func (*MediaFile) fkValues() []interface{} {
+	return []interface{}{
+		&uuid.UUID{}, // media
 	}
 }
 
@@ -102,7 +137,20 @@ func (mf *MediaFile) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		mf.UpdatedAt = value.Time
 	}
+	values = values[8:]
+	if len(values) == len(mediafile.ForeignKeys) {
+		if value, ok := values[0].(*uuid.UUID); !ok {
+			return fmt.Errorf("unexpected type %T for field media", values[0])
+		} else if value != nil {
+			mf.media = value
+		}
+	}
 	return nil
+}
+
+// QueryMedia queries the media edge of the MediaFile.
+func (mf *MediaFile) QueryMedia() *MediaQuery {
+	return (&MediaFileClient{config: mf.config}).QueryMedia(mf)
 }
 
 // Update returns a builder for updating this MediaFile.

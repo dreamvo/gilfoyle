@@ -4,14 +4,17 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // MediaFileUpdate is the builder for updating MediaFile entities.
@@ -111,17 +114,26 @@ func (mfu *MediaFileUpdate) SetUpdatedAt(t time.Time) *MediaFileUpdate {
 	return mfu
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (mfu *MediaFileUpdate) SetNillableUpdatedAt(t *time.Time) *MediaFileUpdate {
-	if t != nil {
-		mfu.SetUpdatedAt(*t)
-	}
+// SetMediaID sets the media edge to Media by id.
+func (mfu *MediaFileUpdate) SetMediaID(id uuid.UUID) *MediaFileUpdate {
+	mfu.mutation.SetMediaID(id)
 	return mfu
+}
+
+// SetMedia sets the media edge to Media.
+func (mfu *MediaFileUpdate) SetMedia(m *Media) *MediaFileUpdate {
+	return mfu.SetMediaID(m.ID)
 }
 
 // Mutation returns the MediaFileMutation object of the builder.
 func (mfu *MediaFileUpdate) Mutation() *MediaFileMutation {
 	return mfu.mutation
+}
+
+// ClearMedia clears the "media" edge to type Media.
+func (mfu *MediaFileUpdate) ClearMedia() *MediaFileUpdate {
+	mfu.mutation.ClearMedia()
+	return mfu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -130,6 +142,7 @@ func (mfu *MediaFileUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	mfu.defaults()
 	if len(mfu.hooks) == 0 {
 		if err = mfu.check(); err != nil {
 			return 0, err
@@ -181,6 +194,14 @@ func (mfu *MediaFileUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (mfu *MediaFileUpdate) defaults() {
+	if _, ok := mfu.mutation.UpdatedAt(); !ok {
+		v := mediafile.UpdateDefaultUpdatedAt()
+		mfu.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (mfu *MediaFileUpdate) check() error {
 	if v, ok := mfu.mutation.VideoBitrate(); ok {
@@ -212,6 +233,9 @@ func (mfu *MediaFileUpdate) check() error {
 		if err := mediafile.MediaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
 		}
+	}
+	if _, ok := mfu.mutation.MediaID(); mfu.mutation.MediaCleared() && !ok {
+		return errors.New("ent: clearing a required unique edge \"media\"")
 	}
 	return nil
 }
@@ -318,6 +342,41 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: mediafile.FieldUpdatedAt,
 		})
 	}
+	if mfu.mutation.MediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   mediafile.MediaTable,
+			Columns: []string{mediafile.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: media.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mfu.mutation.MediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   mediafile.MediaTable,
+			Columns: []string{mediafile.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: media.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mfu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{mediafile.Label}
@@ -420,17 +479,26 @@ func (mfuo *MediaFileUpdateOne) SetUpdatedAt(t time.Time) *MediaFileUpdateOne {
 	return mfuo
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (mfuo *MediaFileUpdateOne) SetNillableUpdatedAt(t *time.Time) *MediaFileUpdateOne {
-	if t != nil {
-		mfuo.SetUpdatedAt(*t)
-	}
+// SetMediaID sets the media edge to Media by id.
+func (mfuo *MediaFileUpdateOne) SetMediaID(id uuid.UUID) *MediaFileUpdateOne {
+	mfuo.mutation.SetMediaID(id)
 	return mfuo
+}
+
+// SetMedia sets the media edge to Media.
+func (mfuo *MediaFileUpdateOne) SetMedia(m *Media) *MediaFileUpdateOne {
+	return mfuo.SetMediaID(m.ID)
 }
 
 // Mutation returns the MediaFileMutation object of the builder.
 func (mfuo *MediaFileUpdateOne) Mutation() *MediaFileMutation {
 	return mfuo.mutation
+}
+
+// ClearMedia clears the "media" edge to type Media.
+func (mfuo *MediaFileUpdateOne) ClearMedia() *MediaFileUpdateOne {
+	mfuo.mutation.ClearMedia()
+	return mfuo
 }
 
 // Save executes the query and returns the updated entity.
@@ -439,6 +507,7 @@ func (mfuo *MediaFileUpdateOne) Save(ctx context.Context) (*MediaFile, error) {
 		err  error
 		node *MediaFile
 	)
+	mfuo.defaults()
 	if len(mfuo.hooks) == 0 {
 		if err = mfuo.check(); err != nil {
 			return nil, err
@@ -490,6 +559,14 @@ func (mfuo *MediaFileUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (mfuo *MediaFileUpdateOne) defaults() {
+	if _, ok := mfuo.mutation.UpdatedAt(); !ok {
+		v := mediafile.UpdateDefaultUpdatedAt()
+		mfuo.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (mfuo *MediaFileUpdateOne) check() error {
 	if v, ok := mfuo.mutation.VideoBitrate(); ok {
@@ -521,6 +598,9 @@ func (mfuo *MediaFileUpdateOne) check() error {
 		if err := mediafile.MediaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
 		}
+	}
+	if _, ok := mfuo.mutation.MediaID(); mfuo.mutation.MediaCleared() && !ok {
+		return errors.New("ent: clearing a required unique edge \"media\"")
 	}
 	return nil
 }
@@ -624,6 +704,41 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Value:  value,
 			Column: mediafile.FieldUpdatedAt,
 		})
+	}
+	if mfuo.mutation.MediaCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   mediafile.MediaTable,
+			Columns: []string{mediafile.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: media.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mfuo.mutation.MediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   mediafile.MediaTable,
+			Columns: []string{mediafile.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: media.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &MediaFile{config: mfuo.config}
 	_spec.Assign = _node.assignValues

@@ -7,6 +7,7 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -422,6 +423,34 @@ func UpdatedAtLT(v time.Time) predicate.Media {
 func UpdatedAtLTE(v time.Time) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
+	})
+}
+
+// HasFiles applies the HasEdge predicate on the "files" edge.
+func HasFiles() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FilesTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasFilesWith applies the HasEdge predicate on the "files" edge with a given conditions (other predicates).
+func HasFilesWith(preds ...predicate.MediaFile) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(FilesInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, FilesTable, FilesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

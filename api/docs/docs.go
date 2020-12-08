@@ -494,6 +494,9 @@ var doc = `{
                 "created_at": {
                     "type": "string"
                 },
+                "edges": {
+                    "type": "MediaEdges"
+                },
                 "id": {
                     "type": "string"
                 },

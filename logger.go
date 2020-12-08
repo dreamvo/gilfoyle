@@ -46,7 +46,6 @@ func NewLogger() (*zap.Logger, error) {
 	var err error
 
 	loggerOnce.Do(func() {
-
 		err = zap.RegisterSink("lumberjack", NewLumberjackSink)
 		if err != nil {
 			return
@@ -84,5 +83,6 @@ func NewLogger() (*zap.Logger, error) {
 		}
 		Logger, err = zapConfig.Build()
 	})
+
 	return Logger, err
 }

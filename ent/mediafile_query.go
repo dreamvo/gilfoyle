@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/facebook/ent/dialect/sql"
@@ -24,6 +25,9 @@ type MediaFileQuery struct {
 	order      []OrderFunc
 	unique     []string
 	predicates []predicate.MediaFile
+	// eager-loading edges.
+	withMedia *MediaQuery
+	withFKs   bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -51,6 +55,28 @@ func (mfq *MediaFileQuery) Offset(offset int) *MediaFileQuery {
 func (mfq *MediaFileQuery) Order(o ...OrderFunc) *MediaFileQuery {
 	mfq.order = append(mfq.order, o...)
 	return mfq
+}
+
+// QueryMedia chains the current query on the media edge.
+func (mfq *MediaFileQuery) QueryMedia() *MediaQuery {
+	query := &MediaQuery{config: mfq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mfq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mfq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mediafile.Table, mediafile.FieldID, selector),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mediafile.MediaTable, mediafile.MediaColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mfq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first MediaFile entity in the query. Returns *NotFoundError when no mediafile was found.
@@ -229,10 +255,22 @@ func (mfq *MediaFileQuery) Clone() *MediaFileQuery {
 		order:      append([]OrderFunc{}, mfq.order...),
 		unique:     append([]string{}, mfq.unique...),
 		predicates: append([]predicate.MediaFile{}, mfq.predicates...),
+		withMedia:  mfq.withMedia.Clone(),
 		// clone intermediate query.
 		sql:  mfq.sql.Clone(),
 		path: mfq.path,
 	}
+}
+
+//  WithMedia tells the query-builder to eager-loads the nodes that are connected to
+// the "media" edge. The optional arguments used to configure the query builder of the edge.
+func (mfq *MediaFileQuery) WithMedia(opts ...func(*MediaQuery)) *MediaFileQuery {
+	query := &MediaQuery{config: mfq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	mfq.withMedia = query
+	return mfq
 }
 
 // GroupBy used to group vertices by one or more fields/columns.
@@ -299,13 +337,26 @@ func (mfq *MediaFileQuery) prepareQuery(ctx context.Context) error {
 
 func (mfq *MediaFileQuery) sqlAll(ctx context.Context) ([]*MediaFile, error) {
 	var (
-		nodes = []*MediaFile{}
-		_spec = mfq.querySpec()
+		nodes       = []*MediaFile{}
+		withFKs     = mfq.withFKs
+		_spec       = mfq.querySpec()
+		loadedTypes = [1]bool{
+			mfq.withMedia != nil,
+		}
 	)
+	if mfq.withMedia != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, mediafile.ForeignKeys...)
+	}
 	_spec.ScanValues = func() []interface{} {
 		node := &MediaFile{config: mfq.config}
 		nodes = append(nodes, node)
 		values := node.scanValues()
+		if withFKs {
+			values = append(values, node.fkValues()...)
+		}
 		return values
 	}
 	_spec.Assign = func(values ...interface{}) error {
@@ -313,6 +364,7 @@ func (mfq *MediaFileQuery) sqlAll(ctx context.Context) ([]*MediaFile, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(values...)
 	}
 	if err := sqlgraph.QueryNodes(ctx, mfq.driver, _spec); err != nil {
@@ -321,6 +373,32 @@ func (mfq *MediaFileQuery) sqlAll(ctx context.Context) ([]*MediaFile, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := mfq.withMedia; query != nil {
+		ids := make([]uuid.UUID, 0, len(nodes))
+		nodeids := make(map[uuid.UUID][]*MediaFile)
+		for i := range nodes {
+			if fk := nodes[i].media; fk != nil {
+				ids = append(ids, *fk)
+				nodeids[*fk] = append(nodeids[*fk], nodes[i])
+			}
+		}
+		query.Where(media.IDIn(ids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := nodeids[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "media" returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Media = n
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

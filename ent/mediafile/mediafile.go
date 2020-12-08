@@ -31,8 +31,18 @@ const (
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 
+	// EdgeMedia holds the string denoting the media edge name in mutations.
+	EdgeMedia = "media"
+
 	// Table holds the table name of the mediafile in the database.
-	Table = "mediafile"
+	Table = "media_file"
+	// MediaTable is the table the holds the media relation/edge.
+	MediaTable = "media_file"
+	// MediaInverseTable is the table name for the Media entity.
+	// It exists in this package in order to avoid circular dependency with the "media" package.
+	MediaInverseTable = "media"
+	// MediaColumn is the table column denoting the media relation/edge.
+	MediaColumn = "media"
 )
 
 // Columns holds all SQL columns for mediafile fields.
@@ -48,10 +58,20 @@ var Columns = []string{
 	FieldUpdatedAt,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the MediaFile type.
+var ForeignKeys = []string{
+	"media",
+}
+
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -71,6 +91,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultID holds the default value on creation for the id field.
 	DefaultID func() uuid.UUID
 )

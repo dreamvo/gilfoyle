@@ -4,6 +4,7 @@ import (
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/dialect/entsql"
 	"github.com/facebook/ent/schema"
+	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
 	"github.com/facebook/ent/schema/index"
 	"github.com/google/uuid"
@@ -35,7 +36,7 @@ type MediaFile struct {
 
 func (MediaFile) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "mediafile"},
+		entsql.Annotation{Table: "media_file"},
 	}
 }
 
@@ -69,13 +70,22 @@ func (MediaFile) Fields() []ent.Field {
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()
 		}),
-		field.Time("updated_at").Default(func() time.Time {
-			return time.Now()
-		}),
+		field.Time("updated_at").
+			Default(func() time.Time {
+				return time.Now()
+			}).
+			UpdateDefault(func() time.Time {
+				return time.Now()
+			}),
 	}
 }
 
 // Edges of the MediaFile.
 func (MediaFile) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("media", Media.Type).
+			Ref("files").
+			Required().
+			Unique(),
+	}
 }

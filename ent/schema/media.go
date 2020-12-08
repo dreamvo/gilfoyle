@@ -4,6 +4,7 @@ import (
 	"github.com/facebook/ent"
 	"github.com/facebook/ent/dialect/entsql"
 	"github.com/facebook/ent/schema"
+	"github.com/facebook/ent/schema/edge"
 	"github.com/facebook/ent/schema/field"
 	"github.com/facebook/ent/schema/index"
 	"github.com/google/uuid"
@@ -51,13 +52,20 @@ func (Media) Fields() []ent.Field {
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()
 		}),
-		field.Time("updated_at").Default(func() time.Time {
-			return time.Now()
-		}),
+		field.Time("updated_at").
+			Default(func() time.Time {
+				return time.Now()
+			}).
+			UpdateDefault(func() time.Time {
+				return time.Now()
+			}),
 	}
 }
 
 // Edges of the Media.
 func (Media) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("files", MediaFile.Type).
+			StorageKey(edge.Column("media")),
+	}
 }

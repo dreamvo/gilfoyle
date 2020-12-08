@@ -41,6 +41,9 @@ type MediaMutation struct {
 	created_at    *time.Time
 	updated_at    *time.Time
 	clearedFields map[string]struct{}
+	files         map[uuid.UUID]struct{}
+	removedfiles  map[uuid.UUID]struct{}
+	clearedfiles  bool
 	done          bool
 	oldValue      func(context.Context) (*Media, error)
 	predicates    []predicate.Media
@@ -279,6 +282,59 @@ func (m *MediaMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// AddFileIDs adds the files edge to MediaFile by ids.
+func (m *MediaMutation) AddFileIDs(ids ...uuid.UUID) {
+	if m.files == nil {
+		m.files = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.files[ids[i]] = struct{}{}
+	}
+}
+
+// ClearFiles clears the files edge to MediaFile.
+func (m *MediaMutation) ClearFiles() {
+	m.clearedfiles = true
+}
+
+// FilesCleared returns if the edge files was cleared.
+func (m *MediaMutation) FilesCleared() bool {
+	return m.clearedfiles
+}
+
+// RemoveFileIDs removes the files edge to MediaFile by ids.
+func (m *MediaMutation) RemoveFileIDs(ids ...uuid.UUID) {
+	if m.removedfiles == nil {
+		m.removedfiles = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.removedfiles[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedFiles returns the removed ids of files.
+func (m *MediaMutation) RemovedFilesIDs() (ids []uuid.UUID) {
+	for id := range m.removedfiles {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// FilesIDs returns the files ids in the mutation.
+func (m *MediaMutation) FilesIDs() (ids []uuid.UUID) {
+	for id := range m.files {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetFiles reset all changes of the "files" edge.
+func (m *MediaMutation) ResetFiles() {
+	m.files = nil
+	m.clearedfiles = false
+	m.removedfiles = nil
+}
+
 // Op returns the operation name.
 func (m *MediaMutation) Op() Op {
 	return m.op
@@ -445,45 +501,76 @@ func (m *MediaMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *MediaMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.files != nil {
+		edges = append(edges, media.EdgeFiles)
+	}
 	return edges
 }
 
 // AddedIDs returns all ids (to other nodes) that were added for
 // the given edge name.
 func (m *MediaMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case media.EdgeFiles:
+		ids := make([]ent.Value, 0, len(m.files))
+		for id := range m.files {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *MediaMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.removedfiles != nil {
+		edges = append(edges, media.EdgeFiles)
+	}
 	return edges
 }
 
 // RemovedIDs returns all ids (to other nodes) that were removed for
 // the given edge name.
 func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case media.EdgeFiles:
+		ids := make([]ent.Value, 0, len(m.removedfiles))
+		for id := range m.removedfiles {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *MediaMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedfiles {
+		edges = append(edges, media.EdgeFiles)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean indicates if this edge was
 // cleared in this mutation.
 func (m *MediaMutation) EdgeCleared(name string) bool {
+	switch name {
+	case media.EdgeFiles:
+		return m.clearedfiles
+	}
 	return false
 }
 
 // ClearEdge clears the value for the given name. It returns an
 // error if the edge name is not defined in the schema.
 func (m *MediaMutation) ClearEdge(name string) error {
+	switch name {
+	}
 	return fmt.Errorf("unknown Media unique edge %s", name)
 }
 
@@ -491,6 +578,11 @@ func (m *MediaMutation) ClearEdge(name string) error {
 // given edge name. It returns an error if the edge is not
 // defined in the schema.
 func (m *MediaMutation) ResetEdge(name string) error {
+	switch name {
+	case media.EdgeFiles:
+		m.ResetFiles()
+		return nil
+	}
 	return fmt.Errorf("unknown Media edge %s", name)
 }
 
@@ -514,6 +606,8 @@ type MediaFileMutation struct {
 	created_at          *time.Time
 	updated_at          *time.Time
 	clearedFields       map[string]struct{}
+	media               *uuid.UUID
+	clearedmedia        bool
 	done                bool
 	oldValue            func(context.Context) (*MediaFile, error)
 	predicates          []predicate.MediaFile
@@ -980,6 +1074,45 @@ func (m *MediaFileMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetMediaID sets the media edge to Media by id.
+func (m *MediaFileMutation) SetMediaID(id uuid.UUID) {
+	m.media = &id
+}
+
+// ClearMedia clears the media edge to Media.
+func (m *MediaFileMutation) ClearMedia() {
+	m.clearedmedia = true
+}
+
+// MediaCleared returns if the edge media was cleared.
+func (m *MediaFileMutation) MediaCleared() bool {
+	return m.clearedmedia
+}
+
+// MediaID returns the media id in the mutation.
+func (m *MediaFileMutation) MediaID() (id uuid.UUID, exists bool) {
+	if m.media != nil {
+		return *m.media, true
+	}
+	return
+}
+
+// MediaIDs returns the media ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// MediaID instead. It exists only for internal usage by the builders.
+func (m *MediaFileMutation) MediaIDs() (ids []uuid.UUID) {
+	if id := m.media; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMedia reset all changes of the "media" edge.
+func (m *MediaFileMutation) ResetMedia() {
+	m.media = nil
+	m.clearedmedia = false
+}
+
 // Op returns the operation name.
 func (m *MediaFileMutation) Op() Op {
 	return m.op
@@ -1265,45 +1398,68 @@ func (m *MediaFileMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *MediaFileMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.media != nil {
+		edges = append(edges, mediafile.EdgeMedia)
+	}
 	return edges
 }
 
 // AddedIDs returns all ids (to other nodes) that were added for
 // the given edge name.
 func (m *MediaFileMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case mediafile.EdgeMedia:
+		if id := m.media; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *MediaFileMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all ids (to other nodes) that were removed for
 // the given edge name.
 func (m *MediaFileMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *MediaFileMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.clearedmedia {
+		edges = append(edges, mediafile.EdgeMedia)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean indicates if this edge was
 // cleared in this mutation.
 func (m *MediaFileMutation) EdgeCleared(name string) bool {
+	switch name {
+	case mediafile.EdgeMedia:
+		return m.clearedmedia
+	}
 	return false
 }
 
 // ClearEdge clears the value for the given name. It returns an
 // error if the edge name is not defined in the schema.
 func (m *MediaFileMutation) ClearEdge(name string) error {
+	switch name {
+	case mediafile.EdgeMedia:
+		m.ClearMedia()
+		return nil
+	}
 	return fmt.Errorf("unknown MediaFile unique edge %s", name)
 }
 
@@ -1311,5 +1467,10 @@ func (m *MediaFileMutation) ClearEdge(name string) error {
 // given edge name. It returns an error if the edge is not
 // defined in the schema.
 func (m *MediaFileMutation) ResetEdge(name string) error {
+	switch name {
+	case mediafile.EdgeMedia:
+		m.ResetMedia()
+		return nil
+	}
 	return fmt.Errorf("unknown MediaFile edge %s", name)
 }

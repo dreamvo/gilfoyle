@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // MediaUpdate is the builder for updating Media entities.
@@ -59,17 +61,45 @@ func (mu *MediaUpdate) SetUpdatedAt(t time.Time) *MediaUpdate {
 	return mu
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (mu *MediaUpdate) SetNillableUpdatedAt(t *time.Time) *MediaUpdate {
-	if t != nil {
-		mu.SetUpdatedAt(*t)
-	}
+// AddFileIDs adds the files edge to MediaFile by ids.
+func (mu *MediaUpdate) AddFileIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.AddFileIDs(ids...)
 	return mu
+}
+
+// AddFiles adds the files edges to MediaFile.
+func (mu *MediaUpdate) AddFiles(m ...*MediaFile) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.AddFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
+}
+
+// ClearFiles clears all "files" edges to type MediaFile.
+func (mu *MediaUpdate) ClearFiles() *MediaUpdate {
+	mu.mutation.ClearFiles()
+	return mu
+}
+
+// RemoveFileIDs removes the files edge to MediaFile by ids.
+func (mu *MediaUpdate) RemoveFileIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.RemoveFileIDs(ids...)
+	return mu
+}
+
+// RemoveFiles removes files edges to MediaFile.
+func (mu *MediaUpdate) RemoveFiles(m ...*MediaFile) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.RemoveFileIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -78,6 +108,7 @@ func (mu *MediaUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	mu.defaults()
 	if len(mu.hooks) == 0 {
 		if err = mu.check(); err != nil {
 			return 0, err
@@ -126,6 +157,14 @@ func (mu *MediaUpdate) Exec(ctx context.Context) error {
 func (mu *MediaUpdate) ExecX(ctx context.Context) {
 	if err := mu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (mu *MediaUpdate) defaults() {
+	if _, ok := mu.mutation.UpdatedAt(); !ok {
+		v := media.UpdateDefaultUpdatedAt()
+		mu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -190,6 +229,60 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: media.FieldUpdatedAt,
 		})
 	}
+	if mu.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedFilesIDs(); len(nodes) > 0 && !mu.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -240,17 +333,45 @@ func (muo *MediaUpdateOne) SetUpdatedAt(t time.Time) *MediaUpdateOne {
 	return muo
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
-func (muo *MediaUpdateOne) SetNillableUpdatedAt(t *time.Time) *MediaUpdateOne {
-	if t != nil {
-		muo.SetUpdatedAt(*t)
-	}
+// AddFileIDs adds the files edge to MediaFile by ids.
+func (muo *MediaUpdateOne) AddFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.AddFileIDs(ids...)
 	return muo
+}
+
+// AddFiles adds the files edges to MediaFile.
+func (muo *MediaUpdateOne) AddFiles(m ...*MediaFile) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.AddFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
+}
+
+// ClearFiles clears all "files" edges to type MediaFile.
+func (muo *MediaUpdateOne) ClearFiles() *MediaUpdateOne {
+	muo.mutation.ClearFiles()
+	return muo
+}
+
+// RemoveFileIDs removes the files edge to MediaFile by ids.
+func (muo *MediaUpdateOne) RemoveFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.RemoveFileIDs(ids...)
+	return muo
+}
+
+// RemoveFiles removes files edges to MediaFile.
+func (muo *MediaUpdateOne) RemoveFiles(m ...*MediaFile) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.RemoveFileIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -259,6 +380,7 @@ func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
 		err  error
 		node *Media
 	)
+	muo.defaults()
 	if len(muo.hooks) == 0 {
 		if err = muo.check(); err != nil {
 			return nil, err
@@ -307,6 +429,14 @@ func (muo *MediaUpdateOne) Exec(ctx context.Context) error {
 func (muo *MediaUpdateOne) ExecX(ctx context.Context) {
 	if err := muo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (muo *MediaUpdateOne) defaults() {
+	if _, ok := muo.mutation.UpdatedAt(); !ok {
+		v := media.UpdateDefaultUpdatedAt()
+		muo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -368,6 +498,60 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Value:  value,
 			Column: media.FieldUpdatedAt,
 		})
+	}
+	if muo.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedFilesIDs(); len(nodes) > 0 && !muo.mutation.FilesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Media{config: muo.config}
 	_spec.Assign = _node.assignValues

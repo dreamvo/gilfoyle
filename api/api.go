@@ -7,6 +7,7 @@ import (
 	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
@@ -149,4 +150,12 @@ func paginateHandler(ctx *gin.Context) {
 	ctx.Set("limit", int(limitInt))
 	ctx.Set("offset", int(offsetInt))
 	ctx.Next()
+}
+
+func rollbackWithError(ctx *gin.Context, tx *ent.Tx, statusCode int, err error) {
+	if txErr := tx.Rollback(); txErr != nil {
+		util.NewError(ctx, statusCode, txErr)
+	}
+
+	util.NewError(ctx, statusCode, err)
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 	"github.com/google/uuid"
@@ -65,6 +66,21 @@ func (mc *MediaCreate) SetNillableUpdatedAt(t *time.Time) *MediaCreate {
 func (mc *MediaCreate) SetID(u uuid.UUID) *MediaCreate {
 	mc.mutation.SetID(u)
 	return mc
+}
+
+// AddFileIDs adds the files edge to MediaFile by ids.
+func (mc *MediaCreate) AddFileIDs(ids ...uuid.UUID) *MediaCreate {
+	mc.mutation.AddFileIDs(ids...)
+	return mc
+}
+
+// AddFiles adds the files edges to MediaFile.
+func (mc *MediaCreate) AddFiles(m ...*MediaFile) *MediaCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mc.AddFileIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -217,6 +233,25 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Column: media.FieldUpdatedAt,
 		})
 		_node.UpdatedAt = value
+	}
+	if nodes := mc.mutation.FilesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.FilesTable,
+			Columns: []string{media.FilesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

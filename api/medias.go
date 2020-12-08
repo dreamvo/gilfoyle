@@ -183,13 +183,13 @@ func updateMedia(ctx *gin.Context) {
 		return
 	}
 
-	v, _ := db.Client.Media.Get(context.Background(), parsedUUID)
-	if v == nil {
+	m, _ := db.Client.Media.Get(context.Background(), parsedUUID)
+	if m == nil {
 		util.NewError(ctx, http.StatusNotFound, errors.New(ErrResourceNotFound))
 		return
 	}
 
-	v, err = db.Client.Media.
+	m, err = db.Client.Media.
 		UpdateOneID(parsedUUID).
 		SetTitle(body.Title).
 		Save(context.Background())
@@ -202,5 +202,5 @@ func updateMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, v)
+	util.NewData(ctx, http.StatusOK, m)
 }

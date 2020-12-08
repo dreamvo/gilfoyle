@@ -66,6 +66,7 @@ func uploadMediaFile(ctx *gin.Context) {
 	}
 
 	path := fmt.Sprintf("%s/%s", parsedUUID.String(), "original")
+
 	if m.Status != media.StatusAwaitingUpload {
 		util.NewError(ctx, http.StatusBadRequest, errors.New("a file already exists for this media"))
 		return
@@ -115,12 +116,18 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	_, err = db.Client.Media.
+	tx, err := db.Client.Tx(context.Background())
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	_, err = tx.Media.
 		UpdateOneID(m.ID).
 		SetStatus(media.StatusProcessing).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
-		util.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
+		rollbackWithError(ctx, tx, http.StatusBadRequest, errors.Unwrap(err))
 		return
 	}
 	if err != nil {
@@ -140,7 +147,8 @@ func uploadMediaFile(ctx *gin.Context) {
 		return
 	}
 
-	_, err = db.Client.MediaFile.Create().
+	_, err = tx.MediaFile.Create().
+		SetMedia(m).
 		SetVideoBitrate(bitrate).
 		SetEncoderPreset(schema.MediaFileEncoderPresetSource).
 		SetDurationSeconds(data.Format.DurationSeconds).
@@ -149,11 +157,17 @@ func uploadMediaFile(ctx *gin.Context) {
 		SetMediaType(schema.MediaFileTypeVideo).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
-		util.NewError(ctx, http.StatusBadRequest, errors.Unwrap(err))
+		rollbackWithError(ctx, tx, http.StatusBadRequest, errors.Unwrap(err))
 		return
 	}
 	if err != nil {
-		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
+		rollbackWithError(ctx, tx, http.StatusInternalServerError, errors.Unwrap(err))
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 

@@ -23,8 +23,18 @@ const (
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
 
+	// EdgeFiles holds the string denoting the files edge name in mutations.
+	EdgeFiles = "files"
+
 	// Table holds the table name of the media in the database.
 	Table = "media"
+	// FilesTable is the table the holds the files relation/edge.
+	FilesTable = "media_file"
+	// FilesInverseTable is the table name for the MediaFile entity.
+	// It exists in this package in order to avoid circular dependency with the "mediafile" package.
+	FilesInverseTable = "media_file"
+	// FilesColumn is the table column denoting the files relation/edge.
+	FilesColumn = "media"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -53,6 +63,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultID holds the default value on creation for the id field.
 	DefaultID func() uuid.UUID
 )

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -89,6 +90,17 @@ func (mfc *MediaFileCreate) SetNillableUpdatedAt(t *time.Time) *MediaFileCreate 
 func (mfc *MediaFileCreate) SetID(u uuid.UUID) *MediaFileCreate {
 	mfc.mutation.SetID(u)
 	return mfc
+}
+
+// SetMediaID sets the media edge to Media by id.
+func (mfc *MediaFileCreate) SetMediaID(id uuid.UUID) *MediaFileCreate {
+	mfc.mutation.SetMediaID(id)
+	return mfc
+}
+
+// SetMedia sets the media edge to Media.
+func (mfc *MediaFileCreate) SetMedia(m *Media) *MediaFileCreate {
+	return mfc.SetMediaID(m.ID)
 }
 
 // Mutation returns the MediaFileMutation object of the builder.
@@ -213,6 +225,9 @@ func (mfc *MediaFileCreate) check() error {
 	if _, ok := mfc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New("ent: missing required field \"updated_at\"")}
 	}
+	if _, ok := mfc.mutation.MediaID(); !ok {
+		return &ValidationError{Name: "media", err: errors.New("ent: missing required edge \"media\"")}
+	}
 	return nil
 }
 
@@ -305,6 +320,25 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 			Column: mediafile.FieldUpdatedAt,
 		})
 		_node.UpdatedAt = value
+	}
+	if nodes := mfc.mutation.MediaIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   mediafile.MediaTable,
+			Columns: []string{mediafile.MediaColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: media.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

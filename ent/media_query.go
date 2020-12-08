@@ -4,11 +4,13 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
@@ -24,6 +26,8 @@ type MediaQuery struct {
 	order      []OrderFunc
 	unique     []string
 	predicates []predicate.Media
+	// eager-loading edges.
+	withFiles *MediaFileQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -51,6 +55,28 @@ func (mq *MediaQuery) Offset(offset int) *MediaQuery {
 func (mq *MediaQuery) Order(o ...OrderFunc) *MediaQuery {
 	mq.order = append(mq.order, o...)
 	return mq
+}
+
+// QueryFiles chains the current query on the files edge.
+func (mq *MediaQuery) QueryFiles() *MediaFileQuery {
+	query := &MediaFileQuery{config: mq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, selector),
+			sqlgraph.To(mediafile.Table, mediafile.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.FilesTable, media.FilesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Media entity in the query. Returns *NotFoundError when no media was found.
@@ -229,10 +255,22 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		order:      append([]OrderFunc{}, mq.order...),
 		unique:     append([]string{}, mq.unique...),
 		predicates: append([]predicate.Media{}, mq.predicates...),
+		withFiles:  mq.withFiles.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
 	}
+}
+
+//  WithFiles tells the query-builder to eager-loads the nodes that are connected to
+// the "files" edge. The optional arguments used to configure the query builder of the edge.
+func (mq *MediaQuery) WithFiles(opts ...func(*MediaFileQuery)) *MediaQuery {
+	query := &MediaFileQuery{config: mq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withFiles = query
+	return mq
 }
 
 // GroupBy used to group vertices by one or more fields/columns.
@@ -299,8 +337,11 @@ func (mq *MediaQuery) prepareQuery(ctx context.Context) error {
 
 func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 	var (
-		nodes = []*Media{}
-		_spec = mq.querySpec()
+		nodes       = []*Media{}
+		_spec       = mq.querySpec()
+		loadedTypes = [1]bool{
+			mq.withFiles != nil,
+		}
 	)
 	_spec.ScanValues = func() []interface{} {
 		node := &Media{config: mq.config}
@@ -313,6 +354,7 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(values...)
 	}
 	if err := sqlgraph.QueryNodes(ctx, mq.driver, _spec); err != nil {
@@ -321,6 +363,36 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := mq.withFiles; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[uuid.UUID]*Media)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Files = []*MediaFile{}
+		}
+		query.withFKs = true
+		query.Where(predicate.MediaFile(func(s *sql.Selector) {
+			s.Where(sql.InValues(media.FilesColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.media
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "media" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "media" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Files = append(node.Edges.Files, n)
+		}
+	}
+
 	return nodes, nil
 }
 

@@ -25,6 +25,27 @@ type Media struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the MediaQuery when eager-loading is set.
+	Edges MediaEdges `json:"edges"`
+}
+
+// MediaEdges holds the relations/edges for other nodes in the graph.
+type MediaEdges struct {
+	// Files holds the value of the files edge.
+	Files []*MediaFile
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// FilesOrErr returns the Files value or an error if the edge
+// was not loaded in eager-loading.
+func (e MediaEdges) FilesOrErr() ([]*MediaFile, error) {
+	if e.loadedTypes[0] {
+		return e.Files, nil
+	}
+	return nil, &NotLoadedError{edge: "files"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -71,6 +92,11 @@ func (m *Media) assignValues(values ...interface{}) error {
 		m.UpdatedAt = value.Time
 	}
 	return nil
+}
+
+// QueryFiles queries the files edge of the Media.
+func (m *Media) QueryFiles() *MediaFileQuery {
+	return (&MediaClient{config: m.config}).QueryFiles(m)
 }
 
 // Update returns a builder for updating this Media.

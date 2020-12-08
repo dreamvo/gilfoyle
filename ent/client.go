@@ -15,6 +15,7 @@ import (
 
 	"github.com/facebook/ent/dialect"
 	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -207,6 +208,22 @@ func (c *MediaClient) GetX(ctx context.Context, id uuid.UUID) *Media {
 	return obj
 }
 
+// QueryFiles queries the files edge of a Media.
+func (c *MediaClient) QueryFiles(m *Media) *MediaFileQuery {
+	query := &MediaFileQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(mediafile.Table, mediafile.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.FilesTable, media.FilesColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MediaClient) Hooks() []Hook {
 	return c.hooks.Media
@@ -293,6 +310,22 @@ func (c *MediaFileClient) GetX(ctx context.Context, id uuid.UUID) *MediaFile {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryMedia queries the media edge of a MediaFile.
+func (c *MediaFileClient) QueryMedia(mf *MediaFile) *MediaQuery {
+	query := &MediaQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := mf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mediafile.Table, mediafile.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mediafile.MediaTable, mediafile.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(mf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
