@@ -22,4 +22,4 @@ coverage.*
 config.yml
 
 data
-/logs
+**/logs
