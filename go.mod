@@ -13,7 +13,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/configor v1.2.1
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lib/pq v1.8.0
+	github.com/lib/pq v1.9.0
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-sqlite3 v1.14.5
