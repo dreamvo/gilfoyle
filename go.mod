@@ -16,7 +16,7 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/martian v2.1.1-0.20190517191504-25dcb96d9e51+incompatible // indirect
 	github.com/google/uuid v1.1.2
-	github.com/jinzhu/configor v1.2.0
+	github.com/jinzhu/configor v1.2.1
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.8.0
 	github.com/mailru/easyjson v0.7.3 // indirect
