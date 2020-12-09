@@ -3,8 +3,10 @@ package gilfoyle
 import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/worker"
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"time"
 )
 
 func init() {
@@ -50,17 +52,15 @@ var workerCmd = &cobra.Command{
 		}
 		defer ch.Close()
 
-		//time.Sleep(2 * time.Second)
-		//err = ch.Publish("", worker.VideoTranscodingQueue, false, false, amqp.Publishing{
-		//	DeliveryMode: amqp.Persistent,
-		//	ContentType:  "text/plain",
-		//	Body:         []byte("hello!!!"),
-		//})
-		//if err != nil {
-		//	logger.Error("Failed to publish a message", zap.Error(err))
-		//}
+		time.Sleep(3 * time.Second)
+		err = worker.ProduceVideoTranscodingQueue(ch, worker.VideoTranscodingParams{
+			MediaUUID: uuid.New(),
+		})
+		if err != nil {
+			logger.Error("Failed to publish a message", zap.Error(err))
+		}
 
-		logger.Info("Worker is now ready to handle incoming jobs")
+		logger.Info("Worker is now ready to handle incoming messages")
 
 		<-forever
 	},
