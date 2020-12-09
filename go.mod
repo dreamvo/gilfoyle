@@ -22,7 +22,7 @@ require (
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-sqlite3 v1.14.5
-	github.com/minio/minio-go/v7 v7.0.5
+	github.com/minio/minio-go/v7 v7.0.6
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/spf13/cobra v1.1.1
