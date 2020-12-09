@@ -74,6 +74,17 @@ var serveCmd = &cobra.Command{
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}
 
+		w, err := gilfoyle.NewWorker()
+		if err != nil {
+			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
+		}
+		defer w.Close()
+
+		err = w.Init()
+		if err != nil {
+			logger.Fatal("Failed to initialize worker queues", zap.Error(err))
+		}
+
 		router := api.NewServer()
 
 		// Launch web server

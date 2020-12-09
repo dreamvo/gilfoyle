@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"sync"
 )
 
 const (
@@ -61,6 +62,7 @@ type Options struct {
 }
 
 type Worker struct {
+	m      *sync.RWMutex
 	Queues map[string]amqp.Queue
 	Logger *zap.Logger
 	Client *amqp.Connection
@@ -82,6 +84,7 @@ func New(opts Options) (*Worker, error) {
 		Queues: map[string]amqp.Queue{},
 		Client: conn,
 		Logger: opts.Logger,
+		m:      &sync.RWMutex{},
 	}, nil
 }
 

@@ -2,11 +2,8 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle"
-	"github.com/dreamvo/gilfoyle/worker"
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"time"
 )
 
 func init() {
@@ -17,7 +14,7 @@ func init() {
 var workerCmd = &cobra.Command{
 	Use:     "worker",
 	Short:   "Launch a background task worker node",
-	Long:    "Multiple worker nodes compose a worker pool. We usually recommend to launch a minimum of 2 worker nodes to ensure fail over.",
+	Long:    "Multiple worker nodes represent a worker pool. We usually recommend to launch a minimum of 2 worker nodes to ensure fail over.",
 	Example: "gilfoyle worker",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := gilfoyle.Logger
@@ -25,13 +22,7 @@ var workerCmd = &cobra.Command{
 		logger.Info("Initializing worker node")
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
 
-		w, err := worker.New(worker.Options{
-			Host:     gilfoyle.Config.Services.RabbitMQ.Host,
-			Port:     gilfoyle.Config.Services.RabbitMQ.Port,
-			Username: gilfoyle.Config.Services.RabbitMQ.Username,
-			Password: gilfoyle.Config.Services.RabbitMQ.Password,
-			Logger:   logger,
-		})
+		w, err := gilfoyle.NewWorker()
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
 		}
@@ -45,20 +36,6 @@ var workerCmd = &cobra.Command{
 		}
 
 		w.Consume()
-
-		ch, err := w.Client.Channel()
-		if err != nil {
-			logger.Fatal("Failed to create message queue channel", zap.Error(err))
-		}
-		defer ch.Close()
-
-		time.Sleep(3 * time.Second)
-		err = worker.ProduceVideoTranscodingQueue(ch, worker.VideoTranscodingParams{
-			MediaUUID: uuid.New(),
-		})
-		if err != nil {
-			logger.Error("Failed to publish a message", zap.Error(err))
-		}
 
 		logger.Info("Worker is now ready to handle incoming messages")
 

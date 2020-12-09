@@ -7,10 +7,11 @@ import (
 )
 
 type VideoTranscodingParams struct {
-	MediaUUID uuid.UUID
+	MediaUUID      uuid.UUID
+	SourceFilePath string
 }
 
-func ProduceVideoTranscodingQueue(ch *amqp.Channel, data VideoTranscodingParams) error {
+func ProduceVideoTranscodingQueue(ch *amqp.Channel, data *VideoTranscodingParams) error {
 	body, err := json.Marshal(data)
 	if err != nil {
 		return err

@@ -12,6 +12,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
+	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gopkg.in/vansante/go-ffprobe.v2"
@@ -65,8 +66,6 @@ func uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.SourceFileName)
-
 	if m.Status != media.StatusAwaitingUpload {
 		util.NewError(ctx, http.StatusBadRequest, errors.New("a file already exists for this media"))
 		return
@@ -110,6 +109,8 @@ func uploadVideoFile(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error opening temporary file: %s", err))
 		return
 	}
+
+	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.SourceFileName)
 
 	if err = gilfoyle.Storage.Save(ctx, f, path); err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error saving uploaded file: %s", err))
@@ -171,6 +172,21 @@ func uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
+	ch, err := gilfoyle.Worker.Client.Channel()
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	err = worker.ProduceVideoTranscodingQueue(ch, &worker.VideoTranscodingParams{
+		MediaUUID:      m.ID,
+		SourceFilePath: path,
+	})
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
 	util.NewData(ctx, http.StatusOK, FileFormat{
 		Filename:         data.Format.Filename,
 		NBStreams:        data.Format.NBStreams,
@@ -183,8 +199,6 @@ func uploadVideoFile(ctx *gin.Context) {
 		BitRate:          data.Format.BitRate,
 		ProbeScore:       data.Format.ProbeScore,
 	})
-
-	// TODO(sundowndev): start background job(s) here
 }
 
 // @ID uploadAudio
