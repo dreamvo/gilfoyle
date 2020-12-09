@@ -14,7 +14,8 @@ func init() {
 
 var workerCmd = &cobra.Command{
 	Use:     "worker",
-	Short:   "Launch background task worker",
+	Short:   "Launch a background task worker node",
+	Long:    "Multiple worker nodes compose a worker pool. We usually recommend to launch a minimum of 2 worker nodes to ensure fail over.",
 	Example: "gilfoyle worker",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := gilfoyle.Logger
@@ -34,6 +35,33 @@ var workerCmd = &cobra.Command{
 		}
 		defer w.Close()
 
-		w.Init()
+		forever := make(chan bool)
+
+		err = w.Init()
+		if err != nil {
+			logger.Fatal("Failed to initialize worker queues", zap.Error(err))
+		}
+
+		w.Consume()
+
+		ch, err := w.Client.Channel()
+		if err != nil {
+			logger.Fatal("Failed to create message queue channel", zap.Error(err))
+		}
+		defer ch.Close()
+
+		//time.Sleep(2 * time.Second)
+		//err = ch.Publish("", worker.VideoTranscodingQueue, false, false, amqp.Publishing{
+		//	DeliveryMode: amqp.Persistent,
+		//	ContentType:  "text/plain",
+		//	Body:         []byte("hello!!!"),
+		//})
+		//if err != nil {
+		//	logger.Error("Failed to publish a message", zap.Error(err))
+		//}
+
+		logger.Info("Worker is now ready to handle incoming jobs")
+
+		<-forever
 	},
 }
