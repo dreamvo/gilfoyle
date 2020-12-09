@@ -24,11 +24,11 @@ func TestConfig(t *testing.T) {
 					Password: "",
 					Database: "gilfoyle",
 				},
-				Redis: config.RedisConfig{
+				RabbitMQ: config.RabbitMQConfig{
 					Host:     "localhost",
-					Database: "0",
-					Port:     "6379",
-					Password: "",
+					Username: "guest",
+					Port:     5672,
+					Password: "guest",
 				},
 			},
 			Settings: config.SettingsConfig{
@@ -69,10 +69,10 @@ func TestConfig(t *testing.T) {
 		_ = os.Setenv("DB_PASSWORD", "password")
 		_ = os.Setenv("DB_NAME", "database")
 
-		_ = os.Setenv("REDIS_HOST", "redis_host")
-		_ = os.Setenv("REDIS_DB", "redis_db")
-		_ = os.Setenv("REDIS_PORT", "redis_port")
-		_ = os.Setenv("REDIS_PASSWORD", "redis_pass")
+		_ = os.Setenv("RABBITMQ_HOST", "rabbitmq_host")
+		_ = os.Setenv("RABBITMQ_USER", "rabbitmq_user")
+		_ = os.Setenv("RABBITMQ_PORT", "5555")
+		_ = os.Setenv("RABBITMQ_PASSWORD", "rabbitmq_pass")
 
 		_ = os.Setenv("IPFS_GATEWAY", "ipfs_gateway")
 
@@ -86,10 +86,10 @@ func TestConfig(t *testing.T) {
 		assert.Equal("database", Config.Services.DB.Database)
 		assert.Equal("password", Config.Services.DB.Password)
 
-		assert.Equal("redis_db", Config.Services.Redis.Database)
-		assert.Equal("redis_pass", Config.Services.Redis.Password)
-		assert.Equal("redis_port", Config.Services.Redis.Port)
-		assert.Equal("redis_host", Config.Services.Redis.Host)
+		assert.Equal("rabbitmq_user", Config.Services.RabbitMQ.Username)
+		assert.Equal("rabbitmq_pass", Config.Services.RabbitMQ.Password)
+		assert.Equal(int16(5555), Config.Services.RabbitMQ.Port)
+		assert.Equal("rabbitmq_host", Config.Services.RabbitMQ.Host)
 
 		assert.Equal("ipfs_gateway", Config.Storage.IPFS.Gateway)
 	})

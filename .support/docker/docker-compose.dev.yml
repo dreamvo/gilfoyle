@@ -1,18 +1,6 @@
 version: '3.7'
 
 services:
-  gilfoyle:
-    restart: on-failure
-    build:
-      context: ../../
-      dockerfile: ../docker/Dockerfile
-    command:
-      - "serve"
-      - "-p"
-      - "3000"
-    ports:
-      - 3000:3000
-
   db:
     image: postgres:latest
     restart: on-failure
@@ -28,3 +16,12 @@ services:
     restart: on-failure
     ports:
       - 8080:8080
+
+  rabbitmq:
+    image: rabbitmq:alpine
+    restart: on-failure
+    environment:
+      RABBITMQ_DEFAULT_USER: gilfoyle
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - 5672:5672

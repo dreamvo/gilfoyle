@@ -2,6 +2,7 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle"
+	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -21,6 +22,18 @@ var workerCmd = &cobra.Command{
 		logger.Info("Initializing worker node")
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
 
-		logger.Fatal("Not implemented yet!")
+		w, err := worker.New(worker.Options{
+			Host:     gilfoyle.Config.Services.RabbitMQ.Host,
+			Port:     gilfoyle.Config.Services.RabbitMQ.Port,
+			Username: gilfoyle.Config.Services.RabbitMQ.Username,
+			Password: gilfoyle.Config.Services.RabbitMQ.Password,
+			Logger:   logger,
+		})
+		if err != nil {
+			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
+		}
+		defer w.Close()
+
+		w.Init()
 	},
 }

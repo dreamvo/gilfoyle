@@ -11,8 +11,8 @@ type Config struct {
 }
 
 type ServicesConfig struct {
-	DB    DatabaseConfig `yaml:"db" json:"db"`
-	Redis RedisConfig    `yaml:"redis" json:"redis"`
+	DB       DatabaseConfig `yaml:"db" json:"db"`
+	RabbitMQ RabbitMQConfig `yaml:"rabbitmq" json:"rabbitmq"`
 }
 
 type SettingsConfig struct {
@@ -62,9 +62,9 @@ type DatabaseConfig struct {
 	Database string `yaml:"db_name" json:"db_name" default:"gilfoyle" env:"DB_NAME"`
 }
 
-type RedisConfig struct {
-	Host     string `yaml:"host" json:"host" default:"localhost" env:"REDIS_HOST"`
-	Database string `yaml:"database" json:"database" default:"0" env:"REDIS_DB"`
-	Port     string `yaml:"port" json:"port" default:"6379" env:"REDIS_PORT"`
-	Password string `yaml:"password" json:"password" default:"" env:"REDIS_PASSWORD"`
+type RabbitMQConfig struct {
+	Host     string `yaml:"host" json:"host" default:"localhost" env:"RABBITMQ_HOST"`
+	Port     int16  `yaml:"port" json:"port" default:"5672" env:"RABBITMQ_PORT"`
+	Username string `yaml:"username" json:"username" default:"guest" env:"RABBITMQ_USER"`
+	Password string `yaml:"password" json:"password" default:"guest" env:"RABBITMQ_PASSWORD"`
 }
