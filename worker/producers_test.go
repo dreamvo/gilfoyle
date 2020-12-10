@@ -3,22 +3,12 @@ package worker
 import (
 	"encoding/json"
 	"errors"
+	"github.com/dreamvo/gilfoyle/worker/mocks"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"testing"
 )
-
-type MockedChannel struct {
-	mock.Mock
-}
-
-func (m *MockedChannel) Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
-	args := m.Called(exchange, key, mandatory, immediate, msg)
-	return args.Error(0)
-
-}
 
 func TestProducers(t *testing.T) {
 	t.Run("ProduceVideoTranscodingQueue", func(t *testing.T) {
@@ -31,7 +21,7 @@ func TestProducers(t *testing.T) {
 			body, err := json.Marshal(params)
 			assert.NoError(t, err)
 
-			ch := new(MockedChannel)
+			ch := new(mocks.MockedChannel)
 
 			ch.On("Publish", "", VideoTranscodingQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
@@ -54,7 +44,7 @@ func TestProducers(t *testing.T) {
 			body, err := json.Marshal(params)
 			assert.NoError(t, err)
 
-			ch := new(MockedChannel)
+			ch := new(mocks.MockedChannel)
 
 			ch.On("Publish", "", VideoTranscodingQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,

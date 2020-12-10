@@ -65,7 +65,7 @@ type DatabaseConfig struct {
 
 type RabbitMQConfig struct {
 	Host     string `yaml:"host" json:"host" default:"localhost" env:"RABBITMQ_HOST"`
-	Port     int16  `yaml:"port" json:"port" default:"5672" env:"RABBITMQ_PORT"`
+	Port     int    `yaml:"port" json:"port" default:"5672" env:"RABBITMQ_PORT"`
 	Username string `yaml:"username" json:"username" default:"guest" env:"RABBITMQ_USER"`
 	Password string `yaml:"password" json:"password" default:"guest" env:"RABBITMQ_PASSWORD"`
 }

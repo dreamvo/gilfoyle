@@ -5,7 +5,6 @@ import (
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
-	"sync"
 )
 
 const (
@@ -16,6 +15,8 @@ const (
 
 type Channel interface {
 	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
+	Consume(queue, consumer string, autoAck, exclusive, noLocal, noWait bool, args amqp.Table) (<-chan amqp.Delivery, error)
 }
 
 type Queue struct {
@@ -60,7 +61,7 @@ var queues = []Queue{
 
 type Options struct {
 	Host        string
-	Port        int16
+	Port        int
 	Username    string
 	Password    string
 	Logger      *zap.Logger
@@ -71,7 +72,6 @@ type Worker struct {
 	Queues      map[string]amqp.Queue
 	Logger      logging.ILogger
 	Client      *amqp.Connection
-	m           *sync.RWMutex
 	concurrency uint
 }
 
@@ -91,7 +91,6 @@ func New(opts Options) (*Worker, error) {
 		Queues:      map[string]amqp.Queue{},
 		Client:      conn,
 		Logger:      opts.Logger,
-		m:           &sync.RWMutex{},
 		concurrency: opts.Concurrency,
 	}, nil
 }
@@ -124,7 +123,7 @@ func (w *Worker) Init() error {
 func (w *Worker) Consume() error {
 	ch, err := w.Client.Channel()
 	if err != nil {
-		return fmt.Errorf("Error creating channel: %e", err)
+		return fmt.Errorf("error creating channel: %e", err)
 	}
 
 	for _, q := range queues {
@@ -138,7 +137,7 @@ func (w *Worker) Consume() error {
 			map[string]interface{}{},
 		)
 		if err != nil {
-			return fmt.Errorf("Error consuming %s queue: %e", q.Name, err)
+			return fmt.Errorf("error consuming %s queue: %e", q.Name, err)
 		}
 
 		for i := 0; i < int(w.concurrency); i++ {
