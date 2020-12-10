@@ -13,6 +13,10 @@ const (
 	PreviewGenerationQueue   string = "PreviewGeneration"
 )
 
+type Channel interface {
+	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
+}
+
 type Queue struct {
 	Name       string
 	Durable    bool
