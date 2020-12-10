@@ -35,6 +35,9 @@ func TestConfig(t *testing.T) {
 				ExposeSwaggerUI: true,
 				MaxFileSize:     524288000,
 				Debug:           false,
+				Worker: config.WorkerSettings{
+					Concurrency: 3,
+				},
 			},
 			Storage: config.StorageConfig{
 				Class: "fs",
@@ -88,7 +91,7 @@ func TestConfig(t *testing.T) {
 
 		assert.Equal("rabbitmq_user", Config.Services.RabbitMQ.Username)
 		assert.Equal("rabbitmq_pass", Config.Services.RabbitMQ.Password)
-		assert.Equal(int16(5555), Config.Services.RabbitMQ.Port)
+		assert.Equal(5555, Config.Services.RabbitMQ.Port)
 		assert.Equal("rabbitmq_host", Config.Services.RabbitMQ.Host)
 
 		assert.Equal("ipfs_gateway", Config.Storage.IPFS.Gateway)
