@@ -178,7 +178,7 @@ func uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	err = worker.ProduceVideoTranscodingQueue(ch, &worker.VideoTranscodingParams{
+	err = worker.ProduceVideoTranscodingQueue(ch, worker.VideoTranscodingParams{
 		MediaUUID:      m.ID,
 		SourceFilePath: path,
 	})
