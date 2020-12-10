@@ -45,7 +45,6 @@ jobs:
 
       - name: Report code coverage
         env:
-          GO111MODULE: off
           COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: go run github.com/mattn/goveralls -coverprofile=./c.out -service=github
 
