@@ -26,7 +26,7 @@ type Queue struct {
 var queues = []Queue{
 	{
 		Name:       VideoTranscodingQueue,
-		Durable:    false,
+		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
@@ -124,7 +124,7 @@ func (w *Worker) Consume() {
 		msgs, err := ch.Consume(
 			q.Name, // queue
 			"",     // consumer
-			true,   // auto-ack
+			false,  // auto-ack
 			false,  // exclusive
 			false,  // no-local
 			false,  // no-wait

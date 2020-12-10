@@ -13,8 +13,11 @@ func videoTranscodingQueueConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 		err := json.Unmarshal(d.Body, &body)
 		if err != nil {
 			w.Logger.Error("Unmarshal error", zap.Error(err))
+			return
 		}
 
 		w.Logger.Info("Received a message", zap.String("SourceFilePath", body.SourceFilePath))
+
+		d.Ack(false)
 	}
 }

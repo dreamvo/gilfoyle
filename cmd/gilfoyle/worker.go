@@ -35,9 +35,9 @@ var workerCmd = &cobra.Command{
 			logger.Fatal("Failed to initialize worker queues", zap.Error(err))
 		}
 
-		w.Consume()
-
 		logger.Info("Worker is now ready to handle incoming messages")
+
+		w.Consume()
 
 		<-forever
 	},
