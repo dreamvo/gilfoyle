@@ -3,6 +3,7 @@ package worker
 import (
 	"encoding/json"
 	"errors"
+	"github.com/dreamvo/gilfoyle/worker/mocks"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/mock"
@@ -10,44 +11,6 @@ import (
 	"testing"
 	"time"
 )
-
-type MockedLogger struct {
-	mock.Mock
-}
-
-func (m *MockedLogger) Error(msg string, fields ...zap.Field) {
-	m.Called(msg, fields)
-	return
-}
-
-func (m *MockedLogger) Info(msg string, fields ...zap.Field) {
-	m.Called(msg, fields)
-	return
-}
-
-func (m *MockedLogger) Fatal(msg string, fields ...zap.Field) {
-	m.Called(msg, fields)
-	return
-}
-
-type MockedAcknowledger struct {
-	mock.Mock
-}
-
-func (m *MockedAcknowledger) Ack(tag uint64, multiple bool) error {
-	args := m.Called(tag, multiple)
-	return args.Error(0)
-}
-
-func (m *MockedAcknowledger) Nack(tag uint64, multiple bool, requeue bool) error {
-	args := m.Called(tag, multiple, requeue)
-	return args.Error(0)
-}
-
-func (m *MockedAcknowledger) Reject(tag uint64, requeue bool) error {
-	args := m.Called(tag, requeue)
-	return args.Error(0)
-}
 
 func TestConsumers(t *testing.T) {
 	t.Run("videoTranscodingQueueConsumer", func(t *testing.T) {
@@ -59,8 +22,8 @@ func TestConsumers(t *testing.T) {
 
 			body, _ := json.Marshal(params)
 
-			loggerMock := new(MockedLogger)
-			AckMock := new(MockedAcknowledger)
+			loggerMock := new(mocks.MockedLogger)
+			AckMock := new(mocks.MockedAcknowledger)
 
 			w := &Worker{
 				Logger: loggerMock,
@@ -89,7 +52,7 @@ func TestConsumers(t *testing.T) {
 		})
 
 		t.Run("should fail to unmarshall json", func(t *testing.T) {
-			loggerMock := new(MockedLogger)
+			loggerMock := new(mocks.MockedLogger)
 
 			w := &Worker{
 				Logger: loggerMock,
@@ -119,8 +82,8 @@ func TestConsumers(t *testing.T) {
 
 			body, _ := json.Marshal(params)
 
-			loggerMock := new(MockedLogger)
-			AckMock := new(MockedAcknowledger)
+			loggerMock := new(mocks.MockedLogger)
+			AckMock := new(mocks.MockedAcknowledger)
 
 			w := &Worker{
 				Logger: loggerMock,
