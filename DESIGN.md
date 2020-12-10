@@ -83,8 +83,14 @@ Of course, this list can evolve over time with no warrancy.
   - [google/uuid](https://github.com/google/uuid)
   - [jinzhu/configor](https://github.com/jinzhu/configor)
   - [yaml.v2](https://github.com/go-yaml)
+  - [streadway/amqp](https://github.com/streadway/amqp)
+  - [go.uber.org/zap](https://go.uber.org/zap)
+  - [natefinch/lumberjack.v2](https://gopkg.in/natefinch/lumberjack.v2)
+  - [vansante/go-ffprobe.v2](https://gopkg.in/vansante/go-ffprobe.v2)
+  - [minio/minio-go/v7](https://github.com/minio/minio-go/v7)
+  - [go-playground/validator/v10](https://github.com/go-playground/validator/v10)
 - PostgreSQL
-- Redis
+- RabbitMQ
 - FFmpeg
 - FFprobe
 

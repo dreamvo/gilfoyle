@@ -3,13 +3,13 @@ module github.com/dreamvo/gilfoyle
 go 1.13
 
 require (
-	cloud.google.com/go/storage v1.10.0
+	cloud.google.com/go/storage v1.12.0
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/facebook/ent v0.5.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
-	github.com/go-playground/validator/v10 v10.4.0
+	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/uuid v1.1.2
 	github.com/jinzhu/configor v1.2.1
 	github.com/kr/text v0.2.0 // indirect
