@@ -40,9 +40,12 @@ jobs:
       - name: Test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: |
-          go test -race -coverprofile=coverage.txt -covermode=atomic -v -bench=. ./...
-          bash <(curl -s https://codecov.io/bash)
+        run: go test -race -coverprofile=coverage.out -covermode=atomic -v -bench=. ./...
+
+      - name: Upload coverage report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     name: Lint
