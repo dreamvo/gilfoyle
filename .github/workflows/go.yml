@@ -31,7 +31,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - name: Install ffmpeg
+      - name: Install FFmpeg
         run: sudo apt install ffmpeg -y
 
       - name: Check out code into the Go module directory
@@ -41,8 +41,14 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          go test -race -coverprofile=coverage.txt -covermode=atomic -v -bench=. ./...
-          bash <(curl -s https://codecov.io/bash)
+          mkdir ./coverage
+          go test -race -coverprofile=./c.out -covermode=atomic -v ./...
+          go run github.com/jandelgado/gcov2lcov -infile=c.out -outfile=coverage/lcov.info
+
+      - name: Upload coverage report
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   lint:
     name: Lint
