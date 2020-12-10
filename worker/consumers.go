@@ -18,9 +18,11 @@ func videoTranscodingQueueConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 		}
 
 		w.Logger.Info("Received a message", zap.String("SourceFilePath", body.SourceFilePath))
-
 		time.Sleep(2 * time.Second)
 
-		d.Ack(false)
+		err = d.Ack(false)
+		if err != nil {
+			w.Logger.Error("Error trying to Ack a message", zap.Error(err))
+		}
 	}
 }
