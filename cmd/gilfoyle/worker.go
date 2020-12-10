@@ -9,6 +9,8 @@ import (
 func init() {
 	// Register command
 	rootCmd.AddCommand(workerCmd)
+
+	workerCmd.PersistentFlags().UintVar(&gilfoyle.WorkerConcurrency, "concurrency", 3, "Number of concurrent messages this worker node can handle at the same time. Constraints: (1 <= n <= 1000). Concurrency N will produce N goroutines for each queue.")
 }
 
 var workerCmd = &cobra.Command{
@@ -37,7 +39,10 @@ var workerCmd = &cobra.Command{
 
 		logger.Info("Worker is now ready to handle incoming messages")
 
-		w.Consume()
+		err = w.Consume()
+		if err != nil {
+			logger.Fatal("Failed to start consuming worker queues", zap.Error(err))
+		}
 
 		<-forever
 	},

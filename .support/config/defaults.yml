@@ -14,6 +14,8 @@ settings:
   expose_swagger_ui: true
   max_file_size: 524288000
   debug: false
+  worker:
+    concurrency: 3
 storage:
   class: fs
   fs:

@@ -54,18 +54,20 @@ var queues = []Queue{
 }
 
 type Options struct {
-	Host     string
-	Port     int16
-	Username string
-	Password string
-	Logger   *zap.Logger
+	Host        string
+	Port        int16
+	Username    string
+	Password    string
+	Logger      *zap.Logger
+	Concurrency uint
 }
 
 type Worker struct {
-	m      *sync.RWMutex
-	Queues map[string]amqp.Queue
-	Logger *zap.Logger
-	Client *amqp.Connection
+	Queues      map[string]amqp.Queue
+	Logger      *zap.Logger
+	Client      *amqp.Connection
+	m           *sync.RWMutex
+	concurrency uint
 }
 
 func New(opts Options) (*Worker, error) {
@@ -81,10 +83,11 @@ func New(opts Options) (*Worker, error) {
 	}
 
 	return &Worker{
-		Queues: map[string]amqp.Queue{},
-		Client: conn,
-		Logger: opts.Logger,
-		m:      &sync.RWMutex{},
+		Queues:      map[string]amqp.Queue{},
+		Client:      conn,
+		Logger:      opts.Logger,
+		m:           &sync.RWMutex{},
+		concurrency: opts.Concurrency,
 	}, nil
 }
 
@@ -113,11 +116,10 @@ func (w *Worker) Init() error {
 	return nil
 }
 
-func (w *Worker) Consume() {
+func (w *Worker) Consume() error {
 	ch, err := w.Client.Channel()
 	if err != nil {
-		w.Logger.Fatal("Error creating channel", zap.Error(err))
-		return
+		return fmt.Errorf("Error creating channel: %e", err)
 	}
 
 	for _, q := range queues {
@@ -131,12 +133,15 @@ func (w *Worker) Consume() {
 			map[string]interface{}{},
 		)
 		if err != nil {
-			w.Logger.Sugar().Fatalf("Error consuming %s queue: %e", q.Name, err)
-			return
+			return fmt.Errorf("Error consuming %s queue: %e", q.Name, err)
 		}
 
-		go q.Handler(w, msgs)
+		for i := 0; i < int(w.concurrency); i++ {
+			go q.Handler(w, msgs)
+		}
 	}
+
+	return nil
 }
 
 func (w *Worker) Close() error {

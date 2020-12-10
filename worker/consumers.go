@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"time"
 )
 
 func videoTranscodingQueueConsumer(w *Worker, msgs <-chan amqp.Delivery) {
@@ -17,6 +18,8 @@ func videoTranscodingQueueConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 		}
 
 		w.Logger.Info("Received a message", zap.String("SourceFilePath", body.SourceFilePath))
+
+		time.Sleep(2 * time.Second)
 
 		d.Ack(false)
 	}
