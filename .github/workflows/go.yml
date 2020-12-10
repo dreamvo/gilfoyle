@@ -41,14 +41,13 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: |
-          mkdir ./coverage
           go test -race -coverprofile=./c.out -covermode=atomic -v ./...
-          go run github.com/jandelgado/gcov2lcov -infile=c.out -outfile=coverage/lcov.info
 
-      - name: Upload coverage report
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Report code coverage
+        env:
+          GO111MODULE: off
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: go run github.com/mattn/goveralls -coverprofile=./c.out -service=github
 
   lint:
     name: Lint
