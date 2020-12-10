@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 	"testing"
+	"time"
 )
 
 type MockedLogger struct {
@@ -81,6 +82,8 @@ func TestConsumers(t *testing.T) {
 
 			msgs <- delivery
 
+			time.Sleep(200 * time.Millisecond)
+
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
 		})
@@ -102,6 +105,8 @@ func TestConsumers(t *testing.T) {
 			go videoTranscodingQueueConsumer(w, msgs)
 
 			msgs <- delivery
+
+			time.Sleep(200 * time.Millisecond)
 
 			loggerMock.AssertExpectations(t)
 		})
@@ -138,6 +143,8 @@ func TestConsumers(t *testing.T) {
 			loggerMock.On("Error", "Error trying to send ack", mock.Anything).Return()
 
 			msgs <- delivery
+
+			time.Sleep(200 * time.Millisecond)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
