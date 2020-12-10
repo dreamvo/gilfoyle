@@ -2,6 +2,7 @@ package worker
 
 import (
 	"fmt"
+	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 	"sync"
@@ -68,7 +69,7 @@ type Options struct {
 
 type Worker struct {
 	Queues      map[string]amqp.Queue
-	Logger      *zap.Logger
+	Logger      logging.ILogger
 	Client      *amqp.Connection
 	m           *sync.RWMutex
 	concurrency uint
