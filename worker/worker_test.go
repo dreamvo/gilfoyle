@@ -5,7 +5,6 @@ import (
 	"github.com/orlangure/gnomock"
 	"github.com/orlangure/gnomock/preset/rabbitmq"
 	"github.com/stretchr/testify/assert"
-	"runtime"
 	"testing"
 )
 
@@ -49,8 +48,11 @@ func TestWorker(t *testing.T) {
 	})
 
 	t.Run("should fail to connect", func(t *testing.T) {
-		_, err := worker.New(worker.Options{})
-		assert.EqualError(t, err, "dial tcp 127.0.0.1:0: connect: connection refused")
+		_, err := worker.New(worker.Options{
+			Host: "127.0.0.1",
+			Port: 1000,
+		})
+		assert.EqualError(t, err, "dial tcp 127.0.0.1:1000: connect: connection refused")
 	})
 
 	t.Run("should start consuming queues", func(t *testing.T) {
@@ -64,13 +66,14 @@ func TestWorker(t *testing.T) {
 		err = w.Consume()
 		assert.NoError(t, err)
 
-		n := runtime.NumGoroutine()
-		assert.Equal(t, 13, n)
-
 		ch, err := w.Client.Channel()
 		assert.NoError(t, err)
 
-		ch.Get(worker.VideoTranscodingQueue, false)
+		q, err := ch.QueueInspect(worker.VideoTranscodingQueue)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 0, q.Messages)
+		assert.Equal(t, 1, q.Consumers)
 	})
 
 	t.Run("should fail to declare queue", func(t *testing.T) {})
