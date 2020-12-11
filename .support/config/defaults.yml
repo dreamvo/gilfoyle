@@ -15,7 +15,7 @@ settings:
   max_file_size: 524288000
   debug: false
   worker:
-    concurrency: 3
+    concurrency: 10
 storage:
   class: fs
   fs:

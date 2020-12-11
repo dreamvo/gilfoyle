@@ -1,3 +1,4 @@
+//go:generate sh -c "go run ../cmd/main.go config | tee ../.support/config/defaults.yml"
 package config
 
 // StorageClass is a kind of storage backend
@@ -71,5 +72,5 @@ type RabbitMQConfig struct {
 }
 
 type WorkerSettings struct {
-	Concurrency uint `yaml:"concurrency" json:"concurrency" default:"3"`
+	Concurrency uint `yaml:"concurrency" json:"concurrency" default:"10" env:"WORKER_CONCURRENCY"`
 }

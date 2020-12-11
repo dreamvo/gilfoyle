@@ -36,7 +36,7 @@ func TestConfig(t *testing.T) {
 				MaxFileSize:     524288000,
 				Debug:           false,
 				Worker: config.WorkerSettings{
-					Concurrency: 3,
+					Concurrency: 10,
 				},
 			},
 			Storage: config.StorageConfig{
