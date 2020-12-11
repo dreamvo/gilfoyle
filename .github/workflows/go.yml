@@ -55,7 +55,10 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
 
-      - name: golangci-lint
+      - name: lint with golangci-lint
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.32
+
+      - name: lint with gofmt
+        run: $(gofmt -l .) || (gofmt -d .; exit 1)
