@@ -769,9 +769,6 @@ var doc = `{
                 }
             }
         },
-        "dialect.Driver": {
-            "type": "object"
-        },
         "ent.Media": {
             "type": "object",
             "properties": {
@@ -781,7 +778,6 @@ var doc = `{
                 },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaQuery when eager-loading is set.",
-                    "type": "object",
                     "$ref": "#/definitions/ent.MediaEdges"
                 },
                 "id": {
@@ -827,7 +823,6 @@ var doc = `{
                 },
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
-                    "type": "object",
                     "$ref": "#/definitions/ent.MediaFileEdges"
                 },
                 "encoder_preset": {
@@ -865,7 +860,6 @@ var doc = `{
             "properties": {
                 "media": {
                     "description": "Media holds the value of the media edge.",
-                    "type": "object",
                     "$ref": "#/definitions/ent.Media"
                 }
             }

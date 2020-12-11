@@ -48,8 +48,6 @@ definitions:
     required:
     - title
     type: object
-  dialect.Driver:
-    type: object
   ent.Media:
     properties:
       created_at:
@@ -60,7 +58,6 @@ definitions:
         description: |-
           Edges holds the relations/edges for other nodes in the graph.
           The values are being populated by the MediaQuery when eager-loading is set.
-        type: object
       id:
         description: ID of the ent.
         type: string
@@ -95,7 +92,6 @@ definitions:
         description: |-
           Edges holds the relations/edges for other nodes in the graph.
           The values are being populated by the MediaFileQuery when eager-loading is set.
-        type: object
       encoder_preset:
         description: EncoderPreset holds the value of the "encoder_preset" field.
         type: string
@@ -123,7 +119,6 @@ definitions:
       media:
         $ref: '#/definitions/ent.Media'
         description: Media holds the value of the media edge.
-        type: object
     type: object
   util.DataResponse:
     properties:
