@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/streadway/amqp"
-	"go.uber.org/zap"
 )
 
 const (
@@ -64,7 +63,7 @@ type Options struct {
 	Port        int
 	Username    string
 	Password    string
-	Logger      *zap.Logger
+	Logger      logging.ILogger
 	Concurrency uint
 }
 
