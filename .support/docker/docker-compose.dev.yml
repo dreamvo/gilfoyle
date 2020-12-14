@@ -18,7 +18,7 @@ services:
       - 8080:8080
 
   rabbitmq:
-    image: rabbitmq:alpine
+    image: rabbitmq:3.8-alpine
     restart: on-failure
     environment:
       RABBITMQ_DEFAULT_USER: gilfoyle

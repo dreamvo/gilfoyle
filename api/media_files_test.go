@@ -52,6 +52,7 @@ func TestMediaFiles(t *testing.T) {
 
 	mq := rabbitmq.Preset(
 		rabbitmq.WithUser("guest", "guest"),
+		rabbitmq.WithVersion("3.8-alpine"),
 	)
 	container, _ := gnomock.Start(mq)
 	defer func() { _ = gnomock.Stop(container) }()
