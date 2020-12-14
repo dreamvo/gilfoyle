@@ -1,12 +1,13 @@
 package gilfoyle
 
 import (
+	"github.com/dreamvo/gilfoyle/logging"
 	"net/url"
 	"sync"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	lumberjack "gopkg.in/natefinch/lumberjack.v2"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
@@ -42,7 +43,7 @@ func init() {
 	}
 }
 
-func NewLogger() (*zap.Logger, error) {
+func NewLogger() (logging.ILogger, error) {
 	var err error
 
 	loggerOnce.Do(func() {
