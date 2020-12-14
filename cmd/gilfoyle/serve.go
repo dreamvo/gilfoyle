@@ -15,8 +15,6 @@ import (
 	"os"
 )
 
-var addr string
-
 func init() {
 	// Register command
 	rootCmd.AddCommand(serveCmd)

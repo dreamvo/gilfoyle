@@ -6,4 +6,5 @@ type ILogger interface {
 	Error(msg string, field ...zap.Field)
 	Info(msg string, field ...zap.Field)
 	Fatal(msg string, field ...zap.Field)
+	With(field ...zap.Field) *zap.Logger
 }
