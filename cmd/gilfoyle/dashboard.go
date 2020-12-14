@@ -23,7 +23,8 @@ func init() {
 
 var dashboardCmd = &cobra.Command{
 	Use:   "dashboard",
-	Short: "Launch the web UI to interact with your Gilfoyle instance",
+	Short: "Launch a web server to interact with your Gilfoyle instance",
+	Long:  "Internal server requests can be made from the client through a proxy at /api/proxy.",
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := gilfoyle.Logger
 
