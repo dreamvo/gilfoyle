@@ -22,7 +22,9 @@ func NewStorage(storageClass config.StorageClass) (storage.Storage, error) {
 
 	switch storageClass {
 	case storage.Filesystem:
-		Storage = fs.NewStorage(fs.Config{Root: cfg.Filesystem.DataPath})
+		Storage = fs.NewStorage(fs.Config{
+			Root: cfg.Filesystem.DataPath,
+		})
 		return Storage, nil
 	case storage.GoogleCloudStorage:
 		Storage, err = gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)

@@ -8,12 +8,15 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/dreamvo/gilfoyle/transcoding"
+	"github.com/dreamvo/gilfoyle/worker"
+	"github.com/dreamvo/gilfoyle/x/testutils"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
 	"io"
@@ -35,7 +38,7 @@ func TestMediaFiles(t *testing.T) {
 
 	_, err := gilfoyle.NewConfig()
 	if err != nil {
-		panic(err)
+		t.Error(err)
 	}
 
 	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
@@ -43,7 +46,28 @@ func TestMediaFiles(t *testing.T) {
 
 	_, err = gilfoyle.NewStorage(storage.Filesystem)
 	if err != nil {
-		panic(err)
+		t.Error(err)
+	}
+
+	container := testutils.CreateRabbitMQContainer(t, "guest", "guest")
+	defer testutils.StopContainer(t, container)
+
+	gilfoyle.Config.Services.RabbitMQ = config.RabbitMQConfig{
+		Host:     container.Host,
+		Port:     container.DefaultPort(),
+		Username: "guest",
+		Password: "guest",
+	}
+
+	w, err := gilfoyle.NewWorker()
+	if err != nil {
+		t.Error(err)
+	}
+	defer testutils.CloseWorker(t, w)
+
+	err = w.Init()
+	if err != nil {
+		t.Error(err)
 	}
 
 	t.Run("POST /medias/:id/upload/video", func(t *testing.T) {
@@ -60,7 +84,7 @@ func TestMediaFiles(t *testing.T) {
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
 
-			filePath := "./__mocks__/SampleVideo_1280x720_1mb.mp4"
+			filePath := "./mocks/SampleVideo_1280x720_1mb.mp4"
 
 			file, err := os.Open(filePath)
 			assert.NoError(err)
@@ -124,6 +148,13 @@ func TestMediaFiles(t *testing.T) {
 			assert.Equal(mediafile.EncoderPreset(schema.MediaFileEncoderPresetSource), mediaFile.EncoderPreset)
 			assert.Equal(int64(1205959), mediaFile.VideoBitrate)
 			assert.Equal(mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
+
+			ch, err := gilfoyle.Worker.Client.Channel()
+			assert.NoError(err)
+
+			_, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
+			assert.NoError(err)
+			assert.True(ok)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {

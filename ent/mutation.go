@@ -54,7 +54,7 @@ var _ ent.Mutation = (*MediaMutation)(nil)
 // mediaOption allows to manage the mutation configuration using functional options.
 type mediaOption func(*MediaMutation)
 
-// newMediaMutation creates new mutation for $n.Name.
+// newMediaMutation creates new mutation for Media.
 func newMediaMutation(c config, op Op, opts ...mediaOption) *MediaMutation {
 	m := &MediaMutation{
 		config:        c,
@@ -618,7 +618,7 @@ var _ ent.Mutation = (*MediaFileMutation)(nil)
 // mediafileOption allows to manage the mutation configuration using functional options.
 type mediafileOption func(*MediaFileMutation)
 
-// newMediaFileMutation creates new mutation for $n.Name.
+// newMediaFileMutation creates new mutation for MediaFile.
 func newMediaFileMutation(c config, op Op, opts ...mediafileOption) *MediaFileMutation {
 	m := &MediaFileMutation{
 		config:        c,

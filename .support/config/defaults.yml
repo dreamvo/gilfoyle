@@ -5,15 +5,17 @@ services:
     user: postgres
     password: ""
     db_name: gilfoyle
-  redis:
+  rabbitmq:
     host: localhost
-    database: "0"
-    port: "6379"
-    password: ""
+    port: 5672
+    username: guest
+    password: guest
 settings:
   expose_swagger_ui: true
   max_file_size: 524288000
   debug: false
+  worker:
+    concurrency: 10
 storage:
   class: fs
   fs:
@@ -32,3 +34,4 @@ storage:
     bucket: ""
   ipfs:
     gateway: gateway.ipfs.io
+

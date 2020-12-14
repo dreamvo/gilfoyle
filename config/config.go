@@ -1,3 +1,4 @@
+//go:generate sh -c "go run ../cmd/main.go config | tee ../.support/config/defaults.yml"
 package config
 
 // StorageClass is a kind of storage backend
@@ -11,14 +12,15 @@ type Config struct {
 }
 
 type ServicesConfig struct {
-	DB    DatabaseConfig `yaml:"db" json:"db"`
-	Redis RedisConfig    `yaml:"redis" json:"redis"`
+	DB       DatabaseConfig `yaml:"db" json:"db"`
+	RabbitMQ RabbitMQConfig `yaml:"rabbitmq" json:"rabbitmq"`
 }
 
 type SettingsConfig struct {
-	ExposeSwaggerUI bool  `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
-	MaxFileSize     int64 `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
-	Debug           bool  `yaml:"debug" json:"debug" default:"false" env:"DEBUG"`
+	ExposeSwaggerUI bool           `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
+	MaxFileSize     int64          `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
+	Debug           bool           `yaml:"debug" json:"debug" default:"false" env:"APP_DEBUG"`
+	Worker          WorkerSettings `yaml:"worker" json:"worker"`
 }
 
 type StorageConfig struct {
@@ -62,9 +64,13 @@ type DatabaseConfig struct {
 	Database string `yaml:"db_name" json:"db_name" default:"gilfoyle" env:"DB_NAME"`
 }
 
-type RedisConfig struct {
-	Host     string `yaml:"host" json:"host" default:"localhost" env:"REDIS_HOST"`
-	Database string `yaml:"database" json:"database" default:"0" env:"REDIS_DB"`
-	Port     string `yaml:"port" json:"port" default:"6379" env:"REDIS_PORT"`
-	Password string `yaml:"password" json:"password" default:"" env:"REDIS_PASSWORD"`
+type RabbitMQConfig struct {
+	Host     string `yaml:"host" json:"host" default:"localhost" env:"RABBITMQ_HOST"`
+	Port     int    `yaml:"port" json:"port" default:"5672" env:"RABBITMQ_PORT"`
+	Username string `yaml:"username" json:"username" default:"guest" env:"RABBITMQ_USER"`
+	Password string `yaml:"password" json:"password" default:"guest" env:"RABBITMQ_PASSWORD"`
+}
+
+type WorkerSettings struct {
+	Concurrency uint `yaml:"concurrency" json:"concurrency" default:"10" env:"WORKER_CONCURRENCY"`
 }

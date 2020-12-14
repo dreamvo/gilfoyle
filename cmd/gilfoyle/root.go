@@ -3,6 +3,7 @@ package gilfoyle
 import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -26,14 +27,14 @@ func initConfig() {
 	if cfgFile != "" {
 		_, err := gilfoyle.NewConfig(cfgFile)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		return
 	}
 
 	_, err := gilfoyle.NewConfig()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
