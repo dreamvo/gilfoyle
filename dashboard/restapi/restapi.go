@@ -1,8 +1,8 @@
 package restapi
 
 import (
+	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
-	"github.com/dreamvo/gilfoyle/httputils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -29,7 +29,7 @@ func RegisterAPIRoutes(r *gin.Engine) *gin.Engine {
 }
 
 func healthCheckHandler(ctx *gin.Context) {
-	httputils.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
+	util.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
 		Tag:    config.Version,
 		Commit: config.Commit,
 	})
