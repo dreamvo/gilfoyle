@@ -2,19 +2,14 @@ package worker_test
 
 import (
 	"github.com/dreamvo/gilfoyle/worker"
-	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/preset/rabbitmq"
+	"github.com/dreamvo/gilfoyle/x/testutils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestWorker(t *testing.T) {
-	mq := rabbitmq.Preset(
-		rabbitmq.WithUser("guest", "guest"),
-		rabbitmq.WithVersion("3.8-alpine"),
-	)
-	container, _ := gnomock.Start(mq)
-	defer func() { _ = gnomock.Stop(container) }()
+	container := testutils.CreateRabbitMQContainer(t, "guest", "guest")
+	defer testutils.StopContainer(t, container)
 
 	opts := worker.Options{
 		Host:        container.Host,
@@ -27,7 +22,7 @@ func TestWorker(t *testing.T) {
 	t.Run("should create new client & declare queues", func(t *testing.T) {
 		w, err := worker.New(opts)
 		assert.NoError(t, err)
-		defer w.Close()
+		defer testutils.CloseWorker(t, w)
 
 		err = w.Init()
 		assert.NoError(t, err)
@@ -59,7 +54,7 @@ func TestWorker(t *testing.T) {
 	t.Run("should start consuming queues", func(t *testing.T) {
 		w, err := worker.New(opts)
 		assert.NoError(t, err)
-		defer w.Close()
+		defer testutils.CloseWorker(t, w)
 
 		err = w.Init()
 		assert.NoError(t, err)

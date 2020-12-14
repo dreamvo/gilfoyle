@@ -16,9 +16,8 @@ import (
 	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/worker"
+	"github.com/dreamvo/gilfoyle/x/testutils"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/orlangure/gnomock"
-	"github.com/orlangure/gnomock/preset/rabbitmq"
 	assertTest "github.com/stretchr/testify/assert"
 	"io"
 	"mime/multipart"
@@ -50,12 +49,8 @@ func TestMediaFiles(t *testing.T) {
 		t.Error(err)
 	}
 
-	mq := rabbitmq.Preset(
-		rabbitmq.WithUser("guest", "guest"),
-		rabbitmq.WithVersion("3.8-alpine"),
-	)
-	container, _ := gnomock.Start(mq)
-	defer func() { _ = gnomock.Stop(container) }()
+	container := testutils.CreateRabbitMQContainer(t, "guest", "guest")
+	defer testutils.StopContainer(t, container)
 
 	gilfoyle.Config.Services.RabbitMQ = config.RabbitMQConfig{
 		Host:     container.Host,
@@ -68,7 +63,7 @@ func TestMediaFiles(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	defer w.Close()
+	defer testutils.CloseWorker(t, w)
 
 	err = w.Init()
 	if err != nil {
