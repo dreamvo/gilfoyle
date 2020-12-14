@@ -37,7 +37,10 @@ var dashboardCmd = &cobra.Command{
 			gin.SetMode(gin.ReleaseMode)
 		}
 
-		server := dashboard.NewServer(logger, endpoint)
+		server, err := dashboard.NewServer(logger, endpoint)
+		if err != nil {
+			logger.Fatal("creating web server", zap.Error(err))
+		}
 
 		// Launch web server
 		if err := server.Listen(fmt.Sprintf("%s:%d", addr, httpPort)); err != nil {

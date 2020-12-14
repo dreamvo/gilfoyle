@@ -9,7 +9,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"go.uber.org/zap"
 	"net/http"
-	"strings"
+	"net/url"
 )
 
 const (
@@ -22,12 +22,24 @@ type Server struct {
 	endpoint string
 }
 
-func NewServer(logger logging.ILogger, endpoint string) *Server {
-	router := gin.New()
+func formatEndpoint(endpoint string) (string, error) {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s://%s", u.Scheme, u.Host), nil
+}
+
+func NewServer(logger logging.ILogger, endpoint string) (*Server, error) {
+	formattedEndpoint, err := formatEndpoint(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Server{
-		router:   router,
+		router:   gin.New(),
 		logger:   logger,
-		endpoint: endpoint,
+		endpoint: formattedEndpoint,
 	}
 
 	s.router.Use(func(ctx *gin.Context) {
@@ -64,7 +76,7 @@ func NewServer(logger logging.ILogger, endpoint string) *Server {
 	registerAPIRoutes(s)
 	registerStaticRoutes(s)
 
-	return s
+	return s, nil
 }
 
 func registerStaticRoutes(s *Server) *Server {
@@ -92,19 +104,19 @@ func registerAPIRoutes(s *Server) *Server {
 }
 
 func (s *Server) proxyHandler(ctx *gin.Context) {
-	pathSegments := strings.Split(ctx.Param("path"), "/")
-	path := strings.Join(pathSegments[1:], "/")
-	fullPath := fmt.Sprintf("%s/%s", s.endpoint, path)
+	fullPath := fmt.Sprintf("%s%s", s.endpoint, ctx.Param("path"))
 
 	req, err := http.NewRequestWithContext(ctx, ctx.Request.Method, fullPath, ctx.Request.Body)
 	if err != nil {
 		_ = ctx.AbortWithError(500, err)
+		return
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
 		_ = ctx.AbortWithError(500, err)
+		return
 	}
 	defer res.Body.Close()
 

@@ -28,7 +28,10 @@ func TestServer(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	server = NewServer(logger, "http://localhost:1234")
+	server, err = NewServer(logger, "http://localhost:1234")
+	if err != nil {
+		t.Error(err)
+	}
 	defer func() { _ = logger.Sync() }()
 
 	t.Run("should redirect / to /app", func(t *testing.T) {
