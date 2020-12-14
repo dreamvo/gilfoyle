@@ -74,10 +74,10 @@ func registerStaticRoutes(s *Server) *Server {
 	}
 
 	// TODO(sundowndev): fix static assets serving
-	s.router.StaticFS("/app/", statikFS)
+	s.router.StaticFS("/app", statikFS)
 
 	s.router.GET("/", func(ctx *gin.Context) {
-		ctx.Redirect(http.StatusPermanentRedirect, "/app")
+		ctx.Redirect(http.StatusTemporaryRedirect, "/app")
 	})
 
 	return s
