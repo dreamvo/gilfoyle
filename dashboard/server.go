@@ -106,6 +106,7 @@ func (s *Server) proxyHandler(ctx *gin.Context) {
 	if err != nil {
 		_ = ctx.AbortWithError(500, err)
 	}
+	defer res.Body.Close()
 
 	ctx.DataFromReader(res.StatusCode, res.ContentLength, res.Header.Get("Content-Type"), res.Body, map[string]string{})
 }
