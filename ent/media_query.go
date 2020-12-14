@@ -24,7 +24,6 @@ type MediaQuery struct {
 	limit      *int
 	offset     *int
 	order      []OrderFunc
-	unique     []string
 	predicates []predicate.Media
 	// eager-loading edges.
 	withMediaFiles *MediaFileQuery
@@ -253,7 +252,6 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		limit:          mq.limit,
 		offset:         mq.offset,
 		order:          append([]OrderFunc{}, mq.order...),
-		unique:         append([]string{}, mq.unique...),
 		predicates:     append([]predicate.Media{}, mq.predicates...),
 		withMediaFiles: mq.withMediaFiles.Clone(),
 		// clone intermediate query.
