@@ -8,22 +8,21 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
-	"github.com/facebookincubator/ent/dialect/sql"
-	"github.com/facebookincubator/ent/dialect/sql/sqlgraph"
-	"github.com/facebookincubator/ent/schema/field"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
+	"github.com/facebook/ent/schema/field"
 )
 
 // MediaDelete is the builder for deleting a Media entity.
 type MediaDelete struct {
 	config
-	hooks      []Hook
-	mutation   *MediaMutation
-	predicates []predicate.Media
+	hooks    []Hook
+	mutation *MediaMutation
 }
 
 // Where adds a new predicate to the delete builder.
 func (md *MediaDelete) Where(ps ...predicate.Media) *MediaDelete {
-	md.predicates = append(md.predicates, ps...)
+	md.mutation.predicates = append(md.mutation.predicates, ps...)
 	return md
 }
 
@@ -75,7 +74,7 @@ func (md *MediaDelete) sqlExec(ctx context.Context) (int, error) {
 			},
 		},
 	}
-	if ps := md.predicates; len(ps) > 0 {
+	if ps := md.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)

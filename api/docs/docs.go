@@ -35,7 +35,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "health"
+                    "Instance"
                 ],
                 "summary": "Check service status",
                 "operationId": "checkHealth",
@@ -45,7 +45,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -92,7 +92,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -111,7 +111,7 @@ var doc = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -146,7 +146,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -162,13 +162,13 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -200,7 +200,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -216,13 +216,13 @@ var doc = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -250,25 +250,25 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/httputils.DataResponse"
+                            "$ref": "#/definitions/util.DataResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -310,7 +310,7 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
@@ -326,27 +326,27 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
             }
         },
-        "/medias/{id}/upload": {
+        "/medias/{id}/upload/audio": {
             "post": {
-                "description": "Upload a new media file for a given media ID",
+                "description": "Upload a new audio file for a given media ID",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -356,8 +356,8 @@ var doc = `{
                 "tags": [
                     "Medias"
                 ],
-                "summary": "Upload a media file",
-                "operationId": "uploadMediaFile",
+                "summary": "Upload a audio file",
+                "operationId": "uploadAudio",
                 "parameters": [
                     {
                         "type": "string",
@@ -368,7 +368,7 @@ var doc = `{
                     },
                     {
                         "type": "file",
-                        "description": "Media file",
+                        "description": "Audio file",
                         "name": "file",
                         "in": "formData",
                         "required": true
@@ -380,13 +380,13 @@ var doc = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/httputils.DataResponse"
+                                    "$ref": "#/definitions/util.DataResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/ent.Media"
+                                            "$ref": "#/definitions/api.FileFormat"
                                         }
                                     }
                                 }
@@ -396,19 +396,300 @@ var doc = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/httputils.ErrorResponse"
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{id}/upload/video": {
+            "post": {
+                "description": "Upload a new video file for a given media ID",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Medias"
+                ],
+                "summary": "Upload a video file",
+                "operationId": "uploadVideo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Video file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/util.DataResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/api.FileFormat"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{media_id}/attachments": {
+            "get": {
+                "description": "Get attachments of a media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Get attachments of a media",
+                "operationId": "getMediaAttachments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add attachment to a media",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Add attachment to a media",
+                "operationId": "addMediaAttachment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Attachment file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{media_id}/attachments/{key}": {
+            "delete": {
+                "description": "Delete attachment of a media",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Attachments"
+                ],
+                "summary": "Delete attachment of a media",
+                "operationId": "deleteMediaAttachment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attachment unique identifier",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{media_id}/stream/{preset}": {
+            "get": {
+                "description": "Get stream from media file",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stream"
+                ],
+                "summary": "Get stream from media file",
+                "operationId": "streamMedia",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Encoder preset",
+                        "name": "preset",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        },
+                        "headers": {
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/octet-stream"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/metricsz": {
+            "get": {
+                "description": "Get metrics about this Gilfoyle instance",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Instance"
+                ],
+                "summary": "Get instance metrics",
+                "operationId": "getMetrics",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     }
                 }
@@ -425,6 +706,43 @@ var doc = `{
                 "title": {
                     "type": "string",
                     "example": "Sheep Discovers How To Use A Trampoline"
+                }
+            }
+        },
+        "api.FileFormat": {
+            "type": "object",
+            "properties": {
+                "bit_rate": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "filename": {
+                    "type": "string"
+                },
+                "format_long_name": {
+                    "type": "string"
+                },
+                "format_name": {
+                    "type": "string"
+                },
+                "nb_programs": {
+                    "type": "integer"
+                },
+                "nb_streams": {
+                    "type": "integer"
+                },
+                "probe_score": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string",
+                    "example": "0"
                 }
             }
         },
@@ -455,23 +773,98 @@ var doc = `{
             "type": "object",
             "properties": {
                 "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
                     "type": "string"
                 },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.MediaEdges"
+                },
                 "id": {
+                    "description": "ID of the ent.",
                     "type": "string"
                 },
                 "status": {
+                    "description": "Status holds the value of the \"status\" field.",
                     "type": "string"
                 },
                 "title": {
+                    "description": "Title holds the value of the \"title\" field.",
                     "type": "string"
                 },
                 "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
                     "type": "string"
                 }
             }
         },
-        "httputils.DataResponse": {
+        "ent.MediaEdges": {
+            "type": "object",
+            "properties": {
+                "media_files": {
+                    "description": "MediaFiles holds the value of the media_files edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.MediaFile"
+                    }
+                }
+            }
+        },
+        "ent.MediaFile": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "duration_seconds": {
+                    "description": "DurationSeconds holds the value of the \"duration_seconds\" field.",
+                    "type": "number"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.MediaFileEdges"
+                },
+                "encoder_preset": {
+                    "description": "EncoderPreset holds the value of the \"encoder_preset\" field.",
+                    "type": "string"
+                },
+                "framerate": {
+                    "description": "Framerate holds the value of the \"framerate\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "media_type": {
+                    "description": "MediaType holds the value of the \"media_type\" field.",
+                    "type": "string"
+                },
+                "scaled_width": {
+                    "description": "ScaledWidth holds the value of the \"scaled_width\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "video_bitrate": {
+                    "description": "VideoBitrate holds the value of the \"video_bitrate\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.MediaFileEdges": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "description": "Media holds the value of the media edge.",
+                    "$ref": "#/definitions/ent.Media"
+                }
+            }
+        },
+        "util.DataResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -483,7 +876,7 @@ var doc = `{
                 }
             }
         },
-        "httputils.ErrorResponse": {
+        "util.ErrorResponse": {
             "type": "object",
             "properties": {
                 "code": {

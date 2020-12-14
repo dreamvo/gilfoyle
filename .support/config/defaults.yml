@@ -1,0 +1,37 @@
+services:
+  db:
+    host: localhost
+    port: "5432"
+    user: postgres
+    password: ""
+    db_name: gilfoyle
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+settings:
+  expose_swagger_ui: true
+  max_file_size: 524288000
+  debug: false
+  worker:
+    concurrency: 10
+storage:
+  class: fs
+  fs:
+    data_path: /data
+  s3:
+    hostname: ""
+    port: ""
+    access_key_id: ""
+    secret_access_key: ""
+    region: ""
+    bucket: ""
+    enable_ssl: true
+    use_path_style: false
+  gcs:
+    credentials_file: ""
+    bucket: ""
+  ipfs:
+    gateway: gateway.ipfs.io
+

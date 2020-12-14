@@ -3,9 +3,9 @@ package s3
 import (
 	"context"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/ulule/gostorages"
 	"io"
 	"mime"
 	"path/filepath"
@@ -55,13 +55,13 @@ func (s *Storage) Save(ctx context.Context, content io.Reader, path string) erro
 }
 
 // Stat returns path metadata.
-func (s *Storage) Stat(ctx context.Context, path string) (*gostorages.Stat, error) {
+func (s *Storage) Stat(ctx context.Context, path string) (*storage.Stat, error) {
 	stat, err := s.client.StatObject(ctx, s.bucket, path, minio.StatObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	objectStat := &gostorages.Stat{
+	objectStat := &storage.Stat{
 		ModifiedTime: stat.LastModified,
 		Size:         stat.Size,
 	}

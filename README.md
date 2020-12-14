@@ -1,8 +1,8 @@
-# gilfoyle [![godoc](https://godoc.org/github.com/dreamvo/gilfoyle?status.svg)](https://godoc.org/github.com/dreamvo/gilfoyle) [![build](https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master)](https://github.com/dreamvo/gilfoyle/actions) [![goreport](https://goreportcard.com/badge/github.com/dreamvo/gilfoyle)](https://goreportcard.com/report/github.com/dreamvo/gilfoyle) [![coverage](https://codecov.io/gh/dreamvo/gilfoyle/branch/master/graph/badge.svg)](https://codecov.io/gh/dreamvo/gilfoyle) [![release](https://img.shields.io/github/release/dreamvo/gilfoyle.svg)](https://github.com/dreamvo/gilfoyle/releases)
+# gilfoyle [![godoc](https://godoc.org/github.com/dreamvo/gilfoyle?status.svg)](https://godoc.org/github.com/dreamvo/gilfoyle) [![build](https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master)](https://github.com/dreamvo/gilfoyle/actions) [![goreport](https://goreportcard.com/badge/github.com/dreamvo/gilfoyle)](https://goreportcard.com/report/github.com/dreamvo/gilfoyle) [![Coverage Status](https://coveralls.io/repos/github/dreamvo/gilfoyle/badge.svg?branch=master)](https://coveralls.io/github/dreamvo/gilfoyle?branch=master) [![release](https://img.shields.io/github/release/dreamvo/gilfoyle.svg)](https://github.com/dreamvo/gilfoyle/releases)
 
-Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) that runs a self-hosted video streaming server. This application allows you to setup a production-ready video hosting & live streaming platform in minutes. Gilfoyle handles video upload, processing and streaming.
+Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) that runs a self-hosted video streaming server. This application allows you to setup an enterprise-grade media encoding & streaming platform in minutes. Gilfoyle handles media upload, processing and streaming.
 
-It's written in Golang and runs as a single Linux binary with PostgreSQL and Redis.
+It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and runs as a single Linux binary with [PostgreSQL](https://www.postgresql.org/) and [RabbitMQ](https://www.rabbitmq.com/).
 
 ## Table of content
 
@@ -15,12 +15,13 @@ It's written in Golang and runs as a single Linux binary with PostgreSQL and Red
 
 ## Features
 
-- **Deploy** a RESTful API and HLS server to manage and stream audio & video
-- **Upload** files or import from third-party platforms such as: *YouTube, Dailymotion, Vimeo*
-- Handle video compression and transcoding with [FFmpeg](https://ffmpeg.org/)
-- **Decentralize** video storage with [IPFS](https://ipfs.io/)
-- Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features
-- **Customize**: video transcoding (format, resolution, frame rate), compression rate, authentication
+- Deploy a RESTful API and HLS server to manage and stream audio & video
+- Upload files or import from third-party platforms such as: *YouTube, Dailymotion, Vimeo*...
+- Handle video compression and encoding with [FFmpeg](https://ffmpeg.org/)
+- Customize video encoding, compression, or authentication
+- Highly scalable architecture
+<!--- **Decentralize** video storage with [IPFS](https://ipfs.io/)
+- Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features-->
 
 ## Current status
 

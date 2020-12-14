@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+  postgres:
+    image: postgres:latest
+    restart: on-failure
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: gilfoyle
+      POSTGRES_PASSWORD: secret
+
+  adminer:
+    image: adminer:latest
+    restart: on-failure
+    ports:
+      - 8080:8080
+
+  rabbitmq:
+    image: rabbitmq:3.8-alpine
+    restart: on-failure
+    environment:
+      RABBITMQ_DEFAULT_USER: gilfoyle
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - 5672:5672

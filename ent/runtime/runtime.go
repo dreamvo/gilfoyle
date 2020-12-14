@@ -5,6 +5,6 @@ package runtime
 // The schema-stitching logic is generated in github.com/dreamvo/gilfoyle/ent/runtime.go
 
 const (
-	Version = "v0.3.0"                                          // Version of ent codegen.
-	Sum     = "h1:Jht3vZio7eshMo7yaEZJ6LHk4oM8xUCxKNNDj/Kb4fE=" // Sum of ent codegen.
+	Version = "v0.5.3"                                          // Version of ent codegen.
+	Sum     = "h1:YT3Sl28n7gGGOkQeYgeJsZmizJ1Iiy7psgkOtEk0aq4=" // Sum of ent codegen.
 )

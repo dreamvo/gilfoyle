@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/api/db"
+	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/schema"
-	"github.com/dreamvo/gilfoyle/httputils"
-	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
 	"net/http"
@@ -18,8 +17,7 @@ import (
 
 func TestMedias(t *testing.T) {
 	assert := assertTest.New(t)
-	r = gin.New()
-	r = RegisterRoutes(r)
+	r = NewServer()
 
 	t.Run("GET /medias", func(t *testing.T) {
 		t.Run("should return empty array", func(t *testing.T) {
@@ -48,7 +46,7 @@ func TestMedias(t *testing.T) {
 				_, _ = db.Client.Media.
 					Create().
 					SetTitle(fmt.Sprintf("%d", i)).
-					SetStatus(schema.MediaStatusProcessing).
+					SetStatus(schema.MediaStatusAwaitingUpload).
 					Save(context.Background())
 			}
 
@@ -74,7 +72,7 @@ func TestMedias(t *testing.T) {
 				_, _ = db.Client.Media.
 					Create().
 					SetTitle(fmt.Sprintf("%d", i)).
-					SetStatus(schema.MediaStatusProcessing).
+					SetStatus(schema.MediaStatusAwaitingUpload).
 					Save(context.Background())
 			}
 
@@ -99,13 +97,13 @@ func TestMedias(t *testing.T) {
 			v, _ := db.Client.Media.
 				Create().
 				SetTitle("video1").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			_, _ = db.Client.Media.
 				Create().
 				SetTitle("video2").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			res, err := performRequest(r, http.MethodGet, "/medias?offset=1", nil)
@@ -124,12 +122,12 @@ func TestMedias(t *testing.T) {
 		})
 	})
 
-	t.Run("GET /medias/{id}", func(t *testing.T) {
+	t.Run("GET /medias/:id", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
 			res, err := performRequest(r, http.MethodGet, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
@@ -144,7 +142,7 @@ func TestMedias(t *testing.T) {
 			v, _ := db.Client.Media.
 				Create().
 				SetTitle("no u").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			res, err := performRequest(r, http.MethodGet, "/medias/"+v.ID.String(), nil)
@@ -162,7 +160,7 @@ func TestMedias(t *testing.T) {
 		})
 	})
 
-	t.Run("DELETE /medias/{id}", func(t *testing.T) {
+	t.Run("DELETE /medias/:id", func(t *testing.T) {
 		t.Run("should delete newly created media", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
@@ -170,7 +168,7 @@ func TestMedias(t *testing.T) {
 			v, _ := db.Client.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
 			res, err := performRequest(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
@@ -181,7 +179,7 @@ func TestMedias(t *testing.T) {
 			res, err = performRequest(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(404, res.Code)
@@ -195,7 +193,7 @@ func TestMedias(t *testing.T) {
 			res, err := performRequest(r, http.MethodDelete, "/medias/uuid", nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ErrorResponse
+			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(res.Result().StatusCode, 400, "should be equal")
@@ -214,12 +212,12 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err)
 
-			var body httputils.DataResponse
+			var body util.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test", body.Data.(map[string]interface{})["title"])
-			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
+			assert.Equal("AwaitingUpload", body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error (1)", func(t *testing.T) {
@@ -231,7 +229,7 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ValidationErrorResponse
+			var body util.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
@@ -248,7 +246,7 @@ func TestMedias(t *testing.T) {
 			res, err := performRequest(r, http.MethodPost, "/medias", nil)
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ValidationErrorResponse
+			var body util.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")
@@ -257,7 +255,7 @@ func TestMedias(t *testing.T) {
 		})
 	})
 
-	t.Run("PATCH /medias/{id}", func(t *testing.T) {
+	t.Run("PATCH /medias/:id", func(t *testing.T) {
 		t.Run("should update a media", func(t *testing.T) {
 			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer db.Client.Close()
@@ -265,7 +263,7 @@ func TestMedias(t *testing.T) {
 			m, err := db.Client.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 			assert.NoError(err)
 
@@ -274,12 +272,12 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err)
 
-			var body httputils.DataResponse
+			var body util.DataResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(200, res.Result().StatusCode)
 			assert.Equal("test2", body.Data.(map[string]interface{})["title"])
-			assert.Equal("processing", body.Data.(map[string]interface{})["status"])
+			assert.Equal("AwaitingUpload", body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error", func(t *testing.T) {
@@ -289,7 +287,7 @@ func TestMedias(t *testing.T) {
 			m, err := db.Client.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 			assert.NoError(err)
 
@@ -298,7 +296,7 @@ func TestMedias(t *testing.T) {
 			})
 			assert.NoError(err, "should be equal")
 
-			var body httputils.ValidationErrorResponse
+			var body util.ValidationErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(400, res.Result().StatusCode, "should be equal")

@@ -8,6 +8,31 @@ definitions:
     required:
     - title
     type: object
+  api.FileFormat:
+    properties:
+      bit_rate:
+        type: string
+      duration:
+        example: "0"
+        type: string
+      filename:
+        type: string
+      format_long_name:
+        type: string
+      format_name:
+        type: string
+      nb_programs:
+        type: integer
+      nb_streams:
+        type: integer
+      probe_score:
+        type: integer
+      size:
+        type: string
+      start_time:
+        example: "0"
+        type: string
+    type: object
   api.HealthCheckResponse:
     properties:
       commit:
@@ -26,17 +51,76 @@ definitions:
   ent.Media:
     properties:
       created_at:
+        description: CreatedAt holds the value of the "created_at" field.
         type: string
+      edges:
+        $ref: '#/definitions/ent.MediaEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the MediaQuery when eager-loading is set.
       id:
+        description: ID of the ent.
         type: string
       status:
+        description: Status holds the value of the "status" field.
         type: string
       title:
+        description: Title holds the value of the "title" field.
         type: string
       updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
         type: string
     type: object
-  httputils.DataResponse:
+  ent.MediaEdges:
+    properties:
+      media_files:
+        description: MediaFiles holds the value of the media_files edge.
+        items:
+          $ref: '#/definitions/ent.MediaFile'
+        type: array
+    type: object
+  ent.MediaFile:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      duration_seconds:
+        description: DurationSeconds holds the value of the "duration_seconds" field.
+        type: number
+      edges:
+        $ref: '#/definitions/ent.MediaFileEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the MediaFileQuery when eager-loading is set.
+      encoder_preset:
+        description: EncoderPreset holds the value of the "encoder_preset" field.
+        type: string
+      framerate:
+        description: Framerate holds the value of the "framerate" field.
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      media_type:
+        description: MediaType holds the value of the "media_type" field.
+        type: string
+      scaled_width:
+        description: ScaledWidth holds the value of the "scaled_width" field.
+        type: integer
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      video_bitrate:
+        description: VideoBitrate holds the value of the "video_bitrate" field.
+        type: integer
+    type: object
+  ent.MediaFileEdges:
+    properties:
+      media:
+        $ref: '#/definitions/ent.Media'
+        description: Media holds the value of the media edge.
+    type: object
+  util.DataResponse:
     properties:
       code:
         example: 200
@@ -44,7 +128,7 @@ definitions:
       data:
         type: object
     type: object
-  httputils.ErrorResponse:
+  util.ErrorResponse:
     properties:
       code:
         example: 400
@@ -74,14 +158,14 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/api.HealthCheckResponse'
               type: object
       summary: Check service status
       tags:
-      - health
+      - Instance
   /medias:
     get:
       description: Get latest created medias
@@ -102,7 +186,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   items:
@@ -112,7 +196,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Query medias
       tags:
       - Medias
@@ -135,7 +219,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Media'
@@ -143,11 +227,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Create a media
       tags:
       - Medias
@@ -167,19 +251,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/httputils.DataResponse'
+            $ref: '#/definitions/util.DataResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Delete a media
       tags:
       - Medias
@@ -199,7 +283,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Media'
@@ -207,11 +291,11 @@ paths:
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Get a media
       tags:
       - Medias
@@ -239,7 +323,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
                   $ref: '#/definitions/ent.Media'
@@ -247,31 +331,31 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
       summary: Update a media
       tags:
       - Medias
-  /medias/{id}/upload:
+  /medias/{id}/upload/audio:
     post:
       consumes:
       - multipart/form-data
-      description: Upload a new media file for a given media ID
-      operationId: uploadMediaFile
+      description: Upload a new audio file for a given media ID
+      operationId: uploadAudio
       parameters:
       - description: Media identifier
         in: path
         name: id
         required: true
         type: string
-      - description: Media file
+      - description: Audio file
         in: formData
         name: file
         required: true
@@ -283,26 +367,212 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/httputils.DataResponse'
+            - $ref: '#/definitions/util.DataResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/ent.Media'
+                  $ref: '#/definitions/api.FileFormat'
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/httputils.ErrorResponse'
-      summary: Upload a media file
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Upload a audio file
       tags:
       - Medias
+  /medias/{id}/upload/video:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new video file for a given media ID
+      operationId: uploadVideo
+      parameters:
+      - description: Media identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Video file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/util.DataResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.FileFormat'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Upload a video file
+      tags:
+      - Medias
+  /medias/{media_id}/attachments:
+    get:
+      description: Get attachments of a media
+      operationId: getMediaAttachments
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get attachments of a media
+      tags:
+      - Attachments
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add attachment to a media
+      operationId: addMediaAttachment
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Attachment file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Add attachment to a media
+      tags:
+      - Attachments
+  /medias/{media_id}/attachments/{key}:
+    delete:
+      description: Delete attachment of a media
+      operationId: deleteMediaAttachment
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Attachment unique identifier
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Delete attachment of a media
+      tags:
+      - Attachments
+  /medias/{media_id}/stream/{preset}:
+    get:
+      description: Get stream from media file
+      operationId: streamMedia
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Encoder preset
+        in: path
+        name: preset
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Content-Type:
+              description: application/octet-stream
+              type: string
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get stream from media file
+      tags:
+      - Stream
+  /metricsz:
+    get:
+      description: Get metrics about this Gilfoyle instance
+      operationId: getMetrics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Get instance metrics
+      tags:
+      - Instance
 schemes:
 - http
 - https

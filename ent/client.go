@@ -11,10 +11,11 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/dreamvo/gilfoyle/ent/video"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 
-	"github.com/facebookincubator/ent/dialect"
-	"github.com/facebookincubator/ent/dialect/sql"
+	"github.com/facebook/ent/dialect"
+	"github.com/facebook/ent/dialect/sql"
+	"github.com/facebook/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -24,8 +25,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
-	// Video is the client for interacting with the Video builders.
-	Video *VideoClient
+	// MediaFile is the client for interacting with the MediaFile builders.
+	MediaFile *MediaFileClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -40,7 +41,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Media = NewMediaClient(c.config)
-	c.Video = NewVideoClient(c.config)
+	c.MediaFile = NewMediaFileClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -71,10 +72,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	cfg := config{driver: tx, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Media:  NewMediaClient(cfg),
-		Video:  NewVideoClient(cfg),
+		ctx:       ctx,
+		config:    cfg,
+		Media:     NewMediaClient(cfg),
+		MediaFile: NewMediaFileClient(cfg),
 	}, nil
 }
 
@@ -89,9 +90,9 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	}
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		config: cfg,
-		Media:  NewMediaClient(cfg),
-		Video:  NewVideoClient(cfg),
+		config:    cfg,
+		Media:     NewMediaClient(cfg),
+		MediaFile: NewMediaFileClient(cfg),
 	}, nil
 }
 
@@ -121,7 +122,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Media.Use(hooks...)
-	c.Video.Use(hooks...)
+	c.MediaFile.Use(hooks...)
 }
 
 // MediaClient is a client for the Media schema.
@@ -146,7 +147,7 @@ func (c *MediaClient) Create() *MediaCreate {
 	return &MediaCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// BulkCreate returns a builder for creating a bulk of Media entities.
+// CreateBulk returns a builder for creating a bulk of Media entities.
 func (c *MediaClient) CreateBulk(builders ...*MediaCreate) *MediaCreateBulk {
 	return &MediaCreateBulk{config: c.config, builders: builders}
 }
@@ -200,11 +201,27 @@ func (c *MediaClient) Get(ctx context.Context, id uuid.UUID) (*Media, error) {
 
 // GetX is like Get, but panics if an error occurs.
 func (c *MediaClient) GetX(ctx context.Context, id uuid.UUID) *Media {
-	m, err := c.Get(ctx, id)
+	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
-	return m
+	return obj
+}
+
+// QueryMediaFiles queries the media_files edge of a Media.
+func (c *MediaClient) QueryMediaFiles(m *Media) *MediaFileQuery {
+	query := &MediaFileQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(mediafile.Table, mediafile.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.MediaFilesTable, media.MediaFilesColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -212,90 +229,106 @@ func (c *MediaClient) Hooks() []Hook {
 	return c.hooks.Media
 }
 
-// VideoClient is a client for the Video schema.
-type VideoClient struct {
+// MediaFileClient is a client for the MediaFile schema.
+type MediaFileClient struct {
 	config
 }
 
-// NewVideoClient returns a client for the Video from the given config.
-func NewVideoClient(c config) *VideoClient {
-	return &VideoClient{config: c}
+// NewMediaFileClient returns a client for the MediaFile from the given config.
+func NewMediaFileClient(c config) *MediaFileClient {
+	return &MediaFileClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `video.Hooks(f(g(h())))`.
-func (c *VideoClient) Use(hooks ...Hook) {
-	c.hooks.Video = append(c.hooks.Video, hooks...)
+// A call to `Use(f, g, h)` equals to `mediafile.Hooks(f(g(h())))`.
+func (c *MediaFileClient) Use(hooks ...Hook) {
+	c.hooks.MediaFile = append(c.hooks.MediaFile, hooks...)
 }
 
-// Create returns a create builder for Video.
-func (c *VideoClient) Create() *VideoCreate {
-	mutation := newVideoMutation(c.config, OpCreate)
-	return &VideoCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a create builder for MediaFile.
+func (c *MediaFileClient) Create() *MediaFileCreate {
+	mutation := newMediaFileMutation(c.config, OpCreate)
+	return &MediaFileCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// BulkCreate returns a builder for creating a bulk of Video entities.
-func (c *VideoClient) CreateBulk(builders ...*VideoCreate) *VideoCreateBulk {
-	return &VideoCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of MediaFile entities.
+func (c *MediaFileClient) CreateBulk(builders ...*MediaFileCreate) *MediaFileCreateBulk {
+	return &MediaFileCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Video.
-func (c *VideoClient) Update() *VideoUpdate {
-	mutation := newVideoMutation(c.config, OpUpdate)
-	return &VideoUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for MediaFile.
+func (c *MediaFileClient) Update() *MediaFileUpdate {
+	mutation := newMediaFileMutation(c.config, OpUpdate)
+	return &MediaFileUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *VideoClient) UpdateOne(v *Video) *VideoUpdateOne {
-	mutation := newVideoMutation(c.config, OpUpdateOne, withVideo(v))
-	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *MediaFileClient) UpdateOne(mf *MediaFile) *MediaFileUpdateOne {
+	mutation := newMediaFileMutation(c.config, OpUpdateOne, withMediaFile(mf))
+	return &MediaFileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *VideoClient) UpdateOneID(id uuid.UUID) *VideoUpdateOne {
-	mutation := newVideoMutation(c.config, OpUpdateOne, withVideoID(id))
-	return &VideoUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *MediaFileClient) UpdateOneID(id uuid.UUID) *MediaFileUpdateOne {
+	mutation := newMediaFileMutation(c.config, OpUpdateOne, withMediaFileID(id))
+	return &MediaFileUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Video.
-func (c *VideoClient) Delete() *VideoDelete {
-	mutation := newVideoMutation(c.config, OpDelete)
-	return &VideoDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for MediaFile.
+func (c *MediaFileClient) Delete() *MediaFileDelete {
+	mutation := newMediaFileMutation(c.config, OpDelete)
+	return &MediaFileDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a delete builder for the given entity.
-func (c *VideoClient) DeleteOne(v *Video) *VideoDeleteOne {
-	return c.DeleteOneID(v.ID)
+func (c *MediaFileClient) DeleteOne(mf *MediaFile) *MediaFileDeleteOne {
+	return c.DeleteOneID(mf.ID)
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *VideoClient) DeleteOneID(id uuid.UUID) *VideoDeleteOne {
-	builder := c.Delete().Where(video.ID(id))
+func (c *MediaFileClient) DeleteOneID(id uuid.UUID) *MediaFileDeleteOne {
+	builder := c.Delete().Where(mediafile.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &VideoDeleteOne{builder}
+	return &MediaFileDeleteOne{builder}
 }
 
-// Query returns a query builder for Video.
-func (c *VideoClient) Query() *VideoQuery {
-	return &VideoQuery{config: c.config}
+// Query returns a query builder for MediaFile.
+func (c *MediaFileClient) Query() *MediaFileQuery {
+	return &MediaFileQuery{config: c.config}
 }
 
-// Get returns a Video entity by its id.
-func (c *VideoClient) Get(ctx context.Context, id uuid.UUID) (*Video, error) {
-	return c.Query().Where(video.ID(id)).Only(ctx)
+// Get returns a MediaFile entity by its id.
+func (c *MediaFileClient) Get(ctx context.Context, id uuid.UUID) (*MediaFile, error) {
+	return c.Query().Where(mediafile.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *VideoClient) GetX(ctx context.Context, id uuid.UUID) *Video {
-	v, err := c.Get(ctx, id)
+func (c *MediaFileClient) GetX(ctx context.Context, id uuid.UUID) *MediaFile {
+	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
-	return v
+	return obj
+}
+
+// QueryMedia queries the media edge of a MediaFile.
+func (c *MediaFileClient) QueryMedia(mf *MediaFile) *MediaQuery {
+	query := &MediaQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := mf.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mediafile.Table, mediafile.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mediafile.MediaTable, mediafile.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(mf.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
-func (c *VideoClient) Hooks() []Hook {
-	return c.hooks.Video
+func (c *MediaFileClient) Hooks() []Hook {
+	return c.hooks.MediaFile
 }

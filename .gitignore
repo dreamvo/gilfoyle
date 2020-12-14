@@ -20,3 +20,6 @@ coverage
 coverage.*
 .idea
 config.yml
+
+data
+**/logs
