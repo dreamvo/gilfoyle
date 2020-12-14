@@ -76,5 +76,28 @@ func TestWorker(t *testing.T) {
 		assert.Equal(t, 1, q.Consumers)
 	})
 
-	t.Run("should fail to declare queue", func(t *testing.T) {})
+	t.Run("should fail to declare queues", func(t *testing.T) {
+		w, err := worker.New(opts)
+		assert.NoError(t, err)
+
+		err = w.Close()
+		assert.NoError(t, err)
+
+		err = w.Init()
+		assert.EqualError(t, err, "Exception (504) Reason: \"channel/connection is not open\"")
+	})
+
+	t.Run("should fail to start consuming queues", func(t *testing.T) {
+		w, err := worker.New(opts)
+		assert.NoError(t, err)
+
+		err = w.Init()
+		assert.NoError(t, err)
+
+		err = w.Close()
+		assert.NoError(t, err)
+
+		err = w.Consume()
+		assert.EqualError(t, err, "error creating channel: &{%!e(int=504) %!e(string=channel/connection is not open) %!e(bool=false) %!e(bool=false)}")
+	})
 }
