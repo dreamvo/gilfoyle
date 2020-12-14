@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rakyll/statik/fs"
 	"go.uber.org/zap"
-	"log"
 	"net/http"
 )
 
@@ -15,11 +14,6 @@ type Server struct {
 	router   *gin.Engine
 	logger   logging.ILogger
 	endpoint string
-}
-
-type HealthCheckResponse struct {
-	Tag    string `json:"tag"`
-	Commit string `json:"commit"`
 }
 
 func NewServer(logger logging.ILogger, endpoint string) *Server {
@@ -70,7 +64,7 @@ func NewServer(logger logging.ILogger, endpoint string) *Server {
 func registerStaticRoutes(s *Server) *Server {
 	statikFS, err := fs.New()
 	if err != nil {
-		log.Fatal(err)
+		s.logger.Fatal("register static routes", zap.Error(err))
 	}
 
 	// TODO(sundowndev): fix static assets serving
