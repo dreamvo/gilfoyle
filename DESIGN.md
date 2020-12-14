@@ -24,7 +24,7 @@ We want to provide a cloud-native application for high scale businesses. That's 
 
 #### G2: Customizable
 
-The service may have some configuration settings to be controlled by administrator such as max file size, target transcoding format, compression rate... To achieve that, administrator would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples.
+The service may have some configuration settings to be controlled by the user such as max file size, target transcoding format, compression rate... To achieve that, user would use a simple Yaml file that centralize these settings. If any config file is provided, default settings are used. Some open source projects can be difficult to use because of too many configuration settings. Gilfoyle is easy to use : simply download a binary, run it and access the web service. Want to deploy to production? Use the production-ready Docker image or see container orchestration examples.
 
 #### G3: Stateless architecture, flexible storage
 
@@ -56,7 +56,7 @@ The service handles both video and audio. It means you can use it to create your
 
 #### Security by Default
 
-Althrough we take security very seriously, the API wasn't designed to be exposed to the public network. Usually administrator would isolate the interface in a security group with access restricted to other services. Gilfoyle shouldn't be the primary backend of your application, but a private storage service used by your own API. Still, you can deploy and expose publicly this service in production.
+Althrough we take security very seriously, the API wasn't designed to be exposed to the public network. Usually user would isolate the interface in a security group with access restricted to other services. Gilfoyle shouldn't be the primary backend of your application, but a private storage service used by your own API. Still, you can deploy and expose publicly this service in production.
 
 #### Social features
 
