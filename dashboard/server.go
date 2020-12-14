@@ -2,12 +2,14 @@
 package dashboard
 
 import (
+	"fmt"
 	_ "github.com/dreamvo/gilfoyle/dashboard/statik"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/rakyll/statik/fs"
 	"go.uber.org/zap"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -83,15 +85,29 @@ func registerStaticRoutes(s *Server) *Server {
 func registerAPIRoutes(s *Server) *Server {
 	api := s.router.Group("/api")
 	{
-		api.GET("/proxy/*path", s.proxyHandler)
+		api.Any("/proxy/*path", s.proxyHandler)
 	}
 
 	return s
 }
 
 func (s *Server) proxyHandler(ctx *gin.Context) {
-	//path := fmt.Sprintf("%s/%s", s.endpoint, ctx.Param("path"))
-	ctx.Status(200)
+	pathSegments := strings.Split(ctx.Param("path"), "/")
+	path := strings.Join(pathSegments[1:], "/")
+	fullPath := fmt.Sprintf("%s/%s", s.endpoint, path)
+
+	req, err := http.NewRequestWithContext(ctx, ctx.Request.Method, fullPath, ctx.Request.Body)
+	if err != nil {
+		_ = ctx.AbortWithError(500, err)
+	}
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		_ = ctx.AbortWithError(500, err)
+	}
+
+	ctx.DataFromReader(res.StatusCode, res.ContentLength, res.Header.Get("Content-Type"), res.Body, map[string]string{})
 }
 
 func (s *Server) Listen(addr ...string) error {
