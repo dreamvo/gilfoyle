@@ -10,6 +10,10 @@ import (
 	"net/http"
 )
 
+const (
+	staticRootPath string = "/app"
+)
+
 type Server struct {
 	router   *gin.Engine
 	logger   logging.ILogger
@@ -67,11 +71,10 @@ func registerStaticRoutes(s *Server) *Server {
 		s.logger.Fatal("register static routes", zap.Error(err))
 	}
 
-	// TODO(sundowndev): fix static assets serving
-	s.router.StaticFS("/app", statikFS)
+	s.router.StaticFS(staticRootPath, statikFS)
 
 	s.router.GET("/", func(ctx *gin.Context) {
-		ctx.Redirect(http.StatusTemporaryRedirect, "/app")
+		ctx.Redirect(http.StatusTemporaryRedirect, staticRootPath)
 	})
 
 	return s
