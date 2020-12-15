@@ -112,7 +112,7 @@ func (s *Server) proxyHandler(ctx *gin.Context) {
 		return
 	}
 
-	for k, _ := range ctx.Request.Header {
+	for k := range ctx.Request.Header {
 		req.Header.Set(k, ctx.Request.Header.Get(k))
 	}
 
@@ -124,7 +124,12 @@ func (s *Server) proxyHandler(ctx *gin.Context) {
 	}
 	defer func() { _ = res.Body.Close() }()
 
-	ctx.DataFromReader(res.StatusCode, res.ContentLength, res.Header.Get("Content-Type"), res.Body, map[string]string{})
+	resHeaders := map[string]string{}
+	for k := range res.Header {
+		resHeaders[k] = res.Header.Get(k)
+	}
+
+	ctx.DataFromReader(res.StatusCode, res.ContentLength, res.Header.Get("Content-Type"), res.Body, resHeaders)
 }
 
 func (s *Server) Listen(addr ...string) error {

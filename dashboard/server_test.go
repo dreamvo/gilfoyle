@@ -61,6 +61,7 @@ func TestServer(t *testing.T) {
 			MatchHeader("Content-Type", "text/html").
 			MatchHeader("X-Test", "test").
 			Reply(201).
+			SetHeader("X-Gilfoyle-Header", "test").
 			JSON(map[string]string{"foo": "bar"})
 
 		headers := map[string]string{
@@ -77,6 +78,7 @@ func TestServer(t *testing.T) {
 
 		assert.Equal(t, 201, res.Result().StatusCode)
 		assert.Equal(t, map[string]string{"foo": "bar"}, body)
+		assert.Equal(t, "test", res.Header().Get("X-Gilfoyle-Header"))
 	})
 
 	t.Run("should fail to forward request to /healthz", func(t *testing.T) {
