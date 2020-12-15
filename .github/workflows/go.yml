@@ -51,8 +51,7 @@ jobs:
       - name: Test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: |
-          go test -race -coverprofile=./c.out -covermode=atomic -v ./...
+        run: go test -race -coverprofile=./c.out -covermode=atomic -v ./...
 
       - name: Report code coverage
         env:
@@ -70,13 +69,3 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.32
-
-      - name: lint with gofmt
-        run: |
-          FMT_LINES=$(gofmt -s -l . | grep -v 'statik.go')
-          echo $FMT_LINES
-          echo $FMT_LINES | grep -c '.go'
-          if [ $( echo $FMT_LINES | grep -c '.go' ) != 0 ]; then
-            echo exit1
-            exit 1;
-          fi
