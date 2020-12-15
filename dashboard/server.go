@@ -23,11 +23,11 @@ type Server struct {
 }
 
 func formatEndpoint(endpoint string) (string, error) {
-	u, err := url.Parse(endpoint)
+	URL, err := url.Parse(endpoint)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s://%s", u.Scheme, u.Host), nil
+	return fmt.Sprintf("%s://%s", URL.Scheme, URL.Host), nil
 }
 
 func NewServer(logger logging.ILogger, endpoint string) (*Server, error) {
