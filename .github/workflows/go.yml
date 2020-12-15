@@ -74,6 +74,9 @@ jobs:
       - name: lint with gofmt
         run: |
           FMT_LINES=$(gofmt -s -l . | grep -v 'statik.go')
-          if [ $( echo $FMT_LINES | grep -c '.go' ) != "0" ]; then
+          echo $FMT_LINES
+          echo $FMT_LINES | grep -c '.go'
+          if [ $( echo $FMT_LINES | grep -c '.go' ) != 0 ]; then
+            echo exit1
             exit 1;
           fi
