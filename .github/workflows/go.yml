@@ -74,7 +74,7 @@ jobs:
       - name: lint with gofmt
         run: |
           LINT_COUNT=$(gofmt -s -l . | grep -v 'statik.go')
-          if [ $( $LINT_COUNT | wc -l ) != "0" ]; then
+          if [ $( $LINT_COUNT | grep -c '' ) != "0" ]; then
             exit 1;
           else
             exit 0;
