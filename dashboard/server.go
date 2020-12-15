@@ -1,4 +1,4 @@
-//go:generate go run github.com/rakyll/statik -f -src ./ui/dist -include=*.png,*.ico,*.html,*.css,*.js
+//go:generate go run github.com/rakyll/statik -f -src ./ui/dist
 package dashboard
 
 import (

@@ -1,72 +1,53 @@
 <template>
   <v-container>
-    <v-row class="text-center">
+    <v-row class="">
       <v-col class="mb-4">
-        <h1 class="display-2 font-weight-bold mb-3">
-          Welcome to Vuetify
+        <h1 class="mb-3">
+          Health check
         </h1>
 
-        <p class="subheading font-weight-regular">
-          For help and collaboration with other Vuetify developers,
-          <br />please join our online
-          <a href="https://community.vuetifyjs.com" target="_blank"
-            >Discord Community</a
-          >
+        <p>
+          utilise un texte en faux latin, le Lorem ipsum ou Lipsum.Wikipedia
+          (FR)
         </p>
       </v-col>
 
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          What's next?
-        </h2>
+      <v-col md="12">
+        <h1 class="mb-3">Medias</h1>
 
-        <v-row justify="center">
-          <a
-            v-for="(next, i) in whatsNext"
-            :key="i"
-            :href="next.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ next.text }}
-          </a>
-        </v-row>
-      </v-col>
+        <v-simple-table>
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left">
+                  Title
+                </th>
+                <th class="text-left">
+                  Status
+                </th>
+                <th class="text-left">
+                  Created at
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="media in medias" :key="media.id">
+                <td>
+                  <RouterLink :to="`/medias/${media.id}`">{{
+                    media.title
+                  }}</RouterLink>
+                </td>
+                <td>{{ media.status }}</td>
+                <td>{{ media.created_at }}</td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
 
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          Important Links
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(link, i) in importantLinks"
-            :key="i"
-            :href="link.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ link.text }}
-          </a>
-        </v-row>
-      </v-col>
-
-      <v-col class="mb-5" cols="12">
-        <h2 class="headline font-weight-bold mb-3">
-          Ecosystem
-        </h2>
-
-        <v-row justify="center">
-          <a
-            v-for="(eco, i) in ecosystem"
-            :key="i"
-            :href="eco.href"
-            class="subheading mx-3"
-            target="_blank"
-          >
-            {{ eco.text }}
-          </a>
-        </v-row>
+        <v-spacer></v-spacer>
+        <div align="center">
+          <v-btn depressed color="#66f" dark>Load more</v-btn>
+        </div>
       </v-col>
     </v-row>
   </v-container>
@@ -77,56 +58,30 @@ import Vue from "vue";
 
 export default Vue.extend({
   name: "HelloWorld",
-
   data: () => ({
-    ecosystem: [
+    medias: [
       {
-        text: "vuetify-loader",
-        href: "https://github.com/vuetifyjs/vuetify-loader"
-      },
-      {
-        text: "github",
-        href: "https://github.com/vuetifyjs/vuetify"
-      },
-      {
-        text: "awesome-vuetify",
-        href: "https://github.com/vuetifyjs/awesome-vuetify"
-      }
-    ],
-    importantLinks: [
-      {
-        text: "Documentation",
-        href: "https://vuetifyjs.com"
-      },
-      {
-        text: "Chat",
-        href: "https://community.vuetifyjs.com"
-      },
-      {
-        text: "Made with Vuetify",
-        href: "https://madewithvuejs.com/vuetify"
-      },
-      {
-        text: "Twitter",
-        href: "https://twitter.com/vuetifyjs"
-      },
-      {
-        text: "Articles",
-        href: "https://medium.com/vuetify"
-      }
-    ],
-    whatsNext: [
-      {
-        text: "Explore components",
-        href: "https://vuetifyjs.com/components/api-explorer"
-      },
-      {
-        text: "Select a layout",
-        href: "https://vuetifyjs.com/getting-started/pre-made-layouts"
-      },
-      {
-        text: "Frequently Asked Questions",
-        href: "https://vuetifyjs.com/getting-started/frequently-asked-questions"
+        created_at: "2020-12-15T19:56:04.729Z",
+        edges: {
+          media_files: [
+            {
+              created_at: "2020-12-15T19:56:04.729Z",
+              duration_seconds: 13.25,
+              edges: {},
+              encoder_preset: "string",
+              framerate: 0,
+              id: "1139c704-00e9-4c23-8609-e83d0eacb5a5",
+              media_type: "video",
+              scaled_width: 1280,
+              updated_at: "2020-12-15T19:56:04.729Z",
+              video_bitrate: 2481
+            }
+          ]
+        },
+        id: "1139c704-00e9-4c23-8609-e83d0eacb5a5",
+        status: "Processing",
+        title: "POLO & PAN — Home Sweet Home (the mixtape)",
+        updated_at: "2020-12-15T19:56:04.729Z"
       }
     ]
   })

@@ -1,76 +1,98 @@
 <template>
   <v-app>
-    <v-app-bar flat color="white" light>
-      <v-img
-        :src="require('./assets/logo.svg')"
-        class="my-3"
-        contain
-        height="64"
-      />
+    <v-toolbar flat color="white" light>
+      <v-col cols="6" sm="4" md="2">
+        <RouterLink to="/">
+          <v-avatar tile height="32" width="auto">
+            <img :src="require('@/assets/logo.svg')" height="48px" alt="logo" />
+          </v-avatar>
+        </RouterLink>
+      </v-col>
+
+      <v-spacer></v-spacer>
 
       <v-btn outlined color="#66f">
         <v-icon light>mdi-plus</v-icon>
         Create
       </v-btn>
-    </v-app-bar>
+    </v-toolbar>
 
-    <v-app-bar flat color="#34495e" dark>
+    <v-toolbar flat color="#34495e" dark>
       <v-app-bar-nav-icon
         @click="drawerMenu = !drawerMenu"
       ></v-app-bar-nav-icon>
 
-      <v-toolbar-title>Gilfoyle dashboard</v-toolbar-title>
+      <v-toolbar-title>Overview</v-toolbar-title>
+    </v-toolbar>
 
-      <v-spacer></v-spacer>
-    </v-app-bar>
-
-    <!--      <v-navigation-drawer-->
-    <!--          v-model="drawerMenu"-->
-    <!--          fixed-->
-    <!--          clipped-->
-    <!--      >-->
-    <!--        <v-list-->
-    <!--            nav-->
-    <!--            dense-->
-    <!--        >-->
-    <!--          <v-list-item-group-->
-    <!--              v-model="group"-->
-    <!--              active-class="deep-purple&#45;&#45;text text&#45;&#45;accent-4"-->
-    <!--          >-->
-    <!--            <v-list-item>-->
-    <!--              <v-list-item-icon>-->
-    <!--                <v-icon>mdi-home</v-icon>-->
-    <!--              </v-list-item-icon>-->
-    <!--              <v-list-item-title>Home</v-list-item-title>-->
-    <!--            </v-list-item>-->
-
-    <!--            <v-list-item>-->
-    <!--              <v-list-item-icon>-->
-    <!--                <v-icon>mdi-account</v-icon>-->
-    <!--              </v-list-item-icon>-->
-    <!--              <v-list-item-title>Account</v-list-item-title>-->
-    <!--            </v-list-item>-->
-    <!--          </v-list-item-group>-->
-    <!--        </v-list>-->
-    <!--      </v-navigation-drawer>-->
+    <v-navigation-drawer v-model="drawerMenu" absolute temporary>
+      <v-list nav dense>
+        <v-list-item-group active-class="deep-purple--text text--accent-4">
+          <v-list-item
+            v-for="(item, index) in navigation"
+            @click="$router.push(item.link)"
+            :key="index"
+          >
+            <v-list-item-icon>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>
+              {{ item.title }}
+            </v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
 
     <v-main>
-      <HelloWorld />
+      <v-container>
+        <v-row no-gutters>
+          <v-col md="12" style="min-height:90vh;">
+            <RouterView />
+          </v-col>
+        </v-row>
+      </v-container>
     </v-main>
+
+    <v-system-bar height="54px" dark color="#34495e" v-if="healthy">
+      <v-icon size="8" color="green">mdi-circle</v-icon>
+      <span>Instance status: Running</span>
+      <v-spacer></v-spacer>
+    </v-system-bar>
+    <v-system-bar height="54px" dark color="#34495e" v-else>
+      <v-icon size="8" color="red">mdi-circle</v-icon>
+      <span>Instance status: Unavailable</span>
+      <v-spacer></v-spacer>
+    </v-system-bar>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
 
 export default Vue.extend({
   name: "App",
-  components: {
-    HelloWorld
-  },
+  components: {},
   data: () => ({
-    drawerMenu: true
+    healthy: false,
+    drawerMenu: false,
+    navigation: [
+      {
+        title: "Medias",
+        link: "/medias",
+        icon: "mdi-home"
+      },
+      {
+        title: "Metrics",
+        link: "/metrics",
+        icon: "mdi-home"
+      },
+      {
+        title: "Settings",
+        link: "/settings",
+        icon: "mdi-home"
+      }
+    ]
   })
 });
 </script>
