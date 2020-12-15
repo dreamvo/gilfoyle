@@ -63,7 +63,7 @@ func NewServer(logger logging.ILogger, endpoint string) (*Server, error) {
 
 		if errorMsg != "" {
 			logMsg.Error("Incoming HTTP Request",
-				zap.String("ErrorMessage", errorMsg),
+				zap.String("Error", errorMsg),
 			)
 			return
 		}
@@ -82,7 +82,7 @@ func NewServer(logger logging.ILogger, endpoint string) (*Server, error) {
 func registerStaticRoutes(s *Server) *Server {
 	statikFS, err := fs.New()
 	if err != nil {
-		s.logger.Fatal("register static routes", zap.Error(err))
+		s.logger.Fatal("Error creating a new filesystem", zap.Error(err))
 	}
 
 	s.router.StaticFS(staticRootPath, statikFS)
@@ -108,17 +108,21 @@ func (s *Server) proxyHandler(ctx *gin.Context) {
 
 	req, err := http.NewRequestWithContext(ctx, ctx.Request.Method, fullPath, ctx.Request.Body)
 	if err != nil {
-		_ = ctx.AbortWithError(500, err)
+		ctx.AbortWithStatus(500)
 		return
+	}
+
+	for k, _ := range ctx.Request.Header {
+		req.Header.Set(k, ctx.Request.Header.Get(k))
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		_ = ctx.AbortWithError(500, err)
+		ctx.AbortWithStatus(500)
 		return
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 
 	ctx.DataFromReader(res.StatusCode, res.ContentLength, res.Header.Get("Content-Type"), res.Body, map[string]string{})
 }

@@ -18,7 +18,7 @@ func init() {
 	// Register flags
 	dashboardCmd.PersistentFlags().StringVar(&addr, "addr", "", "Interface binding for the web server")
 	dashboardCmd.PersistentFlags().IntVarP(&httpPort, "port", "p", 3000, "HTTP port")
-	dashboardCmd.PersistentFlags().StringVar(&endpoint, "endpoint", "http://localhost:3001", "Endpoint")
+	dashboardCmd.PersistentFlags().StringVar(&endpoint, "endpoint", "http://localhost:3001", "Endpoint URL to access Gilfoyle REST API for internal server requests")
 }
 
 var dashboardCmd = &cobra.Command{
