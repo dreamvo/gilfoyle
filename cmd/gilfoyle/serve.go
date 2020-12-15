@@ -15,9 +15,6 @@ import (
 	"os"
 )
 
-var httpPort int
-var addr string
-
 func init() {
 	// Register command
 	rootCmd.AddCommand(serveCmd)

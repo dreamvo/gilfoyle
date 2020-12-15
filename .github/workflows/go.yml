@@ -16,11 +16,22 @@ jobs:
       - name: Set up Go 1.15
         uses: actions/setup-go@v2.1.3
         with:
-          go-version: 1.15
+          go-version: 1.15.x
         id: go
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2.1.3
+        with:
+          node-version: 12.20.x
+
+      - name: Building dashboard assets
+        run: |
+          cd dashboard/ui
+          yarn
+          yarn build
 
       - name: Build
         run: |
@@ -40,8 +51,7 @@ jobs:
       - name: Test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: |
-          go test -race -coverprofile=./c.out -covermode=atomic -v ./...
+        run: go test -race -coverprofile=./c.out -covermode=atomic -v ./...
 
       - name: Report code coverage
         env:
@@ -59,6 +69,3 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.32
-
-      - name: lint with gofmt
-        run: $(gofmt -l .) || (gofmt -d .; exit 1)
