@@ -11,7 +11,6 @@
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
 import MediaList from "../components/MediaList.vue";
-import HealthGraph from "../components/HealthGraph.vue";
 
 export default Vue.extend({
   components: { MediaList },

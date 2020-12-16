@@ -26,7 +26,7 @@ export default new Vuex.Store({
       const t1: number = Date.now();
       const res: AxiosResponse | void = await axios
         .get("/healthz")
-        .catch((err: Error) => {
+        .catch((/*err: Error*/) => {
           context.commit("setHealthStatus", false);
           context.commit("resetResponseTime");
         });

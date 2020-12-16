@@ -126,15 +126,15 @@ export default Vue.extend({
     footerIcons: [
       {
         icon: "mdi-github",
-        link: config.references.githubURL
+        link: config.links.githubURL
       },
       {
         icon: "mdi-twitter",
-        link: config.references.twitterURL
+        link: config.links.twitterURL
       },
       {
         icon: "mdi-web",
-        link: config.references.websiteURL
+        link: config.links.websiteURL
       }
     ]
   }),

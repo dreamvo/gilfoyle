@@ -36,7 +36,7 @@ interface Data {
 export default Vue.extend({
   components: { MediaList, HealthGraph },
   data: (): Data => ({
-    references: config.references
+    references: config.links
   })
 });
 </script>
