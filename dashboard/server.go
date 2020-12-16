@@ -1,4 +1,4 @@
-//go:generate go run github.com/rakyll/statik -f -src ./ui/dist -include=*.png,*.ico,*.html,*.css,*.js
+//go:generate go run github.com/rakyll/statik -f -src ./ui/dist
 package dashboard
 
 import (
@@ -10,6 +10,7 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -104,7 +105,8 @@ func registerAPIRoutes(s *Server) *Server {
 }
 
 func (s *Server) proxyHandler(ctx *gin.Context) {
-	fullPath := fmt.Sprintf("%s%s", s.endpoint, ctx.Param("path"))
+	URI := strings.Replace(ctx.Request.URL.String(), "/api/proxy", "", 1)
+	fullPath := fmt.Sprintf("%s%s", s.endpoint, URI)
 
 	req, err := http.NewRequestWithContext(ctx, ctx.Request.Method, fullPath, ctx.Request.Body)
 	if err != nil {

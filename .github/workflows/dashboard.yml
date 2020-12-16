@@ -1,0 +1,54 @@
+name: Dashboard
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2.1.3
+        with:
+          node-version: 12.20.x
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          cd dashboard/ui
+          yarn
+
+      - name: Run unit tests
+        run: |
+          cd dashboard/ui
+          yarn test:unit
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2.1.3
+        with:
+          node-version: 12.20.x
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          cd dashboard/ui
+          yarn
+
+      - name: Lint code
+        run: |
+          cd dashboard/ui
+          yarn lint

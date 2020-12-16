@@ -58,6 +58,7 @@ func TestServer(t *testing.T) {
 
 		gock.New("http://gilfoyle.localhost").
 			Post("/healthz").
+			MatchParam("test", "1").
 			MatchHeader("Content-Type", "text/html").
 			MatchHeader("X-Test", "test").
 			Reply(201).
@@ -69,7 +70,7 @@ func TestServer(t *testing.T) {
 			"X-Test":       "test",
 		}
 
-		res, err := performRequest(server.router, http.MethodPost, "/api/proxy/healthz", nil, headers)
+		res, err := performRequest(server.router, http.MethodPost, "/api/proxy/healthz?test=1", nil, headers)
 		assert.NoError(t, err)
 
 		var body map[string]string
