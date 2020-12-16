@@ -1,11 +1,11 @@
 <template>
   <v-container>
     <v-row>
-      <v-col md="12">
-        <div class="align-lg-center">
+      <v-col cols="12" md="12">
+        <div class="">
           <h1>Page Not Found</h1>
           <p>We're sorry but we can't find the page you're looking for.</p>
-          <v-btn depressed dark color="#66f" to="/">Back To Home</v-btn>
+          <v-btn outlined color="#66f" to="/">Back To Home</v-btn>
         </div>
       </v-col>
     </v-row>

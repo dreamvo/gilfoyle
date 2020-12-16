@@ -1,56 +1,23 @@
 <template>
   <v-container>
-    <v-row class="">
-      <v-col class="mb-4">
-        <h1 class="mb-3">
-          Health check
-        </h1>
+    <v-row>
+      <v-col cols="12" md="6" sm="12">
+        <v-card height="100%" outlined>
+          <v-card-title>Welcome to Gilfoyle Dashboard!</v-card-title>
+          <v-card-text
+            >Here you can manage your content and view metrics about your
+            instance. At any time, if needed, you can check out the
+            <a :href="references.docsURL" target="_blank">documentation</a>.
+          </v-card-text>
+        </v-card>
+      </v-col>
 
-        <p>
-          utilise un texte en faux latin, le Lorem ipsum ou Lipsum.Wikipedia
-          (FR)
-        </p>
+      <v-col cols="12" md="6" sm="12">
+        <HealthGraph></HealthGraph>
       </v-col>
 
       <v-col md="12">
-        <v-card>
-          <v-card-title>Medias</v-card-title>
-
-          <v-simple-table>
-            <template v-slot:default>
-              <thead>
-                <tr>
-                  <th class="text-left">
-                    Title
-                  </th>
-                  <th class="text-left">
-                    Status
-                  </th>
-                  <th class="text-left">
-                    Created at
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="media in medias" :key="media.id">
-                  <td>
-                    <RouterLink :to="`/medias/${media.id}`"
-                      >{{ media.title }}
-                    </RouterLink>
-                  </td>
-                  <td>{{ media.status }}</td>
-                  <td>{{ media.created_at }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-
-          <v-spacer></v-spacer>
-
-          <v-card-actions>
-            <v-btn depressed color="#66f" dark>Load more</v-btn>
-          </v-card-actions>
-        </v-card>
+        <MediaList></MediaList>
       </v-col>
     </v-row>
   </v-container>
@@ -58,34 +25,18 @@
 
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
+import MediaList from "../components/MediaList.vue";
+import HealthGraph from "../components/HealthGraph.vue";
+import config from "../config";
+
+interface Data {
+  references: any;
+}
 
 export default Vue.extend({
-  data: () => ({
-    medias: [
-      {
-        id: "1139c704-00e9-4c23-8609-e83d0eacb5a5",
-        status: "Processing",
-        title: "POLO & PAN — Home Sweet Home (the mixtape)",
-        updated_at: "2020-12-15T19:56:04.729Z",
-        created_at: "2020-12-15T19:56:04.729Z",
-        edges: {
-          media_files: [
-            {
-              created_at: "2020-12-15T19:56:04.729Z",
-              duration_seconds: 13.25,
-              edges: {},
-              encoder_preset: "string",
-              framerate: 0,
-              id: "1139c704-00e9-4c23-8609-e83d0eacb5a5",
-              media_type: "video",
-              scaled_width: 1280,
-              updated_at: "2020-12-15T19:56:04.729Z",
-              video_bitrate: 2481
-            }
-          ]
-        }
-      }
-    ]
+  components: { MediaList, HealthGraph },
+  data: (): Data => ({
+    references: config.references
   })
 });
 </script>

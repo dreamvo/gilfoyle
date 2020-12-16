@@ -26,59 +26,87 @@
 
       <v-spacer></v-spacer>
 
-      <v-system-bar height="54px" dark color="#34495e" v-if="healthy">
-        <v-icon size="8" color="green">mdi-circle</v-icon>
-        <span>Instance status: Running</span>
-      </v-system-bar>
-      <v-system-bar height="54px" dark color="#34495e" v-else>
-        <v-icon size="8" color="red">mdi-circle</v-icon>
-        <span>Instance status: Unavailable</span>
+      <v-system-bar height="54px" dark color="#34495e">
+        <v-icon size="8" :color="$store.state.healthy ? 'green' : 'red'"
+          >mdi-circle</v-icon
+        >
+        <span v-if="$store.state.healthy">Instance status: Running</span>
+        <span v-else>Instance status: Unavailable</span>
       </v-system-bar>
     </v-toolbar>
-
-    <v-navigation-drawer v-model="drawerMenu" absolute temporary>
-      <v-list nav dense>
-        <v-list-item-group active-class="deep-purple--text text--accent-4">
-          <v-list-item
-            v-for="(item, index) in navigation"
-            @click="$router.push(item.link)"
-            :key="index"
-          >
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>
-              {{ item.title }}
-            </v-list-item-title>
-          </v-list-item>
-        </v-list-item-group>
-      </v-list>
-    </v-navigation-drawer>
 
     <v-main>
       <v-container>
         <v-row no-gutters>
-          <v-col md="12" style="min-height:90vh;">
-            <v-overlay absolute :value="!healthy"></v-overlay>
+          <v-col md="2" v-if="drawerMenu">
+            <v-list flat>
+              <v-subheader>Menu</v-subheader>
+              <v-list-item-group color="primary">
+                <v-list-item
+                  v-for="(item, index) in navigation"
+                  :key="index"
+                  :to="item.link"
+                >
+                  <v-list-item-icon>
+                    <v-icon v-text="item.icon"></v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.title"></v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-col>
+
+          <v-col :md="drawerMenu ? 10 : 12" style="min-height:90vh;">
             <RouterView />
           </v-col>
         </v-row>
       </v-container>
     </v-main>
+
+    <v-footer dark padless>
+      <v-card class="flex" flat tile color="#2e3341">
+        <v-card-title>
+          <strong class="subheading">Get connected with us!</strong>
+
+          <v-spacer></v-spacer>
+
+          <v-btn
+            v-for="(icon, index) in footerIcons"
+            :key="index"
+            :href="icon.link"
+            target="_blank"
+            class="mx-4"
+            dark
+            icon
+          >
+            <v-icon size="24">
+              {{ icon.icon }}
+            </v-icon>
+          </v-btn>
+        </v-card-title>
+      </v-card>
+    </v-footer>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import axios, { AxiosResponse } from "axios";
+import config from "./config";
+import store from "./store";
 
 export default Vue.extend({
   name: "App",
   components: {},
   data: () => ({
-    healthy: false,
-    drawerMenu: false,
+    drawerMenu: true,
     navigation: [
+      {
+        title: "Overview",
+        link: "/",
+        icon: "mdi-home"
+      },
       {
         title: "Medias",
         link: "/medias",
@@ -94,25 +122,29 @@ export default Vue.extend({
         link: "/settings",
         icon: "mdi-home"
       }
+    ],
+    footerIcons: [
+      {
+        icon: "mdi-github",
+        link: config.references.githubURL
+      },
+      {
+        icon: "mdi-twitter",
+        link: config.references.twitterURL
+      },
+      {
+        icon: "mdi-web",
+        link: config.references.websiteURL
+      }
     ]
   }),
-  methods: {
-    async healthCheck(): Promise<void> {
-      const res: AxiosResponse<any> | void = await axios
-        .get("/api/proxy/healthz")
-        .catch((err: Error) => {
-          this.healthy = false;
-        });
-
-      if (res && res.status == 200) {
-        this.healthy = true;
-      }
-    }
-  },
+  methods: {},
   async created() {
-    await this.healthCheck();
+    await store.dispatch("healthCheck");
 
-    setInterval(this.healthCheck, 5 * 1000);
+    setInterval(async () => {
+      await store.dispatch("healthCheck");
+    }, config.healthCheckDelaySeconds * 1000);
   }
 });
 </script>

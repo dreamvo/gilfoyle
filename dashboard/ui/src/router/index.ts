@@ -1,6 +1,7 @@
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
+import Medias from "../views/Medias.vue";
 import NotFound from "../views/NotFound.vue";
 
 Vue.use(VueRouter);
@@ -10,6 +11,26 @@ const routes: Array<RouteConfig> = [
     path: "/",
     name: "Home",
     component: Home
+  },
+  {
+    path: "/medias",
+    name: "Medias",
+    component: Medias
+  },
+  {
+    path: "/medias/:id",
+    name: "MediaOne",
+    component: NotFound
+  },
+  {
+    path: "/metrics",
+    name: "Metrics",
+    component: NotFound
+  },
+  {
+    path: "/settings",
+    name: "Settings",
+    component: NotFound
   },
   {
     path: "*",
