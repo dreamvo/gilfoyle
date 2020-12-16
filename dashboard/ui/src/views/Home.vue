@@ -13,42 +13,44 @@
       </v-col>
 
       <v-col md="12">
-        <h1 class="mb-3">Medias</h1>
+        <v-card>
+          <v-card-title>Medias</v-card-title>
 
-        <v-simple-table>
-          <template v-slot:default>
-            <thead>
-              <tr>
-                <th class="text-left">
-                  Title
-                </th>
-                <th class="text-left">
-                  Status
-                </th>
-                <th class="text-left">
-                  Created at
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="media in medias" :key="media.id">
-                <td>
-                  <RouterLink :to="`/medias/${media.id}`">{{
-                    media.title
-                  }}</RouterLink>
-                </td>
-                <td>{{ media.status }}</td>
-                <td>{{ media.created_at }}</td>
-              </tr>
-            </tbody>
-          </template>
-        </v-simple-table>
+          <v-simple-table>
+            <template v-slot:default>
+              <thead>
+                <tr>
+                  <th class="text-left">
+                    Title
+                  </th>
+                  <th class="text-left">
+                    Status
+                  </th>
+                  <th class="text-left">
+                    Created at
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="media in medias" :key="media.id">
+                  <td>
+                    <RouterLink :to="`/medias/${media.id}`"
+                      >{{ media.title }}
+                    </RouterLink>
+                  </td>
+                  <td>{{ media.status }}</td>
+                  <td>{{ media.created_at }}</td>
+                </tr>
+              </tbody>
+            </template>
+          </v-simple-table>
 
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-        <div class="align-center">
-          <v-btn depressed color="#66f" dark>Load more</v-btn>
-        </div>
+          <v-card-actions>
+            <v-btn depressed color="#66f" dark>Load more</v-btn>
+          </v-card-actions>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>

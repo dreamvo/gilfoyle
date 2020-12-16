@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <v-toolbar flat color="white" light>
-      <v-col cols="6" sm="4" md="2">
+      <v-col cols="4" sm="2">
         <RouterLink to="/">
           <v-avatar tile height="32" width="auto">
-            <img :src="require('@/assets/logo.svg')" height="48px" alt="logo" />
+            <img :src="require('@/assets/logo.svg')" alt="logo" />
           </v-avatar>
         </RouterLink>
       </v-col>
@@ -23,6 +23,17 @@
       ></v-app-bar-nav-icon>
 
       <v-toolbar-title>Overview</v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-system-bar height="54px" dark color="#34495e" v-if="healthy">
+        <v-icon size="8" color="green">mdi-circle</v-icon>
+        <span>Instance status: Running</span>
+      </v-system-bar>
+      <v-system-bar height="54px" dark color="#34495e" v-else>
+        <v-icon size="8" color="red">mdi-circle</v-icon>
+        <span>Instance status: Unavailable</span>
+      </v-system-bar>
     </v-toolbar>
 
     <v-navigation-drawer v-model="drawerMenu" absolute temporary>
@@ -48,27 +59,18 @@
       <v-container>
         <v-row no-gutters>
           <v-col md="12" style="min-height:90vh;">
+            <v-overlay absolute :value="!healthy"></v-overlay>
             <RouterView />
           </v-col>
         </v-row>
       </v-container>
     </v-main>
-
-    <v-system-bar height="54px" dark color="#34495e" v-if="healthy">
-      <v-icon size="8" color="green">mdi-circle</v-icon>
-      <span>Instance status: Running</span>
-      <v-spacer></v-spacer>
-    </v-system-bar>
-    <v-system-bar height="54px" dark color="#34495e" v-else>
-      <v-icon size="8" color="red">mdi-circle</v-icon>
-      <span>Instance status: Unavailable</span>
-      <v-spacer></v-spacer>
-    </v-system-bar>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
+import axios, { AxiosResponse } from "axios";
 
 export default Vue.extend({
   name: "App",
@@ -93,6 +95,24 @@ export default Vue.extend({
         icon: "mdi-home"
       }
     ]
-  })
+  }),
+  methods: {
+    async healthCheck(): Promise<void> {
+      const res: AxiosResponse<any> | void = await axios
+        .get("/api/proxy/healthz")
+        .catch((err: Error) => {
+          this.healthy = false;
+        });
+
+      if (res && res.status == 200) {
+        this.healthy = true;
+      }
+    }
+  },
+  async created() {
+    await this.healthCheck();
+
+    setInterval(this.healthCheck, 5 * 1000);
+  }
 });
 </script>
