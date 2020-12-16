@@ -27,7 +27,9 @@ jobs:
           yarn
 
       - name: Run unit tests
-        run: yarn test:unit
+        run: |
+          cd dashboard/ui
+          yarn test:unit
 
   lint:
     name: Lint
@@ -47,4 +49,6 @@ jobs:
           yarn
 
       - name: Lint code
-        run: yarn lint
+        run: |
+          cd dashboard/ui
+          yarn lint
