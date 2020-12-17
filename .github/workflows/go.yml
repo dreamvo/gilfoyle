@@ -70,6 +70,3 @@ jobs:
         with:
           version: v1.32
           args: --timeout 120s
-
-      - name: Check git state
-        run: git diff --quiet || exit 1
