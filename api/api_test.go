@@ -7,14 +7,17 @@ import (
 	"github.com/dreamvo/gilfoyle/x/testutils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"net/http"
 	"testing"
 )
 
-var r *gin.Engine
-
 func TestApi(t *testing.T) {
-	s := NewServer(Options{})
+	var r *gin.Engine
+
+	s := NewServer(Options{
+		Logger: zap.NewExample(),
+	})
 	r = s.router
 
 	t.Run("GET /healthz", func(t *testing.T) {

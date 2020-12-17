@@ -15,6 +15,7 @@ import (
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/dreamvo/gilfoyle/x/testutils"
+	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -32,6 +33,8 @@ func removeDir(path string) {
 }
 
 func TestMediaFiles(t *testing.T) {
+	var r *gin.Engine
+
 	dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 	defer func() { _ = dbClient.Close() }()
 

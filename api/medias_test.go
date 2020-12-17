@@ -11,22 +11,23 @@ import (
 	"github.com/dreamvo/gilfoyle/x/testutils"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"net/http"
 	"testing"
 )
 
 func TestMedias(t *testing.T) {
-	dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-	defer func() { _ = dbClient.Close() }()
-
-	s := NewServer(Options{
-		Database: dbClient,
-	})
-	r = s.router
-
 	t.Run("GET /medias", func(t *testing.T) {
 		t.Run("should return empty array", func(t *testing.T) {
-			res, err := testutils.Send(r, http.MethodGet, "/medias", nil)
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
@@ -41,6 +42,13 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return latest medias", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			for i := 0; i < 5; i++ {
 				_, _ = dbClient.Media.
 					Create().
@@ -49,7 +57,7 @@ func TestMedias(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := testutils.Send(r, http.MethodGet, "/medias", nil)
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
@@ -64,6 +72,13 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should limit results to 2", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			for i := 0; i < 3; i++ {
 				_, _ = dbClient.Media.
 					Create().
@@ -72,7 +87,7 @@ func TestMedias(t *testing.T) {
 					Save(context.Background())
 			}
 
-			res, err := testutils.Send(r, http.MethodGet, "/medias?limit=2", nil)
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias?limit=2", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
@@ -87,6 +102,13 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return results with offset 1", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			v, _ := dbClient.Media.
 				Create().
 				SetTitle("video1").
@@ -99,7 +121,7 @@ func TestMedias(t *testing.T) {
 				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
-			res, err := testutils.Send(r, http.MethodGet, "/medias?offset=1", nil)
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias?offset=1", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
@@ -117,7 +139,14 @@ func TestMedias(t *testing.T) {
 
 	t.Run("GET /medias/:id", func(t *testing.T) {
 		t.Run("should return error for invalid UUID", func(t *testing.T) {
-			res, err := testutils.Send(r, http.MethodGet, "/medias/uuid", nil)
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias/uuid", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body util.ErrorResponse
@@ -129,13 +158,20 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return media", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			v, _ := dbClient.Media.
 				Create().
 				SetTitle("no u").
 				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
-			res, err := testutils.Send(r, http.MethodGet, "/medias/"+v.ID.String(), nil)
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias/"+v.ID.String(), nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
@@ -152,18 +188,25 @@ func TestMedias(t *testing.T) {
 
 	t.Run("DELETE /medias/:id", func(t *testing.T) {
 		t.Run("should delete newly created media", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			v, _ := dbClient.Media.
 				Create().
 				SetTitle("test").
 				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
 
-			res, err := testutils.Send(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
+			res, err := testutils.Send(s.router, http.MethodDelete, "/medias/"+v.ID.String(), nil)
 			assert.NoError(t, err, "should be equal")
 
 			assert.Equal(t, res.Result().StatusCode, 200, "should be equal")
 
-			res, err = testutils.Send(r, http.MethodDelete, "/medias/"+v.ID.String(), nil)
+			res, err = testutils.Send(s.router, http.MethodDelete, "/medias/"+v.ID.String(), nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body util.ErrorResponse
@@ -174,7 +217,14 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return error on invalid uid", func(t *testing.T) {
-			res, err := testutils.Send(r, http.MethodDelete, "/medias/uuid", nil)
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
+			res, err := testutils.Send(s.router, http.MethodDelete, "/medias/uuid", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body util.ErrorResponse
@@ -188,7 +238,14 @@ func TestMedias(t *testing.T) {
 
 	t.Run("POST /medias", func(t *testing.T) {
 		t.Run("should create a new media", func(t *testing.T) {
-			res, err := testutils.Send(r, http.MethodPost, "/medias", CreateMedia{
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
+			res, err := testutils.Send(s.router, http.MethodPost, "/medias", CreateMedia{
 				Title: "test",
 			})
 			assert.NoError(t, err)
@@ -202,7 +259,14 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return validation error (1)", func(t *testing.T) {
-			res, err := testutils.Send(r, http.MethodPost, "/medias", CreateMedia{
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
+			res, err := testutils.Send(s.router, http.MethodPost, "/medias", CreateMedia{
 				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis eos quia. Sed autem inventore iure ducimus voluptas voluptas.",
 			})
 			assert.NoError(t, err, "should be equal")
@@ -218,7 +282,14 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return validation error (2)", func(t *testing.T) {
-			res, err := testutils.Send(r, http.MethodPost, "/medias", nil)
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
+			res, err := testutils.Send(s.router, http.MethodPost, "/medias", nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body util.ValidationErrorResponse
@@ -232,6 +303,13 @@ func TestMedias(t *testing.T) {
 
 	t.Run("PATCH /medias/:id", func(t *testing.T) {
 		t.Run("should update a media", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
@@ -239,7 +317,7 @@ func TestMedias(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			res, err := testutils.Send(r, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
+			res, err := testutils.Send(s.router, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
 				Title: "test2",
 			})
 			assert.NoError(t, err)
@@ -253,6 +331,13 @@ func TestMedias(t *testing.T) {
 		})
 
 		t.Run("should return validation error", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+			})
+
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
@@ -260,7 +345,7 @@ func TestMedias(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			res, err := testutils.Send(r, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
+			res, err := testutils.Send(s.router, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
 				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis eos quia. Sed autem inventore iure ducimus voluptas voluptas.",
 			})
 			assert.NoError(t, err, "should be equal")
