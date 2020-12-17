@@ -11,7 +11,7 @@ type VideoTranscodingParams struct {
 	SourceFilePath string
 }
 
-func ProduceVideoTranscodingQueue(ch Channel, data VideoTranscodingParams) error {
+func VideoTranscodingProducer(ch Channel, data VideoTranscodingParams) error {
 	body, _ := json.Marshal(data)
 
 	err := ch.Publish("", VideoTranscodingQueue, false, false, amqp.Publishing{

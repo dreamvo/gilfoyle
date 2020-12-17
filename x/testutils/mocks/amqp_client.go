@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"github.com/dreamvo/gilfoyle/worker"
+	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -9,7 +9,7 @@ type MockedAMQPClient struct {
 	mock.Mock
 }
 
-func (m *MockedAMQPClient) Channel() (worker.Channel, error) {
+func (m *MockedAMQPClient) Channel() (*amqp.Channel, error) {
 	args := m.Called()
 	return nil, args.Error(0)
 }

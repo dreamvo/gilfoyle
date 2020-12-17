@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/dreamvo/gilfoyle/storage"
-	assertTest "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -16,8 +16,6 @@ func removeDir(path string) {
 }
 
 func TestFS(t *testing.T) {
-	assert := assertTest.New(t)
-
 	cfg := Config{
 		Root: "./tmp",
 	}
@@ -29,7 +27,7 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		_, err := s.Stat(ctx, "doesnotexist")
-		assert.EqualError(err, storage.ErrNotExist.Error())
+		assert.EqualError(t, err, storage.ErrNotExist.Error())
 	})
 
 	t.Run("should create file", func(t *testing.T) {
@@ -39,7 +37,7 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 	})
 
 	t.Run("should get metadata of file", func(t *testing.T) {
@@ -51,16 +49,16 @@ func TestFS(t *testing.T) {
 		before := time.Now().Add(-1 * time.Second)
 
 		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 
 		now := time.Now().Add(2 * time.Second)
 
 		stat, err := s.Stat(ctx, "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 
-		assert.Equal(int64(5), stat.Size)
-		assert.Equal(false, stat.ModifiedTime.Before(before))
-		assert.Equal(false, stat.ModifiedTime.After(now))
+		assert.Equal(t, int64(5), stat.Size)
+		assert.Equal(t, false, stat.ModifiedTime.Before(before))
+		assert.Equal(t, false, stat.ModifiedTime.After(now))
 	})
 
 	t.Run("should create then delete file", func(t *testing.T) {
@@ -70,13 +68,13 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 
 		err = s.Delete(ctx, "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 
 		_, err = s.Stat(ctx, "world")
-		assert.EqualError(err, storage.ErrNotExist.Error())
+		assert.EqualError(t, err, storage.ErrNotExist.Error())
 	})
 
 	t.Run("should create then open file", func(t *testing.T) {
@@ -86,15 +84,15 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		err := s.Save(ctx, bytes.NewBufferString("hello"), "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 
 		f, err := s.Open(ctx, "world")
-		assert.NoError(err)
+		assert.NoError(t, err)
 		defer f.Close()
 
 		b, err := ioutil.ReadAll(f)
-		assert.NoError(err)
-		assert.Equal("hello", string(b))
+		assert.NoError(t, err)
+		assert.Equal(t, "hello", string(b))
 	})
 
 	t.Run("should try to open a non existing file", func(t *testing.T) {
@@ -104,6 +102,6 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		_, err := s.Open(ctx, "world")
-		assert.EqualError(err, storage.ErrNotExist.Error())
+		assert.EqualError(t, err, storage.ErrNotExist.Error())
 	})
 }

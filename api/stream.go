@@ -15,6 +15,6 @@ import (
 // @Param media_id path string true "Media identifier" validate(required)
 // @Param preset path string true "Encoder preset" validate(required)
 // @Router /medias/{media_id}/stream/{preset} [get]
-func streamMedia(ctx *gin.Context) {
+func (s *Server) streamMedia(ctx *gin.Context) {
 	ctx.Status(200)
 }

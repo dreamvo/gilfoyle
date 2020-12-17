@@ -7,8 +7,8 @@ import (
 	"github.com/dreamvo/gilfoyle/api"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
-	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
+	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -41,17 +41,13 @@ var serveCmd = &cobra.Command{
 			gin.SetMode(gin.DebugMode)
 		}
 
-		err := db.InitClient(gilfoyle.Config.Services.DB)
+		dbClient, err := db.NewClient(gilfoyle.Config.Services.DB)
 		if err != nil {
 			logger.Fatal("failed opening connection", zap.Error(err))
 		}
-		defer db.Client.Close()
 
-		var dbClient *ent.Client
 		if !gilfoyle.Config.Settings.Debug {
-			dbClient = db.Client.Debug()
-		} else {
-			dbClient = db.Client
+			dbClient = dbClient.Debug()
 		}
 
 		// run the auto migration tool.
@@ -66,26 +62,39 @@ var serveCmd = &cobra.Command{
 
 		logger.Info("Successfully executed database auto migration")
 
-		_, err = gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		s, err := gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
 		if err != nil {
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}
 
-		w, err := gilfoyle.NewWorker()
+		w, err := worker.New(worker.Options{
+			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
+			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
+			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
+			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
+			Logger:      logger,
+			Concurrency: 0,
+		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
 		}
-		defer w.Close()
+		defer func() { _ = w.Close() }()
 
 		err = w.Init()
 		if err != nil {
 			logger.Fatal("Failed to initialize worker queues", zap.Error(err))
 		}
 
-		router := api.NewServer()
+		server := api.NewServer(api.Options{
+			Logger:   logger,
+			Worker:   w,
+			Database: dbClient,
+			Config:   gilfoyle.Config,
+			Storage:  s,
+		})
 
 		// Launch web server
-		if err := router.Run(fmt.Sprintf("%s:%d", addr, httpPort)); err != nil {
+		if err := server.Listen(fmt.Sprintf("%s:%d", addr, httpPort)); err != nil {
 			logger.Fatal("error while launching web server", zap.Error(err))
 		}
 	},

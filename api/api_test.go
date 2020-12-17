@@ -1,55 +1,46 @@
 package api
 
 import (
-	"bytes"
 	"encoding/json"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/x/testutils"
 	"github.com/gin-gonic/gin"
-	assertTest "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 )
 
-var r *gin.Engine
-
-func performRequest(r http.Handler, method, path string, body interface{}) (*httptest.ResponseRecorder, error) {
-	data, err := json.Marshal(body)
-	if err != nil {
-		return nil, err
-	}
-	req, err := http.NewRequest(method, path, bytes.NewReader(data))
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w, err
-}
-
 func TestApi(t *testing.T) {
-	assert := assertTest.New(t)
-	r = NewServer()
+	var r *gin.Engine
+
+	s := NewServer(Options{
+		Logger: zap.NewExample(),
+	})
+	r = s.router
 
 	t.Run("GET /healthz", func(t *testing.T) {
-		res, err := performRequest(r, http.MethodGet, "/healthz", nil)
-		assert.NoError(err)
+		res, err := testutils.Send(r, http.MethodGet, "/healthz", nil)
+		assert.NoError(t, err)
 
 		var body HealthCheckResponse
 		_ = json.NewDecoder(res.Body).Decode(&body)
 
-		assert.Equal(200, res.Result().StatusCode)
-		assert.Equal(config.Version, body.Tag)
-		assert.Equal(config.Commit, body.Commit)
+		assert.Equal(t, 200, res.Result().StatusCode)
+		assert.Equal(t, config.Version, body.Tag)
+		assert.Equal(t, config.Commit, body.Commit)
 	})
 
 	t.Run("GET /404notfound", func(t *testing.T) {
-		res, err := performRequest(r, http.MethodGet, "/404notfound", nil)
-		assert.NoError(err)
+		res, err := testutils.Send(r, http.MethodGet, "/404notfound", nil)
+		assert.NoError(t, err)
 
 		var body util.ErrorResponse
 		_ = json.NewDecoder(res.Body).Decode(&body)
 
-		assert.Equal(404, res.Result().StatusCode)
-		assert.Equal(404, body.Code)
-		assert.Equal("resource not found", body.Message)
+		assert.Equal(t, 404, res.Result().StatusCode)
+		assert.Equal(t, 404, body.Code)
+		assert.Equal(t, "resource not found", body.Message)
 	})
 }

@@ -3,10 +3,13 @@ package api
 
 import (
 	"errors"
-	"github.com/dreamvo/gilfoyle"
 	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/api/util"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent"
+	"github.com/dreamvo/gilfoyle/logging"
+	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
@@ -26,6 +29,23 @@ var (
 	ErrResourceNotFound = errors.New("resource not found")
 )
 
+type Options struct {
+	Database *ent.Client
+	Config   config.Config
+	Storage  storage.Storage
+	Worker   *worker.Worker
+	Logger   logging.ILogger
+}
+
+type Server struct {
+	router  *gin.Engine
+	db      *ent.Client
+	worker  *worker.Worker
+	logger  logging.ILogger
+	storage storage.Storage
+	config  config.Config
+}
+
 // @title Gilfoyle server
 // @description Cloud-native media hosting & streaming server for businesses.
 // @version v1
@@ -35,16 +55,23 @@ var (
 // @license.name GNU General Public License v3.0
 // @license.url https://github.com/dreamvo/gilfoyle/blob/master/LICENSE
 
-func NewServer() *gin.Engine {
-	r := gin.New()
-	RegisterMiddlewares(r)
-	RegisterRoutes(r)
-	return r
+func NewServer(opts Options) *Server {
+	s := &Server{
+		router:  gin.New(),
+		storage: opts.Storage,
+		db:      opts.Database,
+		config:  opts.Config,
+		logger:  opts.Logger,
+		worker:  opts.Worker,
+	}
+	registerMiddlewares(s)
+	registerRoutes(s)
+	return s
 }
 
-// RegisterMiddlewares adds middlewares to a given router instance
-func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
-	r.Use(gin.Recovery())
+// registerMiddlewares adds middlewares to a given router instance
+func registerMiddlewares(s *Server) {
+	s.router.Use(gin.Recovery())
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	// TODO(sundowndev): update Gin to enable this feature. See https://github.com/gin-gonic/gin/commits/master/recovery.go
@@ -55,7 +82,7 @@ func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 	//	util.NewError(ctx, http.StatusInternalServerError, errors.New("an unexpected error occurred"))
 	//}))
 
-	r.Use(func(ctx *gin.Context) {
+	s.router.Use(func(ctx *gin.Context) {
 		ctx.Next()
 
 		path := ctx.Request.URL.Path
@@ -66,7 +93,7 @@ func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 			path = path + "?" + raw
 		}
 
-		log := gilfoyle.Logger.With(
+		log := s.logger.With(
 			zap.String("Method", ctx.Request.Method),
 			zap.String("Path", path),
 			zap.Int("StatusCode", ctx.Writer.Status()),
@@ -83,43 +110,44 @@ func RegisterMiddlewares(r *gin.Engine) *gin.Engine {
 
 		log.Info("Incoming HTTP Request")
 	})
-
-	return r
 }
 
-// RegisterRoutes adds routes to a given router instance
-func RegisterRoutes(r *gin.Engine) *gin.Engine {
-	r.GET("/healthz", healthCheckHandler)
-	r.GET("/metricsz", getMetrics)
+// registerRoutes adds routes to a given router instance
+func registerRoutes(s *Server) {
+	s.router.GET("/healthz", s.healthCheckHandler)
+	s.router.GET("/metricsz", s.getMetrics)
 
-	medias := r.Group("/medias")
+	medias := s.router.Group("/medias")
 	{
-		medias.GET("", paginateHandler, getAllMedias)
-		medias.GET(":id", getMedia)
-		medias.DELETE(":id", deleteMedia)
-		medias.POST("", createMedia)
-		medias.PATCH(":id", updateMedia)
-		medias.POST(":id/upload/video", uploadVideoFile)
-		medias.POST(":id/upload/audio", uploadAudioFile)
-		medias.GET(":id/attachments", getMediaAttachments)
-		medias.POST(":id/attachments", addMediaAttachments)
-		medias.DELETE(":id/attachments/:attachment_id", deleteMediaAttachments)
-		medias.GET(":id/stream/:preset", streamMedia)
+		medias.GET("", s.paginateHandler, s.getAllMedias)
+		medias.GET(":id", s.getMedia)
+		medias.DELETE(":id", s.deleteMedia)
+		medias.POST("", s.createMedia)
+		medias.PATCH(":id", s.updateMedia)
+		medias.POST(":id/upload/video", s.uploadVideoFile)
+		medias.POST(":id/upload/audio", s.uploadAudioFile)
+		medias.GET(":id/attachments", s.getMediaAttachments)
+		medias.POST(":id/attachments", s.addMediaAttachments)
+		medias.DELETE(":id/attachments/:attachment_id", s.deleteMediaAttachments)
+		medias.GET(":id/stream/:preset", s.streamMedia)
 	}
 
-	if gilfoyle.Config.Settings.ExposeSwaggerUI {
+	if s.config.Settings.ExposeSwaggerUI {
 		// Register swagger docs handler
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		s.router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
-	r.Use(func(ctx *gin.Context) {
+	s.router.Use(func(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusNotFound, errors.New("resource not found"))
 	})
-
-	return r
 }
 
-func paginateHandler(ctx *gin.Context) {
+func (s *Server) Listen(addr ...string) error {
+	defer func() { _ = s.db.Close() }()
+	return s.router.Run(addr...)
+}
+
+func (s *Server) paginateHandler(ctx *gin.Context) {
 	limit := ctx.Query("limit")
 	limitInt, err := strconv.ParseInt(limit, 10, 64)
 

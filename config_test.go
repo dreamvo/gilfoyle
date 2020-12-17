@@ -2,19 +2,17 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle/config"
-	assertTest "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
 )
 
 func TestConfig(t *testing.T) {
-	assert := assertTest.New(t)
-
 	t.Run("should set default values", func(t *testing.T) {
 		_, err := NewConfig()
-		assert.Nil(err)
+		assert.Nil(t, err)
 
-		assert.Equal(&config.Config{
+		assert.Equal(t, &config.Config{
 			Services: config.ServicesConfig{
 				DB: config.DatabaseConfig{
 					Dialect:  "postgres",
@@ -80,25 +78,25 @@ func TestConfig(t *testing.T) {
 		_ = os.Setenv("IPFS_GATEWAY", "ipfs_gateway")
 
 		_, err := NewConfig()
-		assert.Nil(err)
+		assert.Nil(t, err)
 
-		assert.Equal("postgres", Config.Services.DB.Dialect)
-		assert.Equal("host", Config.Services.DB.Host)
-		assert.Equal("port", Config.Services.DB.Port)
-		assert.Equal("user", Config.Services.DB.User)
-		assert.Equal("database", Config.Services.DB.Database)
-		assert.Equal("password", Config.Services.DB.Password)
+		assert.Equal(t, "postgres", Config.Services.DB.Dialect)
+		assert.Equal(t, "host", Config.Services.DB.Host)
+		assert.Equal(t, "port", Config.Services.DB.Port)
+		assert.Equal(t, "user", Config.Services.DB.User)
+		assert.Equal(t, "database", Config.Services.DB.Database)
+		assert.Equal(t, "password", Config.Services.DB.Password)
 
-		assert.Equal("rabbitmq_user", Config.Services.RabbitMQ.Username)
-		assert.Equal("rabbitmq_pass", Config.Services.RabbitMQ.Password)
-		assert.Equal(5555, Config.Services.RabbitMQ.Port)
-		assert.Equal("rabbitmq_host", Config.Services.RabbitMQ.Host)
+		assert.Equal(t, "rabbitmq_user", Config.Services.RabbitMQ.Username)
+		assert.Equal(t, "rabbitmq_pass", Config.Services.RabbitMQ.Password)
+		assert.Equal(t, 5555, Config.Services.RabbitMQ.Port)
+		assert.Equal(t, "rabbitmq_host", Config.Services.RabbitMQ.Host)
 
-		assert.Equal("ipfs_gateway", Config.Storage.IPFS.Gateway)
+		assert.Equal(t, "ipfs_gateway", Config.Storage.IPFS.Gateway)
 	})
 
 	t.Run("should not return error on bad file path", func(t *testing.T) {
 		_, err := NewConfig("/path/to/file.wat")
-		assert.Nil(err)
+		assert.Nil(t, err)
 	})
 }

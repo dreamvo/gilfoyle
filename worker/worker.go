@@ -3,6 +3,7 @@ package worker
 import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle/logging"
+	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/streadway/amqp"
 )
 
@@ -36,7 +37,7 @@ var queues = []Queue{
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    videoTranscodingQueueConsumer,
+		Handler:    videoTranscodingConsumer,
 	},
 	{
 		Name:       ThumbnailGenerationQueue,
@@ -65,13 +66,15 @@ type Options struct {
 	Password    string
 	Logger      logging.ILogger
 	Concurrency uint
+	Storage     storage.Storage
 }
 
 type Worker struct {
 	Queues      map[string]amqp.Queue
-	Logger      logging.ILogger
+	logger      logging.ILogger
 	Client      *amqp.Connection
 	concurrency uint
+	storage     storage.Storage
 }
 
 func New(opts Options) (*Worker, error) {
@@ -89,8 +92,9 @@ func New(opts Options) (*Worker, error) {
 	return &Worker{
 		Queues:      map[string]amqp.Queue{},
 		Client:      conn,
-		Logger:      opts.Logger,
+		logger:      opts.Logger,
 		concurrency: opts.Concurrency,
+		storage:     opts.Storage,
 	}, nil
 }
 

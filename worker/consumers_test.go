@@ -3,7 +3,7 @@ package worker
 import (
 	"encoding/json"
 	"errors"
-	"github.com/dreamvo/gilfoyle/worker/mocks"
+	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/mock"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestConsumers(t *testing.T) {
-	t.Run("videoTranscodingQueueConsumer", func(t *testing.T) {
+	t.Run("videoTranscodingConsumer", func(t *testing.T) {
 		t.Run("should receive one message and succeed", func(t *testing.T) {
 			params := VideoTranscodingParams{
 				MediaUUID:      uuid.New(),
@@ -26,7 +26,7 @@ func TestConsumers(t *testing.T) {
 			AckMock := new(mocks.MockedAcknowledger)
 
 			w := &Worker{
-				Logger: loggerMock,
+				logger: loggerMock,
 			}
 			delivery := amqp.Delivery{
 				Body:         body,
@@ -41,7 +41,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go videoTranscodingQueueConsumer(w, msgs)
+			go videoTranscodingConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -55,7 +55,7 @@ func TestConsumers(t *testing.T) {
 			loggerMock := new(mocks.MockedLogger)
 
 			w := &Worker{
-				Logger: loggerMock,
+				logger: loggerMock,
 			}
 			delivery := amqp.Delivery{
 				Body: []byte(""),
@@ -65,7 +65,7 @@ func TestConsumers(t *testing.T) {
 
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go videoTranscodingQueueConsumer(w, msgs)
+			go videoTranscodingConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -86,7 +86,7 @@ func TestConsumers(t *testing.T) {
 			AckMock := new(mocks.MockedAcknowledger)
 
 			w := &Worker{
-				Logger: loggerMock,
+				logger: loggerMock,
 			}
 			delivery := amqp.Delivery{
 				Body:         body,
@@ -95,7 +95,7 @@ func TestConsumers(t *testing.T) {
 
 			msgs := make(chan amqp.Delivery)
 
-			go videoTranscodingQueueConsumer(w, msgs)
+			go videoTranscodingConsumer(w, msgs)
 
 			loggerMock.On("Info", "Received a message", []zap.Field{
 				zap.String("SourceFilePath", params.SourceFilePath),

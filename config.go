@@ -2,7 +2,6 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle/config"
-	"github.com/jinzhu/configor"
 )
 
 var (
@@ -13,7 +12,12 @@ var (
 // and load values from environment variables or config file.
 // File paths can be both relative and absolute.
 func NewConfig(files ...string) (*config.Config, error) {
-	err := configor.Load(&Config, files...)
+	c, err := config.NewConfig(files...)
+	if err != nil {
+		return nil, err
+	}
+
+	Config = *c
 
 	return &Config, err
 }

@@ -6,10 +6,8 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 )
 
-var Client *ent.Client
-
-// InitClient initialize a database connection
-func InitClient(config config.DatabaseConfig) (err error) {
+// NewClient returns a new database connection
+func NewClient(config config.DatabaseConfig) (*ent.Client, error) {
 	datasource := fmt.Sprintf(
 		"host=%s port=%s user=%s dbname=%s password=%s",
 		config.Host,
@@ -19,7 +17,5 @@ func InitClient(config config.DatabaseConfig) (err error) {
 		config.Password,
 	)
 
-	Client, err = ent.Open(config.Dialect, datasource)
-
-	return err
+	return ent.Open(config.Dialect, datasource)
 }
