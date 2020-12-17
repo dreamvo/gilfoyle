@@ -38,9 +38,6 @@ jobs:
           go generate ./...
           go build -v .
 
-      - name: Check git state
-        run: git diff --quiet || exit 1
-
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -73,3 +70,6 @@ jobs:
         with:
           version: v1.32
           args: --timeout 120s
+
+      - name: Check git state
+        run: git diff --quiet || exit 1
