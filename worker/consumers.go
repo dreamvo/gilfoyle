@@ -6,21 +6,25 @@ import (
 	"go.uber.org/zap"
 )
 
-func videoTranscodingQueueConsumer(w *Worker, msgs <-chan amqp.Delivery) {
+func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		var body VideoTranscodingParams
 
 		err := json.Unmarshal(d.Body, &body)
 		if err != nil {
-			w.Logger.Error("Unmarshal error", zap.Error(err))
+			w.logger.Error("Unmarshal error", zap.Error(err))
 			return
 		}
 
-		w.Logger.Info("Received a message", zap.String("SourceFilePath", body.SourceFilePath))
+		w.logger.Info("Received a message", zap.String("SourceFilePath", body.SourceFilePath))
+
+		// Fetch Media A
+		// Create a new MediaFile for this Media
+		//_, _ = w.storage.Open(context.Background(), "uuid/source")
 
 		err = d.Ack(false)
 		if err != nil {
-			w.Logger.Error("Error trying to send ack", zap.Error(err))
+			w.logger.Error("Error trying to send ack", zap.Error(err))
 		}
 	}
 }

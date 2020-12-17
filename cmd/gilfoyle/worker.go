@@ -2,6 +2,7 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -23,6 +24,11 @@ var workerCmd = &cobra.Command{
 
 		logger.Info("Initializing worker node")
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
+
+		_, err := gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		if err != nil {
+			logger.Fatal("Error initializing storage backend", zap.Error(err))
+		}
 
 		w, err := gilfoyle.NewWorker()
 		if err != nil {

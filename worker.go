@@ -26,6 +26,7 @@ func NewWorker() (*worker.Worker, error) {
 			Password:    Config.Services.RabbitMQ.Password,
 			Logger:      Logger,
 			Concurrency: WorkerConcurrency,
+			Storage:     Storage,
 		})
 	})
 
