@@ -518,7 +518,9 @@ var doc = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/medias/{media_id}/attachments/{key}": {
             "post": {
                 "description": "Add attachment to a media",
                 "consumes": [
@@ -537,6 +539,13 @@ var doc = `{
                         "type": "string",
                         "description": "Media identifier",
                         "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Attachment unique identifier",
+                        "name": "key",
                         "in": "path",
                         "required": true
                     },
@@ -568,9 +577,7 @@ var doc = `{
                         }
                     }
                 }
-            }
-        },
-        "/medias/{media_id}/attachments/{key}": {
+            },
             "delete": {
                 "description": "Delete attachment of a media",
                 "produces": [

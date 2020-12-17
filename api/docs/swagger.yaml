@@ -455,40 +455,6 @@ paths:
       summary: Get attachments of a media
       tags:
       - Attachments
-    post:
-      consumes:
-      - multipart/form-data
-      description: Add attachment to a media
-      operationId: addMediaAttachment
-      parameters:
-      - description: Media identifier
-        in: path
-        name: media_id
-        required: true
-        type: string
-      - description: Attachment file
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/util.DataResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: Add attachment to a media
-      tags:
-      - Attachments
   /medias/{media_id}/attachments/{key}:
     delete:
       description: Delete attachment of a media
@@ -520,6 +486,45 @@ paths:
           schema:
             $ref: '#/definitions/util.ErrorResponse'
       summary: Delete attachment of a media
+      tags:
+      - Attachments
+    post:
+      consumes:
+      - multipart/form-data
+      description: Add attachment to a media
+      operationId: addMediaAttachment
+      parameters:
+      - description: Media identifier
+        in: path
+        name: media_id
+        required: true
+        type: string
+      - description: Attachment unique identifier
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Attachment file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DataResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
+      summary: Add attachment to a media
       tags:
       - Attachments
   /medias/{media_id}/stream/{preset}:
