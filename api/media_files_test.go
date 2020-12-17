@@ -8,7 +8,6 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
-	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
@@ -19,6 +18,7 @@ import (
 	"github.com/dreamvo/gilfoyle/x/testutils"
 	_ "github.com/mattn/go-sqlite3"
 	assertTest "github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -52,14 +52,14 @@ func TestMediaFiles(t *testing.T) {
 	container := testutils.CreateRabbitMQContainer(t, "guest", "guest")
 	defer testutils.StopContainer(t, container)
 
-	gilfoyle.Config.Services.RabbitMQ = config.RabbitMQConfig{
-		Host:     container.Host,
-		Port:     container.DefaultPort(),
-		Username: "guest",
-		Password: "guest",
-	}
-
-	w, err := gilfoyle.NewWorker()
+	w, err := worker.New(worker.Options{
+		Host:        container.Host,
+		Port:        container.DefaultPort(),
+		Username:    "guest",
+		Password:    "guest",
+		Logger:      zap.NewExample(),
+		Concurrency: 1,
+	})
 	if err != nil {
 		t.Error(err)
 	}
@@ -149,7 +149,7 @@ func TestMediaFiles(t *testing.T) {
 			assert.Equal(int64(1205959), mediaFile.VideoBitrate)
 			assert.Equal(mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
 
-			ch, err := gilfoyle.Worker.Client.Channel()
+			ch, err := w.Client.Channel()
 			assert.NoError(err)
 
 			_, ok, err := ch.Get(worker.VideoTranscodingQueue, false)

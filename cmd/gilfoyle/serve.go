@@ -9,6 +9,7 @@ import (
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
+	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -71,7 +72,14 @@ var serveCmd = &cobra.Command{
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}
 
-		w, err := gilfoyle.NewWorker()
+		w, err := worker.New(worker.Options{
+			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
+			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
+			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
+			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
+			Logger:      logger,
+			Concurrency: 0,
+		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
 		}
