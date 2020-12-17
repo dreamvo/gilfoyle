@@ -4,22 +4,20 @@ import (
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/google/uuid"
-	assertTest "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestStorage(t *testing.T) {
-	assert := assertTest.New(t)
-
 	t.Run("should use non-existing storage class", func(t *testing.T) {
 		_, err := NewStorage("test")
 
-		assert.EqualError(err, "storage class test does not exist")
+		assert.EqualError(t, err, "storage class test does not exist")
 	})
 
 	t.Run("should initialize Filesystem storage", func(t *testing.T) {
 		_, err := NewStorage(storage.Filesystem)
-		assert.NoError(err)
+		assert.NoError(t, err)
 	})
 
 	t.Run("should initialize S3 storage", func(t *testing.T) {
@@ -32,6 +30,6 @@ func TestStorage(t *testing.T) {
 		}
 
 		_, err := NewStorage(storage.AmazonS3)
-		assert.NoError(err)
+		assert.NoError(t, err)
 	})
 }
