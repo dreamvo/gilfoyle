@@ -3,7 +3,7 @@ package worker
 import (
 	"encoding/json"
 	"errors"
-	"github.com/dreamvo/gilfoyle/worker/mocks"
+	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/mock"

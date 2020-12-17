@@ -92,7 +92,7 @@ func TestMediaFiles(t *testing.T) {
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
 
-			filePath := "./mocks/SampleVideo_1280x720_1mb.mp4"
+			filePath := "../x/testutils/fixtures/SampleVideo_1280x720_1mb.mp4"
 
 			file, err := os.Open(filePath)
 			assert.NoError(t, err)
