@@ -47,6 +47,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			for i := 0; i < 5; i++ {
@@ -77,6 +78,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			for i := 0; i < 3; i++ {
@@ -107,6 +109,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			v, _ := dbClient.Media.
@@ -144,6 +147,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			res, err := testutils.Send(s.router, http.MethodGet, "/medias/uuid", nil)
@@ -163,6 +167,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			v, _ := dbClient.Media.
@@ -193,6 +198,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			v, _ := dbClient.Media.
@@ -222,6 +228,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			res, err := testutils.Send(s.router, http.MethodDelete, "/medias/uuid", nil)
@@ -243,6 +250,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			res, err := testutils.Send(s.router, http.MethodPost, "/medias", CreateMedia{
@@ -264,6 +272,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			res, err := testutils.Send(s.router, http.MethodPost, "/medias", CreateMedia{
@@ -287,6 +296,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			res, err := testutils.Send(s.router, http.MethodPost, "/medias", nil)
@@ -308,6 +318,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			m, err := dbClient.Media.
@@ -336,6 +347,7 @@ func TestMedias(t *testing.T) {
 
 			s := NewServer(Options{
 				Database: dbClient,
+				Logger:   zap.NewExample(),
 			})
 
 			m, err := dbClient.Media.

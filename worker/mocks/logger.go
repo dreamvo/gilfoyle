@@ -25,3 +25,7 @@ func (m *MockedLogger) With(fields ...zap.Field) *zap.Logger {
 	m.Called(fields)
 	return new(zap.Logger)
 }
+
+func (m *MockedLogger) Sync() error {
+	return m.Called().Error(0)
+}

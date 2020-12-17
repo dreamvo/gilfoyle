@@ -77,6 +77,7 @@ func TestMediaFiles(t *testing.T) {
 		Config:   *cfg,
 		Storage:  storageDriver,
 		Worker:   w,
+		Logger:   zap.NewExample(),
 	})
 	r = s.router
 
