@@ -19,7 +19,7 @@ type HealthCheckResponse struct {
 // @Produce  json
 // @Success 200 {object} util.DataResponse{data=HealthCheckResponse}
 // @Router /healthz [get]
-func healthCheckHandler(ctx *gin.Context) {
+func (s *Server) healthCheckHandler(ctx *gin.Context) {
 	util.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
 		Tag:    config.Version,
 		Commit: config.Commit,
@@ -34,6 +34,6 @@ func healthCheckHandler(ctx *gin.Context) {
 // @Success 200 {object} util.DataResponse
 // @Failure 500 {object} util.ErrorResponse
 // @Router /metricsz [get]
-func getMetrics(ctx *gin.Context) {
+func (s *Server) getMetrics(ctx *gin.Context) {
 	ctx.Status(200)
 }

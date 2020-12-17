@@ -1,6 +1,10 @@
 //go:generate sh -c "go run ../cmd/main.go config | tee ../.support/config/defaults.yml"
 package config
 
+import (
+	"github.com/jinzhu/configor"
+)
+
 // StorageClass is a kind of storage backend
 type StorageClass string
 
@@ -73,4 +77,13 @@ type RabbitMQConfig struct {
 
 type WorkerSettings struct {
 	Concurrency uint `yaml:"concurrency" json:"concurrency" default:"10" env:"WORKER_CONCURRENCY"`
+}
+
+// NewConfig creates a new config object
+// and load values from environment variables or config file.
+// File paths can be both relative and absolute.
+func NewConfig(files ...string) (*Config, error) {
+	var config Config
+	err := configor.Load(&config, files...)
+	return &config, err
 }

@@ -13,7 +13,7 @@ import (
 // @Failure 500 {object} util.ErrorResponse
 // @Param media_id path string true "Media identifier" validate(required)
 // @Router /medias/{media_id}/attachments [get]
-func getMediaAttachments(ctx *gin.Context) {
+func (s *Server) getMediaAttachments(ctx *gin.Context) {
 	ctx.Status(200)
 }
 
@@ -27,9 +27,10 @@ func getMediaAttachments(ctx *gin.Context) {
 // @Failure 400 {object} util.ErrorResponse
 // @Failure 500 {object} util.ErrorResponse
 // @Param media_id path string true "Media identifier" validate(required)
+// @Param key path string true "Attachment unique identifier" validate(required)
 // @Param file formData file true "Attachment file"
-// @Router /medias/{media_id}/attachments [post]
-func addMediaAttachments(ctx *gin.Context) {
+// @Router /medias/{media_id}/attachments/{key} [post]
+func (s *Server) addMediaAttachments(ctx *gin.Context) {
 	ctx.Status(200)
 }
 
@@ -44,6 +45,6 @@ func addMediaAttachments(ctx *gin.Context) {
 // @Param media_id path string true "Media identifier" validate(required)
 // @Param key path string true "Attachment unique identifier" validate(required)
 // @Router /medias/{media_id}/attachments/{key} [delete]
-func deleteMediaAttachments(ctx *gin.Context) {
+func (s *Server) deleteMediaAttachments(ctx *gin.Context) {
 	ctx.Status(200)
 }

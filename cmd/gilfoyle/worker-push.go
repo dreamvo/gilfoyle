@@ -18,7 +18,14 @@ var workerPushCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		logger := gilfoyle.Logger
 
-		w, err := gilfoyle.NewWorker()
+		w, err := worker.New(worker.Options{
+			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
+			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
+			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
+			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
+			Logger:      logger,
+			Concurrency: 0,
+		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
 		}

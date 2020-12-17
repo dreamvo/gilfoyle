@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
-	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
@@ -17,7 +16,7 @@ import (
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/dreamvo/gilfoyle/x/testutils"
 	_ "github.com/mattn/go-sqlite3"
-	assertTest "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"io"
 	"mime/multipart"
@@ -33,10 +32,10 @@ func removeDir(path string) {
 }
 
 func TestMediaFiles(t *testing.T) {
-	assert := assertTest.New(t)
-	r = NewServer()
+	dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	defer func() { _ = dbClient.Close() }()
 
-	_, err := gilfoyle.NewConfig()
+	cfg, err := gilfoyle.NewConfig()
 	if err != nil {
 		t.Error(err)
 	}
@@ -44,7 +43,7 @@ func TestMediaFiles(t *testing.T) {
 	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
 	defer removeDir(gilfoyle.Config.Storage.Filesystem.DataPath)
 
-	_, err = gilfoyle.NewStorage(storage.Filesystem)
+	storageDriver, err := gilfoyle.NewStorage(storage.Filesystem)
 	if err != nil {
 		t.Error(err)
 	}
@@ -70,12 +69,17 @@ func TestMediaFiles(t *testing.T) {
 		t.Error(err)
 	}
 
+	s := NewServer(Options{
+		Database: dbClient,
+		Config:   *cfg,
+		Storage:  storageDriver,
+		Worker:   w,
+	})
+	r = s.router
+
 	t.Run("POST /medias/:id/upload/video", func(t *testing.T) {
 		t.Run("should upload file and return probe", func(t *testing.T) {
-			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-			defer db.Client.Close()
-
-			m, _ := db.Client.Media.
+			m, _ := dbClient.Media.
 				Create().
 				SetTitle("test").
 				SetStatus(schema.MediaStatusAwaitingUpload).
@@ -87,20 +91,20 @@ func TestMediaFiles(t *testing.T) {
 			filePath := "./mocks/SampleVideo_1280x720_1mb.mp4"
 
 			file, err := os.Open(filePath)
-			assert.NoError(err)
+			assert.NoError(t, err)
 			defer file.Close()
 
 			part1, err := writer.CreateFormFile("file", filepath.Base(filePath))
-			assert.NoError(err)
+			assert.NoError(t, err)
 
 			_, err = io.Copy(part1, file)
-			assert.NoError(err)
+			assert.NoError(t, err)
 
 			err = writer.Close()
-			assert.NoError(err)
+			assert.NoError(t, err)
 
 			req, err := http.NewRequest(http.MethodPost, fmt.Sprintf("/medias/%s/upload/video", m.ID), payload)
-			assert.NoError(err)
+			assert.NoError(t, err)
 
 			req.Header.Add("Content-Type", "multipart/form-data")
 			req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -116,11 +120,11 @@ func TestMediaFiles(t *testing.T) {
 				m.ID.String(),
 				transcoding.SourceFileName,
 			))
-			assert.NoError(err)
-			assert.Equal(int64(1055736), stat.Size())
+			assert.NoError(t, err)
+			assert.Equal(t, int64(1055736), stat.Size())
 
-			assert.Equal(200, res.Result().StatusCode)
-			assert.Equal(map[string]interface{}{
+			assert.Equal(t, 200, res.Result().StatusCode)
+			assert.Equal(t, map[string]interface{}{
 				"bit_rate":         "",
 				"duration":         "5.312",
 				"filename":         "pipe:",
@@ -133,55 +137,52 @@ func TestMediaFiles(t *testing.T) {
 				"start_time":       "0",
 			}, body.Data)
 
-			m, _ = db.Client.Media.Get(context.Background(), m.ID)
+			m, _ = dbClient.Media.Get(context.Background(), m.ID)
 
-			assert.Equal(media.StatusProcessing, m.Status)
+			assert.Equal(t, media.StatusProcessing, m.Status)
 
-			mediaFile, _ := db.Client.MediaFile.
+			mediaFile, _ := dbClient.MediaFile.
 				Query().
 				Where(mediafile.MediaTypeEQ(schema.MediaFileTypeVideo)).
 				Only(context.Background())
 
-			assert.Equal(int8(25), mediaFile.Framerate)
-			assert.Equal(5.312, mediaFile.DurationSeconds)
-			assert.Equal(int16(1280), mediaFile.ScaledWidth)
-			assert.Equal(mediafile.EncoderPreset(schema.MediaFileEncoderPresetSource), mediaFile.EncoderPreset)
-			assert.Equal(int64(1205959), mediaFile.VideoBitrate)
-			assert.Equal(mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
+			assert.Equal(t, int8(25), mediaFile.Framerate)
+			assert.Equal(t, 5.312, mediaFile.DurationSeconds)
+			assert.Equal(t, int16(1280), mediaFile.ScaledWidth)
+			assert.Equal(t, mediafile.EncoderPreset(schema.MediaFileEncoderPresetSource), mediaFile.EncoderPreset)
+			assert.Equal(t, int64(1205959), mediaFile.VideoBitrate)
+			assert.Equal(t, mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
 
 			ch, err := w.Client.Channel()
-			assert.NoError(err)
+			assert.NoError(t, err)
 
 			_, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
-			assert.NoError(err)
-			assert.True(ok)
+			assert.NoError(t, err)
+			assert.True(t, ok)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {
-			res, err := performRequest(r, http.MethodPost, "/medias/uuid/upload/video", nil)
-			assert.NoError(err)
+			res, err := testutils.Send(r, http.MethodPost, "/medias/uuid/upload/video", nil)
+			assert.NoError(t, err)
 
 			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
-			assert.Equal(400, res.Result().StatusCode)
-			assert.Equal(400, body.Code)
-			assert.EqualError(ErrInvalidUUID, body.Message)
+			assert.Equal(t, 400, res.Result().StatusCode)
+			assert.Equal(t, 400, body.Code)
+			assert.EqualError(t, ErrInvalidUUID, body.Message)
 		})
 
 		t.Run("should return 404 for non-existing media", func(t *testing.T) {
-			db.Client = enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-			defer db.Client.Close()
-
-			res, err := performRequest(r, http.MethodPost, "/medias/7b959619-7271-4fbb-a70c-b6b5b40aecaf/upload/video", nil)
-			assert.NoError(err)
+			res, err := testutils.Send(r, http.MethodPost, "/medias/7b959619-7271-4fbb-a70c-b6b5b40aecaf/upload/video", nil)
+			assert.NoError(t, err)
 
 			var body util.ErrorResponse
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
-			assert.Equal(404, res.Result().StatusCode)
-			assert.Equal(404, body.Code)
-			assert.Equal("media could not be found", body.Message)
+			assert.Equal(t, 404, res.Result().StatusCode)
+			assert.Equal(t, 404, body.Code)
+			assert.Equal(t, "media could not be found", body.Message)
 		})
 
 		t.Run("should return 400 for file missing", func(t *testing.T) {})

@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"errors"
-	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
@@ -32,11 +31,11 @@ type UpdateMedia struct {
 // @Router /medias [get]
 // @Param limit query int false "Max number of results"
 // @Param offset query int false "Number of results to ignore"
-func getAllMedias(ctx *gin.Context) {
+func (s *Server) getAllMedias(ctx *gin.Context) {
 	limit := ctx.GetInt("limit")
 	offset := ctx.GetInt("offset")
 
-	medias, err := db.Client.Media.
+	medias, err := s.db.Media.
 		Query().
 		Order(ent.Desc(media.FieldCreatedAt)).
 		Limit(limit).
@@ -60,7 +59,7 @@ func getAllMedias(ctx *gin.Context) {
 // @Failure 404 {object} util.ErrorResponse
 // @Failure 500 {object} util.ErrorResponse
 // @Router /medias/{id} [get]
-func getMedia(ctx *gin.Context) {
+func (s *Server) getMedia(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	parsedUUID, err := uuid.Parse(id)
@@ -69,7 +68,7 @@ func getMedia(ctx *gin.Context) {
 		return
 	}
 
-	v, err := db.Client.Media.
+	v, err := s.db.Media.
 		Query().
 		Where(media.ID(parsedUUID)).
 		WithMediaFiles().
@@ -97,7 +96,7 @@ func getMedia(ctx *gin.Context) {
 // @Failure 404 {object} util.ErrorResponse
 // @Failure 500 {object} util.ErrorResponse
 // @Router /medias/{id} [delete]
-func deleteMedia(ctx *gin.Context) {
+func (s *Server) deleteMedia(ctx *gin.Context) {
 	id := ctx.Param("id")
 
 	parsedUUID, err := util.ValidateUUID(id)
@@ -106,13 +105,13 @@ func deleteMedia(ctx *gin.Context) {
 		return
 	}
 
-	v, _ := db.Client.Media.Get(context.Background(), parsedUUID)
+	v, _ := s.db.Media.Get(context.Background(), parsedUUID)
 	if v == nil {
 		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
 		return
 	}
 
-	err = db.Client.Media.DeleteOneID(parsedUUID).Exec(context.Background())
+	err = s.db.Media.DeleteOneID(parsedUUID).Exec(context.Background())
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
@@ -132,7 +131,7 @@ func deleteMedia(ctx *gin.Context) {
 // @Failure 500 {object} util.ErrorResponse
 // @Router /medias [post]
 // @Param media body CreateMedia true "Media data" validate(required)
-func createMedia(ctx *gin.Context) {
+func (s *Server) createMedia(ctx *gin.Context) {
 	var body CreateMedia
 
 	if err := util.ValidateBody(ctx, &body); err != nil {
@@ -140,7 +139,7 @@ func createMedia(ctx *gin.Context) {
 		return
 	}
 
-	v, err := db.Client.Media.
+	v, err := s.db.Media.
 		Create().
 		SetTitle(body.Title).
 		SetStatus(schema.MediaStatusAwaitingUpload).
@@ -170,7 +169,7 @@ func createMedia(ctx *gin.Context) {
 // @Router /medias/{id} [patch]
 // @Param id path string true "Media ID" validate(required)
 // @Param media body UpdateMedia true "Media data" validate(required)
-func updateMedia(ctx *gin.Context) {
+func (s *Server) updateMedia(ctx *gin.Context) {
 	var body CreateMedia
 
 	if err := util.ValidateBody(ctx, &body); err != nil {
@@ -186,13 +185,13 @@ func updateMedia(ctx *gin.Context) {
 		return
 	}
 
-	m, _ := db.Client.Media.Get(context.Background(), parsedUUID)
+	m, _ := s.db.Media.Get(context.Background(), parsedUUID)
 	if m == nil {
 		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
 		return
 	}
 
-	m, err = db.Client.Media.
+	m, err = s.db.Media.
 		UpdateOneID(parsedUUID).
 		SetTitle(body.Title).
 		Save(context.Background())

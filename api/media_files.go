@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
-	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
@@ -49,14 +48,14 @@ type FileFormat struct {
 // @Router /medias/{id}/upload/video [post]
 // @Param id path string true "Media identifier" validate(required)
 // @Param file formData file true "Video file"
-func uploadVideoFile(ctx *gin.Context) {
+func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	parsedUUID, err := util.ValidateUUID(ctx.Param("id"))
 	if err != nil {
 		util.NewError(ctx, http.StatusBadRequest, ErrInvalidUUID)
 		return
 	}
 
-	m, err := db.Client.Media.Get(context.Background(), parsedUUID)
+	m, err := s.db.Media.Get(context.Background(), parsedUUID)
 	if m == nil {
 		util.NewError(ctx, http.StatusNotFound, errors.New("media could not be found"))
 		return
@@ -117,7 +116,7 @@ func uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	tx, err := db.Client.Tx(context.Background())
+	tx, err := s.db.Tx(context.Background())
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
@@ -172,7 +171,7 @@ func uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	ch, err := gilfoyle.Worker.Client.Channel()
+	ch, err := s.worker.Client.Channel()
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
@@ -214,6 +213,6 @@ func uploadVideoFile(ctx *gin.Context) {
 // @Router /medias/{id}/upload/audio [post]
 // @Param id path string true "Media identifier" validate(required)
 // @Param file formData file true "Audio file"
-func uploadAudioFile(ctx *gin.Context) {
+func (s *Server) uploadAudioFile(ctx *gin.Context) {
 	ctx.Status(200)
 }
