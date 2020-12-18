@@ -11,6 +11,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/uuid v1.1.2
+	github.com/googleapis/google-cloud-go-testing v0.0.0-20200911160855-bcd43fbb19e8
 	github.com/jinzhu/configor v1.2.1
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.9.0

@@ -4,21 +4,15 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/dreamvo/gilfoyle/storage"
-	"os"
 	"testing"
 	"time"
+
+	"github.com/dreamvo/gilfoyle/storage"
 )
 
 func Test(t *testing.T) {
-	credFile := os.Getenv("CRED_FILE")
-	bucket := os.Getenv("GCP_BUCKET")
-
-	if credFile == "" || bucket == "" {
-		t.SkipNow()
-	}
 	ctx := context.Background()
-	s, err := NewStorage(ctx, credFile, bucket)
+	s, err := NewMockedStorage(ctx, "test-bucket")
 	if err != nil {
 		t.Fatal(err)
 	}

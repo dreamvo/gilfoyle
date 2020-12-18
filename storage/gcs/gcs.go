@@ -2,10 +2,12 @@ package gcs
 
 import (
 	"context"
-	"github.com/dreamvo/gilfoyle/storage"
 	"io"
 	"mime"
 	"path/filepath"
+
+	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/googleapis/google-cloud-go-testing/storage/stiface"
 
 	gstorage "cloud.google.com/go/storage"
 	"google.golang.org/api/option"
@@ -16,6 +18,10 @@ type Storage struct {
 	bucket *gstorage.BucketHandle
 }
 
+type MockedStorage struct {
+	bucket stiface.BucketHandle
+}
+
 // NewStorage returns a new Storage.
 func NewStorage(ctx context.Context, credentialsFile, bucket string) (*Storage, error) {
 	client, err := gstorage.NewClient(ctx, option.WithCredentialsFile(credentialsFile))
@@ -24,6 +30,18 @@ func NewStorage(ctx context.Context, credentialsFile, bucket string) (*Storage, 
 	}
 
 	return &Storage{bucket: client.Bucket(bucket)}, nil
+}
+
+// NewMockedStorage returns a new mocked Storage.
+func NewMockedStorage(ctx context.Context, bucket string) (*MockedStorage, error) {
+	client, err := gstorage.NewClient(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	mockedClient := stiface.AdaptClient(client)
+	return &MockedStorage{bucket: mockedClient.Bucket(bucket)}, nil
 }
 
 // Save saves content to path.
