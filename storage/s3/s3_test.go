@@ -3,18 +3,72 @@ package s3_test
 import (
 	"bytes"
 	"context"
-	"github.com/dreamvo/gilfoyle"
-	"github.com/dreamvo/gilfoyle/config"
-	"github.com/dreamvo/gilfoyle/storage"
-	"github.com/google/uuid"
-	assertTest "github.com/stretchr/testify/assert"
+	"errors"
+	"io"
 	"io/ioutil"
 	"testing"
 	"time"
+
+	"github.com/dreamvo/gilfoyle"
+	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/dreamvo/gilfoyle/storage/s3"
+	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
+	assertTest "github.com/stretchr/testify/assert"
 )
+
+type ClientImpl struct {
+	s3.Client
+}
+
+func (c *ClientImpl) BucketExistsMock(ctx context.Context, bucketName string) (bool, error) {
+	return true, errors.New("Error")
+}
+
+func (c *ClientImpl) MakeBucketMock(ctx context.Context, bucketName string, opts minio.MakeBucketOptions) (err error) {
+	return errors.New("Error")
+}
+
+func (c *ClientImpl) PutObjectMock(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64,
+	opts minio.PutObjectOptions) (info minio.UploadInfo, err error) {
+	return minio.UploadInfo{
+		Bucket:           "string",
+		Key:              "string",
+		ETag:             "string",
+		Size:             64,
+		LastModified:     time.Now(),
+		Location:         "string",
+		VersionID:        "string",
+		Expiration:       time.Now(),
+		ExpirationRuleID: "string",
+	}, errors.New("Error")
+}
+
+func (c *ClientImpl) StatObjectMock(ctx context.Context, bucketName, objectName string, opts minio.StatObjectOptions) (minio.ObjectInfo, error) {
+	return minio.ObjectInfo{}, errors.New("Error")
+}
+
+func (c *ClientImpl) GetObjectMock(ctx context.Context, bucketName, objectName string, opts minio.GetObjectOptions) (*minio.Object, error) {
+	return &minio.Object{}, errors.New("Error")
+}
+
+func (c *ClientImpl) RemoveObjectMock(ctx context.Context, bucketName, objectName string, opts minio.StatObjectOptions) error {
+	return nil
+}
 
 func TestS3(t *testing.T) {
 	assert := assertTest.New(t)
+
+	client := &ClientImpl{}
+
+	cfg := config.S3Config{
+		Hostname:        "",
+		AccessKeyID:     "",
+		SecretAccessKey: "",
+		Bucket:          uuid.New().String(),
+		EnableSSL:       true,
+	}
 
 	gilfoyle.Config.Storage.S3 = config.S3Config{
 		Hostname:        "play.min.io",
@@ -25,7 +79,7 @@ func TestS3(t *testing.T) {
 	}
 
 	t.Run("should return error file does not exist", func(t *testing.T) {
-		s, err := gilfoyle.NewStorage(storage.AmazonS3)
+		s, err := s3.NewStorage(cfg, client)
 		assert.NoError(err)
 
 		ctx := context.Background()
