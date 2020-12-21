@@ -14,6 +14,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+	"github.com/zsais/go-gin-prometheus"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -115,7 +116,10 @@ func registerMiddlewares(s *Server) {
 // registerRoutes adds routes to a given router instance
 func registerRoutes(s *Server) {
 	s.router.GET("/healthz", s.healthCheckHandler)
-	s.router.GET("/metricsz", s.getMetrics)
+
+	p := ginprometheus.NewPrometheus("gin")
+	p.MetricsPath = "/metricsz"
+	p.Use(s.router)
 
 	medias := s.router.Group("/medias")
 	{

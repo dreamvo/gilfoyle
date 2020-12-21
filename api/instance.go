@@ -26,14 +26,10 @@ func (s *Server) healthCheckHandler(ctx *gin.Context) {
 	})
 }
 
-// @ID getMetrics
+// @ID getPrometheusMetrics
 // @Tags Instance
 // @Summary Get instance metrics
-// @Description Get metrics about this Gilfoyle instance
-// @Produce  json
-// @Success 200 {object} util.DataResponse
-// @Failure 500 {object} util.ErrorResponse
+// @Description Get Prometheus exported metrics about this Gilfoyle instance
+// @Produce  text/plain
+// @Success 200 {string} string
 // @Router /metricsz [get]
-func (s *Server) getMetrics(ctx *gin.Context) {
-	ctx.Status(200)
-}
