@@ -663,33 +663,6 @@
                     }
                 }
             }
-        },
-        "/metricsz": {
-            "get": {
-                "description": "Get metrics about this Gilfoyle instance",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Instance"
-                ],
-                "summary": "Get instance metrics",
-                "operationId": "getMetrics",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/util.DataResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
