@@ -6,6 +6,18 @@ services:
     build:
       context: ../../
       dockerfile: .support/docker/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: secret
+      DB_NAME: gilfoyle
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: gilfoyle
+      RABBITMQ_PASSWORD: secret
+      STORAGE_CLASS: fs
+      FS_DATA_PATH: /app/data
     command:
       - "serve"
       - "-p"
