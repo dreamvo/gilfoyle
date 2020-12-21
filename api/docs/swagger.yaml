@@ -560,24 +560,6 @@ paths:
       summary: Get stream from media file
       tags:
       - Stream
-  /metricsz:
-    get:
-      description: Get metrics about this Gilfoyle instance
-      operationId: getMetrics
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/util.DataResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: Get instance metrics
-      tags:
-      - Instance
 schemes:
 - http
 - https
