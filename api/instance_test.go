@@ -5,42 +5,50 @@ import (
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/x/testutils"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"net/http"
 	"testing"
 )
 
-func TestApi(t *testing.T) {
-	var r *gin.Engine
-
+func TestInstance(t *testing.T) {
 	s := NewServer(Options{
 		Logger: zap.NewExample(),
 	})
-	r = s.router
 
 	t.Run("GET /healthz", func(t *testing.T) {
-		res, err := testutils.Send(r, http.MethodGet, "/healthz", nil)
+		res, err := testutils.Send(s.router, http.MethodGet, "/healthz", nil)
 		assert.NoError(t, err)
 
 		var body HealthCheckResponse
 		_ = json.NewDecoder(res.Body).Decode(&body)
 
 		assert.Equal(t, 200, res.Result().StatusCode)
-		assert.Equal(t, config.Version, body.Tag)
-		assert.Equal(t, config.Commit, body.Commit)
+		assert.Equal(t, HealthCheckResponse{
+			Tag: config.Version,
+			Commit: config.Commit,
+		}, body)
+	})
+
+	t.Run("GET /metricsz", func(t *testing.T) {
+		res, err := testutils.Send(s.router, http.MethodGet, "/metricsz", nil)
+		assert.NoError(t, err)
+
+		assert.Equal(t, 200, res.Result().StatusCode)
+		assert.Equal(t, "text/plain; version=0.0.4; charset=utf-8", res.Header().Get("Content-Type"))
 	})
 
 	t.Run("GET /404notfound", func(t *testing.T) {
-		res, err := testutils.Send(r, http.MethodGet, "/404notfound", nil)
+		res, err := testutils.Send(s.router, http.MethodGet, "/404notfound", nil)
 		assert.NoError(t, err)
 
 		var body util.ErrorResponse
 		_ = json.NewDecoder(res.Body).Decode(&body)
 
 		assert.Equal(t, 404, res.Result().StatusCode)
-		assert.Equal(t, 404, body.Code)
-		assert.Equal(t, "resource not found", body.Message)
+		assert.Equal(t, util.ErrorResponse{
+			Code:    404,
+			Message: "resource not found",
+		}, body)
 	})
 }
