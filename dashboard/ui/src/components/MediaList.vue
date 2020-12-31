@@ -26,7 +26,7 @@
               </RouterLink>
             </td>
             <td>{{ media.status }}</td>
-            <td>{{ Date(media.created_at) }}</td>
+            <td>{{ new Date(media.created_at) }}</td>
           </tr>
         </tbody>
       </template>
