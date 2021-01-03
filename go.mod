@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/googleapis/google-cloud-go-testing v0.0.0-20200911160855-bcd43fbb19e8
 	github.com/jinzhu/configor v1.2.1
+	github.com/johannesboyne/gofakes3 v0.0.0-20200716060623-6b2b4cb092cc
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.9.0
 	github.com/mailru/easyjson v0.7.3 // indirect

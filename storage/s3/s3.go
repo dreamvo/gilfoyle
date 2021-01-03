@@ -9,42 +9,41 @@ import (
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
-
-type Client interface {
-	BucketExists(ctx context.Context, bucketName string) (bool, error)
-	MakeBucket(ctx context.Context, bucketName string, opts minio.MakeBucketOptions) (err error)
-	PutObject(ctx context.Context, bucketName, objectName string, reader io.Reader, objectSize int64,
-		opts minio.PutObjectOptions) (info minio.UploadInfo, err error)
-	StatObject(ctx context.Context, bucketName, objectName string, opts minio.StatObjectOptions) (minio.ObjectInfo, error)
-	GetObject(ctx context.Context, bucketName, objectName string, opts minio.GetObjectOptions) (*minio.Object, error)
-	RemoveObject(ctx context.Context, bucketName, objectName string, opts minio.RemoveObjectOptions) error
-}
 
 // Storage is a s3 storage.
 type Storage struct {
 	bucket string
-	client Client
+	client *minio.Client
 }
 
 // NewStorage creates a new storage instance
-func NewStorage(cfg config.S3Config, client Client) (*Storage, error) {
+func NewStorage(cfg config.S3Config) (*Storage, error) {
 	ctx := context.Background()
 
-	found, err := client.BucketExists(ctx, cfg.Bucket)
+	s, err := minio.New(cfg.Hostname, &minio.Options{
+		Creds:  credentials.NewStaticV4(cfg.AccessKeyID, cfg.SecretAccessKey, ""),
+		Secure: cfg.EnableSSL,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	found, err := s.BucketExists(ctx, cfg.Bucket)
 	if err != nil {
 		return nil, err
 	}
 
 	if !found {
-		err := client.MakeBucket(ctx, cfg.Bucket, minio.MakeBucketOptions{Region: cfg.Region})
+		err := s.MakeBucket(ctx, cfg.Bucket, minio.MakeBucketOptions{Region: cfg.Region})
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &Storage{
-		client: client,
+		client: s,
 		bucket: cfg.Bucket,
 	}, err
 }
