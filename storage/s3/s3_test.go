@@ -5,13 +5,13 @@ import (
 	"context"
 	"io/ioutil"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/storage"
-	"github.com/google/uuid"
 	"github.com/johannesboyne/gofakes3"
 	"github.com/johannesboyne/gofakes3/backend/s3mem"
 	assertTest "github.com/stretchr/testify/assert"
@@ -24,14 +24,16 @@ func TestS3(t *testing.T) {
 	backend := s3mem.New()
 	faker := gofakes3.New(backend)
 	ts := httptest.NewServer(faker.Server())
+	u, _ := url.Parse(ts.URL)
+	host := u.Host
 	defer ts.Close()
 
 	gilfoyle.Config.Storage.S3 = config.S3Config{
-		Hostname:        "play.min.io",
+		Hostname:        host,
 		AccessKeyID:     "Q3AM3UQ867SPQQA43P2F",
 		SecretAccessKey: "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
-		Bucket:          uuid.New().String(),
-		EnableSSL:       true,
+		Bucket:          "gilfoyle-aws-bucket",
+		EnableSSL:       false,
 	}
 
 	t.Run("should return error file does not exist", func(t *testing.T) {
