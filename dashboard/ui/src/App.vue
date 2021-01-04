@@ -59,7 +59,18 @@
           </v-col>
 
           <v-col :md="drawerMenu ? 10 : 12" style="min-height:90vh;">
-            <RouterView />
+            <RouterView v-if="$store.state.healthy" />
+            <v-col v-else cols="12" :md="drawerMenu ? 10 : 12">
+              <div class="">
+                <h1>Unhealthy instance</h1>
+                <p>
+                  Something bad is happening, you should look at the logs of
+                  your Gilfoyle instance.
+                </p>
+                <h3>Diagnostic</h3>
+                <p>{{ $store.state.healthError }}</p>
+              </div>
+            </v-col>
           </v-col>
         </v-row>
       </v-container>

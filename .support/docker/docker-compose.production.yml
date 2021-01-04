@@ -5,7 +5,19 @@ services:
     restart: on-failure
     build:
       context: ../../
-      dockerfile: ../docker/Dockerfile
+      dockerfile: .support/docker/Dockerfile
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: secret
+      DB_NAME: gilfoyle
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: gilfoyle
+      RABBITMQ_PASSWORD: secret
+      STORAGE_CLASS: fs
+      FS_DATA_PATH: /app/data
     command:
       - "serve"
       - "-p"
@@ -13,7 +25,7 @@ services:
     ports:
       - 3000:3000
 
-  db:
+  postgres:
     image: postgres:latest
     restart: on-failure
     ports:
@@ -22,3 +34,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: gilfoyle
       POSTGRES_PASSWORD: secret
+
+  rabbitmq:
+    image: rabbitmq:3.8-alpine
+    restart: on-failure
+    environment:
+      RABBITMQ_DEFAULT_USER: gilfoyle
+      RABBITMQ_DEFAULT_PASS: secret
+    ports:
+      - 5672:5672

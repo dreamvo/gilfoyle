@@ -16,9 +16,10 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 ## Features
 
 - Deploy a RESTful API and HLS server to manage and stream audio & video
-- Upload files or import from third-party platforms such as: *YouTube, Dailymotion, Vimeo*...
+- Upload files or import from third-party platforms (e.g: *YouTube, Dailymotion, Vimeo*)
 - Handle video compression and encoding with [FFmpeg](https://ffmpeg.org/)
-- Customize video encoding, compression, or authentication
+- Customize media encoding
+- Microservice authentication
 - Highly scalable architecture
 <!--- **Decentralize** video storage with [IPFS](https://ipfs.io/)
 - Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features-->
@@ -43,6 +44,7 @@ This project is in an early stage. We appreciate feedbacks and [discussions](#di
 
 ## Discussion
 
+- [Discuss on GitHub](https://github.com/dreamvo/gilfoyle/discussions)
 - [Report a bug](https://github.com/dreamvo/gilfoyle/issues/new)
 - Follow us on [Twitter](https://twitter.com/dreamvoapp)
 - Contact us at [contact@dreamvo.com](mailto:contact@dreamvo.com)
