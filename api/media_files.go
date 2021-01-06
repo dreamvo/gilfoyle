@@ -109,7 +109,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.SourceFileName)
+	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.OriginalFileName)
 
 	if err = s.storage.Save(ctx, f, path); err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error saving uploaded file: %s", err))

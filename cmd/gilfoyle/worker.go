@@ -2,6 +2,7 @@ package gilfoyle
 
 import (
 	"github.com/dreamvo/gilfoyle"
+	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/spf13/cobra"
@@ -37,6 +38,11 @@ var workerCmd = &cobra.Command{
 			concurrency = gilfoyle.Config.Settings.Worker.Concurrency
 		}
 
+		dbClient, err := db.NewClient(gilfoyle.Config.Services.DB)
+		if err != nil {
+			logger.Fatal("failed opening connection", zap.Error(err))
+		}
+
 		w, err := worker.New(worker.Options{
 			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
 			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
@@ -45,6 +51,7 @@ var workerCmd = &cobra.Command{
 			Logger:      gilfoyle.Logger,
 			Concurrency: concurrency,
 			Storage:     storage,
+			Database:    dbClient,
 		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))

@@ -122,7 +122,7 @@ func TestMediaFiles(t *testing.T) {
 			stat, err := os.Stat(filepath.Join(
 				gilfoyle.Config.Storage.Filesystem.DataPath,
 				m.ID.String(),
-				transcoding.SourceFileName,
+				transcoding.OriginalFileName,
 			))
 			assert.NoError(t, err)
 			assert.Equal(t, int64(1055736), stat.Size())

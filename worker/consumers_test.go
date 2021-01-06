@@ -1,10 +1,14 @@
 package worker
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
+	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
+	"github.com/floostack/transcoder/ffmpeg"
 	"github.com/google/uuid"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
@@ -15,6 +19,9 @@ import (
 func TestConsumers(t *testing.T) {
 	t.Run("videoTranscodingConsumer", func(t *testing.T) {
 		t.Run("should receive one message and succeed", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
 			params := VideoTranscodingParams{
 				MediaUUID:      uuid.New(),
 				SourceFilePath: "uuid/test",
@@ -26,24 +33,23 @@ func TestConsumers(t *testing.T) {
 			AckMock := new(mocks.MockedAcknowledger)
 
 			w := &Worker{
-				logger: loggerMock,
+				logger:     loggerMock,
+				dbClient:   dbClient,
+				transcoder: nil,
 			}
 			delivery := amqp.Delivery{
 				Body:         body,
 				Acknowledger: AckMock,
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Info", "Received a message", []zap.Field{
+				zap.String("MediaUUID", params.MediaUUID.String()),
 				zap.String("SourceFilePath", params.SourceFilePath),
 			}).Return()
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go videoTranscodingConsumer(w, msgs)
-
-			msgs <- delivery
+			go videoTranscodingConsumer(context.Background(), w, delivery)
 
 			time.Sleep(200 * time.Millisecond)
 
@@ -61,13 +67,9 @@ func TestConsumers(t *testing.T) {
 				Body: []byte(""),
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go videoTranscodingConsumer(w, msgs)
-
-			msgs <- delivery
+			go videoTranscodingConsumer(context.Background(), w, delivery)
 
 			time.Sleep(200 * time.Millisecond)
 
@@ -93,9 +95,7 @@ func TestConsumers(t *testing.T) {
 				Acknowledger: AckMock,
 			}
 
-			msgs := make(chan amqp.Delivery)
-
-			go videoTranscodingConsumer(w, msgs)
+			go videoTranscodingConsumer(context.Background(), w, delivery)
 
 			loggerMock.On("Info", "Received a message", []zap.Field{
 				zap.String("SourceFilePath", params.SourceFilePath),
@@ -104,8 +104,6 @@ func TestConsumers(t *testing.T) {
 			AckMock.On("Ack", mock.Anything, false).Return(errors.New("test"))
 
 			loggerMock.On("Error", "Error trying to send ack", mock.Anything).Return()
-
-			msgs <- delivery
 
 			time.Sleep(200 * time.Millisecond)
 

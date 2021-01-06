@@ -1,7 +1,7 @@
 package transcoding
 
 const (
-	SourceFileName       string = "source"
+	OriginalFileName     string = "original"
 	SourceOnlyStrategy   string = "SourceOnly"
 	DeleteSourceStrategy string = "DeleteSource"
 	KeepSourceStrategy   string = "KeepSource"
