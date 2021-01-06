@@ -10,28 +10,19 @@ import (
 	"github.com/dreamvo/gilfoyle/storage/s3"
 )
 
-var (
-	Storage storage.Storage
-)
-
 // NewStorage creates a new storage instance
 func NewStorage(storageClass config.StorageClass) (storage.Storage, error) {
-	var err error
-
 	cfg := Config.Storage
 
 	switch storageClass {
 	case storage.Filesystem:
-		Storage = fs.NewStorage(fs.Config{
+		return fs.NewStorage(fs.Config{
 			Root: cfg.Filesystem.DataPath,
-		})
-		return Storage, nil
+		}), nil
 	case storage.GoogleCloudStorage:
-		Storage, err = gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)
-		return Storage, err
+		return gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)
 	case storage.AmazonS3:
-		Storage, err = s3.NewStorage(cfg.S3)
-		return Storage, err
+		return s3.NewStorage(cfg.S3)
 	//case IPFS:
 	//	return ipfs.NewStorage(cfg.IPFS)
 	default:

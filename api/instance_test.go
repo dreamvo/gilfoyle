@@ -25,7 +25,7 @@ func TestInstance(t *testing.T) {
 
 		assert.Equal(t, 200, res.Result().StatusCode)
 		assert.Equal(t, HealthCheckResponse{
-			Tag: config.Version,
+			Tag:    config.Version,
 			Commit: config.Commit,
 		}, body)
 	})
