@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"context"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/logging"
@@ -29,7 +28,7 @@ type Queue struct {
 	Exclusive  bool
 	NoWait     bool
 	Args       amqp.Table
-	Handler    func(context.Context, *Worker, amqp.Delivery)
+	Handler    func(*Worker, <-chan amqp.Delivery)
 }
 
 var queues = []Queue{
@@ -49,7 +48,7 @@ var queues = []Queue{
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    func(context.Context, *Worker, amqp.Delivery) {},
+		Handler:    func(*Worker, <-chan amqp.Delivery) {},
 	},
 	{
 		Name:       PreviewGenerationQueue,
@@ -58,7 +57,7 @@ var queues = []Queue{
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    func(context.Context, *Worker, amqp.Delivery) {},
+		Handler:    func(*Worker, <-chan amqp.Delivery) {},
 	},
 }
 
@@ -154,11 +153,7 @@ func (w *Worker) Consume() error {
 
 		// Start N goroutines according to concurrency
 		for i := 0; i < int(w.concurrency); i++ {
-			go func() {
-				for msg := range msgs {
-					q.Handler(context.Background(), w, msg)
-				}
-			}()
+			go q.Handler(w, msgs)
 		}
 	}
 

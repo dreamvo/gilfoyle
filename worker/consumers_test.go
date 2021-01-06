@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
-	"github.com/floostack/transcoder/ffmpeg"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/streadway/amqp"
