@@ -5,8 +5,10 @@ import (
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/worker"
+	"github.com/floostack/transcoder/ffmpeg"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"os"
 )
 
 var concurrency uint
@@ -38,20 +40,31 @@ var workerCmd = &cobra.Command{
 			concurrency = gilfoyle.Config.Settings.Worker.Concurrency
 		}
 
+		if gilfoyle.Config.Settings.Debug {
+			_ = os.Setenv("PGSSLMODE", "disable")
+		}
+
 		dbClient, err := db.NewClient(gilfoyle.Config.Services.DB)
 		if err != nil {
 			logger.Fatal("failed opening connection", zap.Error(err))
 		}
 
+		ffmpegCfg := &ffmpeg.Config{
+			FfmpegBinPath:   "/usr/bin/ffmpeg",
+			FfprobeBinPath:  "/usr/bin/ffprobe",
+			ProgressEnabled: true,
+		}
+
 		w, err := worker.New(worker.Options{
-			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
-			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
-			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
-			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
-			Logger:      gilfoyle.Logger,
-			Concurrency: concurrency,
-			Storage:     storage,
-			Database:    dbClient,
+			Host:             gilfoyle.Config.Services.RabbitMQ.Host,
+			Port:             gilfoyle.Config.Services.RabbitMQ.Port,
+			Username:         gilfoyle.Config.Services.RabbitMQ.Username,
+			Password:         gilfoyle.Config.Services.RabbitMQ.Password,
+			Logger:           gilfoyle.Logger,
+			Concurrency:      concurrency,
+			Storage:          storage,
+			Database:         dbClient,
+			TranscoderConfig: ffmpegCfg,
 		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))

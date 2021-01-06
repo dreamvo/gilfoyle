@@ -178,8 +178,22 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	}
 
 	err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
-		MediaUUID:      m.ID,
-		SourceFilePath: path,
+		MediaUUID:          m.ID,
+		OriginalFilePath:   path,
+		PresetName:         "360p",
+		VideoWidth:         640,
+		VideoHeight:        360,
+		AudioCodec:         "aac",
+		AudioRate:          48000,
+		VideoCodec:         "h264",
+		Crf:                20,
+		KeyframeInterval:   48,
+		HlsSegmentDuration: 4,
+		HlsPlaylistType:    "vod",
+		VideoBitRate:       800000,
+		VideoMaxBitRate:    856000,
+		BufferSize:         1200000,
+		AudioBitrate:       96000,
 	})
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)

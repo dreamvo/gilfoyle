@@ -76,7 +76,7 @@ func registerMiddlewares(s *Server) {
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	// TODO(sundowndev): update Gin to enable this feature. See https://github.com/gin-gonic/gin/commits/master/recovery.go
-	//r.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
+	//s.router.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
 	//	if err, ok := recovered.(string); ok {
 	//		util.NewError(ctx, http.StatusInternalServerError, errors.New(err))
 	//	}

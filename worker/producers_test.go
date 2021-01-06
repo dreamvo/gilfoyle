@@ -14,8 +14,8 @@ func TestProducers(t *testing.T) {
 	t.Run("VideoTranscodingProducer", func(t *testing.T) {
 		t.Run("should publish a new message", func(t *testing.T) {
 			params := VideoTranscodingParams{
-				MediaUUID:      uuid.New(),
-				SourceFilePath: "test",
+				MediaUUID:        uuid.New(),
+				OriginalFilePath: "test",
 			}
 
 			body, err := json.Marshal(params)
@@ -37,8 +37,8 @@ func TestProducers(t *testing.T) {
 
 		t.Run("should publish a new message with AMQP error", func(t *testing.T) {
 			params := VideoTranscodingParams{
-				MediaUUID:      uuid.New(),
-				SourceFilePath: "test",
+				MediaUUID:        uuid.New(),
+				OriginalFilePath: "test",
 			}
 
 			body, err := json.Marshal(params)

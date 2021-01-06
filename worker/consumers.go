@@ -7,141 +7,174 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
-	"github.com/floostack/transcoder/ffmpeg"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
-func setMediaStatus(w *Worker, uuid uuid.UUID, status media.Status) error {
+func setMediaStatusAck(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media.Status) error {
 	_, err := w.dbClient.Media.UpdateOneID(uuid).SetStatus(status).Save(context.Background())
+	if err != nil {
+		return err
+	}
+	err = d.Nack(false, false)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func videoTranscodingConsumer(w *Worker, msg <-chan amqp.Delivery) {
+func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	ctx := context.Background()
-	for d := range msg {
-		var body VideoTranscodingParams
+	for d := range msgs {
+		func() {
+			var body VideoTranscodingParams
 
-		err := json.Unmarshal(d.Body, &body)
-		if err != nil {
-			w.logger.Error("Unmarshal error", zap.Error(err))
-			return
-		}
+			err := json.Unmarshal(d.Body, &body)
+			if err != nil {
+				w.logger.Error("Unmarshal error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
 
-		w.logger.Info("Received a message", zap.String("MediaUUID", body.MediaUUID.String()), zap.String("SourceFilePath", body.SourceFilePath))
+			w.logger.Info("Received a message", zap.String("MediaUUID", body.MediaUUID.String()), zap.String("OriginalFilePath", body.OriginalFilePath))
 
-		m, err := w.dbClient.Media.Query().
-			Where(media.ID(body.MediaUUID)).
-			WithMediaFiles().
-			Only(context.Background())
-		if err != nil {
-			w.logger.Error("Database error", zap.Error(err))
-			return
-		}
+			m, err := w.dbClient.Media.Query().
+				Where(media.ID(body.MediaUUID)).
+				WithMediaFiles().
+				Only(context.Background())
+			if err != nil {
+				w.logger.Error("Database error", zap.Error(err))
+				return
+			}
 
-		// Create a new MediaFile for this Media
-		r, err := w.storage.Open(ctx, fmt.Sprintf("%s/%s", body.MediaUUID.String(), transcoding.OriginalFileName))
-		if err != nil {
-			w.logger.Error("Storage error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
-		defer func() { _ = r.Close() }()
+			// Create a new MediaFile for this Media
+			r, err := w.storage.Open(ctx, fmt.Sprintf("%s/%s", body.MediaUUID.String(), transcoding.OriginalFileName))
+			if err != nil {
+				w.logger.Error("Storage error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
+			defer func() { _ = r.Close() }()
 
-		srcTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
-		dstTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
+			srcTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
+			dstTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
 
-		out, err := os.Create(srcTmpPath)
-		if err != nil {
-			w.logger.Error("File create error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
-		defer func() { _ = out.Close() }()
+			err = os.MkdirAll(dstTmpPath, 0755)
+			if err != nil {
+				w.logger.Error("Error creating destination directory", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
 
-		_, err = io.Copy(out, r)
-		if err != nil {
-			w.logger.Error("File copy error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
+			out, err := os.Create(srcTmpPath)
+			if err != nil {
+				w.logger.Error("File create error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
+			defer func() { _ = out.Close() }()
 
-		overwrite := true
-		opts := ffmpeg.Options{
-			Overwrite:          &overwrite,
-			VideoFilter:        nil,
-			AudioCodec:         nil,
-			AudioRate:          nil,
-			VideoCodec:         nil,
-			VideoProfile:       nil,
-			Crf:                nil,
-			KeyframeInterval:   nil,
-			HlsSegmentDuration: nil,
-			HlsPlaylistType:    nil,
-			VideoBitRate:       nil,
-			VideoMaxBitRate:    nil,
-			BufferSize:         nil,
-			AudioBitrate:       nil,
-			HlsSegmentFilename: nil,
-		}
+			_, err = io.Copy(out, r)
+			if err != nil {
+				w.logger.Error("File copy error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
 
-		progress, err := w.transcoder.
-			Input(srcTmpPath).
-			Output(dstTmpPath).
-			WithOptions(opts).
-			Start(opts)
-		if err != nil {
-			w.logger.Error("ffmpeg error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
+			args := []string{
+				"-i",
+				srcTmpPath,
+				"-vf",
+				fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", body.VideoWidth, body.VideoHeight),
+				"-c:a",
+				body.AudioCodec,
+				"-ar",
+				fmt.Sprintf("%d", body.AudioRate),
+				"-b:a",
+				fmt.Sprintf("%d", body.AudioBitrate),
+				"-c:v",
+				body.VideoCodec,
+				"-profile:v",
+				"main",
+				"-crf",
+				fmt.Sprintf("%d", body.Crf),
+				"-g",
+				fmt.Sprintf("%d", body.KeyframeInterval),
+				"-b:v",
+				fmt.Sprintf("%d", body.VideoBitRate),
+				"-maxrate",
+				fmt.Sprintf("%d", body.VideoMaxBitRate),
+				"-bufsize",
+				fmt.Sprintf("%d", body.BufferSize),
+				"-hls_time",
+				fmt.Sprintf("%d", body.HlsSegmentDuration),
+				"-hls_playlist_type",
+				body.HlsPlaylistType,
+				"-hls_segment_filename",
+				dstTmpPath + "/%03d.ts",
+				dstTmpPath + "/" + transcoding.HLSPlaylistFilename,
+			}
+			err = exec.Command(w.ffmpegConfig.FfmpegBinPath, args...).Run()
+			if err != nil {
+				w.logger.Error("Command execution error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
 
-		for msg := range progress {
-			w.logger.Info("Video transcoding progress", zap.String("MediaUUID", body.MediaUUID.String()), zap.String("CurrentFramesProcessed", fmt.Sprintf("%+v", msg.GetFramesProcessed())), zap.Float64("progress", msg.GetProgress()))
-		}
+			files, err := filepath.Glob(fmt.Sprintf("%s/*", dstTmpPath))
+			if err != nil {
+				w.logger.Error("Directory walk error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
 
-		f, err := os.Open(dstTmpPath)
-		if err != nil {
-			w.logger.Error("File open error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
-		defer func() { _ = f.Close() }()
+			for _, file := range files {
+				f, err := os.Open(file)
+				if err != nil {
+					w.logger.Error("File open error", zap.Error(err))
+					_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+					return
+				}
+				defer func() { _ = f.Close() }()
 
-		// Save the created files
-		err = w.storage.Save(ctx, f, fmt.Sprintf("%s/%s", body.MediaUUID.String(), "medium.m3u8"))
-		if err != nil {
-			w.logger.Error("Storage error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
+				filename := strings.Replace(file, dstTmpPath, "", 1)
 
-		_, err = w.dbClient.MediaFile.Create().
-			SetMedia(m).
-			SetVideoBitrate(100).
-			SetEncoderPreset(schema.MediaFileEncoderPresetMedium).
-			SetDurationSeconds(100).
-			SetScaledWidth(1280).
-			SetFramerate(transcoding.ParseFrameRates("25/1")).
-			SetMediaType(schema.MediaFileTypeVideo).
-			Save(ctx)
-		if err != nil {
-			w.logger.Error("Database error", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-			return
-		}
+				// Save the file
+				err = w.storage.Save(ctx, f, fmt.Sprintf("%s/%s/%s", body.MediaUUID.String(), body.PresetName, filename))
+				if err != nil {
+					w.logger.Error("Storage error", zap.Error(err))
+					_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+					return
+				}
+			}
 
-		err = d.Ack(false)
-		if err != nil {
-			w.logger.Error("Error trying to send ack", zap.Error(err))
-			_ = setMediaStatus(w, body.MediaUUID, media.StatusErrored)
-		}
+			_, err = w.dbClient.MediaFile.Create().
+				SetMedia(m).
+				//SetPresetName(body.PresetName).
+				SetVideoBitrate(int64(body.VideoBitRate)).
+				SetScaledWidth(int16(body.VideoWidth)).
+				SetEncoderPreset(schema.MediaFileEncoderPresetMedium).
+				SetDurationSeconds(m.Edges.MediaFiles[0].DurationSeconds).
+				SetFramerate(m.Edges.MediaFiles[0].Framerate).
+				SetMediaType(schema.MediaFileTypeVideo).
+				Save(ctx)
+			if err != nil {
+				w.logger.Error("Database error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
+
+			err = d.Ack(false)
+			if err != nil {
+				w.logger.Error("Error trying to send ack", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+			}
+		}()
 	}
 }

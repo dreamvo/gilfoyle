@@ -5,7 +5,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/storage"
-	"github.com/floostack/transcoder"
+	"github.com/floostack/transcoder/ffmpeg"
 	"github.com/streadway/amqp"
 )
 
@@ -62,25 +62,25 @@ var queues = []Queue{
 }
 
 type Options struct {
-	Host        string
-	Port        int
-	Username    string
-	Password    string
-	Concurrency uint
-	Logger      logging.ILogger
-	Storage     storage.Storage
-	Database    *ent.Client
-	Transcoder  transcoder.Transcoder
+	Host             string
+	Port             int
+	Username         string
+	Password         string
+	Concurrency      uint
+	Logger           logging.ILogger
+	Storage          storage.Storage
+	Database         *ent.Client
+	TranscoderConfig *ffmpeg.Config
 }
 
 type Worker struct {
-	Queues      map[string]amqp.Queue
-	Client      *amqp.Connection
-	logger      logging.ILogger
-	concurrency uint
-	storage     storage.Storage
-	dbClient    *ent.Client
-	transcoder  transcoder.Transcoder
+	Queues       map[string]amqp.Queue
+	Client       *amqp.Connection
+	logger       logging.ILogger
+	concurrency  uint
+	storage      storage.Storage
+	dbClient     *ent.Client
+	ffmpegConfig *ffmpeg.Config
 }
 
 func New(opts Options) (*Worker, error) {
@@ -96,13 +96,13 @@ func New(opts Options) (*Worker, error) {
 	}
 
 	return &Worker{
-		Queues:      map[string]amqp.Queue{},
-		Client:      conn,
-		logger:      opts.Logger,
-		concurrency: opts.Concurrency,
-		storage:     opts.Storage,
-		dbClient:    opts.Database,
-		transcoder:  opts.Transcoder,
+		Queues:       map[string]amqp.Queue{},
+		Client:       conn,
+		logger:       opts.Logger,
+		concurrency:  opts.Concurrency,
+		storage:      opts.Storage,
+		dbClient:     opts.Database,
+		ffmpegConfig: opts.TranscoderConfig,
 	}, nil
 }
 
