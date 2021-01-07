@@ -16,13 +16,20 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 ## Features
 
 - Deploy a RESTful API and HLS server to manage and stream audio & video
-- Upload files or import from third-party platforms (e.g: *YouTube, Dailymotion, Vimeo*)
 - Handle video compression and encoding with [FFmpeg](https://ffmpeg.org/)
-- Customize media encoding
-- Microservice authentication
+- Customize media transcoding
 - Highly scalable architecture
-<!--- **Decentralize** video storage with [IPFS](https://ipfs.io/)
-- Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features-->
+- Monitoring: Prometheus exported metrics, embedded Web UI
+- Media attachments: attach files such as subtitles or preview images to medias
+
+### What's next ?
+
+- [IPFS](https://ipfs.io/) support
+- Sentry integration
+- Media asset generation (thumbnail, video preview...)
+- More supported formats (360° videos, 60fps...)
+- Upload files or import from third-party platforms (e.g: *YouTube, Dailymotion, Vimeo*)
+- Authentication and delegated upload
 
 ## Current status
 
