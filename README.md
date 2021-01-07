@@ -24,12 +24,12 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 
 ### What's next ?
 
+- Media asset generation (thumbnail, video preview...)
+- More supported formats (e.g: *360° videos, 60fps*...)
+- Authentication and delegated upload
+- Live streaming
 - [IPFS](https://ipfs.io/) support
 - Sentry integration
-- Media asset generation (thumbnail, video preview...)
-- More supported formats (360° videos, 60fps...)
-- Upload files or import from third-party platforms (e.g: *YouTube, Dailymotion, Vimeo*)
-- Authentication and delegated upload
 
 ## Current status
 
@@ -41,8 +41,8 @@ See [this document](DESIGN.md) for a high level design and goals.
 
 ## Documentation
 
-- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md)
-- For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
+- For **contributors**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [high-level design documentation](DESIGN.md)
+- For **users**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
 - The [GPL v3](LICENSE) license
 
 ## Contributing
