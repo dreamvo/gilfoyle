@@ -3,6 +3,7 @@ package worker
 import (
 	"encoding/json"
 	"errors"
+	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
@@ -14,8 +15,13 @@ func TestProducers(t *testing.T) {
 	t.Run("VideoTranscodingProducer", func(t *testing.T) {
 		t.Run("should publish a new message", func(t *testing.T) {
 			params := VideoTranscodingParams{
-				MediaUUID:        uuid.New(),
-				OriginalFilePath: "test",
+				MediaUUID: uuid.New(),
+				OriginalFile: transcoding.OriginalFile{
+					Filepath:        "uuid/test",
+					DurationSeconds: 5.21,
+					Format:          "mp4",
+					FrameRate:       25,
+				},
 			}
 
 			body, err := json.Marshal(params)
@@ -37,8 +43,13 @@ func TestProducers(t *testing.T) {
 
 		t.Run("should publish a new message with AMQP error", func(t *testing.T) {
 			params := VideoTranscodingParams{
-				MediaUUID:        uuid.New(),
-				OriginalFilePath: "test",
+				MediaUUID: uuid.New(),
+				OriginalFile: transcoding.OriginalFile{
+					Filepath:        "uuid/test",
+					DurationSeconds: 5.21,
+					Format:          "mp4",
+					FrameRate:       25,
+				},
 			}
 
 			body, err := json.Marshal(params)
