@@ -96,26 +96,27 @@ type ProcessOptions struct {
 }
 
 type Process struct {
+	input     string
 	output    string
-	extraArgs map[string]string
-	options   ProcessOptions
+	ExtraArgs map[string]string
+	Options   ProcessOptions
 }
 
 func (p *Process) WithOptions(opts ProcessOptions) IProcess {
-	p.options = opts
+	p.Options = opts
 	return p
 }
 
 func (p *Process) WithAdditionalOptions(opts map[string]string) IProcess {
-	p.extraArgs = map[string]string{}
+	p.ExtraArgs = map[string]string{}
 	for k, v := range opts {
-		p.extraArgs[k] = v
+		p.ExtraArgs[k] = v
 	}
 	return p
 }
 
 func (p *Process) Input(i string) IProcess {
-	p.extraArgs["-i"] = i
+	p.input = i
 	return p
 }
 
@@ -125,10 +126,14 @@ func (p *Process) Output(o string) IProcess {
 }
 
 func (p *Process) GetStrArguments() []string {
-	f := reflect.TypeOf(p.options)
-	v := reflect.ValueOf(p.options)
+	f := reflect.TypeOf(p.Options)
+	v := reflect.ValueOf(p.Options)
 
 	values := []string{}
+
+	if p.input != "" {
+		values = append(values, "-i", p.input)
+	}
 
 	for i := 0; i < f.NumField(); i++ {
 		flag := f.Field(i).Tag.Get("flag")
@@ -159,7 +164,7 @@ func (p *Process) GetStrArguments() []string {
 		}
 	}
 
-	for k, v := range p.extraArgs {
+	for k, v := range p.ExtraArgs {
 		values = append(values, k, v)
 	}
 
@@ -169,19 +174,17 @@ func (p *Process) GetStrArguments() []string {
 }
 
 type Options struct {
-	FFmpegBinPath  string
-	FFprobeBinPath string
+	FFmpegBinPath string
 }
 
 type Transcoder struct {
-	ffmpegBinPath  string
-	ffprobeBinPath string
+	ffmpegBinPath string
 }
 
 func (t *Transcoder) Process() IProcess {
 	return &Process{
-		options:   ProcessOptions{},
-		extraArgs: map[string]string{},
+		Options:   ProcessOptions{},
+		ExtraArgs: map[string]string{},
 	}
 }
 
@@ -190,8 +193,5 @@ func (t *Transcoder) Run(p IProcess) error {
 }
 
 func NewTranscoder(opts Options) ITranscoder {
-	return &Transcoder{
-		ffmpegBinPath:  opts.FFmpegBinPath,
-		ffprobeBinPath: opts.FFprobeBinPath,
-	}
+	return &Transcoder{opts.FFmpegBinPath}
 }
