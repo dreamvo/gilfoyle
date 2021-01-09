@@ -6,6 +6,7 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
@@ -31,8 +32,13 @@ func TestConsumers(t *testing.T) {
 	t.Run("videoTranscodingConsumer", func(t *testing.T) {
 		t.Run("should receive one message and succeed", func(t *testing.T) {
 			params := VideoTranscodingParams{
-				MediaUUID:          uuid.New(),
-				OriginalFilePath:   "uuid/test",
+				MediaUUID: uuid.New(),
+				OriginalFile: transcoding.OriginalFile{
+					Filepath:        "uuid/test",
+					DurationSeconds: 5.21,
+					Format:          "mp4",
+					FrameRate:       25,
+				},
 				AudioCodec:         "aac",
 				AudioRate:          48000,
 				VideoCodec:         "h264",
@@ -65,7 +71,7 @@ func TestConsumers(t *testing.T) {
 			msgs := make(chan amqp.Delivery)
 
 			loggerMock.On("Info", "Received a message", []zap.Field{
-				zap.String("OriginalFilePath", params.OriginalFilePath),
+				zap.String("OriginalFilePath", params.OriginalFile.Filepath),
 			}).Return()
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
@@ -105,8 +111,13 @@ func TestConsumers(t *testing.T) {
 
 		t.Run("should fail to send ack", func(t *testing.T) {
 			params := VideoTranscodingParams{
-				MediaUUID:        uuid.New(),
-				OriginalFilePath: "uuid/test",
+				MediaUUID: uuid.New(),
+				OriginalFile: transcoding.OriginalFile{
+					Filepath:        "uuid/test",
+					DurationSeconds: 5.21,
+					Format:          "mp4",
+					FrameRate:       25,
+				},
 			}
 
 			body, _ := json.Marshal(params)
@@ -127,7 +138,7 @@ func TestConsumers(t *testing.T) {
 			go videoTranscodingConsumer(w, msgs)
 
 			loggerMock.On("Info", "Received a message", []zap.Field{
-				zap.String("OriginalFilePath", params.OriginalFilePath),
+				zap.String("OriginalFilePath", params.OriginalFile.Filepath),
 			}).Return()
 
 			AckMock.On("Ack", mock.Anything, false).Return(errors.New("test"))
