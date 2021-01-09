@@ -29,7 +29,7 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 - Authentication and delegated upload
 - Live streaming
 - [IPFS](https://ipfs.io/) support
-- Sentry integration
+- Encryption support
 
 ## Current status
 
