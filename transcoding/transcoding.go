@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -143,9 +144,7 @@ func (p *Process) GetStrArguments() []string {
 			}
 
 			if va, ok := value.([]string); ok {
-				for _, item := range va {
-					values = append(values, flag, item)
-				}
+				values = append(values, flag, strings.Join(va, ","))
 			}
 
 			if vm, ok := value.(map[string]string); ok {

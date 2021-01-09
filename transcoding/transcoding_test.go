@@ -6,7 +6,7 @@ import (
 )
 
 func TestTranscoding(t *testing.T) {
-	t.Run("should return arguments", func(t *testing.T) {
+	t.Run("should return arguments (1)", func(t *testing.T) {
 		transcoder := NewTranscoder(Options{
 			FFmpegBinPath:  "/usr/bin/ffmpeg",
 			FFprobeBinPath: "/usr/bin/ffprobe",
@@ -44,15 +44,16 @@ func TestTranscoding(t *testing.T) {
 				BufferSize:         &BufferSize,
 				AudioBitrate:       &AudioBitrate,
 				SkipAudio:          &SkipAudio,
+				WhiteListProtocols: []string{"file", "http", "https", "tcp", "tls"},
 			}).
 			WithAdditionalOptions(map[string]string{
 				"key": "value",
 			})
 
-		assert.Equal(t, []string{"-b:v", "800000", "-maxrate", "856000", "-c:v", "h264", "-ar", "48000", "-g", "48", "-c:a", "aac", "-ab", "96000", "-bufsize", "1200000", "-f", "mp4", "-hls_playlist_type", "vod", "-hls_time", "4", "key", "value", "/tmp/output.mp4"}, p.GetStrArguments())
+		assert.Equal(t, []string{"-b:v", "800000", "-maxrate", "856000", "-c:v", "h264", "-ar", "48000", "-g", "48", "-c:a", "aac", "-ab", "96000", "-bufsize", "1200000", "-f", "mp4", "-hls_playlist_type", "vod", "-hls_time", "4", "-protocol_whitelist", "file,http,https,tcp,tls", "key", "value", "/tmp/output.mp4"}, p.GetStrArguments())
 	})
 
-	t.Run("should return arguments", func(t *testing.T) {
+	t.Run("should return arguments (2)", func(t *testing.T) {
 		transcoder := NewTranscoder(Options{
 			FFmpegBinPath:  "/usr/bin/ffmpeg",
 			FFprobeBinPath: "/usr/bin/ffprobe",
@@ -93,5 +94,41 @@ func TestTranscoding(t *testing.T) {
 			})
 
 		assert.Equal(t, []string{"-b:v", "800000", "-maxrate", "856000", "-c:v", "h264", "-ar", "48000", "-g", "48", "-c:a", "aac", "-ab", "96000", "-bufsize", "1200000", "-f", "mp4", "-hls_playlist_type", "vod", "-hls_time", "4", "-an", "-i", "/tmp/input.mp4", "/tmp/output.mp4"}, p.GetStrArguments())
+	})
+
+	t.Run("should return arguments (3)", func(t *testing.T) {
+		transcoder := NewTranscoder(Options{
+			FFmpegBinPath:  "/usr/bin/ffmpeg",
+			FFprobeBinPath: "/usr/bin/ffprobe",
+		})
+
+		p := transcoder.
+			Process().
+			Input("/tmp/input.mp4").
+			Output("/tmp/output.ts").
+			WithOptions(ProcessOptions{
+				StreamIds: map[string]string{
+					"0": "33",
+					"1": "36",
+				},
+			})
+
+		assert.Equal(t, []string{"-streamid", "0:33", "-streamid", "1:36", "-i", "/tmp/input.mp4", "/tmp/output.ts"}, p.GetStrArguments())
+	})
+
+	t.Run("should fail to execute command", func(t *testing.T) {
+		transcoder := NewTranscoder(Options{
+			FFmpegBinPath:  "/test/ffmpeg",
+			FFprobeBinPath: "/test/ffprobe",
+		})
+
+		p := transcoder.
+			Process().
+			Input("/tmp/input.mp4").
+			Output("/tmp/output.ts")
+
+		err := transcoder.Run(p)
+		assert.Error(t, err)
+		assert.EqualError(t, err, "fork/exec /test/ffmpeg: no such file or directory")
 	})
 }
