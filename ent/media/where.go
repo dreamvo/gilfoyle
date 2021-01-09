@@ -101,6 +101,13 @@ func Title(v string) predicate.Media {
 	})
 }
 
+// OriginalFilename applies equality check predicate on the "original_filename" field. It's identical to OriginalFilenameEQ.
+func OriginalFilename(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOriginalFilename), v))
+	})
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
@@ -223,6 +230,131 @@ func TitleEqualFold(v string) predicate.Media {
 func TitleContainsFold(v string) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldTitle), v))
+	})
+}
+
+// OriginalFilenameEQ applies the EQ predicate on the "original_filename" field.
+func OriginalFilenameEQ(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameNEQ applies the NEQ predicate on the "original_filename" field.
+func OriginalFilenameNEQ(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameIn applies the In predicate on the "original_filename" field.
+func OriginalFilenameIn(vs ...string) predicate.Media {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Media(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldOriginalFilename), v...))
+	})
+}
+
+// OriginalFilenameNotIn applies the NotIn predicate on the "original_filename" field.
+func OriginalFilenameNotIn(vs ...string) predicate.Media {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Media(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldOriginalFilename), v...))
+	})
+}
+
+// OriginalFilenameGT applies the GT predicate on the "original_filename" field.
+func OriginalFilenameGT(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameGTE applies the GTE predicate on the "original_filename" field.
+func OriginalFilenameGTE(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameLT applies the LT predicate on the "original_filename" field.
+func OriginalFilenameLT(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameLTE applies the LTE predicate on the "original_filename" field.
+func OriginalFilenameLTE(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameContains applies the Contains predicate on the "original_filename" field.
+func OriginalFilenameContains(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameHasPrefix applies the HasPrefix predicate on the "original_filename" field.
+func OriginalFilenameHasPrefix(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameHasSuffix applies the HasSuffix predicate on the "original_filename" field.
+func OriginalFilenameHasSuffix(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameIsNil applies the IsNil predicate on the "original_filename" field.
+func OriginalFilenameIsNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldOriginalFilename)))
+	})
+}
+
+// OriginalFilenameNotNil applies the NotNil predicate on the "original_filename" field.
+func OriginalFilenameNotNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldOriginalFilename)))
+	})
+}
+
+// OriginalFilenameEqualFold applies the EqualFold predicate on the "original_filename" field.
+func OriginalFilenameEqualFold(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldOriginalFilename), v))
+	})
+}
+
+// OriginalFilenameContainsFold applies the ContainsFold predicate on the "original_filename" field.
+func OriginalFilenameContainsFold(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldOriginalFilename), v))
 	})
 }
 

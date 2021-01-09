@@ -764,6 +764,10 @@ var doc = `{
                     "description": "ID of the ent.",
                     "type": "string"
                 },
+                "original_filename": {
+                    "description": "OriginalFilename holds the value of the \"original_filename\" field.",
+                    "type": "string"
+                },
                 "status": {
                     "description": "Status holds the value of the \"status\" field.",
                     "type": "string"
@@ -821,16 +825,20 @@ var doc = `{
                     "description": "MediaType holds the value of the \"media_type\" field.",
                     "type": "string"
                 },
-                "original": {
-                    "description": "Original holds the value of the \"original\" field.",
-                    "type": "boolean"
-                },
                 "rendition_name": {
                     "description": "RenditionName holds the value of the \"rendition_name\" field.",
                     "type": "string"
                 },
-                "scaled_width": {
-                    "description": "ScaledWidth holds the value of the \"scaled_width\" field.",
+                "resolution_height": {
+                    "description": "ResolutionHeight holds the value of the \"resolution_height\" field.",
+                    "type": "integer"
+                },
+                "resolution_width": {
+                    "description": "ResolutionWidth holds the value of the \"resolution_width\" field.",
+                    "type": "integer"
+                },
+                "target_bandwidth": {
+                    "description": "TargetBandwidth holds the value of the \"target_bandwidth\" field.",
                     "type": "integer"
                 },
                 "updated_at": {

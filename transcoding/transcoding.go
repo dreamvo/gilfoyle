@@ -10,10 +10,14 @@ const (
 	OriginalFileName          string = "original"
 	HLSMasterPlaylistFilename string = "master.m3u8"
 	HLSPlaylistFilename       string = "index.m3u8"
-	SourceOnlyStrategy        string = "SourceOnly"
-	DeleteSourceStrategy      string = "DeleteSource"
-	KeepSourceStrategy        string = "KeepSource"
 )
+
+type OriginalFile struct {
+	Filepath        string  `json:"filepath"`
+	DurationSeconds float64 `json:"duration_seconds"`
+	Format          string  `json:"format"`
+	FrameRate       uint8   `json:"frame_rate"`
+}
 
 type ITranscoder interface {
 	Process() IProcess

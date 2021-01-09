@@ -277,12 +277,12 @@ func (mfq *MediaFileQuery) WithMedia(opts ...func(*MediaQuery)) *MediaFileQuery 
 // Example:
 //
 //	var v []struct {
-//		Format string `json:"format,omitempty"`
+//		RenditionName string `json:"rendition_name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.MediaFile.Query().
-//		GroupBy(mediafile.FieldFormat).
+//		GroupBy(mediafile.FieldRenditionName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 //
@@ -303,11 +303,11 @@ func (mfq *MediaFileQuery) GroupBy(field string, fields ...string) *MediaFileGro
 // Example:
 //
 //	var v []struct {
-//		Format string `json:"format,omitempty"`
+//		RenditionName string `json:"rendition_name,omitempty"`
 //	}
 //
 //	client.MediaFile.Query().
-//		Select(mediafile.FieldFormat).
+//		Select(mediafile.FieldRenditionName).
 //		Scan(ctx, &v)
 //
 func (mfq *MediaFileQuery) Select(field string, fields ...string) *MediaFileSelect {

@@ -10,13 +10,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
-	"gopkg.in/vansante/go-ffprobe.v2"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 func setMediaStatusAck(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media.Status) error {
@@ -44,7 +42,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			w.logger.Info("Received a message", zap.String("MediaUUID", body.MediaUUID.String()), zap.String("OriginalFilePath", body.OriginalFilePath))
+			w.logger.Info("Received a message", zap.String("MediaUUID", body.MediaUUID.String()), zap.String("OriginalFilePath", body.OriginalFile.Filepath))
 
 			m, err := w.dbClient.Media.Query().
 				Where(media.ID(body.MediaUUID)).
@@ -62,16 +60,6 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 			defer func() { _ = r.Close() }()
-
-			ctxWithTimeout, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancelFn()
-
-			probe, err := ffprobe.ProbeReader(ctxWithTimeout, r)
-			if err != nil {
-				w.logger.Error("ffprobe error", zap.Error(err))
-				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
-				return
-			}
 
 			srcTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
 			dstTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
@@ -98,8 +86,6 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			originalFormat := strings.Split(probe.Format.FormatName, ",")[0]
-
 			args := []string{
 				"-i",
 				srcTmpPath,
@@ -115,8 +101,6 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				body.VideoCodec,
 				"-r",
 				fmt.Sprintf("%d", body.FrameRate),
-				"-f",
-				originalFormat,
 				"-profile:v",
 				"main",
 				"-crf",
@@ -137,7 +121,9 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				dstTmpPath + "/%03d.ts",
 				dstTmpPath + "/" + transcoding.HLSPlaylistFilename,
 			}
-			err = exec.Command(w.ffmpegConfig.FfmpegBinPath, args...).Run()
+			fmt.Println(111, strings.Join(args, " "))
+			cmd := exec.Command(w.ffmpegConfig.FfmpegBinPath, args...)
+			err = cmd.Run()
 			if err != nil {
 				w.logger.Error("Command execution error", zap.Error(err))
 				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
@@ -176,9 +162,10 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				SetRenditionName(body.RenditionName).
 				SetFormat("hls").
 				SetVideoBitrate(int64(body.VideoBitRate)).
-				SetScaledWidth(int16(body.VideoWidth)).
-				SetDurationSeconds(m.Edges.MediaFiles[0].DurationSeconds).
-				SetFramerate(m.Edges.MediaFiles[0].Framerate).
+				SetResolutionWidth(uint16(body.VideoWidth)).
+				SetResolutionHeight(uint16(body.VideoHeight)).
+				SetDurationSeconds(body.OriginalFile.DurationSeconds).
+				SetFramerate(body.OriginalFile.FrameRate).
 				SetMediaType(schema.MediaFileTypeVideo).
 				Save(ctx)
 			if err != nil {

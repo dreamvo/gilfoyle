@@ -9,7 +9,6 @@ import (
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/dreamvo/gilfoyle/transcoding"
@@ -83,11 +82,12 @@ func TestMediaFiles(t *testing.T) {
 
 	t.Run("POST /medias/:id/upload/video", func(t *testing.T) {
 		t.Run("should upload file and return probe", func(t *testing.T) {
-			m, _ := dbClient.Media.
+			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
 				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
+			assert.NoError(t, err)
 
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
@@ -141,28 +141,46 @@ func TestMediaFiles(t *testing.T) {
 				"start_time":       "0",
 			}, body.Data)
 
-			m, _ = dbClient.Media.Get(context.Background(), m.ID)
+			m, err = dbClient.Media.Get(context.Background(), m.ID)
+			assert.NoError(t, err)
 
 			assert.Equal(t, media.StatusProcessing, m.Status)
-
-			mediaFile, _ := dbClient.MediaFile.
-				Query().
-				Where(mediafile.MediaTypeEQ(schema.MediaFileTypeVideo)).
-				Only(context.Background())
-
-			assert.Equal(t, int8(25), mediaFile.Framerate)
-			assert.Equal(t, 5.312, mediaFile.DurationSeconds)
-			assert.Equal(t, int16(1280), mediaFile.ScaledWidth)
-			assert.Equal(t, mediafile.EncoderPreset(schema.MediaFileEncoderPresetOriginal), mediaFile.EncoderPreset)
-			assert.Equal(t, int64(1205959), mediaFile.VideoBitrate)
-			assert.Equal(t, mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
+			assert.Equal(t, "original", m.OriginalFilename)
 
 			ch, err := w.Client.Channel()
 			assert.NoError(t, err)
 
-			_, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
+			msg, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
 			assert.NoError(t, err)
 			assert.True(t, ok)
+
+			var msgBody worker.VideoTranscodingParams
+			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody))
+
+			assert.Equal(t, worker.VideoTranscodingParams{
+				OriginalFile: transcoding.OriginalFile{
+					Filepath:        fmt.Sprintf("%s/original", m.ID.String()),
+					DurationSeconds: 5.312,
+					Format:          "mov",
+					FrameRate:       25,
+				},
+				MediaUUID:          m.ID,
+				RenditionName:      "360p",
+				VideoWidth:         640,
+				VideoHeight:        360,
+				AudioCodec:         "aac",
+				AudioRate:          48000,
+				VideoCodec:         "h264",
+				Crf:                20,
+				KeyframeInterval:   48,
+				HlsSegmentDuration: 4,
+				HlsPlaylistType:    "vod",
+				VideoBitRate:       800000,
+				VideoMaxBitRate:    856000,
+				BufferSize:         1200000,
+				AudioBitrate:       96000,
+				FrameRate:          25,
+			}, msgBody)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {

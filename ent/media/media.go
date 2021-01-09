@@ -16,6 +16,8 @@ const (
 	FieldID = "id"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
+	// FieldOriginalFilename holds the string denoting the original_filename field in the database.
+	FieldOriginalFilename = "original_filename"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -41,6 +43,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldTitle,
+	FieldOriginalFilename,
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -59,6 +62,10 @@ func ValidColumn(column string) bool {
 var (
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
+	// DefaultOriginalFilename holds the default value on creation for the original_filename field.
+	DefaultOriginalFilename string
+	// OriginalFilenameValidator is a validator for the "original_filename" field. It is called by the builders before save.
+	OriginalFilenameValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.

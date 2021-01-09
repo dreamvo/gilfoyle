@@ -94,6 +94,13 @@ func IDLTE(id uuid.UUID) predicate.MediaFile {
 	})
 }
 
+// RenditionName applies equality check predicate on the "rendition_name" field. It's identical to RenditionNameEQ.
+func RenditionName(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRenditionName), v))
+	})
+}
+
 // Format applies equality check predicate on the "format" field. It's identical to FormatEQ.
 func Format(v string) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
@@ -101,10 +108,10 @@ func Format(v string) predicate.MediaFile {
 	})
 }
 
-// Original applies equality check predicate on the "original" field. It's identical to OriginalEQ.
-func Original(v bool) predicate.MediaFile {
+// TargetBandwidth applies equality check predicate on the "target_bandwidth" field. It's identical to TargetBandwidthEQ.
+func TargetBandwidth(v uint64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldOriginal), v))
+		s.Where(sql.EQ(s.C(FieldTargetBandwidth), v))
 	})
 }
 
@@ -115,22 +122,22 @@ func VideoBitrate(v int64) predicate.MediaFile {
 	})
 }
 
-// ScaledWidth applies equality check predicate on the "scaled_width" field. It's identical to ScaledWidthEQ.
-func ScaledWidth(v int16) predicate.MediaFile {
+// ResolutionWidth applies equality check predicate on the "resolution_width" field. It's identical to ResolutionWidthEQ.
+func ResolutionWidth(v uint16) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldScaledWidth), v))
+		s.Where(sql.EQ(s.C(FieldResolutionWidth), v))
 	})
 }
 
-// RenditionName applies equality check predicate on the "rendition_name" field. It's identical to RenditionNameEQ.
-func RenditionName(v string) predicate.MediaFile {
+// ResolutionHeight applies equality check predicate on the "resolution_height" field. It's identical to ResolutionHeightEQ.
+func ResolutionHeight(v uint16) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldRenditionName), v))
+		s.Where(sql.EQ(s.C(FieldResolutionHeight), v))
 	})
 }
 
 // Framerate applies equality check predicate on the "framerate" field. It's identical to FramerateEQ.
-func Framerate(v int8) predicate.MediaFile {
+func Framerate(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldFramerate), v))
 	})
@@ -154,283 +161,6 @@ func CreatedAt(v time.Time) predicate.MediaFile {
 func UpdatedAt(v time.Time) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
-}
-
-// FormatEQ applies the EQ predicate on the "format" field.
-func FormatEQ(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldFormat), v))
-	})
-}
-
-// FormatNEQ applies the NEQ predicate on the "format" field.
-func FormatNEQ(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldFormat), v))
-	})
-}
-
-// FormatIn applies the In predicate on the "format" field.
-func FormatIn(vs ...string) predicate.MediaFile {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MediaFile(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldFormat), v...))
-	})
-}
-
-// FormatNotIn applies the NotIn predicate on the "format" field.
-func FormatNotIn(vs ...string) predicate.MediaFile {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MediaFile(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldFormat), v...))
-	})
-}
-
-// FormatGT applies the GT predicate on the "format" field.
-func FormatGT(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldFormat), v))
-	})
-}
-
-// FormatGTE applies the GTE predicate on the "format" field.
-func FormatGTE(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldFormat), v))
-	})
-}
-
-// FormatLT applies the LT predicate on the "format" field.
-func FormatLT(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldFormat), v))
-	})
-}
-
-// FormatLTE applies the LTE predicate on the "format" field.
-func FormatLTE(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldFormat), v))
-	})
-}
-
-// FormatContains applies the Contains predicate on the "format" field.
-func FormatContains(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldFormat), v))
-	})
-}
-
-// FormatHasPrefix applies the HasPrefix predicate on the "format" field.
-func FormatHasPrefix(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldFormat), v))
-	})
-}
-
-// FormatHasSuffix applies the HasSuffix predicate on the "format" field.
-func FormatHasSuffix(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldFormat), v))
-	})
-}
-
-// FormatEqualFold applies the EqualFold predicate on the "format" field.
-func FormatEqualFold(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldFormat), v))
-	})
-}
-
-// FormatContainsFold applies the ContainsFold predicate on the "format" field.
-func FormatContainsFold(v string) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldFormat), v))
-	})
-}
-
-// OriginalEQ applies the EQ predicate on the "original" field.
-func OriginalEQ(v bool) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldOriginal), v))
-	})
-}
-
-// OriginalNEQ applies the NEQ predicate on the "original" field.
-func OriginalNEQ(v bool) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldOriginal), v))
-	})
-}
-
-// VideoBitrateEQ applies the EQ predicate on the "video_bitrate" field.
-func VideoBitrateEQ(v int64) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldVideoBitrate), v))
-	})
-}
-
-// VideoBitrateNEQ applies the NEQ predicate on the "video_bitrate" field.
-func VideoBitrateNEQ(v int64) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldVideoBitrate), v))
-	})
-}
-
-// VideoBitrateIn applies the In predicate on the "video_bitrate" field.
-func VideoBitrateIn(vs ...int64) predicate.MediaFile {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MediaFile(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldVideoBitrate), v...))
-	})
-}
-
-// VideoBitrateNotIn applies the NotIn predicate on the "video_bitrate" field.
-func VideoBitrateNotIn(vs ...int64) predicate.MediaFile {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MediaFile(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldVideoBitrate), v...))
-	})
-}
-
-// VideoBitrateGT applies the GT predicate on the "video_bitrate" field.
-func VideoBitrateGT(v int64) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldVideoBitrate), v))
-	})
-}
-
-// VideoBitrateGTE applies the GTE predicate on the "video_bitrate" field.
-func VideoBitrateGTE(v int64) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldVideoBitrate), v))
-	})
-}
-
-// VideoBitrateLT applies the LT predicate on the "video_bitrate" field.
-func VideoBitrateLT(v int64) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldVideoBitrate), v))
-	})
-}
-
-// VideoBitrateLTE applies the LTE predicate on the "video_bitrate" field.
-func VideoBitrateLTE(v int64) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldVideoBitrate), v))
-	})
-}
-
-// ScaledWidthEQ applies the EQ predicate on the "scaled_width" field.
-func ScaledWidthEQ(v int16) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldScaledWidth), v))
-	})
-}
-
-// ScaledWidthNEQ applies the NEQ predicate on the "scaled_width" field.
-func ScaledWidthNEQ(v int16) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldScaledWidth), v))
-	})
-}
-
-// ScaledWidthIn applies the In predicate on the "scaled_width" field.
-func ScaledWidthIn(vs ...int16) predicate.MediaFile {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MediaFile(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldScaledWidth), v...))
-	})
-}
-
-// ScaledWidthNotIn applies the NotIn predicate on the "scaled_width" field.
-func ScaledWidthNotIn(vs ...int16) predicate.MediaFile {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.MediaFile(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldScaledWidth), v...))
-	})
-}
-
-// ScaledWidthGT applies the GT predicate on the "scaled_width" field.
-func ScaledWidthGT(v int16) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldScaledWidth), v))
-	})
-}
-
-// ScaledWidthGTE applies the GTE predicate on the "scaled_width" field.
-func ScaledWidthGTE(v int16) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldScaledWidth), v))
-	})
-}
-
-// ScaledWidthLT applies the LT predicate on the "scaled_width" field.
-func ScaledWidthLT(v int16) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldScaledWidth), v))
-	})
-}
-
-// ScaledWidthLTE applies the LTE predicate on the "scaled_width" field.
-func ScaledWidthLTE(v int16) predicate.MediaFile {
-	return predicate.MediaFile(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldScaledWidth), v))
 	})
 }
 
@@ -545,22 +275,437 @@ func RenditionNameContainsFold(v string) predicate.MediaFile {
 	})
 }
 
+// FormatEQ applies the EQ predicate on the "format" field.
+func FormatEQ(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFormat), v))
+	})
+}
+
+// FormatNEQ applies the NEQ predicate on the "format" field.
+func FormatNEQ(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldFormat), v))
+	})
+}
+
+// FormatIn applies the In predicate on the "format" field.
+func FormatIn(vs ...string) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldFormat), v...))
+	})
+}
+
+// FormatNotIn applies the NotIn predicate on the "format" field.
+func FormatNotIn(vs ...string) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldFormat), v...))
+	})
+}
+
+// FormatGT applies the GT predicate on the "format" field.
+func FormatGT(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldFormat), v))
+	})
+}
+
+// FormatGTE applies the GTE predicate on the "format" field.
+func FormatGTE(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldFormat), v))
+	})
+}
+
+// FormatLT applies the LT predicate on the "format" field.
+func FormatLT(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldFormat), v))
+	})
+}
+
+// FormatLTE applies the LTE predicate on the "format" field.
+func FormatLTE(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldFormat), v))
+	})
+}
+
+// FormatContains applies the Contains predicate on the "format" field.
+func FormatContains(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldFormat), v))
+	})
+}
+
+// FormatHasPrefix applies the HasPrefix predicate on the "format" field.
+func FormatHasPrefix(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldFormat), v))
+	})
+}
+
+// FormatHasSuffix applies the HasSuffix predicate on the "format" field.
+func FormatHasSuffix(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldFormat), v))
+	})
+}
+
+// FormatEqualFold applies the EqualFold predicate on the "format" field.
+func FormatEqualFold(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldFormat), v))
+	})
+}
+
+// FormatContainsFold applies the ContainsFold predicate on the "format" field.
+func FormatContainsFold(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldFormat), v))
+	})
+}
+
+// TargetBandwidthEQ applies the EQ predicate on the "target_bandwidth" field.
+func TargetBandwidthEQ(v uint64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTargetBandwidth), v))
+	})
+}
+
+// TargetBandwidthNEQ applies the NEQ predicate on the "target_bandwidth" field.
+func TargetBandwidthNEQ(v uint64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTargetBandwidth), v))
+	})
+}
+
+// TargetBandwidthIn applies the In predicate on the "target_bandwidth" field.
+func TargetBandwidthIn(vs ...uint64) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldTargetBandwidth), v...))
+	})
+}
+
+// TargetBandwidthNotIn applies the NotIn predicate on the "target_bandwidth" field.
+func TargetBandwidthNotIn(vs ...uint64) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldTargetBandwidth), v...))
+	})
+}
+
+// TargetBandwidthGT applies the GT predicate on the "target_bandwidth" field.
+func TargetBandwidthGT(v uint64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTargetBandwidth), v))
+	})
+}
+
+// TargetBandwidthGTE applies the GTE predicate on the "target_bandwidth" field.
+func TargetBandwidthGTE(v uint64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTargetBandwidth), v))
+	})
+}
+
+// TargetBandwidthLT applies the LT predicate on the "target_bandwidth" field.
+func TargetBandwidthLT(v uint64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTargetBandwidth), v))
+	})
+}
+
+// TargetBandwidthLTE applies the LTE predicate on the "target_bandwidth" field.
+func TargetBandwidthLTE(v uint64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTargetBandwidth), v))
+	})
+}
+
+// VideoBitrateEQ applies the EQ predicate on the "video_bitrate" field.
+func VideoBitrateEQ(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// VideoBitrateNEQ applies the NEQ predicate on the "video_bitrate" field.
+func VideoBitrateNEQ(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// VideoBitrateIn applies the In predicate on the "video_bitrate" field.
+func VideoBitrateIn(vs ...int64) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldVideoBitrate), v...))
+	})
+}
+
+// VideoBitrateNotIn applies the NotIn predicate on the "video_bitrate" field.
+func VideoBitrateNotIn(vs ...int64) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldVideoBitrate), v...))
+	})
+}
+
+// VideoBitrateGT applies the GT predicate on the "video_bitrate" field.
+func VideoBitrateGT(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// VideoBitrateGTE applies the GTE predicate on the "video_bitrate" field.
+func VideoBitrateGTE(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// VideoBitrateLT applies the LT predicate on the "video_bitrate" field.
+func VideoBitrateLT(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// VideoBitrateLTE applies the LTE predicate on the "video_bitrate" field.
+func VideoBitrateLTE(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// ResolutionWidthEQ applies the EQ predicate on the "resolution_width" field.
+func ResolutionWidthEQ(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResolutionWidth), v))
+	})
+}
+
+// ResolutionWidthNEQ applies the NEQ predicate on the "resolution_width" field.
+func ResolutionWidthNEQ(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResolutionWidth), v))
+	})
+}
+
+// ResolutionWidthIn applies the In predicate on the "resolution_width" field.
+func ResolutionWidthIn(vs ...uint16) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldResolutionWidth), v...))
+	})
+}
+
+// ResolutionWidthNotIn applies the NotIn predicate on the "resolution_width" field.
+func ResolutionWidthNotIn(vs ...uint16) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldResolutionWidth), v...))
+	})
+}
+
+// ResolutionWidthGT applies the GT predicate on the "resolution_width" field.
+func ResolutionWidthGT(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldResolutionWidth), v))
+	})
+}
+
+// ResolutionWidthGTE applies the GTE predicate on the "resolution_width" field.
+func ResolutionWidthGTE(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldResolutionWidth), v))
+	})
+}
+
+// ResolutionWidthLT applies the LT predicate on the "resolution_width" field.
+func ResolutionWidthLT(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldResolutionWidth), v))
+	})
+}
+
+// ResolutionWidthLTE applies the LTE predicate on the "resolution_width" field.
+func ResolutionWidthLTE(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldResolutionWidth), v))
+	})
+}
+
+// ResolutionHeightEQ applies the EQ predicate on the "resolution_height" field.
+func ResolutionHeightEQ(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResolutionHeight), v))
+	})
+}
+
+// ResolutionHeightNEQ applies the NEQ predicate on the "resolution_height" field.
+func ResolutionHeightNEQ(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResolutionHeight), v))
+	})
+}
+
+// ResolutionHeightIn applies the In predicate on the "resolution_height" field.
+func ResolutionHeightIn(vs ...uint16) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldResolutionHeight), v...))
+	})
+}
+
+// ResolutionHeightNotIn applies the NotIn predicate on the "resolution_height" field.
+func ResolutionHeightNotIn(vs ...uint16) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldResolutionHeight), v...))
+	})
+}
+
+// ResolutionHeightGT applies the GT predicate on the "resolution_height" field.
+func ResolutionHeightGT(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldResolutionHeight), v))
+	})
+}
+
+// ResolutionHeightGTE applies the GTE predicate on the "resolution_height" field.
+func ResolutionHeightGTE(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldResolutionHeight), v))
+	})
+}
+
+// ResolutionHeightLT applies the LT predicate on the "resolution_height" field.
+func ResolutionHeightLT(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldResolutionHeight), v))
+	})
+}
+
+// ResolutionHeightLTE applies the LTE predicate on the "resolution_height" field.
+func ResolutionHeightLTE(v uint16) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldResolutionHeight), v))
+	})
+}
+
 // FramerateEQ applies the EQ predicate on the "framerate" field.
-func FramerateEQ(v int8) predicate.MediaFile {
+func FramerateEQ(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateNEQ applies the NEQ predicate on the "framerate" field.
-func FramerateNEQ(v int8) predicate.MediaFile {
+func FramerateNEQ(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateIn applies the In predicate on the "framerate" field.
-func FramerateIn(vs ...int8) predicate.MediaFile {
+func FramerateIn(vs ...uint8) predicate.MediaFile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -577,7 +722,7 @@ func FramerateIn(vs ...int8) predicate.MediaFile {
 }
 
 // FramerateNotIn applies the NotIn predicate on the "framerate" field.
-func FramerateNotIn(vs ...int8) predicate.MediaFile {
+func FramerateNotIn(vs ...uint8) predicate.MediaFile {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -594,28 +739,28 @@ func FramerateNotIn(vs ...int8) predicate.MediaFile {
 }
 
 // FramerateGT applies the GT predicate on the "framerate" field.
-func FramerateGT(v int8) predicate.MediaFile {
+func FramerateGT(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateGTE applies the GTE predicate on the "framerate" field.
-func FramerateGTE(v int8) predicate.MediaFile {
+func FramerateGTE(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateLT applies the LT predicate on the "framerate" field.
-func FramerateLT(v int8) predicate.MediaFile {
+func FramerateLT(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateLTE applies the LTE predicate on the "framerate" field.
-func FramerateLTE(v int8) predicate.MediaFile {
+func FramerateLTE(v uint8) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldFramerate), v))
 	})

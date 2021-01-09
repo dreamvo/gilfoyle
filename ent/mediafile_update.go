@@ -30,23 +30,36 @@ func (mfu *MediaFileUpdate) Where(ps ...predicate.MediaFile) *MediaFileUpdate {
 	return mfu
 }
 
+// SetRenditionName sets the rendition_name field.
+func (mfu *MediaFileUpdate) SetRenditionName(s string) *MediaFileUpdate {
+	mfu.mutation.SetRenditionName(s)
+	return mfu
+}
+
 // SetFormat sets the format field.
 func (mfu *MediaFileUpdate) SetFormat(s string) *MediaFileUpdate {
 	mfu.mutation.SetFormat(s)
 	return mfu
 }
 
-// SetOriginal sets the original field.
-func (mfu *MediaFileUpdate) SetOriginal(b bool) *MediaFileUpdate {
-	mfu.mutation.SetOriginal(b)
+// SetTargetBandwidth sets the target_bandwidth field.
+func (mfu *MediaFileUpdate) SetTargetBandwidth(u uint64) *MediaFileUpdate {
+	mfu.mutation.ResetTargetBandwidth()
+	mfu.mutation.SetTargetBandwidth(u)
 	return mfu
 }
 
-// SetNillableOriginal sets the original field if the given value is not nil.
-func (mfu *MediaFileUpdate) SetNillableOriginal(b *bool) *MediaFileUpdate {
-	if b != nil {
-		mfu.SetOriginal(*b)
+// SetNillableTargetBandwidth sets the target_bandwidth field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableTargetBandwidth(u *uint64) *MediaFileUpdate {
+	if u != nil {
+		mfu.SetTargetBandwidth(*u)
 	}
+	return mfu
+}
+
+// AddTargetBandwidth adds u to target_bandwidth.
+func (mfu *MediaFileUpdate) AddTargetBandwidth(u uint64) *MediaFileUpdate {
+	mfu.mutation.AddTargetBandwidth(u)
 	return mfu
 }
 
@@ -63,35 +76,42 @@ func (mfu *MediaFileUpdate) AddVideoBitrate(i int64) *MediaFileUpdate {
 	return mfu
 }
 
-// SetScaledWidth sets the scaled_width field.
-func (mfu *MediaFileUpdate) SetScaledWidth(i int16) *MediaFileUpdate {
-	mfu.mutation.ResetScaledWidth()
-	mfu.mutation.SetScaledWidth(i)
+// SetResolutionWidth sets the resolution_width field.
+func (mfu *MediaFileUpdate) SetResolutionWidth(u uint16) *MediaFileUpdate {
+	mfu.mutation.ResetResolutionWidth()
+	mfu.mutation.SetResolutionWidth(u)
 	return mfu
 }
 
-// AddScaledWidth adds i to scaled_width.
-func (mfu *MediaFileUpdate) AddScaledWidth(i int16) *MediaFileUpdate {
-	mfu.mutation.AddScaledWidth(i)
+// AddResolutionWidth adds u to resolution_width.
+func (mfu *MediaFileUpdate) AddResolutionWidth(u uint16) *MediaFileUpdate {
+	mfu.mutation.AddResolutionWidth(u)
 	return mfu
 }
 
-// SetRenditionName sets the rendition_name field.
-func (mfu *MediaFileUpdate) SetRenditionName(s string) *MediaFileUpdate {
-	mfu.mutation.SetRenditionName(s)
+// SetResolutionHeight sets the resolution_height field.
+func (mfu *MediaFileUpdate) SetResolutionHeight(u uint16) *MediaFileUpdate {
+	mfu.mutation.ResetResolutionHeight()
+	mfu.mutation.SetResolutionHeight(u)
+	return mfu
+}
+
+// AddResolutionHeight adds u to resolution_height.
+func (mfu *MediaFileUpdate) AddResolutionHeight(u uint16) *MediaFileUpdate {
+	mfu.mutation.AddResolutionHeight(u)
 	return mfu
 }
 
 // SetFramerate sets the framerate field.
-func (mfu *MediaFileUpdate) SetFramerate(i int8) *MediaFileUpdate {
+func (mfu *MediaFileUpdate) SetFramerate(u uint8) *MediaFileUpdate {
 	mfu.mutation.ResetFramerate()
-	mfu.mutation.SetFramerate(i)
+	mfu.mutation.SetFramerate(u)
 	return mfu
 }
 
-// AddFramerate adds i to framerate.
-func (mfu *MediaFileUpdate) AddFramerate(i int8) *MediaFileUpdate {
-	mfu.mutation.AddFramerate(i)
+// AddFramerate adds u to framerate.
+func (mfu *MediaFileUpdate) AddFramerate(u uint8) *MediaFileUpdate {
+	mfu.mutation.AddFramerate(u)
 	return mfu
 }
 
@@ -224,6 +244,11 @@ func (mfu *MediaFileUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mfu *MediaFileUpdate) check() error {
+	if v, ok := mfu.mutation.RenditionName(); ok {
+		if err := mediafile.RenditionNameValidator(v); err != nil {
+			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
+		}
+	}
 	if v, ok := mfu.mutation.Format(); ok {
 		if err := mediafile.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
@@ -234,14 +259,14 @@ func (mfu *MediaFileUpdate) check() error {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
 		}
 	}
-	if v, ok := mfu.mutation.ScaledWidth(); ok {
-		if err := mediafile.ScaledWidthValidator(v); err != nil {
-			return &ValidationError{Name: "scaled_width", err: fmt.Errorf("ent: validator failed for field \"scaled_width\": %w", err)}
+	if v, ok := mfu.mutation.ResolutionWidth(); ok {
+		if err := mediafile.ResolutionWidthValidator(v); err != nil {
+			return &ValidationError{Name: "resolution_width", err: fmt.Errorf("ent: validator failed for field \"resolution_width\": %w", err)}
 		}
 	}
-	if v, ok := mfu.mutation.RenditionName(); ok {
-		if err := mediafile.RenditionNameValidator(v); err != nil {
-			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
+	if v, ok := mfu.mutation.ResolutionHeight(); ok {
+		if err := mediafile.ResolutionHeightValidator(v); err != nil {
+			return &ValidationError{Name: "resolution_height", err: fmt.Errorf("ent: validator failed for field \"resolution_height\": %w", err)}
 		}
 	}
 	if v, ok := mfu.mutation.Framerate(); ok {
@@ -283,6 +308,13 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := mfu.mutation.RenditionName(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldRenditionName,
+		})
+	}
 	if value, ok := mfu.mutation.Format(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -290,11 +322,18 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: mediafile.FieldFormat,
 		})
 	}
-	if value, ok := mfu.mutation.Original(); ok {
+	if value, ok := mfu.mutation.TargetBandwidth(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
+			Type:   field.TypeUint64,
 			Value:  value,
-			Column: mediafile.FieldOriginal,
+			Column: mediafile.FieldTargetBandwidth,
+		})
+	}
+	if value, ok := mfu.mutation.AddedTargetBandwidth(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: mediafile.FieldTargetBandwidth,
 		})
 	}
 	if value, ok := mfu.mutation.VideoBitrate(); ok {
@@ -311,37 +350,44 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: mediafile.FieldVideoBitrate,
 		})
 	}
-	if value, ok := mfu.mutation.ScaledWidth(); ok {
+	if value, ok := mfu.mutation.ResolutionWidth(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldScaledWidth,
+			Column: mediafile.FieldResolutionWidth,
 		})
 	}
-	if value, ok := mfu.mutation.AddedScaledWidth(); ok {
+	if value, ok := mfu.mutation.AddedResolutionWidth(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldScaledWidth,
+			Column: mediafile.FieldResolutionWidth,
 		})
 	}
-	if value, ok := mfu.mutation.RenditionName(); ok {
+	if value, ok := mfu.mutation.ResolutionHeight(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldRenditionName,
+			Column: mediafile.FieldResolutionHeight,
+		})
+	}
+	if value, ok := mfu.mutation.AddedResolutionHeight(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint16,
+			Value:  value,
+			Column: mediafile.FieldResolutionHeight,
 		})
 	}
 	if value, ok := mfu.mutation.Framerate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt8,
+			Type:   field.TypeUint8,
 			Value:  value,
 			Column: mediafile.FieldFramerate,
 		})
 	}
 	if value, ok := mfu.mutation.AddedFramerate(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt8,
+			Type:   field.TypeUint8,
 			Value:  value,
 			Column: mediafile.FieldFramerate,
 		})
@@ -434,23 +480,36 @@ type MediaFileUpdateOne struct {
 	mutation *MediaFileMutation
 }
 
+// SetRenditionName sets the rendition_name field.
+func (mfuo *MediaFileUpdateOne) SetRenditionName(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetRenditionName(s)
+	return mfuo
+}
+
 // SetFormat sets the format field.
 func (mfuo *MediaFileUpdateOne) SetFormat(s string) *MediaFileUpdateOne {
 	mfuo.mutation.SetFormat(s)
 	return mfuo
 }
 
-// SetOriginal sets the original field.
-func (mfuo *MediaFileUpdateOne) SetOriginal(b bool) *MediaFileUpdateOne {
-	mfuo.mutation.SetOriginal(b)
+// SetTargetBandwidth sets the target_bandwidth field.
+func (mfuo *MediaFileUpdateOne) SetTargetBandwidth(u uint64) *MediaFileUpdateOne {
+	mfuo.mutation.ResetTargetBandwidth()
+	mfuo.mutation.SetTargetBandwidth(u)
 	return mfuo
 }
 
-// SetNillableOriginal sets the original field if the given value is not nil.
-func (mfuo *MediaFileUpdateOne) SetNillableOriginal(b *bool) *MediaFileUpdateOne {
-	if b != nil {
-		mfuo.SetOriginal(*b)
+// SetNillableTargetBandwidth sets the target_bandwidth field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableTargetBandwidth(u *uint64) *MediaFileUpdateOne {
+	if u != nil {
+		mfuo.SetTargetBandwidth(*u)
 	}
+	return mfuo
+}
+
+// AddTargetBandwidth adds u to target_bandwidth.
+func (mfuo *MediaFileUpdateOne) AddTargetBandwidth(u uint64) *MediaFileUpdateOne {
+	mfuo.mutation.AddTargetBandwidth(u)
 	return mfuo
 }
 
@@ -467,35 +526,42 @@ func (mfuo *MediaFileUpdateOne) AddVideoBitrate(i int64) *MediaFileUpdateOne {
 	return mfuo
 }
 
-// SetScaledWidth sets the scaled_width field.
-func (mfuo *MediaFileUpdateOne) SetScaledWidth(i int16) *MediaFileUpdateOne {
-	mfuo.mutation.ResetScaledWidth()
-	mfuo.mutation.SetScaledWidth(i)
+// SetResolutionWidth sets the resolution_width field.
+func (mfuo *MediaFileUpdateOne) SetResolutionWidth(u uint16) *MediaFileUpdateOne {
+	mfuo.mutation.ResetResolutionWidth()
+	mfuo.mutation.SetResolutionWidth(u)
 	return mfuo
 }
 
-// AddScaledWidth adds i to scaled_width.
-func (mfuo *MediaFileUpdateOne) AddScaledWidth(i int16) *MediaFileUpdateOne {
-	mfuo.mutation.AddScaledWidth(i)
+// AddResolutionWidth adds u to resolution_width.
+func (mfuo *MediaFileUpdateOne) AddResolutionWidth(u uint16) *MediaFileUpdateOne {
+	mfuo.mutation.AddResolutionWidth(u)
 	return mfuo
 }
 
-// SetRenditionName sets the rendition_name field.
-func (mfuo *MediaFileUpdateOne) SetRenditionName(s string) *MediaFileUpdateOne {
-	mfuo.mutation.SetRenditionName(s)
+// SetResolutionHeight sets the resolution_height field.
+func (mfuo *MediaFileUpdateOne) SetResolutionHeight(u uint16) *MediaFileUpdateOne {
+	mfuo.mutation.ResetResolutionHeight()
+	mfuo.mutation.SetResolutionHeight(u)
+	return mfuo
+}
+
+// AddResolutionHeight adds u to resolution_height.
+func (mfuo *MediaFileUpdateOne) AddResolutionHeight(u uint16) *MediaFileUpdateOne {
+	mfuo.mutation.AddResolutionHeight(u)
 	return mfuo
 }
 
 // SetFramerate sets the framerate field.
-func (mfuo *MediaFileUpdateOne) SetFramerate(i int8) *MediaFileUpdateOne {
+func (mfuo *MediaFileUpdateOne) SetFramerate(u uint8) *MediaFileUpdateOne {
 	mfuo.mutation.ResetFramerate()
-	mfuo.mutation.SetFramerate(i)
+	mfuo.mutation.SetFramerate(u)
 	return mfuo
 }
 
-// AddFramerate adds i to framerate.
-func (mfuo *MediaFileUpdateOne) AddFramerate(i int8) *MediaFileUpdateOne {
-	mfuo.mutation.AddFramerate(i)
+// AddFramerate adds u to framerate.
+func (mfuo *MediaFileUpdateOne) AddFramerate(u uint8) *MediaFileUpdateOne {
+	mfuo.mutation.AddFramerate(u)
 	return mfuo
 }
 
@@ -628,6 +694,11 @@ func (mfuo *MediaFileUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mfuo *MediaFileUpdateOne) check() error {
+	if v, ok := mfuo.mutation.RenditionName(); ok {
+		if err := mediafile.RenditionNameValidator(v); err != nil {
+			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
+		}
+	}
 	if v, ok := mfuo.mutation.Format(); ok {
 		if err := mediafile.FormatValidator(v); err != nil {
 			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
@@ -638,14 +709,14 @@ func (mfuo *MediaFileUpdateOne) check() error {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
 		}
 	}
-	if v, ok := mfuo.mutation.ScaledWidth(); ok {
-		if err := mediafile.ScaledWidthValidator(v); err != nil {
-			return &ValidationError{Name: "scaled_width", err: fmt.Errorf("ent: validator failed for field \"scaled_width\": %w", err)}
+	if v, ok := mfuo.mutation.ResolutionWidth(); ok {
+		if err := mediafile.ResolutionWidthValidator(v); err != nil {
+			return &ValidationError{Name: "resolution_width", err: fmt.Errorf("ent: validator failed for field \"resolution_width\": %w", err)}
 		}
 	}
-	if v, ok := mfuo.mutation.RenditionName(); ok {
-		if err := mediafile.RenditionNameValidator(v); err != nil {
-			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
+	if v, ok := mfuo.mutation.ResolutionHeight(); ok {
+		if err := mediafile.ResolutionHeightValidator(v); err != nil {
+			return &ValidationError{Name: "resolution_height", err: fmt.Errorf("ent: validator failed for field \"resolution_height\": %w", err)}
 		}
 	}
 	if v, ok := mfuo.mutation.Framerate(); ok {
@@ -685,6 +756,13 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing MediaFile.ID for update")}
 	}
 	_spec.Node.ID.Value = id
+	if value, ok := mfuo.mutation.RenditionName(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldRenditionName,
+		})
+	}
 	if value, ok := mfuo.mutation.Format(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -692,11 +770,18 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Column: mediafile.FieldFormat,
 		})
 	}
-	if value, ok := mfuo.mutation.Original(); ok {
+	if value, ok := mfuo.mutation.TargetBandwidth(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
+			Type:   field.TypeUint64,
 			Value:  value,
-			Column: mediafile.FieldOriginal,
+			Column: mediafile.FieldTargetBandwidth,
+		})
+	}
+	if value, ok := mfuo.mutation.AddedTargetBandwidth(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: mediafile.FieldTargetBandwidth,
 		})
 	}
 	if value, ok := mfuo.mutation.VideoBitrate(); ok {
@@ -713,37 +798,44 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Column: mediafile.FieldVideoBitrate,
 		})
 	}
-	if value, ok := mfuo.mutation.ScaledWidth(); ok {
+	if value, ok := mfuo.mutation.ResolutionWidth(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldScaledWidth,
+			Column: mediafile.FieldResolutionWidth,
 		})
 	}
-	if value, ok := mfuo.mutation.AddedScaledWidth(); ok {
+	if value, ok := mfuo.mutation.AddedResolutionWidth(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldScaledWidth,
+			Column: mediafile.FieldResolutionWidth,
 		})
 	}
-	if value, ok := mfuo.mutation.RenditionName(); ok {
+	if value, ok := mfuo.mutation.ResolutionHeight(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldRenditionName,
+			Column: mediafile.FieldResolutionHeight,
+		})
+	}
+	if value, ok := mfuo.mutation.AddedResolutionHeight(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint16,
+			Value:  value,
+			Column: mediafile.FieldResolutionHeight,
 		})
 	}
 	if value, ok := mfuo.mutation.Framerate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt8,
+			Type:   field.TypeUint8,
 			Value:  value,
 			Column: mediafile.FieldFramerate,
 		})
 	}
 	if value, ok := mfuo.mutation.AddedFramerate(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt8,
+			Type:   field.TypeUint8,
 			Value:  value,
 			Column: mediafile.FieldFramerate,
 		})

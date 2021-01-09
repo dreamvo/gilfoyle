@@ -28,6 +28,20 @@ func (mc *MediaCreate) SetTitle(s string) *MediaCreate {
 	return mc
 }
 
+// SetOriginalFilename sets the original_filename field.
+func (mc *MediaCreate) SetOriginalFilename(s string) *MediaCreate {
+	mc.mutation.SetOriginalFilename(s)
+	return mc
+}
+
+// SetNillableOriginalFilename sets the original_filename field if the given value is not nil.
+func (mc *MediaCreate) SetNillableOriginalFilename(s *string) *MediaCreate {
+	if s != nil {
+		mc.SetOriginalFilename(*s)
+	}
+	return mc
+}
+
 // SetStatus sets the status field.
 func (mc *MediaCreate) SetStatus(m media.Status) *MediaCreate {
 	mc.mutation.SetStatus(m)
@@ -135,6 +149,10 @@ func (mc *MediaCreate) SaveX(ctx context.Context) *Media {
 
 // defaults sets the default values of the builder before save.
 func (mc *MediaCreate) defaults() {
+	if _, ok := mc.mutation.OriginalFilename(); !ok {
+		v := media.DefaultOriginalFilename
+		mc.mutation.SetOriginalFilename(v)
+	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
 		v := media.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
@@ -157,6 +175,11 @@ func (mc *MediaCreate) check() error {
 	if v, ok := mc.mutation.Title(); ok {
 		if err := media.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
+		}
+	}
+	if v, ok := mc.mutation.OriginalFilename(); ok {
+		if err := media.OriginalFilenameValidator(v); err != nil {
+			return &ValidationError{Name: "original_filename", err: fmt.Errorf("ent: validator failed for field \"original_filename\": %w", err)}
 		}
 	}
 	if _, ok := mc.mutation.Status(); !ok {
@@ -209,6 +232,14 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Column: media.FieldTitle,
 		})
 		_node.Title = value
+	}
+	if value, ok := mc.mutation.OriginalFilename(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldOriginalFilename,
+		})
+		_node.OriginalFilename = value
 	}
 	if value, ok := mc.mutation.Status(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

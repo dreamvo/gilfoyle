@@ -14,16 +14,18 @@ const (
 	Label = "media_file"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldFormat holds the string denoting the format field in the database.
-	FieldFormat = "format"
-	// FieldOriginal holds the string denoting the original field in the database.
-	FieldOriginal = "original"
-	// FieldVideoBitrate holds the string denoting the video_bitrate field in the database.
-	FieldVideoBitrate = "video_bitrate"
-	// FieldScaledWidth holds the string denoting the scaled_width field in the database.
-	FieldScaledWidth = "scaled_width"
 	// FieldRenditionName holds the string denoting the rendition_name field in the database.
 	FieldRenditionName = "rendition_name"
+	// FieldFormat holds the string denoting the format field in the database.
+	FieldFormat = "format"
+	// FieldTargetBandwidth holds the string denoting the target_bandwidth field in the database.
+	FieldTargetBandwidth = "target_bandwidth"
+	// FieldVideoBitrate holds the string denoting the video_bitrate field in the database.
+	FieldVideoBitrate = "video_bitrate"
+	// FieldResolutionWidth holds the string denoting the resolution_width field in the database.
+	FieldResolutionWidth = "resolution_width"
+	// FieldResolutionHeight holds the string denoting the resolution_height field in the database.
+	FieldResolutionHeight = "resolution_height"
 	// FieldFramerate holds the string denoting the framerate field in the database.
 	FieldFramerate = "framerate"
 	// FieldDurationSeconds holds the string denoting the duration_seconds field in the database.
@@ -52,11 +54,12 @@ const (
 // Columns holds all SQL columns for mediafile fields.
 var Columns = []string{
 	FieldID,
-	FieldFormat,
-	FieldOriginal,
-	FieldVideoBitrate,
-	FieldScaledWidth,
 	FieldRenditionName,
+	FieldFormat,
+	FieldTargetBandwidth,
+	FieldVideoBitrate,
+	FieldResolutionWidth,
+	FieldResolutionHeight,
 	FieldFramerate,
 	FieldDurationSeconds,
 	FieldMediaType,
@@ -85,18 +88,20 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// FormatValidator is a validator for the "format" field. It is called by the builders before save.
-	FormatValidator func(string) error
-	// DefaultOriginal holds the default value on creation for the original field.
-	DefaultOriginal bool
-	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
-	VideoBitrateValidator func(int64) error
-	// ScaledWidthValidator is a validator for the "scaled_width" field. It is called by the builders before save.
-	ScaledWidthValidator func(int16) error
 	// RenditionNameValidator is a validator for the "rendition_name" field. It is called by the builders before save.
 	RenditionNameValidator func(string) error
+	// FormatValidator is a validator for the "format" field. It is called by the builders before save.
+	FormatValidator func(string) error
+	// DefaultTargetBandwidth holds the default value on creation for the target_bandwidth field.
+	DefaultTargetBandwidth uint64
+	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
+	VideoBitrateValidator func(int64) error
+	// ResolutionWidthValidator is a validator for the "resolution_width" field. It is called by the builders before save.
+	ResolutionWidthValidator func(uint16) error
+	// ResolutionHeightValidator is a validator for the "resolution_height" field. It is called by the builders before save.
+	ResolutionHeightValidator func(uint16) error
 	// FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
-	FramerateValidator func(int8) error
+	FramerateValidator func(uint8) error
 	// DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	DurationSecondsValidator func(float64) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.

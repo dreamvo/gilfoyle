@@ -9,7 +9,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
@@ -18,7 +17,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -126,6 +124,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	_, err = tx.Media.
 		UpdateOneID(m.ID).
 		SetStatus(media.StatusProcessing).
+		SetOriginalFilename(transcoding.OriginalFileName).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
 		rollbackWithError(ctx, tx, http.StatusBadRequest, errors.Unwrap(err))
@@ -142,34 +141,6 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	bitrate, err := strconv.ParseInt(videoStream[0].BitRate, 10, 64)
-	if err != nil {
-		util.NewError(ctx, http.StatusInternalServerError, errors.New("failed to parse bitrate from stream"))
-		return
-	}
-
-	format := strings.Split(data.Format.FormatName, ",")[0]
-
-	_, err = tx.MediaFile.Create().
-		SetMedia(m).
-		SetOriginal(true).
-		SetFormat(format).
-		SetVideoBitrate(bitrate).
-		SetRenditionName("original").
-		SetDurationSeconds(data.Format.DurationSeconds).
-		SetScaledWidth(int16(data.Streams[0].Width)).
-		SetFramerate(transcoding.ParseFrameRates(data.Streams[0].RFrameRate)).
-		SetMediaType(schema.MediaFileTypeVideo).
-		Save(context.Background())
-	if ent.IsValidationError(err) {
-		rollbackWithError(ctx, tx, http.StatusBadRequest, errors.Unwrap(err))
-		return
-	}
-	if err != nil {
-		rollbackWithError(ctx, tx, http.StatusInternalServerError, errors.Unwrap(err))
-		return
-	}
-
 	err = tx.Commit()
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
@@ -182,10 +153,19 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
+	format := strings.Split(data.Format.FormatName, ",")[0]
+	fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
+
 	err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
-		MediaUUID:          m.ID,
-		OriginalFilePath:   path,
+		MediaUUID: m.ID,
+		OriginalFile: transcoding.OriginalFile{
+			Format:          format,
+			FrameRate:       uint8(fps),
+			DurationSeconds: data.Format.DurationSeconds,
+			Filepath:        path,
+		},
 		RenditionName:      "360p",
+		FrameRate:          fps,
 		VideoWidth:         640,
 		VideoHeight:        360,
 		AudioCodec:         "aac",
