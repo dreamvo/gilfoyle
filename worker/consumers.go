@@ -10,11 +10,13 @@ import (
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"gopkg.in/vansante/go-ffprobe.v2"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func setMediaStatusAck(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media.Status) error {
@@ -53,7 +55,6 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			// Create a new MediaFile for this Media
 			r, err := w.storage.Open(ctx, fmt.Sprintf("%s/%s", body.MediaUUID.String(), transcoding.OriginalFileName))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
@@ -61,6 +62,16 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 			defer func() { _ = r.Close() }()
+
+			ctxWithTimeout, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancelFn()
+
+			probe, err := ffprobe.ProbeReader(ctxWithTimeout, r)
+			if err != nil {
+				w.logger.Error("ffprobe error", zap.Error(err))
+				_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
+				return
+			}
 
 			srcTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
 			dstTmpPath := filepath.Join(os.TempDir(), uuid.New().String())
@@ -87,6 +98,8 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
+			originalFormat := strings.Split(probe.Format.FormatName, ",")[0]
+
 			args := []string{
 				"-i",
 				srcTmpPath,
@@ -100,6 +113,10 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				fmt.Sprintf("%d", body.AudioBitrate),
 				"-c:v",
 				body.VideoCodec,
+				"-r",
+				fmt.Sprintf("%d", body.FrameRate),
+				"-f",
+				originalFormat,
 				"-profile:v",
 				"main",
 				"-crf",
@@ -146,7 +163,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				filename := strings.Replace(file, dstTmpPath, "", 1)
 
 				// Save the file
-				err = w.storage.Save(ctx, f, fmt.Sprintf("%s/%s/%s", body.MediaUUID.String(), body.PresetName, filename))
+				err = w.storage.Save(ctx, f, fmt.Sprintf("%s/%s/%s", body.MediaUUID.String(), body.RenditionName, filename))
 				if err != nil {
 					w.logger.Error("Storage error", zap.Error(err))
 					_ = setMediaStatusAck(w, d, body.MediaUUID, media.StatusErrored)
@@ -156,10 +173,10 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 
 			_, err = w.dbClient.MediaFile.Create().
 				SetMedia(m).
-				//SetPresetName(body.PresetName).
+				SetRenditionName(body.RenditionName).
+				SetFormat("hls").
 				SetVideoBitrate(int64(body.VideoBitRate)).
 				SetScaledWidth(int16(body.VideoWidth)).
-				SetEncoderPreset(schema.MediaFileEncoderPresetMedium).
 				SetDurationSeconds(m.Edges.MediaFiles[0].DurationSeconds).
 				SetFramerate(m.Edges.MediaFiles[0].Framerate).
 				SetMediaType(schema.MediaFileTypeVideo).

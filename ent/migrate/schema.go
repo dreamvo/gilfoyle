@@ -28,9 +28,11 @@ var (
 	// MediaFileColumns holds the columns for the "media_file" table.
 	MediaFileColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "format", Type: field.TypeString},
+		{Name: "original", Type: field.TypeBool},
 		{Name: "video_bitrate", Type: field.TypeInt64},
 		{Name: "scaled_width", Type: field.TypeInt16},
-		{Name: "encoder_preset", Type: field.TypeEnum, Enums: []string{"source", "ultrafast", "veryfast", "fast", "medium", "slow", "veryslow"}},
+		{Name: "rendition_name", Type: field.TypeString, Size: 100},
 		{Name: "framerate", Type: field.TypeInt8},
 		{Name: "duration_seconds", Type: field.TypeFloat64},
 		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"audio", "video"}},
@@ -46,7 +48,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "media_file_media_media_files",
-				Columns: []*schema.Column{MediaFileColumns[9]},
+				Columns: []*schema.Column{MediaFileColumns[11]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,

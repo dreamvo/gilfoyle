@@ -19,16 +19,6 @@ const (
 	MediaFileTypeVideo = "video"
 )
 
-const (
-	MediaFileEncoderPresetSource    = "source"
-	MediaFileEncoderPresetUltraFast = "ultrafast"
-	MediaFileEncoderPresetVeryFast  = "veryfast"
-	MediaFileEncoderPresetFast      = "fast"
-	MediaFileEncoderPresetMedium    = "medium"
-	MediaFileEncoderPresetSlow      = "slow"
-	MediaFileEncoderPresetVerySlow  = "veryslow"
-)
-
 // MediaFile holds the schema definition for the MediaFile entity.
 type MediaFile struct {
 	ent.Schema
@@ -53,17 +43,11 @@ func (MediaFile) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Unique().Default(func() uuid.UUID {
 			return uuid.New()
 		}),
+		field.String("format").NotEmpty(),
+		field.Bool("original").Default(false),
 		field.Int64("video_bitrate").Min(0),
 		field.Int16("scaled_width").Min(144).Max(2160),
-		field.Enum("encoder_preset").Values(
-			MediaFileEncoderPresetSource,
-			MediaFileEncoderPresetUltraFast,
-			MediaFileEncoderPresetVeryFast,
-			MediaFileEncoderPresetFast,
-			MediaFileEncoderPresetMedium,
-			MediaFileEncoderPresetSlow,
-			MediaFileEncoderPresetVerySlow,
-		),
+		field.String("rendition_name").MinLen(1).MaxLen(100),
 		field.Int8("framerate").Min(12).Max(60),
 		field.Float("duration_seconds").Min(0),
 		field.Enum("media_type").Values(MediaFileTypeAudio, MediaFileTypeVideo),

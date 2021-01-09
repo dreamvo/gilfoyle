@@ -30,6 +30,26 @@ func (mfu *MediaFileUpdate) Where(ps ...predicate.MediaFile) *MediaFileUpdate {
 	return mfu
 }
 
+// SetFormat sets the format field.
+func (mfu *MediaFileUpdate) SetFormat(s string) *MediaFileUpdate {
+	mfu.mutation.SetFormat(s)
+	return mfu
+}
+
+// SetOriginal sets the original field.
+func (mfu *MediaFileUpdate) SetOriginal(b bool) *MediaFileUpdate {
+	mfu.mutation.SetOriginal(b)
+	return mfu
+}
+
+// SetNillableOriginal sets the original field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableOriginal(b *bool) *MediaFileUpdate {
+	if b != nil {
+		mfu.SetOriginal(*b)
+	}
+	return mfu
+}
+
 // SetVideoBitrate sets the video_bitrate field.
 func (mfu *MediaFileUpdate) SetVideoBitrate(i int64) *MediaFileUpdate {
 	mfu.mutation.ResetVideoBitrate()
@@ -56,9 +76,9 @@ func (mfu *MediaFileUpdate) AddScaledWidth(i int16) *MediaFileUpdate {
 	return mfu
 }
 
-// SetEncoderPreset sets the encoder_preset field.
-func (mfu *MediaFileUpdate) SetEncoderPreset(mp mediafile.EncoderPreset) *MediaFileUpdate {
-	mfu.mutation.SetEncoderPreset(mp)
+// SetRenditionName sets the rendition_name field.
+func (mfu *MediaFileUpdate) SetRenditionName(s string) *MediaFileUpdate {
+	mfu.mutation.SetRenditionName(s)
 	return mfu
 }
 
@@ -204,6 +224,11 @@ func (mfu *MediaFileUpdate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mfu *MediaFileUpdate) check() error {
+	if v, ok := mfu.mutation.Format(); ok {
+		if err := mediafile.FormatValidator(v); err != nil {
+			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
+		}
+	}
 	if v, ok := mfu.mutation.VideoBitrate(); ok {
 		if err := mediafile.VideoBitrateValidator(v); err != nil {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
@@ -214,9 +239,9 @@ func (mfu *MediaFileUpdate) check() error {
 			return &ValidationError{Name: "scaled_width", err: fmt.Errorf("ent: validator failed for field \"scaled_width\": %w", err)}
 		}
 	}
-	if v, ok := mfu.mutation.EncoderPreset(); ok {
-		if err := mediafile.EncoderPresetValidator(v); err != nil {
-			return &ValidationError{Name: "encoder_preset", err: fmt.Errorf("ent: validator failed for field \"encoder_preset\": %w", err)}
+	if v, ok := mfu.mutation.RenditionName(); ok {
+		if err := mediafile.RenditionNameValidator(v); err != nil {
+			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
 		}
 	}
 	if v, ok := mfu.mutation.Framerate(); ok {
@@ -258,6 +283,20 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := mfu.mutation.Format(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldFormat,
+		})
+	}
+	if value, ok := mfu.mutation.Original(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: mediafile.FieldOriginal,
+		})
+	}
 	if value, ok := mfu.mutation.VideoBitrate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt64,
@@ -286,11 +325,11 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: mediafile.FieldScaledWidth,
 		})
 	}
-	if value, ok := mfu.mutation.EncoderPreset(); ok {
+	if value, ok := mfu.mutation.RenditionName(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: mediafile.FieldEncoderPreset,
+			Column: mediafile.FieldRenditionName,
 		})
 	}
 	if value, ok := mfu.mutation.Framerate(); ok {
@@ -395,6 +434,26 @@ type MediaFileUpdateOne struct {
 	mutation *MediaFileMutation
 }
 
+// SetFormat sets the format field.
+func (mfuo *MediaFileUpdateOne) SetFormat(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetFormat(s)
+	return mfuo
+}
+
+// SetOriginal sets the original field.
+func (mfuo *MediaFileUpdateOne) SetOriginal(b bool) *MediaFileUpdateOne {
+	mfuo.mutation.SetOriginal(b)
+	return mfuo
+}
+
+// SetNillableOriginal sets the original field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableOriginal(b *bool) *MediaFileUpdateOne {
+	if b != nil {
+		mfuo.SetOriginal(*b)
+	}
+	return mfuo
+}
+
 // SetVideoBitrate sets the video_bitrate field.
 func (mfuo *MediaFileUpdateOne) SetVideoBitrate(i int64) *MediaFileUpdateOne {
 	mfuo.mutation.ResetVideoBitrate()
@@ -421,9 +480,9 @@ func (mfuo *MediaFileUpdateOne) AddScaledWidth(i int16) *MediaFileUpdateOne {
 	return mfuo
 }
 
-// SetEncoderPreset sets the encoder_preset field.
-func (mfuo *MediaFileUpdateOne) SetEncoderPreset(mp mediafile.EncoderPreset) *MediaFileUpdateOne {
-	mfuo.mutation.SetEncoderPreset(mp)
+// SetRenditionName sets the rendition_name field.
+func (mfuo *MediaFileUpdateOne) SetRenditionName(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetRenditionName(s)
 	return mfuo
 }
 
@@ -569,6 +628,11 @@ func (mfuo *MediaFileUpdateOne) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mfuo *MediaFileUpdateOne) check() error {
+	if v, ok := mfuo.mutation.Format(); ok {
+		if err := mediafile.FormatValidator(v); err != nil {
+			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
+		}
+	}
 	if v, ok := mfuo.mutation.VideoBitrate(); ok {
 		if err := mediafile.VideoBitrateValidator(v); err != nil {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
@@ -579,9 +643,9 @@ func (mfuo *MediaFileUpdateOne) check() error {
 			return &ValidationError{Name: "scaled_width", err: fmt.Errorf("ent: validator failed for field \"scaled_width\": %w", err)}
 		}
 	}
-	if v, ok := mfuo.mutation.EncoderPreset(); ok {
-		if err := mediafile.EncoderPresetValidator(v); err != nil {
-			return &ValidationError{Name: "encoder_preset", err: fmt.Errorf("ent: validator failed for field \"encoder_preset\": %w", err)}
+	if v, ok := mfuo.mutation.RenditionName(); ok {
+		if err := mediafile.RenditionNameValidator(v); err != nil {
+			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
 		}
 	}
 	if v, ok := mfuo.mutation.Framerate(); ok {
@@ -621,6 +685,20 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 		return nil, &ValidationError{Name: "ID", err: fmt.Errorf("missing MediaFile.ID for update")}
 	}
 	_spec.Node.ID.Value = id
+	if value, ok := mfuo.mutation.Format(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldFormat,
+		})
+	}
+	if value, ok := mfuo.mutation.Original(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: mediafile.FieldOriginal,
+		})
+	}
 	if value, ok := mfuo.mutation.VideoBitrate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt64,
@@ -649,11 +727,11 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Column: mediafile.FieldScaledWidth,
 		})
 	}
-	if value, ok := mfuo.mutation.EncoderPreset(); ok {
+	if value, ok := mfuo.mutation.RenditionName(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
+			Type:   field.TypeString,
 			Value:  value,
-			Column: mediafile.FieldEncoderPreset,
+			Column: mediafile.FieldRenditionName,
 		})
 	}
 	if value, ok := mfuo.mutation.Framerate(); ok {

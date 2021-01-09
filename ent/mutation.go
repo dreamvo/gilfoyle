@@ -593,11 +593,13 @@ type MediaFileMutation struct {
 	op                  Op
 	typ                 string
 	id                  *uuid.UUID
+	format              *string
+	original            *bool
 	video_bitrate       *int64
 	addvideo_bitrate    *int64
 	scaled_width        *int16
 	addscaled_width     *int16
-	encoder_preset      *mediafile.EncoderPreset
+	rendition_name      *string
 	framerate           *int8
 	addframerate        *int8
 	duration_seconds    *float64
@@ -696,6 +698,80 @@ func (m *MediaFileMutation) ID() (id uuid.UUID, exists bool) {
 		return
 	}
 	return *m.id, true
+}
+
+// SetFormat sets the format field.
+func (m *MediaFileMutation) SetFormat(s string) {
+	m.format = &s
+}
+
+// Format returns the format value in the mutation.
+func (m *MediaFileMutation) Format() (r string, exists bool) {
+	v := m.format
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFormat returns the old format value of the MediaFile.
+// If the MediaFile object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaFileMutation) OldFormat(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldFormat is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldFormat requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFormat: %w", err)
+	}
+	return oldValue.Format, nil
+}
+
+// ResetFormat reset all changes of the "format" field.
+func (m *MediaFileMutation) ResetFormat() {
+	m.format = nil
+}
+
+// SetOriginal sets the original field.
+func (m *MediaFileMutation) SetOriginal(b bool) {
+	m.original = &b
+}
+
+// Original returns the original value in the mutation.
+func (m *MediaFileMutation) Original() (r bool, exists bool) {
+	v := m.original
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOriginal returns the old original value of the MediaFile.
+// If the MediaFile object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaFileMutation) OldOriginal(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldOriginal is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldOriginal requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOriginal: %w", err)
+	}
+	return oldValue.Original, nil
+}
+
+// ResetOriginal reset all changes of the "original" field.
+func (m *MediaFileMutation) ResetOriginal() {
+	m.original = nil
 }
 
 // SetVideoBitrate sets the video_bitrate field.
@@ -812,41 +888,41 @@ func (m *MediaFileMutation) ResetScaledWidth() {
 	m.addscaled_width = nil
 }
 
-// SetEncoderPreset sets the encoder_preset field.
-func (m *MediaFileMutation) SetEncoderPreset(mp mediafile.EncoderPreset) {
-	m.encoder_preset = &mp
+// SetRenditionName sets the rendition_name field.
+func (m *MediaFileMutation) SetRenditionName(s string) {
+	m.rendition_name = &s
 }
 
-// EncoderPreset returns the encoder_preset value in the mutation.
-func (m *MediaFileMutation) EncoderPreset() (r mediafile.EncoderPreset, exists bool) {
-	v := m.encoder_preset
+// RenditionName returns the rendition_name value in the mutation.
+func (m *MediaFileMutation) RenditionName() (r string, exists bool) {
+	v := m.rendition_name
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldEncoderPreset returns the old encoder_preset value of the MediaFile.
+// OldRenditionName returns the old rendition_name value of the MediaFile.
 // If the MediaFile object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *MediaFileMutation) OldEncoderPreset(ctx context.Context) (v mediafile.EncoderPreset, err error) {
+func (m *MediaFileMutation) OldRenditionName(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldEncoderPreset is allowed only on UpdateOne operations")
+		return v, fmt.Errorf("OldRenditionName is allowed only on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldEncoderPreset requires an ID field in the mutation")
+		return v, fmt.Errorf("OldRenditionName requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEncoderPreset: %w", err)
+		return v, fmt.Errorf("querying old value for OldRenditionName: %w", err)
 	}
-	return oldValue.EncoderPreset, nil
+	return oldValue.RenditionName, nil
 }
 
-// ResetEncoderPreset reset all changes of the "encoder_preset" field.
-func (m *MediaFileMutation) ResetEncoderPreset() {
-	m.encoder_preset = nil
+// ResetRenditionName reset all changes of the "rendition_name" field.
+func (m *MediaFileMutation) ResetRenditionName() {
+	m.rendition_name = nil
 }
 
 // SetFramerate sets the framerate field.
@@ -1127,15 +1203,21 @@ func (m *MediaFileMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *MediaFileMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
+	if m.format != nil {
+		fields = append(fields, mediafile.FieldFormat)
+	}
+	if m.original != nil {
+		fields = append(fields, mediafile.FieldOriginal)
+	}
 	if m.video_bitrate != nil {
 		fields = append(fields, mediafile.FieldVideoBitrate)
 	}
 	if m.scaled_width != nil {
 		fields = append(fields, mediafile.FieldScaledWidth)
 	}
-	if m.encoder_preset != nil {
-		fields = append(fields, mediafile.FieldEncoderPreset)
+	if m.rendition_name != nil {
+		fields = append(fields, mediafile.FieldRenditionName)
 	}
 	if m.framerate != nil {
 		fields = append(fields, mediafile.FieldFramerate)
@@ -1160,12 +1242,16 @@ func (m *MediaFileMutation) Fields() []string {
 // not set, or was not define in the schema.
 func (m *MediaFileMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case mediafile.FieldFormat:
+		return m.Format()
+	case mediafile.FieldOriginal:
+		return m.Original()
 	case mediafile.FieldVideoBitrate:
 		return m.VideoBitrate()
 	case mediafile.FieldScaledWidth:
 		return m.ScaledWidth()
-	case mediafile.FieldEncoderPreset:
-		return m.EncoderPreset()
+	case mediafile.FieldRenditionName:
+		return m.RenditionName()
 	case mediafile.FieldFramerate:
 		return m.Framerate()
 	case mediafile.FieldDurationSeconds:
@@ -1185,12 +1271,16 @@ func (m *MediaFileMutation) Field(name string) (ent.Value, bool) {
 // or the query to the database was failed.
 func (m *MediaFileMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case mediafile.FieldFormat:
+		return m.OldFormat(ctx)
+	case mediafile.FieldOriginal:
+		return m.OldOriginal(ctx)
 	case mediafile.FieldVideoBitrate:
 		return m.OldVideoBitrate(ctx)
 	case mediafile.FieldScaledWidth:
 		return m.OldScaledWidth(ctx)
-	case mediafile.FieldEncoderPreset:
-		return m.OldEncoderPreset(ctx)
+	case mediafile.FieldRenditionName:
+		return m.OldRenditionName(ctx)
 	case mediafile.FieldFramerate:
 		return m.OldFramerate(ctx)
 	case mediafile.FieldDurationSeconds:
@@ -1210,6 +1300,20 @@ func (m *MediaFileMutation) OldField(ctx context.Context, name string) (ent.Valu
 // type mismatch the field type.
 func (m *MediaFileMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case mediafile.FieldFormat:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFormat(v)
+		return nil
+	case mediafile.FieldOriginal:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOriginal(v)
+		return nil
 	case mediafile.FieldVideoBitrate:
 		v, ok := value.(int64)
 		if !ok {
@@ -1224,12 +1328,12 @@ func (m *MediaFileMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetScaledWidth(v)
 		return nil
-	case mediafile.FieldEncoderPreset:
-		v, ok := value.(mediafile.EncoderPreset)
+	case mediafile.FieldRenditionName:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetEncoderPreset(v)
+		m.SetRenditionName(v)
 		return nil
 	case mediafile.FieldFramerate:
 		v, ok := value.(int8)
@@ -1367,14 +1471,20 @@ func (m *MediaFileMutation) ClearField(name string) error {
 // defined in the schema.
 func (m *MediaFileMutation) ResetField(name string) error {
 	switch name {
+	case mediafile.FieldFormat:
+		m.ResetFormat()
+		return nil
+	case mediafile.FieldOriginal:
+		m.ResetOriginal()
+		return nil
 	case mediafile.FieldVideoBitrate:
 		m.ResetVideoBitrate()
 		return nil
 	case mediafile.FieldScaledWidth:
 		m.ResetScaledWidth()
 		return nil
-	case mediafile.FieldEncoderPreset:
-		m.ResetEncoderPreset()
+	case mediafile.FieldRenditionName:
+		m.ResetRenditionName()
 		return nil
 	case mediafile.FieldFramerate:
 		m.ResetFramerate()

@@ -153,7 +153,7 @@ func TestMediaFiles(t *testing.T) {
 			assert.Equal(t, int8(25), mediaFile.Framerate)
 			assert.Equal(t, 5.312, mediaFile.DurationSeconds)
 			assert.Equal(t, int16(1280), mediaFile.ScaledWidth)
-			assert.Equal(t, mediafile.EncoderPreset(schema.MediaFileEncoderPresetSource), mediaFile.EncoderPreset)
+			assert.Equal(t, mediafile.EncoderPreset(schema.MediaFileEncoderPresetOriginal), mediaFile.EncoderPreset)
 			assert.Equal(t, int64(1205959), mediaFile.VideoBitrate)
 			assert.Equal(t, mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
 

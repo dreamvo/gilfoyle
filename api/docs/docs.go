@@ -805,8 +805,8 @@ var doc = `{
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
                     "$ref": "#/definitions/ent.MediaFileEdges"
                 },
-                "encoder_preset": {
-                    "description": "EncoderPreset holds the value of the \"encoder_preset\" field.",
+                "format": {
+                    "description": "Format holds the value of the \"format\" field.",
                     "type": "string"
                 },
                 "framerate": {
@@ -819,6 +819,14 @@ var doc = `{
                 },
                 "media_type": {
                     "description": "MediaType holds the value of the \"media_type\" field.",
+                    "type": "string"
+                },
+                "original": {
+                    "description": "Original holds the value of the \"original\" field.",
+                    "type": "boolean"
+                },
+                "rendition_name": {
+                    "description": "RenditionName holds the value of the \"rendition_name\" field.",
                     "type": "string"
                 },
                 "scaled_width": {

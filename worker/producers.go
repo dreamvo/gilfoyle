@@ -9,7 +9,7 @@ import (
 type VideoTranscodingParams struct {
 	MediaUUID          uuid.UUID `json:"media_uuid"`
 	OriginalFilePath   string    `json:"source_file_path"`
-	PresetName         string    `json:"preset_name"`
+	RenditionName      string    `json:"preset_name"`
 	VideoWidth         int       `json:"video_width"`
 	VideoHeight        int       `json:"video_height"`
 	AudioCodec         string    `json:"audio_codec"`
@@ -23,6 +23,7 @@ type VideoTranscodingParams struct {
 	VideoMaxBitRate    int       `json:"video_max_bit_rate"`
 	BufferSize         int       `json:"buffer_size"`
 	AudioBitrate       int       `json:"audio_bitrate"`
+	FrameRate          int       `json:"frame_rate"`
 }
 
 func VideoTranscodingProducer(ch Channel, data VideoTranscodingParams) error {

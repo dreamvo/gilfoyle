@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -147,10 +148,14 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
+	format := strings.Split(data.Format.FormatName, ",")[0]
+
 	_, err = tx.MediaFile.Create().
 		SetMedia(m).
+		SetOriginal(true).
+		SetFormat(format).
 		SetVideoBitrate(bitrate).
-		SetEncoderPreset(schema.MediaFileEncoderPresetSource).
+		SetRenditionName("original").
 		SetDurationSeconds(data.Format.DurationSeconds).
 		SetScaledWidth(int16(data.Streams[0].Width)).
 		SetFramerate(transcoding.ParseFrameRates(data.Streams[0].RFrameRate)).
@@ -180,7 +185,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
 		MediaUUID:          m.ID,
 		OriginalFilePath:   path,
-		PresetName:         "360p",
+		RenditionName:      "360p",
 		VideoWidth:         640,
 		VideoHeight:        360,
 		AudioCodec:         "aac",

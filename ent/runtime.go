@@ -52,12 +52,20 @@ func init() {
 	media.DefaultID = mediaDescID.Default.(func() uuid.UUID)
 	mediafileFields := schema.MediaFile{}.Fields()
 	_ = mediafileFields
+	// mediafileDescFormat is the schema descriptor for format field.
+	mediafileDescFormat := mediafileFields[1].Descriptor()
+	// mediafile.FormatValidator is a validator for the "format" field. It is called by the builders before save.
+	mediafile.FormatValidator = mediafileDescFormat.Validators[0].(func(string) error)
+	// mediafileDescOriginal is the schema descriptor for original field.
+	mediafileDescOriginal := mediafileFields[2].Descriptor()
+	// mediafile.DefaultOriginal holds the default value on creation for the original field.
+	mediafile.DefaultOriginal = mediafileDescOriginal.Default.(bool)
 	// mediafileDescVideoBitrate is the schema descriptor for video_bitrate field.
-	mediafileDescVideoBitrate := mediafileFields[1].Descriptor()
+	mediafileDescVideoBitrate := mediafileFields[3].Descriptor()
 	// mediafile.VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	mediafile.VideoBitrateValidator = mediafileDescVideoBitrate.Validators[0].(func(int64) error)
 	// mediafileDescScaledWidth is the schema descriptor for scaled_width field.
-	mediafileDescScaledWidth := mediafileFields[2].Descriptor()
+	mediafileDescScaledWidth := mediafileFields[4].Descriptor()
 	// mediafile.ScaledWidthValidator is a validator for the "scaled_width" field. It is called by the builders before save.
 	mediafile.ScaledWidthValidator = func() func(int16) error {
 		validators := mediafileDescScaledWidth.Validators
@@ -74,8 +82,26 @@ func init() {
 			return nil
 		}
 	}()
+	// mediafileDescRenditionName is the schema descriptor for rendition_name field.
+	mediafileDescRenditionName := mediafileFields[5].Descriptor()
+	// mediafile.RenditionNameValidator is a validator for the "rendition_name" field. It is called by the builders before save.
+	mediafile.RenditionNameValidator = func() func(string) error {
+		validators := mediafileDescRenditionName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(rendition_name string) error {
+			for _, fn := range fns {
+				if err := fn(rendition_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// mediafileDescFramerate is the schema descriptor for framerate field.
-	mediafileDescFramerate := mediafileFields[4].Descriptor()
+	mediafileDescFramerate := mediafileFields[6].Descriptor()
 	// mediafile.FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
 	mediafile.FramerateValidator = func() func(int8) error {
 		validators := mediafileDescFramerate.Validators
@@ -93,15 +119,15 @@ func init() {
 		}
 	}()
 	// mediafileDescDurationSeconds is the schema descriptor for duration_seconds field.
-	mediafileDescDurationSeconds := mediafileFields[5].Descriptor()
+	mediafileDescDurationSeconds := mediafileFields[7].Descriptor()
 	// mediafile.DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	mediafile.DurationSecondsValidator = mediafileDescDurationSeconds.Validators[0].(func(float64) error)
 	// mediafileDescCreatedAt is the schema descriptor for created_at field.
-	mediafileDescCreatedAt := mediafileFields[7].Descriptor()
+	mediafileDescCreatedAt := mediafileFields[9].Descriptor()
 	// mediafile.DefaultCreatedAt holds the default value on creation for the created_at field.
 	mediafile.DefaultCreatedAt = mediafileDescCreatedAt.Default.(func() time.Time)
 	// mediafileDescUpdatedAt is the schema descriptor for updated_at field.
-	mediafileDescUpdatedAt := mediafileFields[8].Descriptor()
+	mediafileDescUpdatedAt := mediafileFields[10].Descriptor()
 	// mediafile.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	mediafile.DefaultUpdatedAt = mediafileDescUpdatedAt.Default.(func() time.Time)
 	// mediafile.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
