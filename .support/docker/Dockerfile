@@ -1,4 +1,4 @@
-FROM node:15.5.0-alpine
+FROM node:15.5.1-alpine
 
 LABEL maintainer="raphael@crvx.fr" \
   org.label-schema.name="Gilfoyle" \
