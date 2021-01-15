@@ -18,7 +18,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/minio/minio-go/v7 v7.0.6
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/orlangure/gnomock v0.10.1
+	github.com/orlangure/gnomock v0.11.0
 	github.com/rakyll/statik v0.1.7
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/spf13/cobra v1.1.1
