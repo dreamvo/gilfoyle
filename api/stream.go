@@ -119,7 +119,7 @@ func (s *Server) getMediaPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	ctx.DataFromReader(http.StatusOK, stat.Size, "application/octet-stream", f, map[string]string{
+	ctx.DataFromReader(http.StatusOK, stat.Size, "application/x-mpegurl", f, map[string]string{
 		"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, filename),
 	})
 }
