@@ -20,13 +20,13 @@ func ParseFrameRates(f string) int8 {
 func CreateMasterPlaylist(mediaFiles []*ent.MediaFile) string {
 	content := "#EXTM3U\n#EXT-X-VERSION:3\n"
 
-	for _, v := range mediaFiles {
+	for _, mediaFile := range mediaFiles {
 		content += fmt.Sprintf(
 			"#EXT-X-STREAM-INF:BANDWIDTH=%d,RESOLUTION=%dx%d\n%s/%s\n",
-			v.TargetBandwidth,
-			v.ResolutionWidth,
-			v.ResolutionHeight,
-			v.RenditionName,
+			mediaFile.TargetBandwidth,
+			mediaFile.ResolutionWidth,
+			mediaFile.ResolutionHeight,
+			mediaFile.RenditionName,
 			HLSPlaylistFilename,
 		)
 	}

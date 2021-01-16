@@ -7,10 +7,12 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
+	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/x/testutils"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -79,6 +81,11 @@ func TestStream(t *testing.T) {
 			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/playlist", m.ID.String()), nil)
 			assert.NoError(t, err)
 
+			stat, err := storageDriver.Stat(context.Background(), fmt.Sprintf("%s/%s", m.ID.String(), transcoding.HLSMasterPlaylistFilename))
+			assert.NoError(t, err)
+
+			assert.Equal(t, int64(171), stat.Size)
+
 			assert.Equal(t, http.StatusOK, res.Result().StatusCode)
 			assert.Equal(t, `#EXTM3U
 #EXT-X-VERSION:3
@@ -87,6 +94,49 @@ func TestStream(t *testing.T) {
 #EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080
 1080p/index.m3u8
 `, res.Body.String())
+		})
+
+		t.Run("should return playlist entry file", func(t *testing.T) {
+			m, err := dbClient.Media.
+				Create().
+				SetTitle("test").
+				SetStatus(schema.MediaStatusReady).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			_, err = dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("720p").
+				SetResolutionWidth(1280).
+				SetResolutionHeight(720).
+				SetFormat("hls").
+				SetTargetBandwidth(2800000).
+				SetVideoBitrate(800000).
+				SetFramerate(30).
+				SetDurationSeconds(5).
+				SetMediaType(schema.MediaFileTypeVideo).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			playlistContent := `#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:5
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXTINF:5.280000,
+000.ts
+#EXT-X-ENDLIST
+`
+
+			err = storageDriver.Save(context.Background(), strings.NewReader(playlistContent), fmt.Sprintf("%s/%s/%s", m.ID.String(), "360p", "index.m3u8"))
+			assert.NoError(t, err)
+
+			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/playlist/360p/index.m3u8", m.ID.String()), nil)
+			assert.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, res.Result().StatusCode)
+			assert.Equal(t, playlistContent, res.Body.String())
 		})
 	})
 }

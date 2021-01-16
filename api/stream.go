@@ -9,7 +9,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"net/http"
 	"strings"
 )
@@ -63,13 +62,15 @@ func (s *Server) getMediaMasterPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	b, err := ioutil.ReadAll(f)
+	stat, err = s.storage.Stat(context.Background(), masterPlaylistPath)
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	ctx.String(http.StatusOK, string(b))
+	ctx.DataFromReader(http.StatusOK, stat.Size, "application/octet-stream", f, map[string]string{
+		"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, transcoding.HLSMasterPlaylistFilename),
+	})
 }
 
 // @ID getMediaPlaylist
@@ -82,7 +83,43 @@ func (s *Server) getMediaMasterPlaylist(ctx *gin.Context) {
 // @Header 200 {string} Content-Type "application/octet-stream"
 // @Param media_id path string true "Media identifier" validate(required)
 // @Param playlist path string true "HLS playlist name" validate(required)
+// @Param filename path string true "HLS filename" validate(required)
 // @Router /medias/{media_id}/stream/playlist/{playlist}/{filename} [get]
 func (s *Server) getMediaPlaylist(ctx *gin.Context) {
-	ctx.Status(200)
+	mediaUUID := ctx.Param("id")
+	playlistName := ctx.Param("playlist")
+	filename := ctx.Param("filename")
+
+	parsedUUID, err := util.ValidateUUID(mediaUUID)
+	if err != nil {
+		util.NewError(ctx, http.StatusBadRequest, ErrInvalidUUID)
+		return
+	}
+
+	m, _ := s.db.Media.Query().Where(media.ID(parsedUUID)).WithMediaFiles().Only(context.Background())
+	if m == nil {
+		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
+		return
+	}
+
+	if m.Status != schema.MediaStatusReady {
+		util.NewError(ctx, http.StatusTooEarly, errors.New("media is not ready yet for streaming"))
+		return
+	}
+
+	f, err := s.storage.Open(context.Background(), fmt.Sprintf("%s/%s/%s", m.ID.String(), playlistName, filename))
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	stat, err := s.storage.Stat(context.Background(), fmt.Sprintf("%s/%s/%s", m.ID.String(), playlistName, filename))
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.DataFromReader(http.StatusOK, stat.Size, "application/octet-stream", f, map[string]string{
+		"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, filename),
+	})
 }
