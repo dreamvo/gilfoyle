@@ -22,7 +22,7 @@ import (
 // @Failure 500 {object} util.ErrorResponse
 // @Header 200 {string} Content-Type "application/octet-stream"
 // @Param media_id path string true "Media identifier" validate(required)
-// @Router /medias/{media_id}/stream/playlist [get]
+// @Router /medias/{media_id}/stream/playlists [get]
 func (s *Server) getMediaMasterPlaylist(ctx *gin.Context) {
 	mediaUUID := ctx.Param("id")
 
@@ -84,7 +84,7 @@ func (s *Server) getMediaMasterPlaylist(ctx *gin.Context) {
 // @Param media_id path string true "Media identifier" validate(required)
 // @Param playlist path string true "HLS playlist name" validate(required)
 // @Param filename path string true "HLS filename" validate(required)
-// @Router /medias/{media_id}/stream/playlist/{playlist}/{filename} [get]
+// @Router /medias/{media_id}/stream/playlists/{playlist}/{filename} [get]
 func (s *Server) getMediaPlaylist(ctx *gin.Context) {
 	mediaUUID := ctx.Param("id")
 	playlistName := ctx.Param("playlist")
@@ -119,7 +119,7 @@ func (s *Server) getMediaPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	ctx.DataFromReader(http.StatusOK, stat.Size, "application/x-mpegurl", f, map[string]string{
+	ctx.DataFromReader(http.StatusOK, stat.Size, "application/octet-stream", f, map[string]string{
 		"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, filename),
 	})
 }

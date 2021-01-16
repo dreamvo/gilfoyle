@@ -26,7 +26,7 @@ func TestStream(t *testing.T) {
 	}
 
 	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
-	defer removeDir(gilfoyle.Config.Storage.Filesystem.DataPath)
+	defer removeDir(t, gilfoyle.Config.Storage.Filesystem.DataPath)
 
 	storageDriver, err := gilfoyle.NewStorage(storage.Filesystem)
 	if err != nil {
@@ -78,21 +78,20 @@ func TestStream(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/playlist", m.ID.String()), nil)
+			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/playlists", m.ID.String()), nil)
 			assert.NoError(t, err)
 
 			stat, err := storageDriver.Stat(context.Background(), fmt.Sprintf("%s/%s", m.ID.String(), transcoding.HLSMasterPlaylistFilename))
 			assert.NoError(t, err)
-
-			assert.Equal(t, int64(171), stat.Size)
+			assert.Equal(t, int64(191), stat.Size)
 
 			assert.Equal(t, http.StatusOK, res.Result().StatusCode)
 			assert.Equal(t, `#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:BANDWIDTH=2800000,RESOLUTION=1280x720
-720p/index.m3u8
+playlists/720p/index.m3u8
 #EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080
-1080p/index.m3u8
+playlists/1080p/index.m3u8
 `, res.Body.String())
 		})
 
@@ -132,7 +131,7 @@ func TestStream(t *testing.T) {
 			err = storageDriver.Save(context.Background(), strings.NewReader(playlistContent), fmt.Sprintf("%s/%s/%s", m.ID.String(), "360p", "index.m3u8"))
 			assert.NoError(t, err)
 
-			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/playlist/360p/index.m3u8", m.ID.String()), nil)
+			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/playlists/360p/index.m3u8", m.ID.String()), nil)
 			assert.NoError(t, err)
 
 			assert.Equal(t, http.StatusOK, res.Result().StatusCode)

@@ -22,7 +22,7 @@ func CreateMasterPlaylist(mediaFiles []*ent.MediaFile) string {
 
 	for _, mediaFile := range mediaFiles {
 		content += fmt.Sprintf(
-			"#EXT-X-STREAM-INF:BANDWIDTH=%d,RESOLUTION=%dx%d\n%s/%s\n",
+			"#EXT-X-STREAM-INF:BANDWIDTH=%d,RESOLUTION=%dx%d\nplaylists/%s/%s\n",
 			mediaFile.TargetBandwidth,
 			mediaFile.ResolutionWidth,
 			mediaFile.ResolutionHeight,

@@ -28,8 +28,11 @@ import (
 	"testing"
 )
 
-func removeDir(path string) {
-	_ = os.RemoveAll(path)
+func removeDir(t *testing.T, path string) {
+	err := os.RemoveAll(path)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestMediaFiles(t *testing.T) {
@@ -44,7 +47,7 @@ func TestMediaFiles(t *testing.T) {
 	}
 
 	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
-	defer removeDir(gilfoyle.Config.Storage.Filesystem.DataPath)
+	defer removeDir(t, gilfoyle.Config.Storage.Filesystem.DataPath)
 
 	storageDriver, err := gilfoyle.NewStorage(storage.Filesystem)
 	if err != nil {
