@@ -33,23 +33,23 @@ func (s *Server) getMediaMasterPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	v, _ := s.db.Media.Query().Where(media.ID(parsedUUID)).Only(context.Background())
-	if v == nil {
+	m, _ := s.db.Media.Query().Where(media.ID(parsedUUID)).WithMediaFiles().Only(context.Background())
+	if m == nil {
 		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
 		return
 	}
 
-	if v.Status != schema.MediaStatusReady {
+	if m.Status != schema.MediaStatusReady {
 		util.NewError(ctx, http.StatusTooEarly, errors.New("media is not ready yet for streaming"))
 		return
 	}
 
-	masterPlaylistPath := fmt.Sprintf("%s/%s", v.ID.String(), transcoding.HLSMasterPlaylistFilename)
+	masterPlaylistPath := fmt.Sprintf("%s/%s", m.ID.String(), transcoding.HLSMasterPlaylistFilename)
 
 	// Create master playlist if it does not exists
 	stat, _ := s.storage.Stat(context.Background(), masterPlaylistPath)
 	if stat == nil {
-		err = s.storage.Save(context.Background(), strings.NewReader("test"), masterPlaylistPath)
+		err = s.storage.Save(context.Background(), strings.NewReader(transcoding.CreateMasterPlaylist(m.Edges.MediaFiles)), masterPlaylistPath)
 		if err != nil {
 			util.NewError(ctx, http.StatusInternalServerError, err)
 			return
@@ -63,9 +63,13 @@ func (s *Server) getMediaMasterPlaylist(ctx *gin.Context) {
 		return
 	}
 
-	b, _ := ioutil.ReadAll(f)
+	b, err := ioutil.ReadAll(f)
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
-	_, _ = ctx.Writer.Write(b)
+	ctx.String(http.StatusOK, string(b))
 }
 
 // @ID getMediaPlaylist

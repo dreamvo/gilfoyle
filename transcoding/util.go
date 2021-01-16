@@ -1,6 +1,8 @@
 package transcoding
 
 import (
+	"fmt"
+	"github.com/dreamvo/gilfoyle/ent"
 	"strconv"
 	"strings"
 )
@@ -13,4 +15,21 @@ func ParseFrameRates(f string) int8 {
 	}
 
 	return int8(i)
+}
+
+func CreateMasterPlaylist(mediaFiles []*ent.MediaFile) string {
+	content := "#EXTM3U\n#EXT-X-VERSION:3\n"
+
+	for _, v := range mediaFiles {
+		content += fmt.Sprintf(
+			"#EXT-X-STREAM-INF:BANDWIDTH=%d,RESOLUTION=%dx%d\n%s/%s\n",
+			v.TargetBandwidth,
+			v.ResolutionWidth,
+			v.ResolutionHeight,
+			v.RenditionName,
+			HLSPlaylistFilename,
+		)
+	}
+
+	return content
 }
