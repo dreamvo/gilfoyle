@@ -626,17 +626,59 @@ var doc = `{
                 }
             }
         },
-        "/medias/{media_id}/stream/{preset}": {
+        "/medias/{media_id}/stream/playlist": {
             "get": {
-                "description": "Get stream from media file",
+                "description": "Get HLS master playlist of media",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Stream"
                 ],
-                "summary": "Get stream from media file",
-                "operationId": "streamMedia",
+                "summary": "Get HLS master playlist of media",
+                "operationId": "getMediaMasterPlaylist",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Media identifier",
+                        "name": "media_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/util.DataResponse"
+                        },
+                        "headers": {
+                            "Content-Type": {
+                                "type": "string",
+                                "description": "application/octet-stream"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/medias/{media_id}/stream/playlist/{playlist}/{filename}": {
+            "get": {
+                "description": "Get file of HLS playlist",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stream"
+                ],
+                "summary": "Get file of HLS playlist",
+                "operationId": "getMediaPlaylist",
                 "parameters": [
                     {
                         "type": "string",
@@ -647,8 +689,15 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "Encoder preset",
-                        "name": "preset",
+                        "description": "HLS playlist name",
+                        "name": "playlist",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "HLS filename",
+                        "name": "filename",
                         "in": "path",
                         "required": true
                     }
