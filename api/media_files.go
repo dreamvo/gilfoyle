@@ -157,6 +157,11 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
 
 	for _, r := range s.config.Settings.Encoding.Renditions {
+		// Ignore resolutions higher than original
+		if r.Width > data.FirstVideoStream().Width && r.Height > data.FirstVideoStream().Height {
+			continue
+		}
+
 		if r.Framerate != 0 {
 			fps = r.Framerate
 		}
