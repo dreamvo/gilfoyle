@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/util"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
@@ -71,6 +72,22 @@ func TestMediaFiles(t *testing.T) {
 		t.Error(err)
 	}
 
+	gilfoyle.Config.Settings.Encoding.Renditions = []config.Rendition{
+		{
+			Name:            "360p",
+			Framerate:       25,
+			Width:           640,
+			Height:          360,
+			AudioCodec:      "aac",
+			AudioRate:       48000,
+			VideoCodec:      "h264",
+			VideoBitrate:    800000,
+			VideoMaxBitRate: 856000,
+			BufferSize:      1200000,
+			AudioBitrate:    96000,
+		},
+	}
+
 	s := NewServer(Options{
 		Database: dbClient,
 		Config:   *cfg,
@@ -96,7 +113,7 @@ func TestMediaFiles(t *testing.T) {
 
 			file, err := os.Open(filePath)
 			assert.NoError(t, err)
-			defer file.Close()
+			defer func() { _ = file.Close() }()
 
 			part1, err := writer.CreateFormFile("file", filepath.Base(filePath))
 			assert.NoError(t, err)

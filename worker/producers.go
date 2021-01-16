@@ -25,6 +25,7 @@ type VideoTranscodingParams struct {
 	BufferSize         int                      `json:"buffer_size"`
 	AudioBitrate       int                      `json:"audio_bitrate"`
 	FrameRate          int                      `json:"frame_rate"`
+	TargetBandwidth    uint64                   `json:"target_bandwidth"`
 }
 
 func VideoTranscodingProducer(ch Channel, data VideoTranscodingParams) error {

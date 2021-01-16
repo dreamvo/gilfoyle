@@ -156,33 +156,40 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	format := strings.Split(data.Format.FormatName, ",")[0]
 	fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
 
-	err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
-		MediaUUID: m.ID,
-		OriginalFile: transcoding.OriginalFile{
-			Format:          format,
-			FrameRate:       uint8(fps),
-			DurationSeconds: data.Format.DurationSeconds,
-			Filepath:        path,
-		},
-		RenditionName:      "360p",
-		FrameRate:          fps,
-		VideoWidth:         640,
-		VideoHeight:        360,
-		AudioCodec:         "aac",
-		AudioRate:          48000,
-		VideoCodec:         "h264",
-		Crf:                20,
-		KeyframeInterval:   48,
-		HlsSegmentDuration: 4,
-		HlsPlaylistType:    "vod",
-		VideoBitRate:       800000,
-		VideoMaxBitRate:    856000,
-		BufferSize:         1200000,
-		AudioBitrate:       96000,
-	})
-	if err != nil {
-		util.NewError(ctx, http.StatusInternalServerError, err)
-		return
+	for _, r := range s.config.Settings.Encoding.Renditions {
+		if r.Framerate != 0 {
+			fps = r.Framerate
+		}
+
+		err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
+			MediaUUID: m.ID,
+			OriginalFile: transcoding.OriginalFile{
+				Format:          format,
+				FrameRate:       uint8(fps),
+				DurationSeconds: data.Format.DurationSeconds,
+				Filepath:        path,
+			},
+			RenditionName:      r.Name,
+			FrameRate:          fps,
+			VideoWidth:         r.Width,
+			VideoHeight:        r.Height,
+			AudioCodec:         r.AudioCodec,
+			AudioRate:          r.AudioRate,
+			VideoCodec:         r.VideoCodec,
+			Crf:                20,
+			KeyframeInterval:   48,
+			HlsSegmentDuration: 4,
+			HlsPlaylistType:    "vod",
+			VideoBitRate:       r.VideoBitrate,
+			VideoMaxBitRate:    r.VideoMaxBitRate,
+			BufferSize:         r.BufferSize,
+			AudioBitrate:       r.AudioBitrate,
+			TargetBandwidth:    r.TargetBandwidth,
+		})
+		if err != nil {
+			util.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	util.NewData(ctx, http.StatusOK, FileFormat{

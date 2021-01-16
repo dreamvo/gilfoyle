@@ -21,10 +21,11 @@ type ServicesConfig struct {
 }
 
 type SettingsConfig struct {
-	ExposeSwaggerUI bool           `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
-	MaxFileSize     int64          `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
-	Debug           bool           `yaml:"debug" json:"debug" default:"false" env:"APP_DEBUG"`
-	Worker          WorkerSettings `yaml:"worker" json:"worker"`
+	ExposeSwaggerUI bool            `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
+	MaxFileSize     int64           `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
+	Debug           bool            `yaml:"debug" json:"debug" default:"false" env:"APP_DEBUG"`
+	Worker          WorkerSettings  `yaml:"worker" json:"worker"`
+	Encoding        EncoderSettings `yaml:"encoding" json:"encoding"`
 }
 
 type StorageConfig struct {
@@ -77,6 +78,25 @@ type RabbitMQConfig struct {
 
 type WorkerSettings struct {
 	Concurrency uint `yaml:"concurrency" json:"concurrency" default:"10" env:"WORKER_CONCURRENCY"`
+}
+
+type EncoderSettings struct {
+	Renditions []Rendition `json:"renditions" yaml:"renditions"`
+}
+
+type Rendition struct {
+	Name            string `yaml:"name" json:"name"`
+	Width           int    `yaml:"width" json:"width"`
+	Height          int    `yaml:"height" json:"height"`
+	VideoBitrate    int    `yaml:"video_bitrate" json:"video_bitrate"`
+	AudioBitrate    int    `yaml:"audio_bitrate" json:"audio_bitrate"`
+	VideoMaxBitRate int    `yaml:"video_max_bit_rate" json:"video_max_bit_rate"`
+	BufferSize      int    `yaml:"buffer_size" json:"buffer_size"`
+	Framerate       int    `yaml:"framerate" json:"framerate"`
+	AudioRate       int    `yaml:"audio_rate" json:"audio_rate"`
+	VideoCodec      string `yaml:"video_codec" json:"video_codec"`
+	AudioCodec      string `yaml:"audio_codec" json:"audio_codec"`
+	TargetBandwidth uint64 `yaml:"target_bandwidth" json:"target_bandwidth"`
 }
 
 // NewConfig creates a new config object

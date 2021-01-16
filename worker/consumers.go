@@ -152,6 +152,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				SetMedia(m).
 				SetRenditionName(body.RenditionName).
 				SetFormat("hls").
+				SetTargetBandwidth(body.TargetBandwidth).
 				SetVideoBitrate(int64(body.VideoBitRate)).
 				SetResolutionWidth(uint16(body.VideoWidth)).
 				SetResolutionHeight(uint16(body.VideoHeight)).
