@@ -4,10 +4,12 @@ import (
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
+	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"log"
 	"os"
 )
 
@@ -26,7 +28,10 @@ var workerCmd = &cobra.Command{
 	Long:    "Multiple worker nodes represent a worker pool. We usually recommend to launch a minimum of 3 worker nodes to ensure automatic fail over and high availability.",
 	Example: "gilfoyle worker",
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := gilfoyle.Logger
+		logger, err := logging.NewLogger(gilfoyle.Config.Settings.Debug, true)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		logger.Info("Initializing worker node")
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
@@ -54,7 +59,7 @@ var workerCmd = &cobra.Command{
 			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
 			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
 			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
-			Logger:      gilfoyle.Logger,
+			Logger:      logger,
 			Concurrency: concurrency,
 			Storage:     storage,
 			Database:    dbClient,

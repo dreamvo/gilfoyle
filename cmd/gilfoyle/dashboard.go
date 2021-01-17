@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/dashboard"
+	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"log"
 )
 
 var endpoint string
@@ -26,7 +28,10 @@ var dashboardCmd = &cobra.Command{
 	Short: "Launch a web server to interact with your Gilfoyle instance",
 	Long:  "Internal server requests can be made from the client through a proxy at /api/proxy.",
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := gilfoyle.Logger
+		logger, err := logging.NewLogger(gilfoyle.Config.Settings.Debug, true)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		logger.Info(fmt.Sprintf("Initializing Dashboard web server on port %v", httpPort))
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
