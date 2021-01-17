@@ -22,6 +22,15 @@ func TestS3(t *testing.T) {
 	assert := assertTest.New(t)
 	var err error
 
+	// Setting up the fake minio server
+
+	s3accessKey := "access_key"
+	s3secretKey := "secret_key"
+	s3bucket := "gilfoyle-aws-bucket"
+
+	var dockerPort docker.Port = "9000/tcp"
+	dockerHostPort := "9000"
+
 	pool, err := dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
@@ -32,9 +41,9 @@ func TestS3(t *testing.T) {
 		Tag:        "latest",
 		Cmd:        []string{"server", "/data"},
 		PortBindings: map[docker.Port][]docker.PortBinding{
-			"9000/tcp": []docker.PortBinding{{HostPort: "9000"}},
+			dockerPort: []docker.PortBinding{{HostPort: dockerHostPort}},
 		},
-		Env: []string{"MINIO_ACCESS_KEY=access_key", "MINIO_SECRET_KEY=secret_key"},
+		Env: []string{"MINIO_ACCESS_KEY=" + s3accessKey, "MINIO_SECRET_KEY=" + s3secretKey},
 	}
 
 	resource, err := pool.RunWithOptions(options, func(config *docker.HostConfig) {
@@ -48,7 +57,7 @@ func TestS3(t *testing.T) {
 		log.Fatalf("Could not start resource: %s", err)
 	}
 
-	endpoint := fmt.Sprintf("localhost:%s", resource.GetPort("9000/tcp"))
+	endpoint := fmt.Sprintf("localhost:%s", resource.GetPort(dockerHostPort+"/tcp"))
 
 	if err := pool.Retry(func() error {
 		url := fmt.Sprintf("http://%s/minio/health/live", endpoint)
@@ -66,9 +75,9 @@ func TestS3(t *testing.T) {
 
 	gilfoyle.Config.Storage.S3 = config.S3Config{
 		Hostname:        endpoint,
-		AccessKeyID:     "access_key",
-		SecretAccessKey: "secret_key",
-		Bucket:          "gilfoyle-aws-bucket",
+		AccessKeyID:     s3accessKey,
+		SecretAccessKey: s3secretKey,
+		Bucket:          s3bucket,
 		EnableSSL:       false,
 	}
 
