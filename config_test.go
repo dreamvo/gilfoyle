@@ -38,7 +38,7 @@ func TestConfig(t *testing.T) {
 				},
 			},
 			Storage: config.StorageConfig{
-				Class: "fs",
+				Driver: "fs",
 				Filesystem: config.FileSystemConfig{
 					DataPath: "/data",
 				},

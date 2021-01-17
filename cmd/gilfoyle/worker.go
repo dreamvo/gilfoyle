@@ -31,7 +31,7 @@ var workerCmd = &cobra.Command{
 		logger.Info("Initializing worker node")
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
 
-		storage, err := gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		storage, err := gilfoyle.NewStorage(config.StorageDriver(gilfoyle.Config.Storage.Driver))
 		if err != nil {
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}

@@ -5,8 +5,8 @@ import (
 	"github.com/jinzhu/configor"
 )
 
-// StorageClass is a kind of storage backend
-type StorageClass string
+// StorageDriver is a kind of storage backend
+type StorageDriver string
 
 // Config defines the application's settings
 type Config struct {
@@ -29,7 +29,7 @@ type SettingsConfig struct {
 }
 
 type StorageConfig struct {
-	Class      string           `yaml:"class" json:"class" default:"fs" env:"STORAGE_CLASS"`
+	Driver     string           `yaml:"driver" json:"driver" default:"fs" env:"STORAGE_DRIVER"`
 	Filesystem FileSystemConfig `yaml:"fs" json:"fs"`
 	S3         S3Config         `yaml:"s3" json:"s3"`
 	GCS        GCSConfig        `yaml:"gcs" json:"gcs"`
@@ -85,18 +85,18 @@ type EncoderSettings struct {
 }
 
 type Rendition struct {
-	Name            string `yaml:"name" json:"name"`
-	Width           int    `yaml:"width" json:"width"`
-	Height          int    `yaml:"height" json:"height"`
-	VideoBitrate    int    `yaml:"video_bitrate" json:"video_bitrate"`
-	AudioBitrate    int    `yaml:"audio_bitrate" json:"audio_bitrate"`
-	VideoMaxBitRate int    `yaml:"video_max_bit_rate" json:"video_max_bit_rate"`
-	BufferSize      int    `yaml:"buffer_size" json:"buffer_size"`
-	Framerate       int    `yaml:"framerate" json:"framerate"`
-	AudioRate       int    `yaml:"audio_rate" json:"audio_rate"`
-	VideoCodec      string `yaml:"video_codec" json:"video_codec"`
-	AudioCodec      string `yaml:"audio_codec" json:"audio_codec"`
-	TargetBandwidth uint64 `yaml:"target_bandwidth" json:"target_bandwidth"`
+	Name            string `yaml:"name" json:"name" default:"default"`
+	Width           int    `yaml:"width" json:"width" default:"842"`
+	Height          int    `yaml:"height" json:"height" default:"480"`
+	VideoBitrate    int    `yaml:"video_bitrate" json:"video_bitrate" default:"1400000"`
+	AudioBitrate    int    `yaml:"audio_bitrate" json:"audio_bitrate" default:"128000"`
+	VideoMaxBitRate int    `yaml:"video_max_bit_rate" json:"video_max_bit_rate" default:"1498000"`
+	BufferSize      int    `yaml:"buffer_size" json:"buffer_size" default:"2100000"`
+	Framerate       int    `yaml:"framerate" json:"framerate" default:"0"`
+	AudioRate       int    `yaml:"audio_rate" json:"audio_rate" default:"48000"`
+	VideoCodec      string `yaml:"video_codec" json:"video_codec" default:"h264"`
+	AudioCodec      string `yaml:"audio_codec" json:"audio_codec" default:"aac"`
+	TargetBandwidth uint64 `yaml:"target_bandwidth" json:"target_bandwidth" default:"1400000"`
 }
 
 // NewConfig creates a new config object

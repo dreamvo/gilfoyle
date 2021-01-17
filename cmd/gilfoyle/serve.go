@@ -62,7 +62,7 @@ var serveCmd = &cobra.Command{
 
 		logger.Info("Successfully executed database auto migration")
 
-		s, err := gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		s, err := gilfoyle.NewStorage(config.StorageDriver(gilfoyle.Config.Storage.Driver))
 		if err != nil {
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}

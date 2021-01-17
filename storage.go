@@ -11,10 +11,10 @@ import (
 )
 
 // NewStorage creates a new storage instance
-func NewStorage(storageClass config.StorageClass) (storage.Storage, error) {
+func NewStorage(driver config.StorageDriver) (storage.Storage, error) {
 	cfg := Config.Storage
 
-	switch storageClass {
+	switch driver {
 	case storage.Filesystem:
 		return fs.NewStorage(fs.Config{
 			Root: cfg.Filesystem.DataPath,
@@ -26,6 +26,6 @@ func NewStorage(storageClass config.StorageClass) (storage.Storage, error) {
 	//case IPFS:
 	//	return ipfs.NewStorage(cfg.IPFS)
 	default:
-		return nil, fmt.Errorf("storage class %s does not exist", storageClass)
+		return nil, fmt.Errorf("storage driver %s does not exist", driver)
 	}
 }
