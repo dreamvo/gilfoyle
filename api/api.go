@@ -133,8 +133,7 @@ func registerRoutes(s *Server) {
 		medias.GET(":id/attachments", s.getMediaAttachments)
 		medias.POST(":id/attachments", s.addMediaAttachments)
 		medias.DELETE(":id/attachments/:attachment_id", s.deleteMediaAttachments)
-		medias.GET(":id/stream/playlists", s.getMediaMasterPlaylist)
-		medias.GET(":id/stream/playlists/:playlist/:filename", s.getMediaPlaylist)
+		medias.GET(":id/stream/*filename", s.getMediaPlaylistFile)
 	}
 
 	if s.config.Settings.ExposeSwaggerUI {
