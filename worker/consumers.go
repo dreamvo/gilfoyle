@@ -91,8 +91,8 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 
 			p := w.transcoder.
 				Process().
-				Input(srcTmpPath).
-				Output(fmt.Sprintf("%s/%s", dstTmpPath, transcoding.HLSPlaylistFilename)).
+				SetInput(srcTmpPath).
+				SetOutput(fmt.Sprintf("%s/%s", dstTmpPath, transcoding.HLSPlaylistFilename)).
 				WithOptions(transcoding.ProcessOptions{
 					AudioCodec:         &body.AudioCodec,
 					VideoCodec:         &body.VideoCodec,

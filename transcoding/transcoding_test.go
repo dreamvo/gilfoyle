@@ -27,8 +27,8 @@ func TestTranscoding(t *testing.T) {
 
 		p := transcoder.
 			Process().
-			Input("/tmp/input.mp4").
-			Output("/tmp/output.mp4").
+			SetInput("/tmp/input.mp4").
+			SetOutput("/tmp/output.mp4").
 			WithOptions(ProcessOptions{
 				OutputFormat:       &format,
 				AudioCodec:         &AudioCodec,
@@ -73,8 +73,8 @@ func TestTranscoding(t *testing.T) {
 
 		p := transcoder.
 			Process().
-			Input("/tmp/input.mp4").
-			Output("/tmp/output.mp4").
+			SetInput("/tmp/input.mp4").
+			SetOutput("/tmp/output.mp4").
 			WithOptions(ProcessOptions{
 				OutputFormat:       &format,
 				AudioCodec:         &AudioCodec,
@@ -101,8 +101,8 @@ func TestTranscoding(t *testing.T) {
 
 		p := transcoder.
 			Process().
-			Input("/tmp/input.mp4").
-			Output("/tmp/output.ts").
+			SetInput("/tmp/input.mp4").
+			SetOutput("/tmp/output.ts").
 			WithOptions(ProcessOptions{
 				StreamIds: map[string]string{
 					"0": "33",
@@ -120,8 +120,8 @@ func TestTranscoding(t *testing.T) {
 
 		p := transcoder.
 			Process().
-			Input("/tmp/input.mp4").
-			Output("/tmp/output.ts")
+			SetInput("/tmp/input.mp4").
+			SetOutput("/tmp/output.ts")
 
 		err := transcoder.Run(p)
 		assert.Error(t, err)

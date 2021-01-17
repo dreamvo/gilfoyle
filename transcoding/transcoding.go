@@ -26,8 +26,8 @@ type ITranscoder interface {
 }
 
 type IProcess interface {
-	Input(string) IProcess
-	Output(string) IProcess
+	SetInput(string) IProcess
+	SetOutput(string) IProcess
 	WithOptions(ProcessOptions) IProcess
 	GetStrArguments() []string
 	WithAdditionalOptions(map[string]string) IProcess
@@ -96,8 +96,8 @@ type ProcessOptions struct {
 }
 
 type Process struct {
-	input     string
-	output    string
+	Input     string
+	Output    string
 	ExtraArgs map[string]string
 	Options   ProcessOptions
 }
@@ -115,13 +115,13 @@ func (p *Process) WithAdditionalOptions(opts map[string]string) IProcess {
 	return p
 }
 
-func (p *Process) Input(i string) IProcess {
-	p.input = i
+func (p *Process) SetInput(i string) IProcess {
+	p.Input = i
 	return p
 }
 
-func (p *Process) Output(o string) IProcess {
-	p.output = o
+func (p *Process) SetOutput(o string) IProcess {
+	p.Output = o
 	return p
 }
 
@@ -131,8 +131,8 @@ func (p *Process) GetStrArguments() []string {
 
 	values := []string{}
 
-	if p.input != "" {
-		values = append(values, "-i", p.input)
+	if p.Input != "" {
+		values = append(values, "-i", p.Input)
 	}
 
 	for i := 0; i < f.NumField(); i++ {
@@ -168,7 +168,7 @@ func (p *Process) GetStrArguments() []string {
 		values = append(values, k, v)
 	}
 
-	values = append(values, p.output)
+	values = append(values, p.Output)
 
 	return values
 }

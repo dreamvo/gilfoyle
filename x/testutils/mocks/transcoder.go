@@ -10,10 +10,8 @@ type MockedTranscoder struct {
 }
 
 func (m *MockedTranscoder) Process() transcoding.IProcess {
-	return &transcoding.Process{
-		Options:   transcoding.ProcessOptions{},
-		ExtraArgs: map[string]string{},
-	}
+	m.Called()
+	return new(transcoding.Process)
 }
 
 func (m *MockedTranscoder) Run(p transcoding.IProcess) error {
