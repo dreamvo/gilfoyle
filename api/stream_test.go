@@ -75,7 +75,7 @@ func TestStream(t *testing.T) {
 			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/low/index.m3u8", m.ID.String()), nil)
 			assert.NoError(t, err)
 
-			err = json.Unmarshal(res.Body.Bytes(), &body)
+			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, http.StatusTooEarly, res.Result().StatusCode)
 			assert.Equal(t, util.ErrorResponse{
@@ -89,7 +89,7 @@ func TestStream(t *testing.T) {
 			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/low/index.m3u8", uuid.New().String()), nil)
 			assert.NoError(t, err)
 
-			err = json.Unmarshal(res.Body.Bytes(), &body)
+			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, http.StatusNotFound, res.Result().StatusCode)
 			assert.Equal(t, util.ErrorResponse{
@@ -103,7 +103,7 @@ func TestStream(t *testing.T) {
 			res, err := testutils.Send(s.router, http.MethodGet, "/medias/uuid/stream/low/index.m3u8", nil)
 			assert.NoError(t, err)
 
-			err = json.Unmarshal(res.Body.Bytes(), &body)
+			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, http.StatusBadRequest, res.Result().StatusCode)
 			assert.Equal(t, util.ErrorResponse{
@@ -124,8 +124,7 @@ func TestStream(t *testing.T) {
 			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/low/index.m3u8", m.ID.String()), nil)
 			assert.NoError(t, err)
 
-			err = json.Unmarshal(res.Body.Bytes(), &body)
-			assert.NoError(t, err)
+			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, http.StatusNotFound, res.Result().StatusCode)
 			assert.Equal(t, util.ErrorResponse{
