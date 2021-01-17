@@ -539,47 +539,14 @@ paths:
       summary: Add attachment to a media
       tags:
       - Attachments
-  /medias/{media_id}/stream/playlists:
+  /medias/{media_id}/stream/playlists/{filename}:
     get:
-      description: Get HLS master playlist of media
-      operationId: getMediaMasterPlaylist
+      description: Get HLS playlist file of a media
+      operationId: getMediaPlaylistFile
       parameters:
       - description: Media identifier
         in: path
         name: media_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          headers:
-            Content-Type:
-              description: application/octet-stream
-              type: string
-          schema:
-            $ref: '#/definitions/util.DataResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.ErrorResponse'
-      summary: Get HLS master playlist of media
-      tags:
-      - Stream
-  /medias/{media_id}/stream/playlists/{playlist}/{filename}:
-    get:
-      description: Get file of HLS playlist
-      operationId: getMediaPlaylist
-      parameters:
-      - description: Media identifier
-        in: path
-        name: media_id
-        required: true
-        type: string
-      - description: HLS playlist name
-        in: path
-        name: playlist
         required: true
         type: string
       - description: HLS filename
@@ -588,7 +555,7 @@ paths:
         required: true
         type: string
       produces:
-      - application/json
+      - application/octet-stream
       responses:
         "200":
           description: OK
@@ -598,11 +565,15 @@ paths:
               type: string
           schema:
             $ref: '#/definitions/util.DataResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/util.ErrorResponse'
-      summary: Get file of HLS playlist
+      summary: Get HLS playlist file of a media
       tags:
       - Stream
 schemes:

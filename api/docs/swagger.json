@@ -615,71 +615,22 @@
                 }
             }
         },
-        "/medias/{media_id}/stream/playlists": {
+        "/medias/{media_id}/stream/playlists/{filename}": {
             "get": {
-                "description": "Get HLS master playlist of media",
+                "description": "Get HLS playlist file of a media",
                 "produces": [
-                    "application/json"
+                    "application/octet-stream"
                 ],
                 "tags": [
                     "Stream"
                 ],
-                "summary": "Get HLS master playlist of media",
-                "operationId": "getMediaMasterPlaylist",
+                "summary": "Get HLS playlist file of a media",
+                "operationId": "getMediaPlaylistFile",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "Media identifier",
                         "name": "media_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/util.DataResponse"
-                        },
-                        "headers": {
-                            "Content-Type": {
-                                "type": "string",
-                                "description": "application/octet-stream"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/medias/{media_id}/stream/playlists/{playlist}/{filename}": {
-            "get": {
-                "description": "Get file of HLS playlist",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Stream"
-                ],
-                "summary": "Get file of HLS playlist",
-                "operationId": "getMediaPlaylist",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Media identifier",
-                        "name": "media_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "HLS playlist name",
-                        "name": "playlist",
                         "in": "path",
                         "required": true
                     },
@@ -702,6 +653,12 @@
                                 "type": "string",
                                 "description": "application/octet-stream"
                             }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
