@@ -211,6 +211,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	})
 }
 
+// @Deprecated
 // @ID uploadAudio
 // @Tags Medias
 // @Summary Upload a audio file

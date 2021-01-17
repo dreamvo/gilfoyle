@@ -359,6 +359,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Upload a new audio file for a given media ID
       operationId: uploadAudio
       parameters:
@@ -445,6 +446,7 @@ paths:
       - Medias
   /medias/{media_id}/attachments:
     get:
+      deprecated: true
       description: Get attachments of a media
       operationId: getMediaAttachments
       parameters:
@@ -469,6 +471,7 @@ paths:
       - Attachments
   /medias/{media_id}/attachments/{key}:
     delete:
+      deprecated: true
       description: Delete attachment of a media
       operationId: deleteMediaAttachment
       parameters:
@@ -503,6 +506,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Add attachment to a media
       operationId: addMediaAttachment
       parameters:
@@ -564,7 +568,7 @@ paths:
               description: application/octet-stream
               type: string
           schema:
-            $ref: '#/definitions/util.DataResponse'
+            type: string
         "404":
           description: Not Found
           schema:

@@ -358,6 +358,7 @@ var doc = `{
                 ],
                 "summary": "Upload a audio file",
                 "operationId": "uploadAudio",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -495,6 +496,7 @@ var doc = `{
                 ],
                 "summary": "Get attachments of a media",
                 "operationId": "getMediaAttachments",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -534,6 +536,7 @@ var doc = `{
                 ],
                 "summary": "Add attachment to a media",
                 "operationId": "addMediaAttachment",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -588,6 +591,7 @@ var doc = `{
                 ],
                 "summary": "Delete attachment of a media",
                 "operationId": "deleteMediaAttachment",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -657,7 +661,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/util.DataResponse"
+                            "type": "string"
                         },
                         "headers": {
                             "Content-Type": {

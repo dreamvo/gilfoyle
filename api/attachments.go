@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Deprecated
 // @ID getMediaAttachments
 // @Tags Attachments
 // @Summary Get attachments of a media
@@ -17,6 +18,7 @@ func (s *Server) getMediaAttachments(ctx *gin.Context) {
 	ctx.Status(200)
 }
 
+// @Deprecated
 // @ID addMediaAttachment
 // @Tags Attachments
 // @Summary Add attachment to a media
@@ -34,6 +36,7 @@ func (s *Server) addMediaAttachments(ctx *gin.Context) {
 	ctx.Status(200)
 }
 
+// @Deprecated
 // @ID deleteMediaAttachment
 // @Tags Attachments
 // @Summary Delete attachment of a media

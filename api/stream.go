@@ -18,7 +18,7 @@ import (
 // @Summary Get HLS playlist file of a media
 // @Description Get HLS playlist file of a media
 // @Produce  octet-stream
-// @Success 200 {object} util.DataResponse
+// @Success 200 {string} string
 // @Failure 404 {object} util.ErrorResponse
 // @Failure 500 {object} util.ErrorResponse
 // @Header 200 {string} Content-Type "application/octet-stream"
