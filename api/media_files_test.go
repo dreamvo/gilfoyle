@@ -201,6 +201,18 @@ func TestMediaFiles(t *testing.T) {
 				AudioBitrate:       96000,
 				FrameRate:          25,
 			}, msgBody)
+
+			msg, ok, err = ch.Get(worker.MediaProcessingCallbackQueue, false)
+			assert.NoError(t, err)
+			assert.True(t, ok)
+
+			var msgBody2 worker.MediaProcessingCallbackParams
+			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody2))
+
+			assert.Equal(t, worker.MediaProcessingCallbackParams{
+				MediaUUID:       m.ID,
+				MediaFilesCount: 1,
+			}, msgBody2)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {
