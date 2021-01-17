@@ -39,7 +39,7 @@ func TestStream(t *testing.T) {
 		Database: dbClient,
 	})
 
-	t.Run("GET /medias/{media_id}/stream/playlist", func(t *testing.T) {
+	t.Run("GET /medias/{media_id}/stream/playlists", func(t *testing.T) {
 		t.Run("should create then return master playlist", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
@@ -94,7 +94,9 @@ playlists/720p/index.m3u8
 playlists/1080p/index.m3u8
 `, res.Body.String())
 		})
+	})
 
+	t.Run("GET /medias/{media_id}/stream/playlists/:playlist/:filename", func(t *testing.T) {
 		t.Run("should return playlist entry file", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
