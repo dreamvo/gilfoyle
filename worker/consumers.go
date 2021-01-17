@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -170,6 +171,55 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			if err != nil {
 				w.logger.Error("Error trying to send ack", zap.Error(err))
 				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+			}
+		}()
+	}
+}
+
+func mediaProcessingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
+	for d := range msgs {
+		func() {
+			ctx := context.Background()
+			var body MediaProcessingCallbackParams
+
+			err := json.Unmarshal(d.Body, &body)
+			if err != nil {
+				w.logger.Error("Unmarshal error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			m, err := w.dbClient.Media.Query().Where(media.ID(body.MediaUUID)).WithMediaFiles().Only(ctx)
+			if err != nil {
+				w.logger.Error("Database error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			if m.Status != media.StatusProcessing {
+				_ = d.Nack(false, m.Status != media.StatusErrored)
+				return
+			}
+
+			if len(m.Edges.MediaFiles) != body.MediaFilesCount {
+				_ = setMediaStatusNack(w, d, m.ID, media.StatusErrored)
+				return
+			}
+
+			masterPlaylist := transcoding.CreateMasterPlaylist(m.Edges.MediaFiles)
+
+			err = w.storage.Save(ctx, strings.NewReader(masterPlaylist), path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename))
+			if err != nil {
+				w.logger.Error("Storage error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			_, err = w.dbClient.Media.UpdateOne(m).SetStatus(media.StatusReady).Save(ctx)
+
+			err = d.Ack(false)
+			if err != nil {
+				w.logger.Error("Error trying to send ack", zap.Error(err))
 			}
 		}()
 	}

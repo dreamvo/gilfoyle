@@ -70,7 +70,7 @@ var workerCmd = &cobra.Command{
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))
 		}
-		defer w.Close()
+		defer func() { _ = w.Close() }()
 
 		forever := make(chan bool)
 

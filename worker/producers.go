@@ -28,10 +28,30 @@ type VideoTranscodingParams struct {
 	TargetBandwidth    uint64                   `json:"target_bandwidth"`
 }
 
+type MediaProcessingCallbackParams struct {
+	MediaUUID       uuid.UUID `json:"media_uuid"`
+	MediaFilesCount int       `json:"media_files_count"`
+}
+
 func VideoTranscodingProducer(ch Channel, data VideoTranscodingParams) error {
 	body, _ := json.Marshal(data)
 
 	err := ch.Publish("", VideoTranscodingQueue, false, false, amqp.Publishing{
+		DeliveryMode: amqp.Persistent,
+		ContentType:  "application/json",
+		Body:         body,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MediaProcessingCallbackProducer(ch Channel, data MediaProcessingCallbackParams) error {
+	body, _ := json.Marshal(data)
+
+	err := ch.Publish("", MediaProcessingCallbackQueue, false, false, amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  "application/json",
 		Body:         body,

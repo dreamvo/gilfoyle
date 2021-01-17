@@ -197,6 +197,15 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		}
 	}
 
+	err = worker.MediaProcessingCallbackProducer(ch, worker.MediaProcessingCallbackParams{
+		MediaUUID:       m.ID,
+		MediaFilesCount: len(s.config.Settings.Encoding.Renditions),
+	})
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
 	util.NewData(ctx, http.StatusOK, FileFormat{
 		Filename:         data.Format.Filename,
 		NBStreams:        data.Format.NBStreams,

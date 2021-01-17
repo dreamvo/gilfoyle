@@ -10,9 +10,9 @@ import (
 )
 
 const (
-	VideoTranscodingQueue    string = "VideoTranscoding"
-	ThumbnailGenerationQueue string = "ThumbnailGeneration"
-	PreviewGenerationQueue   string = "PreviewGeneration"
+	VideoTranscodingQueue        string = "VideoTranscoding"
+	MediaProcessingCallbackQueue string = "MediaProcessingCallbackQueue"
+	//PreviewGenerationQueue       string = "PreviewGeneration"
 )
 
 type Channel interface {
@@ -42,22 +42,13 @@ var queues = []Queue{
 		Handler:    videoTranscodingConsumer,
 	},
 	{
-		Name:       ThumbnailGenerationQueue,
-		Durable:    false,
+		Name:       MediaProcessingCallbackQueue,
+		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    func(*Worker, <-chan amqp.Delivery) {},
-	},
-	{
-		Name:       PreviewGenerationQueue,
-		Durable:    false,
-		AutoDelete: false,
-		Exclusive:  false,
-		NoWait:     false,
-		Args:       nil,
-		Handler:    func(*Worker, <-chan amqp.Delivery) {},
+		Handler:    mediaProcessingCallbackConsumer,
 	},
 }
 
@@ -136,6 +127,12 @@ func (w *Worker) Consume() error {
 	if err != nil {
 		return fmt.Errorf("error creating channel: %e", err)
 	}
+
+	err = ch.Qos(
+		int(w.concurrency),
+		0,
+		false,
+	)
 
 	for _, q := range queues {
 		msgs, err := ch.Consume(
