@@ -156,6 +156,8 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	format := strings.Split(data.Format.FormatName, ",")[0]
 	fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
 
+	RenditionsCount := 0
+
 	for _, r := range s.config.Settings.Encoding.Renditions {
 		// Ignore resolutions higher than original
 		if r.Width > data.FirstVideoStream().Width && r.Height > data.FirstVideoStream().Height {
@@ -195,11 +197,13 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 			util.NewError(ctx, http.StatusInternalServerError, err)
 			return
 		}
+
+		RenditionsCount++
 	}
 
 	err = worker.MediaProcessingCallbackProducer(ch, worker.MediaProcessingCallbackParams{
 		MediaUUID:       m.ID,
-		MediaFilesCount: len(s.config.Settings.Encoding.Renditions),
+		MediaFilesCount: RenditionsCount,
 	})
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)

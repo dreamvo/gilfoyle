@@ -15,6 +15,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func setMediaStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media.Status) error {
@@ -42,7 +43,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			w.logger.Info("Received a message", zap.String("MediaUUID", body.MediaUUID.String()))
+			w.logger.Info("Received video transcoding message", zap.String("MediaUUID", body.MediaUUID.String()))
 
 			m, err := w.dbClient.Media.
 				Query().
@@ -189,6 +190,8 @@ func mediaProcessingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
+			w.logger.Info("Received callback message", zap.String("MediaUUID", body.MediaUUID.String()), zap.Int("MediaFilesCount", body.MediaFilesCount))
+
 			m, err := w.dbClient.Media.Query().Where(media.ID(body.MediaUUID)).WithMediaFiles().Only(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
@@ -196,13 +199,9 @@ func mediaProcessingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			if m.Status != media.StatusProcessing {
-				_ = d.Nack(false, m.Status != media.StatusErrored)
-				return
-			}
-
 			if len(m.Edges.MediaFiles) != body.MediaFilesCount {
-				_ = setMediaStatusNack(w, d, m.ID, media.StatusErrored)
+				time.Sleep(2 * time.Second)
+				_ = d.Nack(false, m.Status == media.StatusProcessing)
 				return
 			}
 
