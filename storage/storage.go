@@ -12,7 +12,6 @@ const (
 	Filesystem         config.StorageDriver = "fs"
 	GoogleCloudStorage config.StorageDriver = "gcs"
 	AmazonS3           config.StorageDriver = "s3"
-	_                  config.StorageDriver = "ipfs"
 	_                  config.StorageDriver = "openstack"
 )
 

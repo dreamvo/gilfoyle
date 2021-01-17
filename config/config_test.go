@@ -53,9 +53,8 @@ func TestConfig(t *testing.T) {
 				},
 				GCS: GCSConfig{
 					CredentialsFile: "",
-					Bucket:          ""},
-				IPFS: IPFSConfig{
-					Gateway: "gateway.ipfs.io"},
+					Bucket:          "",
+				},
 			},
 		}, cfg, "should be equal")
 	})
@@ -74,8 +73,6 @@ func TestConfig(t *testing.T) {
 		_ = os.Setenv("RABBITMQ_PORT", "5555")
 		_ = os.Setenv("RABBITMQ_PASSWORD", "rabbitmq_pass")
 
-		_ = os.Setenv("IPFS_GATEWAY", "ipfs_gateway")
-
 		cfg, err := NewConfig()
 		assert.Nil(t, err)
 
@@ -90,8 +87,6 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, "rabbitmq_pass", cfg.Services.RabbitMQ.Password)
 		assert.Equal(t, 5555, cfg.Services.RabbitMQ.Port)
 		assert.Equal(t, "rabbitmq_host", cfg.Services.RabbitMQ.Host)
-
-		assert.Equal(t, "ipfs_gateway", cfg.Storage.IPFS.Gateway)
 	})
 
 	t.Run("should not return error on bad file path", func(t *testing.T) {

@@ -33,7 +33,6 @@ type StorageConfig struct {
 	Filesystem FileSystemConfig `yaml:"fs" json:"fs"`
 	S3         S3Config         `yaml:"s3" json:"s3"`
 	GCS        GCSConfig        `yaml:"gcs" json:"gcs"`
-	IPFS       IPFSConfig       `yaml:"ipfs" json:"ipfs"`
 }
 
 type FileSystemConfig struct {
@@ -54,10 +53,6 @@ type S3Config struct {
 type GCSConfig struct {
 	CredentialsFile string `yaml:"credentials_file" json:"credentials_file" default:"" env:"GCS_CREDENTIALS_FILE"`
 	Bucket          string `yaml:"bucket" json:"bucket" default:"" env:"GCS_BUCKET"`
-}
-
-type IPFSConfig struct {
-	Gateway string `yaml:"gateway" json:"gateway" default:"gateway.ipfs.io" env:"IPFS_GATEWAY"`
 }
 
 type DatabaseConfig struct {

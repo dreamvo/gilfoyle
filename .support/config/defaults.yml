@@ -19,7 +19,7 @@ settings:
   encoding:
     renditions: []
 storage:
-  class: fs
+  driver: fs
   fs:
     data_path: /data
   s3:
@@ -34,6 +34,4 @@ storage:
   gcs:
     credentials_file: ""
     bucket: ""
-  ipfs:
-    gateway: gateway.ipfs.io
 

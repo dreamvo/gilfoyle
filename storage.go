@@ -23,8 +23,6 @@ func NewStorage(driver config.StorageDriver) (storage.Storage, error) {
 		return gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)
 	case storage.AmazonS3:
 		return s3.NewStorage(cfg.S3)
-	//case IPFS:
-	//	return ipfs.NewStorage(cfg.IPFS)
 	default:
 		return nil, fmt.Errorf("storage driver %s does not exist", driver)
 	}
