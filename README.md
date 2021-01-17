@@ -9,6 +9,7 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 - [Features](#features)
 - [Current status](#current-status)
 - [Design](#design)
+- [Roadmap](#roadmap)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Discussion](#discussion)
@@ -16,13 +17,21 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 ## Features
 
 - Deploy a RESTful API and HLS server to manage and stream audio & video
-- Upload files or import from third-party platforms (e.g: *YouTube, Dailymotion, Vimeo*)
-- Handle video compression and encoding with [FFmpeg](https://ffmpeg.org/)
-- Customize media encoding
-- Microservice authentication
-- Highly scalable architecture
-<!--- **Decentralize** video storage with [IPFS](https://ipfs.io/)
-- Enjoy [IPFS](https://ipfs.io/)'s cache & CDN features-->
+- Handle media compression and encoding with [FFmpeg](https://ffmpeg.org/)
+- Customize media renditions
+- Monitoring: Prometheus exported metrics, embedded Web UI
+- Media attachments: attach files such as captions or images to medias
+- Enjoy highly scalable & cloud-native architecture
+
+### What's next ?
+
+- Media asset generation (thumbnail, video preview...)
+- More supported formats (e.g: *360° videos, 60fps*...)
+- Multi stream support (e.g: one audio stream per language)
+- Authentication and delegated upload
+- Live streaming
+- [IPFS](https://ipfs.io/) support
+- Encryption support
 
 ## Current status
 
@@ -32,10 +41,24 @@ It's a **Work In Progress**. As this project is very recent, it's under heavy de
 
 See [this document](DESIGN.md) for a high level design and goals.
 
+## Roadmap
+
+### Phase 1 *(v0.1 - current)*
+
+This first phase aim to build a first working version of this software with a minimum of test coverage and bug fixes. The first working version is v0.1.0 whose roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/40).
+
+### Phase 2 *(v0.x)*
+
+This second phase is about getting more contributors, feedbacks, bug fixes and more tests. Feedbacks and tests should make us able to create a roadmap for the first stable release (v1).
+
+### Phase 3 (v1)
+
+This third phase should allow us to make the program more stable and welcoming to new users. Stability will make us able to launch donation goals in order to continue improve the OSS project and build a SaaS product.
+
 ## Documentation
 
-- For **developers**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [design documentation](DESIGN.md)
-- For **administrators**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
+- For **contributors**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [high-level design documentation](DESIGN.md)
+- For **users**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
 - The [GPL v3](LICENSE) license
 
 ## Contributing
