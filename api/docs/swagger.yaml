@@ -539,7 +539,7 @@ paths:
       summary: Add attachment to a media
       tags:
       - Attachments
-  /medias/{media_id}/stream/playlist:
+  /medias/{media_id}/stream/playlists:
     get:
       description: Get HLS master playlist of media
       operationId: getMediaMasterPlaylist
@@ -567,7 +567,7 @@ paths:
       summary: Get HLS master playlist of media
       tags:
       - Stream
-  /medias/{media_id}/stream/playlist/{playlist}/{filename}:
+  /medias/{media_id}/stream/playlists/{playlist}/{filename}:
     get:
       description: Get file of HLS playlist
       operationId: getMediaPlaylist

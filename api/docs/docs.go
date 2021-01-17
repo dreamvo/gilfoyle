@@ -626,7 +626,7 @@ var doc = `{
                 }
             }
         },
-        "/medias/{media_id}/stream/playlist": {
+        "/medias/{media_id}/stream/playlists": {
             "get": {
                 "description": "Get HLS master playlist of media",
                 "produces": [
@@ -668,7 +668,7 @@ var doc = `{
                 }
             }
         },
-        "/medias/{media_id}/stream/playlist/{playlist}/{filename}": {
+        "/medias/{media_id}/stream/playlists/{playlist}/{filename}": {
             "get": {
                 "description": "Get file of HLS playlist",
                 "produces": [
