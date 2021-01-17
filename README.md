@@ -9,6 +9,7 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 - [Features](#features)
 - [Current status](#current-status)
 - [Design](#design)
+- [Roadmap](#roadmap)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Discussion](#discussion)
@@ -39,6 +40,20 @@ It's a **Work In Progress**. As this project is very recent, it's under heavy de
 ## Design
 
 See [this document](DESIGN.md) for a high level design and goals.
+
+## Roadmap
+
+### Phase 1 *(v0.1 - current)*
+
+This first phase aim to build a first working version of this software with a minimum of test coverage and bug fixes. The first working version is v0.1.0 whose roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/40).
+
+### Phase 2 *(v0.x)*
+
+This second phase is about getting more contributors, feedbacks, bug fixes and more tests. Feedbacks and tests should make us able to create a roadmap for the first stable release (v1).
+
+### Phase 3 (v1)
+
+This third phase should allow us to make the program more stable and welcoming to new users. Stability will make us able to launch donation goals in order to continue improve the OSS project and build a SaaS product.
 
 ## Documentation
 
