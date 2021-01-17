@@ -88,7 +88,7 @@ func TestConsumers(t *testing.T) {
 				On("Open", filepath.Join(m.ID.String(), transcoding.OriginalFileName)).
 				Return(ioutil.NopCloser(strings.NewReader("test")), nil)
 
-			loggerMock.On("Info", "Received a message", []zap.Field{
+			loggerMock.On("Info", "Received video transcoding message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
 			}).Return()
 
