@@ -10,7 +10,7 @@ require (
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1
-	github.com/google/uuid v1.1.4
+	github.com/google/uuid v1.1.5
 	github.com/grafov/m3u8 v0.11.1
 	github.com/jinzhu/configor v1.2.1
 	github.com/kr/text v0.2.0 // indirect
@@ -19,7 +19,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/minio/minio-go/v7 v7.0.6
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/orlangure/gnomock v0.10.1
+	github.com/orlangure/gnomock v0.11.0
 	github.com/rakyll/statik v0.1.7
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/spf13/cobra v1.1.1
