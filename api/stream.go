@@ -8,8 +8,10 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/gin-gonic/gin"
+	"mime"
 	"net/http"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -62,7 +64,7 @@ func (s *Server) getMediaPlaylistFile(ctx *gin.Context) {
 	filenameParts := strings.Split(filename, "/")
 	file := filenameParts[len(filenameParts)-1]
 
-	ctx.DataFromReader(http.StatusOK, stat.Size, "application/octet-stream", f, map[string]string{
+	ctx.DataFromReader(http.StatusOK, stat.Size, mime.TypeByExtension(filepath.Ext(file)), f, map[string]string{
 		"Content-Disposition": fmt.Sprintf(`attachment; filename="%s"`, file),
 	})
 }

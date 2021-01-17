@@ -43,7 +43,7 @@ func TestStream(t *testing.T) {
 	})
 
 	t.Run("GET /medias/{media_id}/stream/*filename", func(t *testing.T) {
-		t.Run("should return requested file", func(t *testing.T) {
+		t.Run("should return the requested file", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
@@ -59,8 +59,28 @@ func TestStream(t *testing.T) {
 
 			assert.Equal(t, http.StatusOK, res.Result().StatusCode)
 			assert.Equal(t, "test", res.Body.String())
-			assert.Equal(t, "application/octet-stream", res.Header().Get("Content-Type"))
+			assert.Equal(t, "application/x-mpegURL", res.Header().Get("Content-Type"))
 			assert.Equal(t, "attachment; filename=\"index.m3u8\"", res.Header().Get("Content-Disposition"))
+		})
+
+		t.Run("should return the requested file (2)", func(t *testing.T) {
+			m, err := dbClient.Media.
+				Create().
+				SetTitle("test").
+				SetStatus(schema.MediaStatusReady).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			err = s.storage.Save(context.Background(), strings.NewReader("test"), path.Join(m.ID.String(), "low", "000.ts"))
+			assert.NoError(t, err)
+
+			res, err := testutils.Send(s.router, http.MethodGet, fmt.Sprintf("/medias/%s/stream/low/000.ts", m.ID.String()), nil)
+			assert.NoError(t, err)
+
+			assert.Equal(t, http.StatusOK, res.Result().StatusCode)
+			assert.Equal(t, "test", res.Body.String())
+			assert.Equal(t, "video/MP2T", res.Header().Get("Content-Type"))
+			assert.Equal(t, "attachment; filename=\"000.ts\"", res.Header().Get("Content-Disposition"))
 		})
 
 		t.Run("should return error because of non-Ready status", func(t *testing.T) {
