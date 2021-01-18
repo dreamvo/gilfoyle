@@ -1,17 +1,13 @@
 <template>
   <v-container>
     <v-row>
-      <v-col md="6" sm="12">
-        <v-card flat outlined :loading="loading">
-          <v-card-title>Media {{ media.id }}</v-card-title>
-          <v-card-subtitle class="mt-1">
-            <div>Title : {{ media.title }}</div>
-            <div>Status : {{ media.status }}</div>
-          </v-card-subtitle>
+      <v-col md="12">
+        <v-card flat>
+          <v-card-title
+            >Media {{ media.id }}
 
-          <v-divider></v-divider>
+            <v-spacer></v-spacer>
 
-          <v-card-actions>
             <v-btn small depressed color="red" dark>
               <v-icon size="16" dark class="mr-1">
                 mdi-trash-can
@@ -19,13 +15,22 @@
               Delete
             </v-btn>
 
-            <v-btn small depressed color="orange" dark>
-              <v-icon size="16" dark class="mr-1">
+            <v-btn small depressed color="orange" dark class="ml-2">
+              <v-icon size="16" dark class="ml-1">
                 mdi-pencil
               </v-icon>
               Update
             </v-btn>
-          </v-card-actions>
+          </v-card-title>
+        </v-card>
+      </v-col>
+
+      <v-col md="6" sm="12">
+        <v-card flat outlined :loading="loading">
+          <v-card-subtitle class="mt-1">
+            <div>Title : {{ media.title }}</div>
+            <div>Status : {{ media.status }}</div>
+          </v-card-subtitle>
         </v-card>
 
         <v-card flat outlined :loading="loading" class="mt-6">
@@ -81,8 +86,8 @@
           <v-card-title>Streaming</v-card-title>
 
           <v-card-text v-if="!streamReady"
-            >This media is not yet available for streaming.</v-card-text
-          >
+            >This media is not yet available for streaming.
+          </v-card-text>
           <v-card-text v-show="streamReady">
             <video ref="player" controls muted loop width="100%"></video>
           </v-card-text>
