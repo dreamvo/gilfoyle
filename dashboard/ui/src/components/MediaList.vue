@@ -73,7 +73,7 @@ export default Vue.extend({
       this.offset = this.medias.length;
     },
     async fetchMedias() {
-      const res: AxiosResponse<ArrayResponse> = await axios.get(
+      const res: AxiosResponse<ArrayResponse<Media>> = await axios.get(
         `/medias?limit=${this.limit}&offset=${this.offset}`
       );
       return res.data.data;

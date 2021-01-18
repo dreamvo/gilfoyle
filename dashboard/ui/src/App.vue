@@ -128,16 +128,6 @@ export default Vue.extend({
         title: "Medias",
         to: "/medias",
         icon: "mdi-video-outline"
-      },
-      {
-        title: "Metrics",
-        to: "/metrics",
-        icon: "mdi-home"
-      },
-      {
-        title: "Settings",
-        to: "/settings",
-        icon: "mdi-home"
       }
     ],
     footerIcons: [

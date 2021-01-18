@@ -2,6 +2,8 @@ import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import Medias from "../views/Medias.vue";
+import MediaView from "../views/MediaView.vue";
+import MediaCreate from "../views/MediaCreate.vue";
 import NotFound from "../views/NotFound.vue";
 
 Vue.use(VueRouter);
@@ -20,22 +22,12 @@ const routes: Array<RouteConfig> = [
   {
     path: "/medias/create",
     name: "MediaCreate",
-    component: NotFound
+    component: MediaCreate
   },
   {
     path: "/medias/:id",
-    name: "MediaOne",
-    component: NotFound
-  },
-  {
-    path: "/metrics",
-    name: "Metrics",
-    component: NotFound
-  },
-  {
-    path: "/settings",
-    name: "Settings",
-    component: NotFound
+    name: "MediaView",
+    component: MediaView
   },
   {
     path: "*",
