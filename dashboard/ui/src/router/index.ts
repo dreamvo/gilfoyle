@@ -14,8 +14,13 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: "/medias",
-    name: "Medias",
+    name: "MediaAll",
     component: Medias
+  },
+  {
+    path: "/medias/create",
+    name: "MediaCreate",
+    component: NotFound
   },
   {
     path: "/medias/:id",

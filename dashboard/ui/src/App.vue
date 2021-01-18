@@ -20,7 +20,7 @@
         <span v-else>Instance status: Unavailable</span>
       </v-system-bar>
 
-      <v-btn small depressed dark color="#66f" class="ml-3">
+      <v-btn small depressed dark color="#66f" class="ml-3" to="/medias/create">
         <v-icon light>mdi-plus</v-icon>
         Create media
       </v-btn>
@@ -45,67 +45,65 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-main>
-      <v-content>
-        <v-container fluid>
-          <v-row v-if="loading">
-            <v-col cols="12" md="6">
-              <v-skeleton-loader
-                type="card-heading, list-item-three-line, actions"
-              ></v-skeleton-loader>
-              <v-skeleton-loader
-                type="article, card, actions"
-              ></v-skeleton-loader>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-skeleton-loader
-                type="date-picker, list-item-three-line"
-              ></v-skeleton-loader>
-            </v-col>
-          </v-row>
-          <v-row v-else>
-            <v-col cols="12" md="12">
-              <RouterView v-if="$store.state.healthy" />
-              <v-row v-else>
-                <v-col cols="12" md="12">
-                  <h1>Unhealthy instance</h1>
-                  <p>
-                    Something bad is happening, you should look at the logs of
-                    your Gilfoyle instance.
-                  </p>
-                  <h3>Diagnostic</h3>
-                  <p>{{ $store.state.healthError }}</p>
-                </v-col>
-              </v-row>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-content>
+    <v-content>
+      <v-container fluid>
+        <v-row v-if="loading">
+          <v-col cols="12" md="6">
+            <v-skeleton-loader
+              type="card-heading, list-item-three-line, actions"
+            ></v-skeleton-loader>
+            <v-skeleton-loader
+              type="article, card, actions"
+            ></v-skeleton-loader>
+          </v-col>
+          <v-col cols="12" md="6">
+            <v-skeleton-loader
+              type="date-picker, list-item-three-line"
+            ></v-skeleton-loader>
+          </v-col>
+        </v-row>
+        <v-row v-else>
+          <v-col cols="12" md="12">
+            <RouterView v-if="$store.state.healthy" />
+            <v-row v-else>
+              <v-col cols="12" md="12">
+                <h1>Unhealthy instance</h1>
+                <p>
+                  Something bad is happening, you should look at the logs of
+                  your Gilfoyle instance.
+                </p>
+                <h3>Diagnostic</h3>
+                <p>{{ $store.state.healthError }}</p>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-content>
 
-      <v-footer app dark padless>
-        <v-card class="flex" flat tile color="#2e3341">
-          <v-card-title>
-            <strong class="subheading">Get connected with us!</strong>
+    <v-footer app dark padless>
+      <v-card class="flex" flat tile color="#2e3341">
+        <v-card-title>
+          <strong class="subheading">Get connected with us!</strong>
 
-            <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-            <v-btn
-              v-for="(icon, index) in footerIcons"
-              :key="index"
-              :href="icon.link"
-              target="_blank"
-              class="mx-4"
-              dark
-              icon
-            >
-              <v-icon size="24">
-                {{ icon.icon }}
-              </v-icon>
-            </v-btn>
-          </v-card-title>
-        </v-card>
-      </v-footer>
-    </v-main>
+          <v-btn
+            v-for="(icon, index) in footerIcons"
+            :key="index"
+            :href="icon.link"
+            target="_blank"
+            class="mx-4"
+            dark
+            icon
+          >
+            <v-icon size="24">
+              {{ icon.icon }}
+            </v-icon>
+          </v-btn>
+        </v-card-title>
+      </v-card>
+    </v-footer>
   </v-app>
 </template>
 
@@ -124,12 +122,12 @@ export default Vue.extend({
       {
         title: "Overview",
         to: "/",
-        icon: "mdi-home"
+        icon: "mdi-sitemap"
       },
       {
         title: "Medias",
         to: "/medias",
-        icon: "mdi-home"
+        icon: "mdi-video-outline"
       },
       {
         title: "Metrics",
