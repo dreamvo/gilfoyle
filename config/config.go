@@ -5,6 +5,14 @@ import (
 	"github.com/jinzhu/configor"
 )
 
+const (
+	OriginalPolicyDelete = "Delete"
+	OriginalPolicyRetain = "Retain"
+)
+
+// OriginalPolicy defines how to manage original files after processing succeeded
+type OriginalPolicy string
+
 // StorageDriver is a kind of storage backend
 type StorageDriver string
 
@@ -76,7 +84,8 @@ type WorkerSettings struct {
 }
 
 type EncoderSettings struct {
-	Renditions []Rendition `json:"renditions" yaml:"renditions"`
+	OriginalPolicy string      `yaml:"original_policy" json:"original_policy"`
+	Renditions     []Rendition `yaml:"renditions" json:"renditions"`
 }
 
 type Rendition struct {
