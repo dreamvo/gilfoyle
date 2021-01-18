@@ -1,7 +1,7 @@
 export default {
   healthCheckDelaySeconds: 3,
-  ApiEndpoint: "http://localhost:3000/",
-  ApiPrefix: "",
+  ApiEndpoint: "/",
+  ApiPrefix: "api/proxy",
   links: {
     githubURL: "https://github.com/dreamvo",
     twitterURL: "https://twitter.com/dreamvoapp",
