@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"github.com/dreamvo/gilfoyle/storage"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/dreamvo/gilfoyle/storage"
 )
 
 func Test(t *testing.T) {

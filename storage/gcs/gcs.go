@@ -2,10 +2,11 @@ package gcs
 
 import (
 	"context"
-	"github.com/dreamvo/gilfoyle/storage"
 	"io"
 	"mime"
 	"path/filepath"
+
+	"github.com/dreamvo/gilfoyle/storage"
 
 	gstorage "cloud.google.com/go/storage"
 	"google.golang.org/api/option"
