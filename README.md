@@ -43,13 +43,13 @@ See [this document](DESIGN.md) for a high level design and goals.
 
 ## Roadmap
 
-### Phase 1 *(v0.1 - current)*
+### [Phase 1](https://github.com/dreamvo/gilfoyle/issues/40) *(v0.1)*
 
 This first phase aim to build a first working version of this software with a minimum of test coverage and bug fixes. The first working version is v0.1.0 whose roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/40).
 
-### Phase 2 *(v0.x)*
+### [Phase 2](https://github.com/dreamvo/gilfoyle/issues/101) *(v0.x - current)*
 
-This second phase is about getting more contributors, feedbacks, bug fixes and more tests. Feedbacks and tests should make us able to create a roadmap for the first stable release (v1).
+This second phase is about getting more contributors and feedbacks to fix more bugs and get improve testing. Feedbacks and tests should make us able to create a roadmap for the first stable release (v1). The roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/101).
 
 ### Phase 3 (v1)
 
