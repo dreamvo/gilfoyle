@@ -35,6 +35,26 @@ func (mu *MediaUpdate) SetTitle(s string) *MediaUpdate {
 	return mu
 }
 
+// SetOriginalFilename sets the original_filename field.
+func (mu *MediaUpdate) SetOriginalFilename(s string) *MediaUpdate {
+	mu.mutation.SetOriginalFilename(s)
+	return mu
+}
+
+// SetNillableOriginalFilename sets the original_filename field if the given value is not nil.
+func (mu *MediaUpdate) SetNillableOriginalFilename(s *string) *MediaUpdate {
+	if s != nil {
+		mu.SetOriginalFilename(*s)
+	}
+	return mu
+}
+
+// ClearOriginalFilename clears the value of original_filename.
+func (mu *MediaUpdate) ClearOriginalFilename() *MediaUpdate {
+	mu.mutation.ClearOriginalFilename()
+	return mu
+}
+
 // SetStatus sets the status field.
 func (mu *MediaUpdate) SetStatus(m media.Status) *MediaUpdate {
 	mu.mutation.SetStatus(m)
@@ -175,6 +195,11 @@ func (mu *MediaUpdate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
 		}
 	}
+	if v, ok := mu.mutation.OriginalFilename(); ok {
+		if err := media.OriginalFilenameValidator(v); err != nil {
+			return &ValidationError{Name: "original_filename", err: fmt.Errorf("ent: validator failed for field \"original_filename\": %w", err)}
+		}
+	}
 	if v, ok := mu.mutation.Status(); ok {
 		if err := media.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
@@ -206,6 +231,19 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeString,
 			Value:  value,
 			Column: media.FieldTitle,
+		})
+	}
+	if value, ok := mu.mutation.OriginalFilename(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldOriginalFilename,
+		})
+	}
+	if mu.mutation.OriginalFilenameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: media.FieldOriginalFilename,
 		})
 	}
 	if value, ok := mu.mutation.Status(); ok {
@@ -304,6 +342,26 @@ type MediaUpdateOne struct {
 // SetTitle sets the title field.
 func (muo *MediaUpdateOne) SetTitle(s string) *MediaUpdateOne {
 	muo.mutation.SetTitle(s)
+	return muo
+}
+
+// SetOriginalFilename sets the original_filename field.
+func (muo *MediaUpdateOne) SetOriginalFilename(s string) *MediaUpdateOne {
+	muo.mutation.SetOriginalFilename(s)
+	return muo
+}
+
+// SetNillableOriginalFilename sets the original_filename field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableOriginalFilename(s *string) *MediaUpdateOne {
+	if s != nil {
+		muo.SetOriginalFilename(*s)
+	}
+	return muo
+}
+
+// ClearOriginalFilename clears the value of original_filename.
+func (muo *MediaUpdateOne) ClearOriginalFilename() *MediaUpdateOne {
+	muo.mutation.ClearOriginalFilename()
 	return muo
 }
 
@@ -447,6 +505,11 @@ func (muo *MediaUpdateOne) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf("ent: validator failed for field \"title\": %w", err)}
 		}
 	}
+	if v, ok := muo.mutation.OriginalFilename(); ok {
+		if err := media.OriginalFilenameValidator(v); err != nil {
+			return &ValidationError{Name: "original_filename", err: fmt.Errorf("ent: validator failed for field \"original_filename\": %w", err)}
+		}
+	}
 	if v, ok := muo.mutation.Status(); ok {
 		if err := media.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
@@ -476,6 +539,19 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: media.FieldTitle,
+		})
+	}
+	if value, ok := muo.mutation.OriginalFilename(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldOriginalFilename,
+		})
+	}
+	if muo.mutation.OriginalFilenameCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: media.FieldOriginalFilename,
 		})
 	}
 	if value, ok := muo.mutation.Status(); ok {

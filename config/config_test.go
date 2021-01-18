@@ -1,7 +1,6 @@
-package gilfoyle
+package config
 
 import (
-	"github.com/dreamvo/gilfoyle/config"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -9,12 +8,12 @@ import (
 
 func TestConfig(t *testing.T) {
 	t.Run("should set default values", func(t *testing.T) {
-		_, err := NewConfig()
+		cfg, err := NewConfig()
 		assert.Nil(t, err)
 
-		assert.Equal(t, &config.Config{
-			Services: config.ServicesConfig{
-				DB: config.DatabaseConfig{
+		assert.Equal(t, &Config{
+			Services: ServicesConfig{
+				DB: DatabaseConfig{
 					Dialect:  "postgres",
 					Host:     "localhost",
 					Port:     "5432",
@@ -22,27 +21,27 @@ func TestConfig(t *testing.T) {
 					Password: "",
 					Database: "gilfoyle",
 				},
-				RabbitMQ: config.RabbitMQConfig{
+				RabbitMQ: RabbitMQConfig{
 					Host:     "localhost",
 					Username: "guest",
 					Port:     5672,
 					Password: "guest",
 				},
 			},
-			Settings: config.SettingsConfig{
+			Settings: SettingsConfig{
 				ExposeSwaggerUI: true,
 				MaxFileSize:     524288000,
 				Debug:           false,
-				Worker: config.WorkerSettings{
+				Worker: WorkerSettings{
 					Concurrency: 10,
 				},
 			},
-			Storage: config.StorageConfig{
-				Class: "fs",
-				Filesystem: config.FileSystemConfig{
+			Storage: StorageConfig{
+				Driver: "fs",
+				Filesystem: FileSystemConfig{
 					DataPath: "/data",
 				},
-				S3: config.S3Config{
+				S3: S3Config{
 					Hostname:        "",
 					Port:            "",
 					AccessKeyID:     "",
@@ -52,13 +51,12 @@ func TestConfig(t *testing.T) {
 					EnableSSL:       true,
 					UsePathStyle:    false,
 				},
-				GCS: config.GCSConfig{
+				GCS: GCSConfig{
 					CredentialsFile: "",
-					Bucket:          ""},
-				IPFS: config.IPFSConfig{
-					Gateway: "gateway.ipfs.io"},
+					Bucket:          "",
+				},
 			},
-		}, &Config, "should be equal")
+		}, cfg, "should be equal")
 	})
 
 	t.Run("should set values from env vars", func(t *testing.T) {
@@ -75,24 +73,20 @@ func TestConfig(t *testing.T) {
 		_ = os.Setenv("RABBITMQ_PORT", "5555")
 		_ = os.Setenv("RABBITMQ_PASSWORD", "rabbitmq_pass")
 
-		_ = os.Setenv("IPFS_GATEWAY", "ipfs_gateway")
-
-		_, err := NewConfig()
+		cfg, err := NewConfig()
 		assert.Nil(t, err)
 
-		assert.Equal(t, "postgres", Config.Services.DB.Dialect)
-		assert.Equal(t, "host", Config.Services.DB.Host)
-		assert.Equal(t, "port", Config.Services.DB.Port)
-		assert.Equal(t, "user", Config.Services.DB.User)
-		assert.Equal(t, "database", Config.Services.DB.Database)
-		assert.Equal(t, "password", Config.Services.DB.Password)
+		assert.Equal(t, "postgres", cfg.Services.DB.Dialect)
+		assert.Equal(t, "host", cfg.Services.DB.Host)
+		assert.Equal(t, "port", cfg.Services.DB.Port)
+		assert.Equal(t, "user", cfg.Services.DB.User)
+		assert.Equal(t, "database", cfg.Services.DB.Database)
+		assert.Equal(t, "password", cfg.Services.DB.Password)
 
-		assert.Equal(t, "rabbitmq_user", Config.Services.RabbitMQ.Username)
-		assert.Equal(t, "rabbitmq_pass", Config.Services.RabbitMQ.Password)
-		assert.Equal(t, 5555, Config.Services.RabbitMQ.Port)
-		assert.Equal(t, "rabbitmq_host", Config.Services.RabbitMQ.Host)
-
-		assert.Equal(t, "ipfs_gateway", Config.Storage.IPFS.Gateway)
+		assert.Equal(t, "rabbitmq_user", cfg.Services.RabbitMQ.Username)
+		assert.Equal(t, "rabbitmq_pass", cfg.Services.RabbitMQ.Password)
+		assert.Equal(t, 5555, cfg.Services.RabbitMQ.Port)
+		assert.Equal(t, "rabbitmq_host", cfg.Services.RabbitMQ.Host)
 	})
 
 	t.Run("should not return error on bad file path", func(t *testing.T) {

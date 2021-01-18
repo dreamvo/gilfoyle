@@ -46,8 +46,9 @@ func (Media) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).Unique().Default(func() uuid.UUID {
 			return uuid.New()
-		}),
+		}).Immutable(),
 		field.String("title").NotEmpty().MinLen(1).MaxLen(255),
+		field.String("original_filename").Optional().MaxLen(150).Default(""),
 		field.Enum("status").Values(MediaStatusAwaitingUpload, MediaStatusProcessing, MediaStatusReady, MediaStatusErrored),
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()

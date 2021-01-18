@@ -14,12 +14,18 @@ const (
 	Label = "media_file"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldRenditionName holds the string denoting the rendition_name field in the database.
+	FieldRenditionName = "rendition_name"
+	// FieldFormat holds the string denoting the format field in the database.
+	FieldFormat = "format"
+	// FieldTargetBandwidth holds the string denoting the target_bandwidth field in the database.
+	FieldTargetBandwidth = "target_bandwidth"
 	// FieldVideoBitrate holds the string denoting the video_bitrate field in the database.
 	FieldVideoBitrate = "video_bitrate"
-	// FieldScaledWidth holds the string denoting the scaled_width field in the database.
-	FieldScaledWidth = "scaled_width"
-	// FieldEncoderPreset holds the string denoting the encoder_preset field in the database.
-	FieldEncoderPreset = "encoder_preset"
+	// FieldResolutionWidth holds the string denoting the resolution_width field in the database.
+	FieldResolutionWidth = "resolution_width"
+	// FieldResolutionHeight holds the string denoting the resolution_height field in the database.
+	FieldResolutionHeight = "resolution_height"
 	// FieldFramerate holds the string denoting the framerate field in the database.
 	FieldFramerate = "framerate"
 	// FieldDurationSeconds holds the string denoting the duration_seconds field in the database.
@@ -48,9 +54,12 @@ const (
 // Columns holds all SQL columns for mediafile fields.
 var Columns = []string{
 	FieldID,
+	FieldRenditionName,
+	FieldFormat,
+	FieldTargetBandwidth,
 	FieldVideoBitrate,
-	FieldScaledWidth,
-	FieldEncoderPreset,
+	FieldResolutionWidth,
+	FieldResolutionHeight,
 	FieldFramerate,
 	FieldDurationSeconds,
 	FieldMediaType,
@@ -79,12 +88,20 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// RenditionNameValidator is a validator for the "rendition_name" field. It is called by the builders before save.
+	RenditionNameValidator func(string) error
+	// FormatValidator is a validator for the "format" field. It is called by the builders before save.
+	FormatValidator func(string) error
+	// DefaultTargetBandwidth holds the default value on creation for the target_bandwidth field.
+	DefaultTargetBandwidth uint64
 	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	VideoBitrateValidator func(int64) error
-	// ScaledWidthValidator is a validator for the "scaled_width" field. It is called by the builders before save.
-	ScaledWidthValidator func(int16) error
+	// ResolutionWidthValidator is a validator for the "resolution_width" field. It is called by the builders before save.
+	ResolutionWidthValidator func(uint16) error
+	// ResolutionHeightValidator is a validator for the "resolution_height" field. It is called by the builders before save.
+	ResolutionHeightValidator func(uint16) error
 	// FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
-	FramerateValidator func(int8) error
+	FramerateValidator func(uint8) error
 	// DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	DurationSecondsValidator func(float64) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
@@ -96,34 +113,6 @@ var (
 	// DefaultID holds the default value on creation for the id field.
 	DefaultID func() uuid.UUID
 )
-
-// EncoderPreset defines the type for the encoder_preset enum field.
-type EncoderPreset string
-
-// EncoderPreset values.
-const (
-	EncoderPresetSource    EncoderPreset = "source"
-	EncoderPresetUltrafast EncoderPreset = "ultrafast"
-	EncoderPresetVeryfast  EncoderPreset = "veryfast"
-	EncoderPresetFast      EncoderPreset = "fast"
-	EncoderPresetMedium    EncoderPreset = "medium"
-	EncoderPresetSlow      EncoderPreset = "slow"
-	EncoderPresetVeryslow  EncoderPreset = "veryslow"
-)
-
-func (ep EncoderPreset) String() string {
-	return string(ep)
-}
-
-// EncoderPresetValidator is a validator for the "encoder_preset" field enum values. It is called by the builders before save.
-func EncoderPresetValidator(ep EncoderPreset) error {
-	switch ep {
-	case EncoderPresetSource, EncoderPresetUltrafast, EncoderPresetVeryfast, EncoderPresetFast, EncoderPresetMedium, EncoderPresetSlow, EncoderPresetVeryslow:
-		return nil
-	default:
-		return fmt.Errorf("mediafile: invalid enum value for encoder_preset field: %q", ep)
-	}
-}
 
 // MediaType defines the type for the media_type enum field.
 type MediaType string

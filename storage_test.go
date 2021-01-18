@@ -9,9 +9,9 @@ import (
 )
 
 func TestStorage(t *testing.T) {
-	t.Run("should use non-existing storage class", func(t *testing.T) {
+	t.Run("should use non-existing storage driver", func(t *testing.T) {
 		_, err := NewStorage("test")
-		assert.EqualError(t, err, "storage class test does not exist")
+		assert.EqualError(t, err, "storage driver test does not exist")
 	})
 
 	t.Run("should initialize Filesystem storage", func(t *testing.T) {

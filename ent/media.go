@@ -19,6 +19,8 @@ type Media struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
+	// OriginalFilename holds the value of the "original_filename" field.
+	OriginalFilename string `json:"original_filename,omitempty"`
 	// Status holds the value of the "status" field.
 	Status media.Status `json:"status,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -53,6 +55,7 @@ func (*Media) scanValues() []interface{} {
 	return []interface{}{
 		&uuid.UUID{},      // id
 		&sql.NullString{}, // title
+		&sql.NullString{}, // original_filename
 		&sql.NullString{}, // status
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
@@ -77,17 +80,22 @@ func (m *Media) assignValues(values ...interface{}) error {
 		m.Title = value.String
 	}
 	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field status", values[1])
+		return fmt.Errorf("unexpected type %T for field original_filename", values[1])
+	} else if value.Valid {
+		m.OriginalFilename = value.String
+	}
+	if value, ok := values[2].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field status", values[2])
 	} else if value.Valid {
 		m.Status = media.Status(value.String)
 	}
-	if value, ok := values[2].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[2])
+	if value, ok := values[3].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[3])
 	} else if value.Valid {
 		m.CreatedAt = value.Time
 	}
-	if value, ok := values[3].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[3])
+	if value, ok := values[4].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[4])
 	} else if value.Valid {
 		m.UpdatedAt = value.Time
 	}
@@ -124,6 +132,8 @@ func (m *Media) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", m.ID))
 	builder.WriteString(", title=")
 	builder.WriteString(m.Title)
+	builder.WriteString(", original_filename=")
+	builder.WriteString(m.OriginalFilename)
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", m.Status))
 	builder.WriteString(", created_at=")

@@ -358,6 +358,7 @@ var doc = `{
                 ],
                 "summary": "Upload a audio file",
                 "operationId": "uploadAudio",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -495,6 +496,7 @@ var doc = `{
                 ],
                 "summary": "Get attachments of a media",
                 "operationId": "getMediaAttachments",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -534,6 +536,7 @@ var doc = `{
                 ],
                 "summary": "Add attachment to a media",
                 "operationId": "addMediaAttachment",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -588,6 +591,7 @@ var doc = `{
                 ],
                 "summary": "Delete attachment of a media",
                 "operationId": "deleteMediaAttachment",
+                "deprecated": true,
                 "parameters": [
                     {
                         "type": "string",
@@ -626,17 +630,17 @@ var doc = `{
                 }
             }
         },
-        "/medias/{media_id}/stream/{preset}": {
+        "/medias/{media_id}/stream/playlists/{filename}": {
             "get": {
-                "description": "Get stream from media file",
+                "description": "Get HLS playlist file of a media",
                 "produces": [
-                    "application/json"
+                    "application/octet-stream"
                 ],
                 "tags": [
                     "Stream"
                 ],
-                "summary": "Get stream from media file",
-                "operationId": "streamMedia",
+                "summary": "Get HLS playlist file of a media",
+                "operationId": "getMediaPlaylistFile",
                 "parameters": [
                     {
                         "type": "string",
@@ -647,8 +651,8 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "Encoder preset",
-                        "name": "preset",
+                        "description": "HLS filename",
+                        "name": "filename",
                         "in": "path",
                         "required": true
                     }
@@ -657,13 +661,19 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/util.DataResponse"
+                            "type": "string"
                         },
                         "headers": {
                             "Content-Type": {
                                 "type": "string",
                                 "description": "application/octet-stream"
                             }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.ErrorResponse"
                         }
                     },
                     "500": {
@@ -764,6 +774,10 @@ var doc = `{
                     "description": "ID of the ent.",
                     "type": "string"
                 },
+                "original_filename": {
+                    "description": "OriginalFilename holds the value of the \"original_filename\" field.",
+                    "type": "string"
+                },
                 "status": {
                     "description": "Status holds the value of the \"status\" field.",
                     "type": "string"
@@ -805,8 +819,8 @@ var doc = `{
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
                     "$ref": "#/definitions/ent.MediaFileEdges"
                 },
-                "encoder_preset": {
-                    "description": "EncoderPreset holds the value of the \"encoder_preset\" field.",
+                "format": {
+                    "description": "Format holds the value of the \"format\" field.",
                     "type": "string"
                 },
                 "framerate": {
@@ -821,8 +835,20 @@ var doc = `{
                     "description": "MediaType holds the value of the \"media_type\" field.",
                     "type": "string"
                 },
-                "scaled_width": {
-                    "description": "ScaledWidth holds the value of the \"scaled_width\" field.",
+                "rendition_name": {
+                    "description": "RenditionName holds the value of the \"rendition_name\" field.",
+                    "type": "string"
+                },
+                "resolution_height": {
+                    "description": "ResolutionHeight holds the value of the \"resolution_height\" field.",
+                    "type": "integer"
+                },
+                "resolution_width": {
+                    "description": "ResolutionWidth holds the value of the \"resolution_width\" field.",
+                    "type": "integer"
+                },
+                "target_bandwidth": {
+                    "description": "TargetBandwidth holds the value of the \"target_bandwidth\" field.",
                     "type": "integer"
                 },
                 "updated_at": {

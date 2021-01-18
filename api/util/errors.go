@@ -2,13 +2,11 @@ package util
 
 import (
 	"fmt"
-	"github.com/dreamvo/gilfoyle"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
 	en_translations "github.com/go-playground/validator/v10/translations/en"
-	"go.uber.org/zap"
 	"strings"
 )
 
@@ -52,10 +50,6 @@ func init() {
 
 // NewError returns a new error response
 func NewError(ctx *gin.Context, status int, err error) {
-	if status >= 500 {
-		gilfoyle.Logger.Error("HTTP request resulted in an internal error", zap.Error(err))
-	}
-
 	response := ErrorResponse{
 		Code:    status,
 		Message: err.Error(),

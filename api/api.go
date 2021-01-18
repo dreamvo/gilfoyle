@@ -76,7 +76,7 @@ func registerMiddlewares(s *Server) {
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	// TODO(sundowndev): update Gin to enable this feature. See https://github.com/gin-gonic/gin/commits/master/recovery.go
-	//r.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
+	//s.router.Use(gin.CustomRecovery(func(ctx *gin.Context, recovered interface{}) {
 	//	if err, ok := recovered.(string); ok {
 	//		util.NewError(ctx, http.StatusInternalServerError, errors.New(err))
 	//	}
@@ -133,7 +133,7 @@ func registerRoutes(s *Server) {
 		medias.GET(":id/attachments", s.getMediaAttachments)
 		medias.POST(":id/attachments", s.addMediaAttachments)
 		medias.DELETE(":id/attachments/:attachment_id", s.deleteMediaAttachments)
-		medias.GET(":id/stream/:preset", s.streamMedia)
+		medias.GET(":id/stream/*filename", s.getMediaPlaylistFile)
 	}
 
 	if s.config.Settings.ExposeSwaggerUI {

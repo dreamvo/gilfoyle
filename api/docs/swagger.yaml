@@ -61,6 +61,9 @@ definitions:
       id:
         description: ID of the ent.
         type: string
+      original_filename:
+        description: OriginalFilename holds the value of the "original_filename" field.
+        type: string
       status:
         description: Status holds the value of the "status" field.
         type: string
@@ -92,8 +95,8 @@ definitions:
         description: |-
           Edges holds the relations/edges for other nodes in the graph.
           The values are being populated by the MediaFileQuery when eager-loading is set.
-      encoder_preset:
-        description: EncoderPreset holds the value of the "encoder_preset" field.
+      format:
+        description: Format holds the value of the "format" field.
         type: string
       framerate:
         description: Framerate holds the value of the "framerate" field.
@@ -104,8 +107,17 @@ definitions:
       media_type:
         description: MediaType holds the value of the "media_type" field.
         type: string
-      scaled_width:
-        description: ScaledWidth holds the value of the "scaled_width" field.
+      rendition_name:
+        description: RenditionName holds the value of the "rendition_name" field.
+        type: string
+      resolution_height:
+        description: ResolutionHeight holds the value of the "resolution_height" field.
+        type: integer
+      resolution_width:
+        description: ResolutionWidth holds the value of the "resolution_width" field.
+        type: integer
+      target_bandwidth:
+        description: TargetBandwidth holds the value of the "target_bandwidth" field.
         type: integer
       updated_at:
         description: UpdatedAt holds the value of the "updated_at" field.
@@ -347,6 +359,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Upload a new audio file for a given media ID
       operationId: uploadAudio
       parameters:
@@ -433,6 +446,7 @@ paths:
       - Medias
   /medias/{media_id}/attachments:
     get:
+      deprecated: true
       description: Get attachments of a media
       operationId: getMediaAttachments
       parameters:
@@ -457,6 +471,7 @@ paths:
       - Attachments
   /medias/{media_id}/attachments/{key}:
     delete:
+      deprecated: true
       description: Delete attachment of a media
       operationId: deleteMediaAttachment
       parameters:
@@ -491,6 +506,7 @@ paths:
     post:
       consumes:
       - multipart/form-data
+      deprecated: true
       description: Add attachment to a media
       operationId: addMediaAttachment
       parameters:
@@ -527,23 +543,23 @@ paths:
       summary: Add attachment to a media
       tags:
       - Attachments
-  /medias/{media_id}/stream/{preset}:
+  /medias/{media_id}/stream/playlists/{filename}:
     get:
-      description: Get stream from media file
-      operationId: streamMedia
+      description: Get HLS playlist file of a media
+      operationId: getMediaPlaylistFile
       parameters:
       - description: Media identifier
         in: path
         name: media_id
         required: true
         type: string
-      - description: Encoder preset
+      - description: HLS filename
         in: path
-        name: preset
+        name: filename
         required: true
         type: string
       produces:
-      - application/json
+      - application/octet-stream
       responses:
         "200":
           description: OK
@@ -552,12 +568,16 @@ paths:
               description: application/octet-stream
               type: string
           schema:
-            $ref: '#/definitions/util.DataResponse'
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/util.ErrorResponse'
-      summary: Get stream from media file
+      summary: Get HLS playlist file of a media
       tags:
       - Stream
 schemes:

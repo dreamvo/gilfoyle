@@ -5,8 +5,8 @@ import (
 	"github.com/jinzhu/configor"
 )
 
-// StorageClass is a kind of storage backend
-type StorageClass string
+// StorageDriver is a kind of storage backend
+type StorageDriver string
 
 // Config defines the application's settings
 type Config struct {
@@ -21,18 +21,18 @@ type ServicesConfig struct {
 }
 
 type SettingsConfig struct {
-	ExposeSwaggerUI bool           `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
-	MaxFileSize     int64          `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
-	Debug           bool           `yaml:"debug" json:"debug" default:"false" env:"APP_DEBUG"`
-	Worker          WorkerSettings `yaml:"worker" json:"worker"`
+	ExposeSwaggerUI bool            `yaml:"expose_swagger_ui" json:"expose_swagger_ui" default:"true"`
+	MaxFileSize     int64           `yaml:"max_file_size" json:"max_file_size" default:"524288000"`
+	Debug           bool            `yaml:"debug" json:"debug" default:"false" env:"APP_DEBUG"`
+	Worker          WorkerSettings  `yaml:"worker" json:"worker"`
+	Encoding        EncoderSettings `yaml:"encoding" json:"encoding"`
 }
 
 type StorageConfig struct {
-	Class      string           `yaml:"class" json:"class" default:"fs" env:"STORAGE_CLASS"`
+	Driver     string           `yaml:"driver" json:"driver" default:"fs" env:"STORAGE_DRIVER"`
 	Filesystem FileSystemConfig `yaml:"fs" json:"fs"`
 	S3         S3Config         `yaml:"s3" json:"s3"`
 	GCS        GCSConfig        `yaml:"gcs" json:"gcs"`
-	IPFS       IPFSConfig       `yaml:"ipfs" json:"ipfs"`
 }
 
 type FileSystemConfig struct {
@@ -55,10 +55,6 @@ type GCSConfig struct {
 	Bucket          string `yaml:"bucket" json:"bucket" default:"" env:"GCS_BUCKET"`
 }
 
-type IPFSConfig struct {
-	Gateway string `yaml:"gateway" json:"gateway" default:"gateway.ipfs.io" env:"IPFS_GATEWAY"`
-}
-
 type DatabaseConfig struct {
 	Dialect  string `yaml:"-" json:"-" default:"postgres"`
 	Host     string `yaml:"host" json:"host" default:"localhost" env:"DB_HOST"`
@@ -77,6 +73,25 @@ type RabbitMQConfig struct {
 
 type WorkerSettings struct {
 	Concurrency uint `yaml:"concurrency" json:"concurrency" default:"10" env:"WORKER_CONCURRENCY"`
+}
+
+type EncoderSettings struct {
+	Renditions []Rendition `json:"renditions" yaml:"renditions"`
+}
+
+type Rendition struct {
+	Name            string `yaml:"name" json:"name" default:"default"`
+	Width           int    `yaml:"width" json:"width" default:"842"`
+	Height          int    `yaml:"height" json:"height" default:"480"`
+	VideoBitrate    int    `yaml:"video_bitrate" json:"video_bitrate" default:"1400000"`
+	AudioBitrate    int    `yaml:"audio_bitrate" json:"audio_bitrate" default:"128000"`
+	VideoMaxBitRate int    `yaml:"video_max_bit_rate" json:"video_max_bit_rate" default:"1498000"`
+	BufferSize      int    `yaml:"buffer_size" json:"buffer_size" default:"2100000"`
+	Framerate       int    `yaml:"framerate" json:"framerate" default:"0"`
+	AudioRate       int    `yaml:"audio_rate" json:"audio_rate" default:"48000"`
+	VideoCodec      string `yaml:"video_codec" json:"video_codec" default:"h264"`
+	AudioCodec      string `yaml:"audio_codec" json:"audio_codec" default:"aac"`
+	TargetBandwidth uint64 `yaml:"target_bandwidth" json:"target_bandwidth" default:"1400000"`
 }
 
 // NewConfig creates a new config object

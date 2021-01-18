@@ -8,10 +8,12 @@ import (
 	"github.com/dreamvo/gilfoyle/api/db"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
+	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
+	"log"
 	"os"
 )
 
@@ -29,7 +31,10 @@ var serveCmd = &cobra.Command{
 	Short:   "Launch REST API",
 	Example: "gilfoyle serve -p 3000 -c /app/config.yml",
 	Run: func(cmd *cobra.Command, args []string) {
-		logger := gilfoyle.Logger
+		logger, err := logging.NewLogger(gilfoyle.Config.Settings.Debug, true)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		logger.Info("Initializing API server")
 		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
@@ -62,7 +67,7 @@ var serveCmd = &cobra.Command{
 
 		logger.Info("Successfully executed database auto migration")
 
-		s, err := gilfoyle.NewStorage(config.StorageClass(gilfoyle.Config.Storage.Class))
+		s, err := gilfoyle.NewStorage(config.StorageDriver(gilfoyle.Config.Storage.Driver))
 		if err != nil {
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}

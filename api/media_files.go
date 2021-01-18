@@ -9,7 +9,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
@@ -18,7 +17,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
+	"strings"
 	"time"
 )
 
@@ -109,7 +108,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.SourceFileName)
+	path := fmt.Sprintf("%s/%s", parsedUUID.String(), transcoding.OriginalFileName)
 
 	if err = s.storage.Save(ctx, f, path); err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, fmt.Errorf("error saving uploaded file: %s", err))
@@ -125,6 +124,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	_, err = tx.Media.
 		UpdateOneID(m.ID).
 		SetStatus(media.StatusProcessing).
+		SetOriginalFilename(transcoding.OriginalFileName).
 		Save(context.Background())
 	if ent.IsValidationError(err) {
 		rollbackWithError(ctx, tx, http.StatusBadRequest, errors.Unwrap(err))
@@ -141,30 +141,6 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	bitrate, err := strconv.ParseInt(videoStream[0].BitRate, 10, 64)
-	if err != nil {
-		util.NewError(ctx, http.StatusInternalServerError, errors.New("failed to parse bitrate from stream"))
-		return
-	}
-
-	_, err = tx.MediaFile.Create().
-		SetMedia(m).
-		SetVideoBitrate(bitrate).
-		SetEncoderPreset(schema.MediaFileEncoderPresetSource).
-		SetDurationSeconds(data.Format.DurationSeconds).
-		SetScaledWidth(int16(data.Streams[0].Width)).
-		SetFramerate(transcoding.ParseFrameRates(data.Streams[0].RFrameRate)).
-		SetMediaType(schema.MediaFileTypeVideo).
-		Save(context.Background())
-	if ent.IsValidationError(err) {
-		rollbackWithError(ctx, tx, http.StatusBadRequest, errors.Unwrap(err))
-		return
-	}
-	if err != nil {
-		rollbackWithError(ctx, tx, http.StatusInternalServerError, errors.Unwrap(err))
-		return
-	}
-
 	err = tx.Commit()
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
@@ -177,9 +153,57 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
-		MediaUUID:      m.ID,
-		SourceFilePath: path,
+	format := strings.Split(data.Format.FormatName, ",")[0]
+	fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
+
+	RenditionsCount := 0
+
+	for _, r := range s.config.Settings.Encoding.Renditions {
+		// Ignore resolutions higher than original
+		if r.Width > data.FirstVideoStream().Width && r.Height > data.FirstVideoStream().Height {
+			continue
+		}
+
+		if r.Framerate != 0 {
+			fps = r.Framerate
+		}
+
+		err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
+			MediaUUID: m.ID,
+			OriginalFile: transcoding.OriginalFile{
+				Format:          format,
+				FrameRate:       uint8(fps),
+				DurationSeconds: data.Format.DurationSeconds,
+				Filepath:        path,
+			},
+			RenditionName:      r.Name,
+			FrameRate:          fps,
+			VideoWidth:         r.Width,
+			VideoHeight:        r.Height,
+			AudioCodec:         r.AudioCodec,
+			AudioRate:          r.AudioRate,
+			VideoCodec:         r.VideoCodec,
+			Crf:                20,
+			KeyframeInterval:   48,
+			HlsSegmentDuration: 4,
+			HlsPlaylistType:    "vod",
+			VideoBitRate:       r.VideoBitrate,
+			VideoMaxBitRate:    r.VideoMaxBitRate,
+			BufferSize:         r.BufferSize,
+			AudioBitrate:       r.AudioBitrate,
+			TargetBandwidth:    r.TargetBandwidth,
+		})
+		if err != nil {
+			util.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+
+		RenditionsCount++
+	}
+
+	err = worker.MediaProcessingCallbackProducer(ch, worker.MediaProcessingCallbackParams{
+		MediaUUID:       m.ID,
+		MediaFilesCount: RenditionsCount,
 	})
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
@@ -200,6 +224,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 	})
 }
 
+// @Deprecated
 // @ID uploadAudio
 // @Tags Medias
 // @Summary Upload a audio file

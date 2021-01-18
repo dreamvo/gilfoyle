@@ -22,27 +22,53 @@ type MediaFileCreate struct {
 	hooks    []Hook
 }
 
+// SetRenditionName sets the rendition_name field.
+func (mfc *MediaFileCreate) SetRenditionName(s string) *MediaFileCreate {
+	mfc.mutation.SetRenditionName(s)
+	return mfc
+}
+
+// SetFormat sets the format field.
+func (mfc *MediaFileCreate) SetFormat(s string) *MediaFileCreate {
+	mfc.mutation.SetFormat(s)
+	return mfc
+}
+
+// SetTargetBandwidth sets the target_bandwidth field.
+func (mfc *MediaFileCreate) SetTargetBandwidth(u uint64) *MediaFileCreate {
+	mfc.mutation.SetTargetBandwidth(u)
+	return mfc
+}
+
+// SetNillableTargetBandwidth sets the target_bandwidth field if the given value is not nil.
+func (mfc *MediaFileCreate) SetNillableTargetBandwidth(u *uint64) *MediaFileCreate {
+	if u != nil {
+		mfc.SetTargetBandwidth(*u)
+	}
+	return mfc
+}
+
 // SetVideoBitrate sets the video_bitrate field.
 func (mfc *MediaFileCreate) SetVideoBitrate(i int64) *MediaFileCreate {
 	mfc.mutation.SetVideoBitrate(i)
 	return mfc
 }
 
-// SetScaledWidth sets the scaled_width field.
-func (mfc *MediaFileCreate) SetScaledWidth(i int16) *MediaFileCreate {
-	mfc.mutation.SetScaledWidth(i)
+// SetResolutionWidth sets the resolution_width field.
+func (mfc *MediaFileCreate) SetResolutionWidth(u uint16) *MediaFileCreate {
+	mfc.mutation.SetResolutionWidth(u)
 	return mfc
 }
 
-// SetEncoderPreset sets the encoder_preset field.
-func (mfc *MediaFileCreate) SetEncoderPreset(mp mediafile.EncoderPreset) *MediaFileCreate {
-	mfc.mutation.SetEncoderPreset(mp)
+// SetResolutionHeight sets the resolution_height field.
+func (mfc *MediaFileCreate) SetResolutionHeight(u uint16) *MediaFileCreate {
+	mfc.mutation.SetResolutionHeight(u)
 	return mfc
 }
 
 // SetFramerate sets the framerate field.
-func (mfc *MediaFileCreate) SetFramerate(i int8) *MediaFileCreate {
-	mfc.mutation.SetFramerate(i)
+func (mfc *MediaFileCreate) SetFramerate(u uint8) *MediaFileCreate {
+	mfc.mutation.SetFramerate(u)
 	return mfc
 }
 
@@ -155,6 +181,10 @@ func (mfc *MediaFileCreate) SaveX(ctx context.Context) *MediaFile {
 
 // defaults sets the default values of the builder before save.
 func (mfc *MediaFileCreate) defaults() {
+	if _, ok := mfc.mutation.TargetBandwidth(); !ok {
+		v := mediafile.DefaultTargetBandwidth
+		mfc.mutation.SetTargetBandwidth(v)
+	}
 	if _, ok := mfc.mutation.CreatedAt(); !ok {
 		v := mediafile.DefaultCreatedAt()
 		mfc.mutation.SetCreatedAt(v)
@@ -171,6 +201,25 @@ func (mfc *MediaFileCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (mfc *MediaFileCreate) check() error {
+	if _, ok := mfc.mutation.RenditionName(); !ok {
+		return &ValidationError{Name: "rendition_name", err: errors.New("ent: missing required field \"rendition_name\"")}
+	}
+	if v, ok := mfc.mutation.RenditionName(); ok {
+		if err := mediafile.RenditionNameValidator(v); err != nil {
+			return &ValidationError{Name: "rendition_name", err: fmt.Errorf("ent: validator failed for field \"rendition_name\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.Format(); !ok {
+		return &ValidationError{Name: "format", err: errors.New("ent: missing required field \"format\"")}
+	}
+	if v, ok := mfc.mutation.Format(); ok {
+		if err := mediafile.FormatValidator(v); err != nil {
+			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.TargetBandwidth(); !ok {
+		return &ValidationError{Name: "target_bandwidth", err: errors.New("ent: missing required field \"target_bandwidth\"")}
+	}
 	if _, ok := mfc.mutation.VideoBitrate(); !ok {
 		return &ValidationError{Name: "video_bitrate", err: errors.New("ent: missing required field \"video_bitrate\"")}
 	}
@@ -179,20 +228,20 @@ func (mfc *MediaFileCreate) check() error {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
 		}
 	}
-	if _, ok := mfc.mutation.ScaledWidth(); !ok {
-		return &ValidationError{Name: "scaled_width", err: errors.New("ent: missing required field \"scaled_width\"")}
+	if _, ok := mfc.mutation.ResolutionWidth(); !ok {
+		return &ValidationError{Name: "resolution_width", err: errors.New("ent: missing required field \"resolution_width\"")}
 	}
-	if v, ok := mfc.mutation.ScaledWidth(); ok {
-		if err := mediafile.ScaledWidthValidator(v); err != nil {
-			return &ValidationError{Name: "scaled_width", err: fmt.Errorf("ent: validator failed for field \"scaled_width\": %w", err)}
+	if v, ok := mfc.mutation.ResolutionWidth(); ok {
+		if err := mediafile.ResolutionWidthValidator(v); err != nil {
+			return &ValidationError{Name: "resolution_width", err: fmt.Errorf("ent: validator failed for field \"resolution_width\": %w", err)}
 		}
 	}
-	if _, ok := mfc.mutation.EncoderPreset(); !ok {
-		return &ValidationError{Name: "encoder_preset", err: errors.New("ent: missing required field \"encoder_preset\"")}
+	if _, ok := mfc.mutation.ResolutionHeight(); !ok {
+		return &ValidationError{Name: "resolution_height", err: errors.New("ent: missing required field \"resolution_height\"")}
 	}
-	if v, ok := mfc.mutation.EncoderPreset(); ok {
-		if err := mediafile.EncoderPresetValidator(v); err != nil {
-			return &ValidationError{Name: "encoder_preset", err: fmt.Errorf("ent: validator failed for field \"encoder_preset\": %w", err)}
+	if v, ok := mfc.mutation.ResolutionHeight(); ok {
+		if err := mediafile.ResolutionHeightValidator(v); err != nil {
+			return &ValidationError{Name: "resolution_height", err: fmt.Errorf("ent: validator failed for field \"resolution_height\": %w", err)}
 		}
 	}
 	if _, ok := mfc.mutation.Framerate(); !ok {
@@ -257,6 +306,30 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = id
 	}
+	if value, ok := mfc.mutation.RenditionName(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldRenditionName,
+		})
+		_node.RenditionName = value
+	}
+	if value, ok := mfc.mutation.Format(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldFormat,
+		})
+		_node.Format = value
+	}
+	if value, ok := mfc.mutation.TargetBandwidth(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeUint64,
+			Value:  value,
+			Column: mediafile.FieldTargetBandwidth,
+		})
+		_node.TargetBandwidth = value
+	}
 	if value, ok := mfc.mutation.VideoBitrate(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt64,
@@ -265,25 +338,25 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 		})
 		_node.VideoBitrate = value
 	}
-	if value, ok := mfc.mutation.ScaledWidth(); ok {
+	if value, ok := mfc.mutation.ResolutionWidth(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt16,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldScaledWidth,
+			Column: mediafile.FieldResolutionWidth,
 		})
-		_node.ScaledWidth = value
+		_node.ResolutionWidth = value
 	}
-	if value, ok := mfc.mutation.EncoderPreset(); ok {
+	if value, ok := mfc.mutation.ResolutionHeight(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeEnum,
+			Type:   field.TypeUint16,
 			Value:  value,
-			Column: mediafile.FieldEncoderPreset,
+			Column: mediafile.FieldResolutionHeight,
 		})
-		_node.EncoderPreset = value
+		_node.ResolutionHeight = value
 	}
 	if value, ok := mfc.mutation.Framerate(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt8,
+			Type:   field.TypeUint8,
 			Value:  value,
 			Column: mediafile.FieldFramerate,
 		})

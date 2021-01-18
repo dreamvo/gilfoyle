@@ -36,12 +36,18 @@ func init() {
 			return nil
 		}
 	}()
+	// mediaDescOriginalFilename is the schema descriptor for original_filename field.
+	mediaDescOriginalFilename := mediaFields[2].Descriptor()
+	// media.DefaultOriginalFilename holds the default value on creation for the original_filename field.
+	media.DefaultOriginalFilename = mediaDescOriginalFilename.Default.(string)
+	// media.OriginalFilenameValidator is a validator for the "original_filename" field. It is called by the builders before save.
+	media.OriginalFilenameValidator = mediaDescOriginalFilename.Validators[0].(func(string) error)
 	// mediaDescCreatedAt is the schema descriptor for created_at field.
-	mediaDescCreatedAt := mediaFields[3].Descriptor()
+	mediaDescCreatedAt := mediaFields[4].Descriptor()
 	// media.DefaultCreatedAt holds the default value on creation for the created_at field.
 	media.DefaultCreatedAt = mediaDescCreatedAt.Default.(func() time.Time)
 	// mediaDescUpdatedAt is the schema descriptor for updated_at field.
-	mediaDescUpdatedAt := mediaFields[4].Descriptor()
+	mediaDescUpdatedAt := mediaFields[5].Descriptor()
 	// media.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
 	// media.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -52,22 +58,66 @@ func init() {
 	media.DefaultID = mediaDescID.Default.(func() uuid.UUID)
 	mediafileFields := schema.MediaFile{}.Fields()
 	_ = mediafileFields
+	// mediafileDescRenditionName is the schema descriptor for rendition_name field.
+	mediafileDescRenditionName := mediafileFields[1].Descriptor()
+	// mediafile.RenditionNameValidator is a validator for the "rendition_name" field. It is called by the builders before save.
+	mediafile.RenditionNameValidator = func() func(string) error {
+		validators := mediafileDescRenditionName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(rendition_name string) error {
+			for _, fn := range fns {
+				if err := fn(rendition_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// mediafileDescFormat is the schema descriptor for format field.
+	mediafileDescFormat := mediafileFields[2].Descriptor()
+	// mediafile.FormatValidator is a validator for the "format" field. It is called by the builders before save.
+	mediafile.FormatValidator = mediafileDescFormat.Validators[0].(func(string) error)
+	// mediafileDescTargetBandwidth is the schema descriptor for target_bandwidth field.
+	mediafileDescTargetBandwidth := mediafileFields[3].Descriptor()
+	// mediafile.DefaultTargetBandwidth holds the default value on creation for the target_bandwidth field.
+	mediafile.DefaultTargetBandwidth = mediafileDescTargetBandwidth.Default.(uint64)
 	// mediafileDescVideoBitrate is the schema descriptor for video_bitrate field.
-	mediafileDescVideoBitrate := mediafileFields[1].Descriptor()
+	mediafileDescVideoBitrate := mediafileFields[4].Descriptor()
 	// mediafile.VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	mediafile.VideoBitrateValidator = mediafileDescVideoBitrate.Validators[0].(func(int64) error)
-	// mediafileDescScaledWidth is the schema descriptor for scaled_width field.
-	mediafileDescScaledWidth := mediafileFields[2].Descriptor()
-	// mediafile.ScaledWidthValidator is a validator for the "scaled_width" field. It is called by the builders before save.
-	mediafile.ScaledWidthValidator = func() func(int16) error {
-		validators := mediafileDescScaledWidth.Validators
-		fns := [...]func(int16) error{
-			validators[0].(func(int16) error),
-			validators[1].(func(int16) error),
+	// mediafileDescResolutionWidth is the schema descriptor for resolution_width field.
+	mediafileDescResolutionWidth := mediafileFields[5].Descriptor()
+	// mediafile.ResolutionWidthValidator is a validator for the "resolution_width" field. It is called by the builders before save.
+	mediafile.ResolutionWidthValidator = func() func(uint16) error {
+		validators := mediafileDescResolutionWidth.Validators
+		fns := [...]func(uint16) error{
+			validators[0].(func(uint16) error),
+			validators[1].(func(uint16) error),
 		}
-		return func(scaled_width int16) error {
+		return func(resolution_width uint16) error {
 			for _, fn := range fns {
-				if err := fn(scaled_width); err != nil {
+				if err := fn(resolution_width); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// mediafileDescResolutionHeight is the schema descriptor for resolution_height field.
+	mediafileDescResolutionHeight := mediafileFields[6].Descriptor()
+	// mediafile.ResolutionHeightValidator is a validator for the "resolution_height" field. It is called by the builders before save.
+	mediafile.ResolutionHeightValidator = func() func(uint16) error {
+		validators := mediafileDescResolutionHeight.Validators
+		fns := [...]func(uint16) error{
+			validators[0].(func(uint16) error),
+			validators[1].(func(uint16) error),
+		}
+		return func(resolution_height uint16) error {
+			for _, fn := range fns {
+				if err := fn(resolution_height); err != nil {
 					return err
 				}
 			}
@@ -75,15 +125,15 @@ func init() {
 		}
 	}()
 	// mediafileDescFramerate is the schema descriptor for framerate field.
-	mediafileDescFramerate := mediafileFields[4].Descriptor()
+	mediafileDescFramerate := mediafileFields[7].Descriptor()
 	// mediafile.FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
-	mediafile.FramerateValidator = func() func(int8) error {
+	mediafile.FramerateValidator = func() func(uint8) error {
 		validators := mediafileDescFramerate.Validators
-		fns := [...]func(int8) error{
-			validators[0].(func(int8) error),
-			validators[1].(func(int8) error),
+		fns := [...]func(uint8) error{
+			validators[0].(func(uint8) error),
+			validators[1].(func(uint8) error),
 		}
-		return func(framerate int8) error {
+		return func(framerate uint8) error {
 			for _, fn := range fns {
 				if err := fn(framerate); err != nil {
 					return err
@@ -93,15 +143,15 @@ func init() {
 		}
 	}()
 	// mediafileDescDurationSeconds is the schema descriptor for duration_seconds field.
-	mediafileDescDurationSeconds := mediafileFields[5].Descriptor()
+	mediafileDescDurationSeconds := mediafileFields[8].Descriptor()
 	// mediafile.DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	mediafile.DurationSecondsValidator = mediafileDescDurationSeconds.Validators[0].(func(float64) error)
 	// mediafileDescCreatedAt is the schema descriptor for created_at field.
-	mediafileDescCreatedAt := mediafileFields[7].Descriptor()
+	mediafileDescCreatedAt := mediafileFields[10].Descriptor()
 	// mediafile.DefaultCreatedAt holds the default value on creation for the created_at field.
 	mediafile.DefaultCreatedAt = mediafileDescCreatedAt.Default.(func() time.Time)
 	// mediafileDescUpdatedAt is the schema descriptor for updated_at field.
-	mediafileDescUpdatedAt := mediafileFields[8].Descriptor()
+	mediafileDescUpdatedAt := mediafileFields[11].Descriptor()
 	// mediafile.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	mediafile.DefaultUpdatedAt = mediafileDescUpdatedAt.Default.(func() time.Time)
 	// mediafile.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

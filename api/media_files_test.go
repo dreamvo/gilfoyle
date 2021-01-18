@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/util"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
-	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/storage"
 	"github.com/dreamvo/gilfoyle/transcoding"
@@ -28,8 +28,11 @@ import (
 	"testing"
 )
 
-func removeDir(path string) {
-	_ = os.RemoveAll(path)
+func removeDir(t *testing.T, path string) {
+	err := os.RemoveAll(path)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestMediaFiles(t *testing.T) {
@@ -44,7 +47,7 @@ func TestMediaFiles(t *testing.T) {
 	}
 
 	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
-	defer removeDir(gilfoyle.Config.Storage.Filesystem.DataPath)
+	defer removeDir(t, gilfoyle.Config.Storage.Filesystem.DataPath)
 
 	storageDriver, err := gilfoyle.NewStorage(storage.Filesystem)
 	if err != nil {
@@ -72,6 +75,22 @@ func TestMediaFiles(t *testing.T) {
 		t.Error(err)
 	}
 
+	gilfoyle.Config.Settings.Encoding.Renditions = []config.Rendition{
+		{
+			Name:            "360p",
+			Framerate:       25,
+			Width:           640,
+			Height:          360,
+			AudioCodec:      "aac",
+			AudioRate:       48000,
+			VideoCodec:      "h264",
+			VideoBitrate:    800000,
+			VideoMaxBitRate: 856000,
+			BufferSize:      1200000,
+			AudioBitrate:    96000,
+		},
+	}
+
 	s := NewServer(Options{
 		Database: dbClient,
 		Config:   *cfg,
@@ -83,11 +102,12 @@ func TestMediaFiles(t *testing.T) {
 
 	t.Run("POST /medias/:id/upload/video", func(t *testing.T) {
 		t.Run("should upload file and return probe", func(t *testing.T) {
-			m, _ := dbClient.Media.
+			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
 				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
+			assert.NoError(t, err)
 
 			payload := &bytes.Buffer{}
 			writer := multipart.NewWriter(payload)
@@ -96,7 +116,7 @@ func TestMediaFiles(t *testing.T) {
 
 			file, err := os.Open(filePath)
 			assert.NoError(t, err)
-			defer file.Close()
+			defer func() { _ = file.Close() }()
 
 			part1, err := writer.CreateFormFile("file", filepath.Base(filePath))
 			assert.NoError(t, err)
@@ -122,7 +142,7 @@ func TestMediaFiles(t *testing.T) {
 			stat, err := os.Stat(filepath.Join(
 				gilfoyle.Config.Storage.Filesystem.DataPath,
 				m.ID.String(),
-				transcoding.SourceFileName,
+				transcoding.OriginalFileName,
 			))
 			assert.NoError(t, err)
 			assert.Equal(t, int64(1055736), stat.Size())
@@ -141,28 +161,58 @@ func TestMediaFiles(t *testing.T) {
 				"start_time":       "0",
 			}, body.Data)
 
-			m, _ = dbClient.Media.Get(context.Background(), m.ID)
+			m, err = dbClient.Media.Get(context.Background(), m.ID)
+			assert.NoError(t, err)
 
 			assert.Equal(t, media.StatusProcessing, m.Status)
-
-			mediaFile, _ := dbClient.MediaFile.
-				Query().
-				Where(mediafile.MediaTypeEQ(schema.MediaFileTypeVideo)).
-				Only(context.Background())
-
-			assert.Equal(t, int8(25), mediaFile.Framerate)
-			assert.Equal(t, 5.312, mediaFile.DurationSeconds)
-			assert.Equal(t, int16(1280), mediaFile.ScaledWidth)
-			assert.Equal(t, mediafile.EncoderPreset(schema.MediaFileEncoderPresetSource), mediaFile.EncoderPreset)
-			assert.Equal(t, int64(1205959), mediaFile.VideoBitrate)
-			assert.Equal(t, mediafile.MediaType(schema.MediaFileTypeVideo), mediaFile.MediaType)
+			assert.Equal(t, "original", m.OriginalFilename)
 
 			ch, err := w.Client.Channel()
 			assert.NoError(t, err)
 
-			_, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
+			msg, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
 			assert.NoError(t, err)
 			assert.True(t, ok)
+
+			var msgBody worker.VideoTranscodingParams
+			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody))
+
+			assert.Equal(t, worker.VideoTranscodingParams{
+				OriginalFile: transcoding.OriginalFile{
+					Filepath:        fmt.Sprintf("%s/original", m.ID.String()),
+					DurationSeconds: 5.312,
+					Format:          "mov",
+					FrameRate:       25,
+				},
+				MediaUUID:          m.ID,
+				RenditionName:      "360p",
+				VideoWidth:         640,
+				VideoHeight:        360,
+				AudioCodec:         "aac",
+				AudioRate:          48000,
+				VideoCodec:         "h264",
+				Crf:                20,
+				KeyframeInterval:   48,
+				HlsSegmentDuration: 4,
+				HlsPlaylistType:    "vod",
+				VideoBitRate:       800000,
+				VideoMaxBitRate:    856000,
+				BufferSize:         1200000,
+				AudioBitrate:       96000,
+				FrameRate:          25,
+			}, msgBody)
+
+			msg, ok, err = ch.Get(worker.MediaProcessingCallbackQueue, false)
+			assert.NoError(t, err)
+			assert.True(t, ok)
+
+			var msgBody2 worker.MediaProcessingCallbackParams
+			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody2))
+
+			assert.Equal(t, worker.MediaProcessingCallbackParams{
+				MediaUUID:       m.ID,
+				MediaFilesCount: 1,
+			}, msgBody2)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {

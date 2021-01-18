@@ -9,11 +9,10 @@ import (
 )
 
 const (
-	Filesystem         config.StorageClass = "fs"
-	GoogleCloudStorage config.StorageClass = "gcs"
-	AmazonS3           config.StorageClass = "s3"
-	_                  config.StorageClass = "ipfs"
-	_                  config.StorageClass = "openstack"
+	Filesystem         config.StorageDriver = "fs"
+	GoogleCloudStorage config.StorageDriver = "gcs"
+	AmazonS3           config.StorageDriver = "s3"
+	_                  config.StorageDriver = "openstack"
 )
 
 // Storage is the storage interface.
