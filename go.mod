@@ -4,10 +4,11 @@ go 1.13
 
 require (
 	cloud.google.com/go/storage v1.12.0
+	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
+	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
-	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/containerd/continuity v0.0.0-20201208142359-180525291bb7 // indirect
 	github.com/facebook/ent v0.5.3
 	github.com/gin-gonic/gin v1.6.3
@@ -15,6 +16,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/google/uuid v1.1.5
+	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/grafov/m3u8 v0.11.1
 	github.com/jinzhu/configor v1.2.1
 	github.com/kr/text v0.2.0 // indirect
@@ -22,11 +24,11 @@ require (
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/minio/minio-go/v7 v7.0.6
-	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
+	github.com/opencontainers/image-spec v1.0.1 // indirect
+	github.com/opencontainers/runc v1.0.0-rc9 // indirect
 	github.com/orlangure/gnomock v0.11.0
 	github.com/ory/dockertest v3.3.5+incompatible
-	github.com/ory/dockertest/v3 v3.6.3 // indirect
 	github.com/rakyll/statik v0.1.7
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/spf13/cobra v1.1.1
@@ -47,4 +49,5 @@ require (
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.0.2
 	gopkg.in/yaml.v2 v2.4.0
+	gotest.tools v2.2.0+incompatible // indirect
 )
