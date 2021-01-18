@@ -73,7 +73,7 @@ func TestProducers(t *testing.T) {
 	t.Run("MediaProcessingCallbackProducer", func(t *testing.T) {
 		t.Run("should publish a new message", func(t *testing.T) {
 			params := MediaProcessingCallbackParams{
-				MediaUUID: uuid.New(),
+				MediaUUID:       uuid.New(),
 				MediaFilesCount: 1,
 			}
 
@@ -96,7 +96,7 @@ func TestProducers(t *testing.T) {
 
 		t.Run("should publish a new message with AMQP error", func(t *testing.T) {
 			params := MediaProcessingCallbackParams{
-				MediaUUID: uuid.New(),
+				MediaUUID:       uuid.New(),
 				MediaFilesCount: 1,
 			}
 

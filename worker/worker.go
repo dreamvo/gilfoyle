@@ -133,6 +133,9 @@ func (w *Worker) Consume() error {
 		0,
 		false,
 	)
+	if err != nil {
+		return fmt.Errorf("error setting prefetch option (concurrency): %e", err)
+	}
 
 	for _, q := range queues {
 		msgs, err := ch.Consume(

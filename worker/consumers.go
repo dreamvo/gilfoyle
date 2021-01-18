@@ -190,12 +190,12 @@ func mediaProcessingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			w.logger.Info("Received callback message", zap.String("MediaUUID", body.MediaUUID.String()), zap.Int("MediaFilesCount", body.MediaFilesCount))
+			w.logger.Info("Received media callback message", zap.String("MediaUUID", body.MediaUUID.String()), zap.Int("MediaFilesCount", body.MediaFilesCount))
 
 			m, err := w.dbClient.Media.Query().Where(media.ID(body.MediaUUID)).WithMediaFiles().Only(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = d.Nack(false, true)
 				return
 			}
 
@@ -210,11 +210,16 @@ func mediaProcessingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err = w.storage.Save(ctx, strings.NewReader(masterPlaylist), path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = d.Nack(false, true)
 				return
 			}
 
 			_, err = w.dbClient.Media.UpdateOne(m).SetStatus(media.StatusReady).Save(ctx)
+			if err != nil {
+				w.logger.Error("Database error", zap.Error(err))
+				_ = d.Nack(false, true)
+				return
+			}
 
 			err = d.Ack(false)
 			if err != nil {
