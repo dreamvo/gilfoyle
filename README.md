@@ -49,11 +49,11 @@ This first phase aim to build a first working version of this software with a mi
 
 ### [Phase 2](https://github.com/dreamvo/gilfoyle/issues/101) *(v0.x - current)*
 
-This second phase is about getting more contributors and feedbacks to fix more bugs and get improve testing. Feedbacks and tests should make us able to create a roadmap for the first stable release (v1). The roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/101).
+This second phase is about getting more contributors and feedbacks to fix more bugs and improve testing. Feedbacks and tests should make us able to validate design and create a roadmap for the first stable release (v1). The roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/101).
 
 ### Phase 3 (v1)
 
-This third phase should allow us to make the program more stable and welcoming to new users. Stability will make us able to launch donation goals in order to continue improve the OSS project and build a SaaS product.
+This third phase should allow us to make the program more stable and welcoming to new users. Stability will make us able to publish donation goals in order to continue improve the OSS project and build a SaaS product.
 
 ## Documentation
 
