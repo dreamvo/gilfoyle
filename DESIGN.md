@@ -28,7 +28,7 @@ The service may have some configuration settings to be controlled by the user su
 
 #### G3: Stateless architecture, flexible storage
 
-You can choose the appropriate storage system between: **filesystem**, **object storage**, or **IPFS store**.
+You can choose the appropriate storage system between: **filesystem** or **object storage**.
 
 ##### Filesystem
 
@@ -41,12 +41,6 @@ This option is for stateful architectures.
 > Cloud storage is an external object storage system, such as [AWS S3](https://aws.amazon.com/s3/) (or any S3-compatible alternative), [OpenStack Object Storage (swift)](https://www.ovhcloud.com/en-gb/public-cloud/object-storage/) or [Google Cloud Storage](https://cloud.google.com/storage/).
 
 This option is for businesses with high trafic, large and private files.
-
-##### IPFS store
-
-> IPFS is a peer-to-peer network for storing and sharing data in a distributed file system with a lot of features.
-
-This option is for P2P-based platforms who wants to decentralize public content, with high trafic and large files.
 
 #### G5: Multimedia
 
