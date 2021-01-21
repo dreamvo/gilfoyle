@@ -27,10 +27,21 @@
 
       <v-col md="6" sm="12">
         <v-card flat outlined :loading="loading">
+          <v-card-title>{{ media.title }}</v-card-title>
           <v-card-subtitle class="mt-1">
-            <div>Title : {{ media.title }}</div>
             <div>Status : {{ media.status }}</div>
           </v-card-subtitle>
+
+          <v-card-actions>
+            <v-btn
+              v-if="media.status === 'AwaitingUpload'"
+              depressed
+              color="orange"
+              outlined
+              small
+              >Upload media file</v-btn
+            >
+          </v-card-actions>
         </v-card>
 
         <v-card flat outlined :loading="loading" class="mt-6">

@@ -1,11 +1,11 @@
 <template>
-  <v-card flat v-if="medias.length" :loading="loading">
+  <v-card outlined :loading="loading">
     <v-card-title>{{ title }}</v-card-title>
     <v-card-subtitle>{{ medias.length }} items</v-card-subtitle>
 
-    <v-row>
-      <v-col md="4" v-for="media in medias" :key="media.id">
-        <v-card elevation="0" outlined :to="`/medias/${media.id}`">
+    <div v-if="medias.length">
+      <v-col cols="12" md="4" v-for="media in medias" :key="media.id">
+        <v-card outlined :to="`/medias/${media.id}`">
           <v-img
             class="white--text align-end"
             height="200px"
@@ -23,21 +23,16 @@
           <v-card-actions></v-card-actions>
         </v-card>
       </v-col>
-    </v-row>
 
-    <v-spacer></v-spacer>
+      <v-spacer></v-spacer>
 
-    <v-card-actions class="justify-center">
-      <v-btn class="pl-5 pr-5" depressed color="#66f" dark @click="loadMore"
-        >Load more</v-btn
-      >
-    </v-card-actions>
-  </v-card>
-
-  <v-card v-else :loading="loading">
-    <v-card-title>{{ title }}</v-card-title>
-
-    <v-card-subtitle>There's nothing to show here</v-card-subtitle>
+      <v-card-actions class="justify-center">
+        <v-btn class="pl-5 pr-5" depressed color="#66f" dark @click="loadMore"
+          >Load more
+        </v-btn>
+      </v-card-actions>
+    </div>
+    <v-card-subtitle v-else>There's nothing to show here</v-card-subtitle>
   </v-card>
 </template>
 
