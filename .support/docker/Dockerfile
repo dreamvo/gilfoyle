@@ -13,7 +13,7 @@ COPY ./dashboard/ui .
 RUN yarn install
 RUN yarn build
 
-FROM golang:1.15.6-alpine
+FROM golang:1.15.7-alpine
 
 WORKDIR /app
 
