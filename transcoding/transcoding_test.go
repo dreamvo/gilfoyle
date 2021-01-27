@@ -110,7 +110,7 @@ func TestTranscoding(t *testing.T) {
 				},
 			})
 
-		assert.Equal(t, []string{"-i", "/tmp/input.mp4", "-streamid", "0:33", "-streamid", "1:36", "/tmp/output.ts"}, p.GetStrArguments())
+		assert.Equal(t, []string{"-i", "/tmp/input.mp4", "-streamid", "1:36", "-streamid", "0:33", "/tmp/output.ts"}, p.GetStrArguments())
 	})
 
 	t.Run("should fail to execute command", func(t *testing.T) {
