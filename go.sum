@@ -470,8 +470,8 @@ github.com/opencontainers/image-spec v1.0.1 h1:JMemWkRwHx4Zj+fVxWoMCFm/8sYGGrUVo
 github.com/opencontainers/image-spec v1.0.1/go.mod h1:BtxoFyWECRxE4U/7sNtV5W15zMzWCbyJoFRP3s7yZA0=
 github.com/opencontainers/runc v1.0.0-rc9 h1:/k06BMULKF5hidyoZymkoDCzdJzltZpz/UU4LguQVtc=
 github.com/opencontainers/runc v1.0.0-rc9/go.mod h1:qT5XzbpPznkRYVz/mWwUaVBUv2rmF59PVA73FjuZG0U=
-github.com/orlangure/gnomock v0.11.0 h1:EZELuLzqlrVUmLbgu4BC3BcShcq79nuZWTQWmnivzGg=
-github.com/orlangure/gnomock v0.11.0/go.mod h1:hTsIl+VEiqfXVkeXxsT6RM/Ed6zlsp31VDc75+aKrgw=
+github.com/orlangure/gnomock v0.12.0 h1:qlQ2iO0Edm73YfIWXqEm+iU4rE6iUx219G9A8u1/wzU=
+github.com/orlangure/gnomock v0.12.0/go.mod h1:hTsIl+VEiqfXVkeXxsT6RM/Ed6zlsp31VDc75+aKrgw=
 github.com/ory/dockertest v3.3.5+incompatible h1:iLLK6SQwIhcbrG783Dghaaa3WPzGc+4Emza6EbVUUGA=
 github.com/ory/dockertest v3.3.5+incompatible/go.mod h1:1vX4m9wsvi00u5bseYwXaSnhNrne+V0E6LAcBILJdPs=
 github.com/pascaldekloe/goe v0.0.0-20180627143212-57f6aae5913c/go.mod h1:lzWF7FIEvWOWxwDKqyGYQf6ZUaNfKdP144TG7ZOy1lc=
