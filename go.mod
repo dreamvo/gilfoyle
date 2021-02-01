@@ -42,7 +42,7 @@ require (
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	golang.org/x/sys v0.0.0-20210105210732-16f7687f5001 // indirect
-	google.golang.org/api v0.37.0
+	google.golang.org/api v0.38.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/h2non/gock.v1 v1.0.16
 	gopkg.in/ini.v1 v1.62.0 // indirect
