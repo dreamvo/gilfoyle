@@ -1,4 +1,4 @@
-# gilfoyle [![godoc](https://godoc.org/github.com/dreamvo/gilfoyle?status.svg)](https://godoc.org/github.com/dreamvo/gilfoyle) [![build](https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master)](https://github.com/dreamvo/gilfoyle/actions) [![goreport](https://goreportcard.com/badge/github.com/dreamvo/gilfoyle)](https://goreportcard.com/report/github.com/dreamvo/gilfoyle) [![Coverage Status](https://coveralls.io/repos/github/dreamvo/gilfoyle/badge.svg?branch=master)](https://coveralls.io/github/dreamvo/gilfoyle?branch=master) [![release](https://img.shields.io/github/release/dreamvo/gilfoyle.svg)](https://github.com/dreamvo/gilfoyle/releases)
+# gilfoyle [![Go Reference](https://pkg.go.dev/badge/github.com/dreamvo/gilfoyle.svg)](https://pkg.go.dev/github.com/dreamvo/gilfoyle) [![build](https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master)](https://github.com/dreamvo/gilfoyle/actions) [![goreport](https://goreportcard.com/badge/github.com/dreamvo/gilfoyle)](https://goreportcard.com/report/github.com/dreamvo/gilfoyle) [![Coverage Status](https://coveralls.io/repos/github/dreamvo/gilfoyle/badge.svg?branch=master)](https://coveralls.io/github/dreamvo/gilfoyle?branch=master) [![release](https://img.shields.io/github/release/dreamvo/gilfoyle.svg)](https://github.com/dreamvo/gilfoyle/releases)
 
 Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) that runs a self-hosted video streaming server. This application allows you to setup an enterprise-grade media encoding & streaming platform in minutes. Gilfoyle handles media upload, processing and streaming.
 
@@ -57,7 +57,7 @@ This third phase should allow us to make the program more stable and welcoming t
 
 ## Documentation
 
-- For **contributors**: see [godoc](https://godoc.org/github.com/dreamvo/gilfoyle), [high-level design documentation](DESIGN.md)
+- For **contributors**: see [godoc](https://pkg.go.dev/github.com/dreamvo/gilfoyle), [high-level design documentation](DESIGN.md)
 - For **users**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
 - The [GPL v3](LICENSE) license
 
