@@ -31,7 +31,7 @@ require (
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/rakyll/statik v0.1.7
 	github.com/smartystreets/assertions v1.0.0 // indirect
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.3
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.0
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
