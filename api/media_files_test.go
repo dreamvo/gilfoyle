@@ -194,6 +194,7 @@ func TestMediaFiles(t *testing.T) {
 				VideoBitRate:       800000,
 				AudioBitrate:       96000,
 				FrameRate:          25,
+				TargetBandwidth:    896000,
 			}, msgBody)
 
 			msg, ok, err = ch.Get(worker.MediaProcessingCallbackQueue, false)
