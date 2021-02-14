@@ -22,7 +22,7 @@ type OriginalFile struct {
 
 type ITranscoder interface {
 	Process() IProcess
-	Run(p IProcess) error
+	Cmd(p IProcess) *exec.Cmd
 }
 
 type IProcess interface {
@@ -188,8 +188,8 @@ func (t *Transcoder) Process() IProcess {
 	}
 }
 
-func (t *Transcoder) Run(p IProcess) error {
-	return exec.Command(t.ffmpegBinPath, p.GetStrArguments()...).Run()
+func (t *Transcoder) Cmd(p IProcess) *exec.Cmd {
+	return exec.Command(t.ffmpegBinPath, p.GetStrArguments()...)
 }
 
 func NewTranscoder(opts Options) ITranscoder {

@@ -181,17 +181,14 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 			VideoWidth:         r.Width,
 			VideoHeight:        r.Height,
 			AudioCodec:         r.AudioCodec,
-			AudioRate:          r.AudioRate,
 			VideoCodec:         r.VideoCodec,
 			Crf:                20,
 			KeyframeInterval:   48,
 			HlsSegmentDuration: 4,
 			HlsPlaylistType:    "vod",
 			VideoBitRate:       r.VideoBitrate,
-			VideoMaxBitRate:    r.VideoMaxBitRate,
-			BufferSize:         r.BufferSize,
 			AudioBitrate:       r.AudioBitrate,
-			TargetBandwidth:    r.TargetBandwidth,
+			TargetBandwidth:    uint64(r.VideoBitrate + r.AudioBitrate),
 		})
 		if err != nil {
 			util.NewError(ctx, http.StatusInternalServerError, err)

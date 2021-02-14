@@ -87,9 +87,12 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
+			audioRate := 128000
 			HlsSegmentFilename := dstTmpPath + "/%03d.ts"
 			VideoProfile := "main"
 			VideoFilter := fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", body.VideoWidth, body.VideoHeight)
+			overwrite := true
+			preset := "medium"
 
 			p := w.transcoder.
 				Process().
@@ -98,23 +101,24 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				WithOptions(transcoding.ProcessOptions{
 					AudioCodec:         &body.AudioCodec,
 					VideoCodec:         &body.VideoCodec,
-					AudioRate:          &body.AudioRate,
+					AudioRate:          &audioRate,
 					AudioBitrate:       &body.AudioBitrate,
 					VideoBitRate:       &body.VideoBitRate,
-					VideoMaxBitRate:    &body.VideoMaxBitRate,
 					FrameRate:          &body.FrameRate,
-					BufferSize:         &body.BufferSize,
 					HlsSegmentDuration: &body.HlsSegmentDuration,
 					HlsPlaylistType:    &body.HlsPlaylistType,
 					HlsSegmentFilename: &HlsSegmentFilename,
 					VideoProfile:       &VideoProfile,
-					Crf:                &body.Crf,
 					KeyframeInterval:   &body.KeyframeInterval,
 					VideoFilter:        &VideoFilter,
+					Overwrite:          &overwrite,
+					Preset:             &preset,
 				})
-			err = w.transcoder.Run(p)
+			cmd := w.transcoder.Cmd(p)
+			err = cmd.Run()
 			if err != nil {
-				w.logger.Error("Command execution error", zap.Error(err))
+				args := strings.Join(p.GetStrArguments(), " ")
+				w.logger.Error("Command execution error", zap.Error(err), zap.String("arguments", args))
 				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
