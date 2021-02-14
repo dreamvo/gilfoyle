@@ -87,7 +87,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			audioRate := 128000
+			AudioBitrate := 192000
 			HlsSegmentFilename := dstTmpPath + "/%03d.ts"
 			VideoProfile := "main"
 			VideoFilter := fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", body.VideoWidth, body.VideoHeight)
@@ -101,8 +101,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				WithOptions(transcoding.ProcessOptions{
 					AudioCodec:         &body.AudioCodec,
 					VideoCodec:         &body.VideoCodec,
-					AudioRate:          &audioRate,
-					AudioBitrate:       &body.AudioBitrate,
+					AudioBitrate:       &AudioBitrate,
 					VideoBitRate:       &body.VideoBitRate,
 					FrameRate:          &body.FrameRate,
 					HlsSegmentDuration: &body.HlsSegmentDuration,
