@@ -10,7 +10,10 @@
           <div>
             <h3>Build</h3>
 
-            <p class="mt-2">Gilfoyle version <strong>{{version}}</strong>, commit <strong>{{commit}}</strong></p>
+            <p class="mt-2">
+              Gilfoyle version <strong>{{ version }}</strong
+              >, commit <strong>{{ commit }}</strong>
+            </p>
           </div>
         </v-card-text>
       </v-card>
@@ -24,26 +27,26 @@ import MediaForm from "../components/MediaForm.vue";
 import axios from "../services/axios";
 
 interface Data {
-  loading: boolean
-  commit: string
-  version: string
+  loading: boolean;
+  commit: string;
+  version: string;
 }
 
 export default Vue.extend({
-  components: {MediaForm},
+  components: { MediaForm },
   data: (): Data => ({
     loading: true,
-    commit: 'unknown',
-    version: 'unknown'
+    commit: "unknown",
+    version: "unknown"
   }),
   methods: {},
   async created() {
-    const res = await axios.get('/healthz')
+    const res = await axios.get("/healthz");
 
-    this.commit = res.data.commit
-    this.version = res.data.tag
+    this.commit = res.data.commit;
+    this.version = res.data.tag;
 
-    this.loading = false
+    this.loading = false;
   }
 });
 </script>

@@ -6,14 +6,23 @@
     <div v-if="medias.length">
       <v-container>
         <v-row>
-          <v-col cols="12" lg="3" md="4" sm="12" v-for="media in medias" :key="media.id">
+          <v-col
+            cols="12"
+            lg="3"
+            md="4"
+            sm="12"
+            v-for="media in medias"
+            :key="media.id"
+          >
             <v-card outlined :to="`/medias/${media.id}`">
               <v-img
-                  class="white--text align-end"
-                  height="200px"
-                  :src="require('@/assets/default_media.jpeg')"
+                class="white--text align-end"
+                height="200px"
+                :src="require('@/assets/default_media.jpeg')"
               >
-                <v-card-title style="display: inline-block;width:95%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;">
+                <v-card-title
+                  style="display: inline-block;width:95%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;"
+                >
                   {{ media.title }}
                 </v-card-title>
               </v-img>
@@ -34,7 +43,7 @@
 
       <v-card-actions class="justify-center">
         <v-btn class="pl-5 pr-5" depressed color="#66f" dark @click="loadMore"
-        >Load more
+          >Load more
         </v-btn>
       </v-card-actions>
     </div>
@@ -45,8 +54,8 @@
 <script lang="ts">
 import Vue from "vue";
 import axios from "../services/axios";
-import {AxiosResponse} from "axios";
-import {ArrayResponse, Media} from "../types";
+import { AxiosResponse } from "axios";
+import { ArrayResponse, Media } from "../types";
 
 interface Data {
   title: string;
@@ -75,7 +84,7 @@ export default Vue.extend({
     },
     async fetchMedias() {
       const res: AxiosResponse<ArrayResponse<Media>> = await axios.get(
-          `/medias?limit=${this.limit}&offset=${this.offset}`
+        `/medias?limit=${this.limit}&offset=${this.offset}`
       );
       return res.data.data;
     }

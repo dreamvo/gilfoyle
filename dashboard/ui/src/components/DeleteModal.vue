@@ -2,12 +2,12 @@
   <v-dialog v-model="dialog" width="500">
     <template #activator="{ on, attrs }">
       <v-btn
-          color="error"
-          text
-          class="ml-2"
-          :small="btnSmall"
-          v-bind="attrs"
-          v-on="on"
+        color="error"
+        text
+        class="ml-2"
+        :small="btnSmall"
+        v-bind="attrs"
+        v-on="on"
       >
         <v-icon v-if="icon" size="16" class="mr-1">mdi-trash-can</v-icon>
         {{ btnText }}
@@ -20,7 +20,7 @@
       </v-card-title>
 
       <v-card-text
-      >Êtes vous sur de vouloir effectuer cette action ?
+        >Êtes vous sur de vouloir effectuer cette action ?
       </v-card-text>
       <v-card-text>Cette action est irréversible.</v-card-text>
 
@@ -30,12 +30,12 @@
         <v-spacer></v-spacer>
         <v-btn color="blue-grey" text @click="dialog = false">Cancel</v-btn>
         <v-btn
-            color="error"
-            text
-            @click="
+          color="error"
+          text
+          @click="
             () => {
-              dialog = false
-              action()
+              dialog = false;
+              action();
             }
           "
         >
@@ -47,36 +47,36 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import Vue from "vue";
 
 export default Vue.extend({
   props: {
     title: {
       type: String,
-      default: 'Suppression',
+      default: "Suppression"
     },
     btnText: {
       type: String,
-      default: 'Supprimer',
+      default: "Supprimer"
     },
     btnSmall: {
       type: Boolean,
-      default: false,
+      default: false
     },
     icon: {
       type: Boolean,
-      default: true,
+      default: true
     },
     action: {
       type: Function,
-      default: () => {},
-    },
+      default: () => {}
+    }
   },
   data() {
     return {
-      dialog: false,
-    }
+      dialog: false
+    };
   },
-  methods: {},
-})
+  methods: {}
+});
 </script>

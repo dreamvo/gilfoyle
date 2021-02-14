@@ -10,14 +10,12 @@
 import Vue from "vue";
 import MediaForm from "../components/MediaForm.vue";
 
-interface Data {
-}
+interface Data {}
 
 export default Vue.extend({
-  components: {MediaForm},
+  components: { MediaForm },
   data: (): Data => ({}),
   methods: {},
-  async created() {
-  }
+  async created() {}
 });
 </script>

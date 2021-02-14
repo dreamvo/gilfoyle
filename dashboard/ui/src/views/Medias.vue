@@ -1,9 +1,9 @@
 <template>
-    <v-row>
-      <v-col md="12">
-        <MediaList></MediaList>
-      </v-col>
-    </v-row>
+  <v-row>
+    <v-col md="12">
+      <MediaList></MediaList>
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

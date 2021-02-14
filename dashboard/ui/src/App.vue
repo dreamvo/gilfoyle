@@ -63,18 +63,18 @@
           </v-col>
         </v-row>
         <v-container v-else>
-            <RouterView v-if="$store.state.healthy" />
-            <v-row v-else>
-              <v-col cols="12" md="12">
-                <h1>Unhealthy instance</h1>
-                <p>
-                  Something bad is happening, you should look at the logs of
-                  your Gilfoyle instance.
-                </p>
-                <h3>Diagnostic</h3>
-                <p>{{ $store.state.healthError }}</p>
-              </v-col>
-            </v-row>
+          <RouterView v-if="$store.state.healthy" />
+          <v-row v-else>
+            <v-col cols="12" md="12">
+              <h1>Unhealthy instance</h1>
+              <p>
+                Something bad is happening, you should look at the logs of your
+                Gilfoyle instance.
+              </p>
+              <h3>Diagnostic</h3>
+              <p>{{ $store.state.healthError }}</p>
+            </v-col>
+          </v-row>
         </v-container>
       </v-container>
     </v-content>

@@ -114,8 +114,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					Overwrite:          &overwrite,
 					Preset:             &preset,
 				})
-			cmd := w.transcoder.Cmd(p)
-			err = cmd.Run()
+			err = w.transcoder.Run(p)
 			if err != nil {
 				args := strings.Join(p.GetStrArguments(), " ")
 				w.logger.Error("Command execution error", zap.Error(err), zap.String("arguments", args))
