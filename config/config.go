@@ -80,14 +80,14 @@ type EncoderSettings struct {
 }
 
 type Rendition struct {
-	Name            string `yaml:"name" json:"name" default:"default"`
-	Width           int    `yaml:"width" json:"width" default:"842"`
-	Height          int    `yaml:"height" json:"height" default:"480"`
-	VideoBitrate    int    `yaml:"video_bitrate" json:"video_bitrate" default:"1400000"`
-	AudioBitrate    int    `yaml:"audio_bitrate" json:"audio_bitrate" default:"128000"`
-	Framerate       int    `yaml:"framerate" json:"framerate" default:"0"`
-	VideoCodec      string `yaml:"video_codec" json:"video_codec" default:"h264"`
-	AudioCodec      string `yaml:"audio_codec" json:"audio_codec" default:"aac"`
+	Name         string `yaml:"name" json:"name" default:"default"`
+	Width        int    `yaml:"width" json:"width" default:"842"`
+	Height       int    `yaml:"height" json:"height" default:"480"`
+	VideoBitrate int    `yaml:"video_bitrate" json:"video_bitrate" default:"1400000"`
+	AudioBitrate int    `yaml:"audio_bitrate" json:"audio_bitrate" default:"128000"`
+	Framerate    int    `yaml:"framerate" json:"framerate" default:"0"`
+	VideoCodec   string `yaml:"video_codec" json:"video_codec" default:"h264"`
+	AudioCodec   string `yaml:"audio_codec" json:"audio_codec" default:"aac"`
 }
 
 // NewConfig creates a new config object

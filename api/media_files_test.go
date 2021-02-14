@@ -77,14 +77,14 @@ func TestMediaFiles(t *testing.T) {
 
 	gilfoyle.Config.Settings.Encoding.Renditions = []config.Rendition{
 		{
-			Name:            "360p",
-			Framerate:       25,
-			Width:           640,
-			Height:          360,
-			AudioCodec:      "aac",
-			VideoCodec:      "h264",
-			VideoBitrate:    800000,
-			AudioBitrate:    96000,
+			Name:         "360p",
+			Framerate:    25,
+			Width:        640,
+			Height:       360,
+			AudioCodec:   "aac",
+			VideoCodec:   "h264",
+			VideoBitrate: 800000,
+			AudioBitrate: 96000,
 		},
 	}
 
