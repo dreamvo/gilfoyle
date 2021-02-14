@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import config from "../config";
 
 const instance: AxiosInstance = axios.create({
-  baseURL: `${config.ApiEndpoint}${config.ApiPrefix}`,
+  baseURL: `${config.ApiEndpoint}${config.InstanceProxyURI}`,
   timeout: 1000,
   headers: {}
 });

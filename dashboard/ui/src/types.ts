@@ -19,7 +19,7 @@ export interface Media {
   created_at: string;
   updated_at: string;
   edges: {
-    media_files: MediaFile[];
+    media_files?: MediaFile[];
   };
 }
 

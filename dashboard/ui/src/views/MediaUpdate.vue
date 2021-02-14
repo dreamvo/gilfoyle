@@ -1,9 +1,9 @@
 <template>
-    <v-row>
-      <v-col cols="12" md="12">
-        <MediaForm/>
-      </v-col>
-    </v-row>
+  <v-row>
+    <v-col cols="12" md="12">
+      <MediaForm :media-id="$route.params.id" />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

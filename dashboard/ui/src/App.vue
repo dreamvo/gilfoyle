@@ -62,8 +62,7 @@
             ></v-skeleton-loader>
           </v-col>
         </v-row>
-        <v-row v-else>
-          <v-col cols="12" md="12">
+        <v-container v-else>
             <RouterView v-if="$store.state.healthy" />
             <v-row v-else>
               <v-col cols="12" md="12">
@@ -76,8 +75,7 @@
                 <p>{{ $store.state.healthError }}</p>
               </v-col>
             </v-row>
-          </v-col>
-        </v-row>
+        </v-container>
       </v-container>
     </v-content>
 
@@ -122,12 +120,17 @@ export default Vue.extend({
       {
         title: "Overview",
         to: "/",
-        icon: "mdi-sitemap"
+        icon: "mdi-view-dashboard"
       },
       {
         title: "Medias",
         to: "/medias",
-        icon: "mdi-video-outline"
+        icon: "mdi-animation-play"
+      },
+      {
+        title: "About",
+        to: "/about",
+        icon: "mdi-information"
       }
     ],
     footerIcons: [
