@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: lint with golangci-lint
-        uses: golangci/golangci-lint-action@v2
+        uses: golangci/golangci-lint-action@v2.4.0
         with:
           version: v1.32
           args: --timeout 120s
