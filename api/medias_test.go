@@ -31,14 +31,20 @@ func TestMedias(t *testing.T) {
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
-				Code int         `json:"code"`
-				Data []ent.Media `json:"data,omitempty"`
+				Code     int            `json:"code"`
+				Metadata MediasMetadata `json:"metadata"`
+				Data     []ent.Media    `json:"data,omitempty"`
 			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, res.Result().StatusCode, 200, "should be equal")
 			assert.Equal(t, 200, body.Code)
 			assert.Equal(t, []ent.Media{}, body.Data)
+			assert.Equal(t, MediasMetadata{
+				Limit:  50,
+				Offset: 0,
+				Total:  0,
+			}, body.Metadata)
 		})
 
 		t.Run("should return latest medias", func(t *testing.T) {
@@ -62,14 +68,20 @@ func TestMedias(t *testing.T) {
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
-				Code int         `json:"code"`
-				Data []ent.Media `json:"data,omitempty"`
+				Code     int            `json:"code"`
+				Metadata MediasMetadata `json:"metadata"`
+				Data     []ent.Media    `json:"data,omitempty"`
 			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, res.Result().StatusCode, 200, "should be equal")
 			assert.Equal(t, 200, body.Code)
 			assert.Equal(t, 5, len(body.Data))
+			assert.Equal(t, MediasMetadata{
+				Limit:  50,
+				Offset: 0,
+				Total:  5,
+			}, body.Metadata)
 		})
 
 		t.Run("should limit results to 2", func(t *testing.T) {
@@ -93,14 +105,20 @@ func TestMedias(t *testing.T) {
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
-				Code int         `json:"code"`
-				Data []ent.Media `json:"data,omitempty"`
+				Code     int            `json:"code"`
+				Metadata MediasMetadata `json:"metadata"`
+				Data     []ent.Media    `json:"data,omitempty"`
 			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, res.Result().StatusCode, 200, "should be equal")
 			assert.Equal(t, 200, body.Code)
 			assert.Equal(t, 2, len(body.Data))
+			assert.Equal(t, MediasMetadata{
+				Limit:  2,
+				Offset: 0,
+				Total:  3,
+			}, body.Metadata)
 		})
 
 		t.Run("should return results with offset 1", func(t *testing.T) {
@@ -128,8 +146,9 @@ func TestMedias(t *testing.T) {
 			assert.NoError(t, err, "should be equal")
 
 			var body struct {
-				Code int         `json:"code"`
-				Data []ent.Media `json:"data,omitempty"`
+				Code     int            `json:"code"`
+				Metadata MediasMetadata `json:"metadata"`
+				Data     []ent.Media    `json:"data,omitempty"`
 			}
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
@@ -137,6 +156,11 @@ func TestMedias(t *testing.T) {
 			assert.Equal(t, 200, body.Code)
 			assert.Equal(t, 1, len(body.Data))
 			assert.Equal(t, v.ID.String(), body.Data[0].ID.String())
+			assert.Equal(t, MediasMetadata{
+				Limit:  50,
+				Offset: 1,
+				Total:  2,
+			}, body.Metadata)
 		})
 	})
 

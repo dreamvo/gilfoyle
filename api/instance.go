@@ -8,8 +8,12 @@ import (
 )
 
 type HealthCheckResponse struct {
-	Tag    string `json:"tag"`
-	Commit string `json:"commit"`
+	Tag             string `json:"tag"`
+	Commit          string `json:"commit"`
+	Debug           bool   `json:"debug"`
+	StorageDriver   string `json:"storage_driver"`
+	MaxFileSize     int64  `json:"max_file_size"`
+	DatabaseDialect string `json:"database_dialect"`
 }
 
 // @ID checkHealth
@@ -21,8 +25,12 @@ type HealthCheckResponse struct {
 // @Router /healthz [get]
 func (s *Server) healthCheckHandler(ctx *gin.Context) {
 	util.NewResponse(ctx, http.StatusOK, HealthCheckResponse{
-		Tag:    config.Version,
-		Commit: config.Commit,
+		Tag:             config.Version,
+		Commit:          config.Commit,
+		Debug:           s.config.Settings.Debug,
+		StorageDriver:   s.config.Storage.Driver,
+		MaxFileSize:     s.config.Settings.MaxFileSize,
+		DatabaseDialect: s.config.Services.DB.Dialect,
 	})
 }
 

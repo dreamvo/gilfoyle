@@ -77,17 +77,14 @@ func TestMediaFiles(t *testing.T) {
 
 	gilfoyle.Config.Settings.Encoding.Renditions = []config.Rendition{
 		{
-			Name:            "360p",
-			Framerate:       25,
-			Width:           640,
-			Height:          360,
-			AudioCodec:      "aac",
-			AudioRate:       48000,
-			VideoCodec:      "h264",
-			VideoBitrate:    800000,
-			VideoMaxBitRate: 856000,
-			BufferSize:      1200000,
-			AudioBitrate:    96000,
+			Name:         "360p",
+			Framerate:    25,
+			Width:        640,
+			Height:       360,
+			AudioCodec:   "aac",
+			VideoCodec:   "h264",
+			VideoBitrate: 800000,
+			AudioBitrate: 96000,
 		},
 	}
 
@@ -189,17 +186,15 @@ func TestMediaFiles(t *testing.T) {
 				VideoWidth:         640,
 				VideoHeight:        360,
 				AudioCodec:         "aac",
-				AudioRate:          48000,
 				VideoCodec:         "h264",
 				Crf:                20,
 				KeyframeInterval:   48,
 				HlsSegmentDuration: 4,
 				HlsPlaylistType:    "vod",
 				VideoBitRate:       800000,
-				VideoMaxBitRate:    856000,
-				BufferSize:         1200000,
 				AudioBitrate:       96000,
 				FrameRate:          25,
+				TargetBandwidth:    896000,
 			}, msgBody)
 
 			msg, ok, err = ch.Get(worker.MediaProcessingCallbackQueue, false)

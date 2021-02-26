@@ -1,11 +1,9 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col md="12">
-        <MediaList></MediaList>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-row>
+    <v-col md="12">
+      <MediaList />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">

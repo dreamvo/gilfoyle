@@ -84,6 +84,8 @@ func registerMiddlewares(s *Server) {
 	//}))
 
 	s.router.Use(func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Origin", "*")
+
 		ctx.Next()
 
 		path := ctx.Request.URL.Path
@@ -116,6 +118,10 @@ func registerMiddlewares(s *Server) {
 // registerRoutes adds routes to a given router instance
 func registerRoutes(s *Server) {
 	s.router.GET("/healthz", s.healthCheckHandler)
+
+	s.router.OPTIONS("/*path", func(ctx *gin.Context) {
+		ctx.Status(204)
+	})
 
 	p := ginprometheus.NewPrometheus("gin")
 	p.MetricsPath = "/metricsz"

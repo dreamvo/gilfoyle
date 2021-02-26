@@ -21,12 +21,18 @@ type UpdateMedia struct {
 	CreateMedia
 }
 
+type MediasMetadata struct {
+	Total  int `json:"total"`
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
+
 // @ID getAllMedias
 // @Tags Medias
 // @Summary Query medias
 // @Description Get latest created medias
 // @Produce  json
-// @Success 200 {object} util.DataResponse{data=[]ent.Media}
+// @Success 200 {object} util.DataResponse{data=[]ent.Media,metadata=api.MediasMetadata}
 // @Failure 500 {object} util.ErrorResponse
 // @Router /medias [get]
 // @Param limit query int false "Max number of results"
@@ -34,6 +40,12 @@ type UpdateMedia struct {
 func (s *Server) getAllMedias(ctx *gin.Context) {
 	limit := ctx.GetInt("limit")
 	offset := ctx.GetInt("offset")
+
+	total, err := s.db.Media.Query().Count(context.Background())
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
+		return
+	}
 
 	medias, err := s.db.Media.
 		Query().
@@ -46,7 +58,11 @@ func (s *Server) getAllMedias(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, medias)
+	util.NewData(ctx, http.StatusOK, medias, MediasMetadata{
+		Total:  total,
+		Offset: ctx.GetInt("offset"),
+		Limit:  ctx.GetInt("limit"),
+	})
 }
 
 // @ID getMedia
@@ -82,7 +98,7 @@ func (s *Server) getMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, v)
+	util.NewData(ctx, http.StatusOK, v, nil)
 }
 
 // @ID deleteMedia
@@ -117,7 +133,7 @@ func (s *Server) deleteMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, nil)
+	util.NewData(ctx, http.StatusOK, nil, nil)
 }
 
 // @ID createMedia
@@ -153,7 +169,7 @@ func (s *Server) createMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, v)
+	util.NewData(ctx, http.StatusOK, v, nil)
 }
 
 // @ID updateMedia
@@ -204,5 +220,5 @@ func (s *Server) updateMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, m)
+	util.NewData(ctx, http.StatusOK, m, nil)
 }

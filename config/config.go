@@ -80,18 +80,14 @@ type EncoderSettings struct {
 }
 
 type Rendition struct {
-	Name            string `yaml:"name" json:"name" default:"default"`
-	Width           int    `yaml:"width" json:"width" default:"842"`
-	Height          int    `yaml:"height" json:"height" default:"480"`
-	VideoBitrate    int    `yaml:"video_bitrate" json:"video_bitrate" default:"1400000"`
-	AudioBitrate    int    `yaml:"audio_bitrate" json:"audio_bitrate" default:"128000"`
-	VideoMaxBitRate int    `yaml:"video_max_bit_rate" json:"video_max_bit_rate" default:"1498000"`
-	BufferSize      int    `yaml:"buffer_size" json:"buffer_size" default:"2100000"`
-	Framerate       int    `yaml:"framerate" json:"framerate" default:"0"`
-	AudioRate       int    `yaml:"audio_rate" json:"audio_rate" default:"48000"`
-	VideoCodec      string `yaml:"video_codec" json:"video_codec" default:"h264"`
-	AudioCodec      string `yaml:"audio_codec" json:"audio_codec" default:"aac"`
-	TargetBandwidth uint64 `yaml:"target_bandwidth" json:"target_bandwidth" default:"1400000"`
+	Name         string `yaml:"name" json:"name" default:"default"`
+	Width        int    `yaml:"width" json:"width" default:"842"`
+	Height       int    `yaml:"height" json:"height" default:"480"`
+	VideoBitrate int    `yaml:"video_bitrate" json:"video_bitrate" default:"1400000"`
+	AudioBitrate int    `yaml:"audio_bitrate" json:"audio_bitrate" default:"128000"`
+	Framerate    int    `yaml:"framerate" json:"framerate" default:"0"`
+	VideoCodec   string `yaml:"video_codec" json:"video_codec" default:"h264"`
+	AudioCodec   string `yaml:"audio_codec" json:"audio_codec" default:"aac"`
 }
 
 // NewConfig creates a new config object

@@ -37,8 +37,25 @@ definitions:
     properties:
       commit:
         type: string
+      database_dialect:
+        type: string
+      debug:
+        type: boolean
+      max_file_size:
+        type: integer
+      storage_driver:
+        type: string
       tag:
         type: string
+    type: object
+  api.MediasMetadata:
+    properties:
+      limit:
+        type: integer
+      offset:
+        type: integer
+      total:
+        type: integer
     type: object
   api.UpdateMedia:
     properties:
@@ -139,6 +156,8 @@ definitions:
         type: integer
       data:
         type: object
+      metadata:
+        type: object
     type: object
   util.ErrorResponse:
     properties:
@@ -204,6 +223,8 @@ paths:
                   items:
                     $ref: '#/definitions/ent.Media'
                   type: array
+                metadata:
+                  $ref: '#/definitions/api.MediasMetadata'
               type: object
         "500":
           description: Internal Server Error

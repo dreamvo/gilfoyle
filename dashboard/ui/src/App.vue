@@ -1,83 +1,93 @@
 <template>
   <v-app>
-    <v-toolbar flat color="white" light>
-      <v-col cols="4" sm="2">
-        <RouterLink to="/">
+    <v-app-bar elevation="0" clipped-left fixed app light>
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
+      <v-toolbar-title>
+        <router-link to="/">
           <v-avatar tile height="32" width="auto">
             <img :src="require('@/assets/logo.svg')" alt="logo" />
           </v-avatar>
-        </RouterLink>
-      </v-col>
+        </router-link>
+      </v-toolbar-title>
 
       <v-spacer></v-spacer>
 
-      <v-btn outlined color="#66f">
-        <v-icon light>mdi-plus</v-icon>
-        Create
-      </v-btn>
-    </v-toolbar>
-
-    <v-toolbar flat color="#34495e" dark>
-      <v-app-bar-nav-icon
-        @click="drawerMenu = !drawerMenu"
-      ></v-app-bar-nav-icon>
-
-      <v-toolbar-title>Overview</v-toolbar-title>
-
-      <v-spacer></v-spacer>
-
-      <v-system-bar height="54px" dark color="#34495e">
+      <v-system-bar height="54px" color="transparent">
         <v-icon size="8" :color="$store.state.healthy ? 'green' : 'red'"
-          >mdi-circle</v-icon
-        >
+          >mdi-circle
+        </v-icon>
         <span v-if="$store.state.healthy">Instance status: Running</span>
         <span v-else>Instance status: Unavailable</span>
       </v-system-bar>
-    </v-toolbar>
 
-    <v-main>
-      <v-container>
-        <v-row no-gutters>
-          <v-col md="2" v-if="drawerMenu">
-            <v-list flat>
-              <v-subheader>Menu</v-subheader>
-              <v-list-item-group color="primary">
-                <v-list-item
-                  v-for="(item, index) in navigation"
-                  :key="index"
-                  :to="item.link"
-                >
-                  <v-list-item-icon>
-                    <v-icon v-text="item.icon"></v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title v-text="item.title"></v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </v-list-item-group>
-            </v-list>
+      <v-btn
+        small
+        depressed
+        dark
+        color="primary"
+        class="ml-3"
+        to="/medias/create"
+      >
+        <v-icon small>mdi-plus</v-icon>
+        Create media
+      </v-btn>
+    </v-app-bar>
+
+    <v-navigation-drawer v-model="drawer" clipped fixed app light color="white">
+      <v-list>
+        <v-list-item
+          v-for="(item, i) in navigation"
+          :key="i"
+          :to="item.to"
+          router
+          exact
+        >
+          <v-list-item-action>
+            <v-icon>{{ item.icon }}</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title v-text="item.title" />
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-content>
+      <v-container fluid>
+        <v-row v-if="loading">
+          <v-col cols="12" md="6">
+            <v-skeleton-loader
+              type="card-heading, list-item-three-line, actions"
+            ></v-skeleton-loader>
+            <v-skeleton-loader
+              type="article, card, actions"
+            ></v-skeleton-loader>
           </v-col>
-
-          <v-col :md="drawerMenu ? 10 : 12" style="min-height:90vh;">
-            <RouterView v-if="$store.state.healthy" />
-            <v-col v-else cols="12" :md="drawerMenu ? 10 : 12">
-              <div class="">
-                <h1>Unhealthy instance</h1>
-                <p>
-                  Something bad is happening, you should look at the logs of
-                  your Gilfoyle instance.
-                </p>
-                <h3>Diagnostic</h3>
-                <p>{{ $store.state.healthError }}</p>
-              </div>
-            </v-col>
+          <v-col cols="12" md="6">
+            <v-skeleton-loader
+              type="date-picker, list-item-three-line"
+            ></v-skeleton-loader>
           </v-col>
         </v-row>
+        <v-container v-else>
+          <RouterView v-if="$store.state.healthy" />
+          <v-row v-else>
+            <v-col cols="12" md="12">
+              <h1>Unhealthy instance</h1>
+              <p>
+                Something bad is happening, you should look at the logs of your
+                Gilfoyle instance.
+              </p>
+              <h3>Diagnostic</h3>
+              <p>{{ $store.state.healthError }}</p>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-container>
-    </v-main>
+    </v-content>
 
-    <v-footer dark padless>
-      <v-card class="flex" flat tile color="#2e3341">
+    <v-footer app dark padless>
+      <v-card class="flex" flat tile color="secondary">
         <v-card-title>
           <strong class="subheading">Get connected with us!</strong>
 
@@ -111,27 +121,23 @@ export default Vue.extend({
   name: "App",
   components: {},
   data: () => ({
-    drawerMenu: true,
+    drawer: true,
+    loading: true,
     navigation: [
       {
         title: "Overview",
-        link: "/",
-        icon: "mdi-home"
+        to: "/",
+        icon: "mdi-view-dashboard"
       },
       {
         title: "Medias",
-        link: "/medias",
-        icon: "mdi-home"
+        to: "/medias",
+        icon: "mdi-animation-play"
       },
       {
-        title: "Metrics",
-        link: "/metrics",
-        icon: "mdi-home"
-      },
-      {
-        title: "Settings",
-        link: "/settings",
-        icon: "mdi-home"
+        title: "About",
+        to: "/about",
+        icon: "mdi-information"
       }
     ],
     footerIcons: [
@@ -156,6 +162,8 @@ export default Vue.extend({
     setInterval(async () => {
       await store.dispatch("healthCheck");
     }, config.healthCheckDelaySeconds * 1000);
+
+    this.loading = false;
   }
 });
 </script>

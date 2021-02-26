@@ -102,6 +102,9 @@ var doc = `{
                                             "items": {
                                                 "$ref": "#/definitions/ent.Media"
                                             }
+                                        },
+                                        "metadata": {
+                                            "$ref": "#/definitions/api.MediasMetadata"
                                         }
                                     }
                                 }
@@ -742,8 +745,34 @@ var doc = `{
                 "commit": {
                     "type": "string"
                 },
+                "database_dialect": {
+                    "type": "string"
+                },
+                "debug": {
+                    "type": "boolean"
+                },
+                "max_file_size": {
+                    "type": "integer"
+                },
+                "storage_driver": {
+                    "type": "string"
+                },
                 "tag": {
                     "type": "string"
+                }
+            }
+        },
+        "api.MediasMetadata": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
                 }
             }
         },
@@ -878,6 +907,9 @@ var doc = `{
                     "example": 200
                 },
                 "data": {
+                    "type": "object"
+                },
+                "metadata": {
                     "type": "object"
                 }
             }

@@ -1,50 +1,61 @@
 <template>
-  <v-card flat v-if="medias.length" :loading="loading">
+  <v-card outlined :loading="loading">
     <v-card-title>{{ title }}</v-card-title>
-    <v-card-subtitle>{{ medias.length }} items</v-card-subtitle>
+    <v-card-subtitle
+      >Showing {{ medias.length }} items out of {{ total }}</v-card-subtitle
+    >
 
-    <v-simple-table>
-      <template v-slot:default>
-        <thead>
-          <tr>
-            <th class="text-left">
-              Title
-            </th>
-            <th class="text-left">
-              Status
-            </th>
-            <th class="text-left">
-              Creation date
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="media in medias" :key="media.id">
-            <td>
-              <RouterLink :to="`/medias/${media.id}`"
-                >{{ media.title }}
-              </RouterLink>
-            </td>
-            <td>{{ media.status }}</td>
-            <td>{{ new Date(media.created_at) }}</td>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
+    <div v-if="medias.length">
+      <v-container>
+        <v-row>
+          <v-col
+            cols="12"
+            lg="3"
+            md="4"
+            sm="12"
+            v-for="media in medias"
+            :key="media.id"
+          >
+            <v-card outlined :to="`/medias/${media.id}`">
+              <v-img
+                class="white--text align-end"
+                height="200px"
+                :src="require('@/assets/default_media.jpeg')"
+              >
+                <v-card-title
+                  style="display: inline-block;width:95%;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;"
+                >
+                  {{ media.title }}
+                </v-card-title>
+              </v-img>
 
-    <v-spacer></v-spacer>
+              <v-card-subtitle class="pb-0">
+                Status : {{ media.status }}
+              </v-card-subtitle>
 
-    <v-card-actions>
-      <v-btn small depressed color="#66f" dark @click="loadMore"
-        >Load more</v-btn
-      >
-    </v-card-actions>
-  </v-card>
+              <v-card-text class="text--primary mt-3"></v-card-text>
 
-  <v-card v-else :loading="loading">
-    <v-card-title>{{ title }}</v-card-title>
+              <v-card-actions></v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
 
-    <v-card-subtitle>There's nothing to show here</v-card-subtitle>
+      <v-spacer></v-spacer>
+
+      <v-card-actions class="justify-center" v-if="total > medias.length">
+        <v-btn
+          class="pl-5 pr-5"
+          depressed
+          color="primary"
+          dark
+          :loading="loading"
+          @click="loadMore"
+          >Load more
+        </v-btn>
+      </v-card-actions>
+    </div>
+    <v-card-subtitle v-else>There's nothing to show here</v-card-subtitle>
   </v-card>
 </template>
 
@@ -55,18 +66,20 @@ import { AxiosResponse } from "axios";
 import { ArrayResponse, Media } from "../types";
 
 interface Data {
+  loading: boolean;
   title: string;
+  total: number;
   limit: number;
   offset: number;
   medias: Media[];
-  loading: boolean;
 }
 
 export default Vue.extend({
   name: "MediaList",
   data: (): Data => ({
     title: "Latest medias",
-    limit: 5,
+    total: 0,
+    limit: 8,
     offset: 0,
     medias: [],
     loading: true
@@ -76,13 +89,15 @@ export default Vue.extend({
       this.loading = true;
       const medias = await this.fetchMedias();
       this.medias.push(...medias);
-      this.loading = false;
       this.offset = this.medias.length;
+      this.loading = false;
     },
-    async fetchMedias() {
-      const res: AxiosResponse<ArrayResponse> = await axios.get(
+    async fetchMedias(): Promise<Media[]> {
+      const res: AxiosResponse<ArrayResponse<Media>> = await axios.get(
         `/medias?limit=${this.limit}&offset=${this.offset}`
       );
+      this.total = res.data.metadata.total as number;
+
       return res.data.data;
     }
   },
