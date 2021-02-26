@@ -20,7 +20,7 @@
         <span v-else>Instance status: Unavailable</span>
       </v-system-bar>
 
-      <v-btn small depressed dark color="#66f" class="ml-3" to="/medias/create">
+      <v-btn small depressed dark color="primary" class="ml-3" to="/medias/create">
         <v-icon light>mdi-plus</v-icon>
         Create media
       </v-btn>
@@ -80,7 +80,7 @@
     </v-content>
 
     <v-footer app dark padless>
-      <v-card class="flex" flat tile color="#2e3341">
+      <v-card class="flex" flat tile color="secondary">
         <v-card-title>
           <strong class="subheading">Get connected with us!</strong>
 

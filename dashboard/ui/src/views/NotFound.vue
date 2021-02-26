@@ -5,7 +5,7 @@
         <div class="">
           <h1>Page Not Found</h1>
           <p>We're sorry but we can't find the page you're looking for.</p>
-          <v-btn outlined color="#66f" to="/">Back To Home</v-btn>
+          <v-btn outlined color="primary" to="/">Back To Home</v-btn>
         </div>
       </v-col>
     </v-row>

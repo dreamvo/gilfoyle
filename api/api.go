@@ -117,6 +117,10 @@ func registerMiddlewares(s *Server) {
 func registerRoutes(s *Server) {
 	s.router.GET("/healthz", s.healthCheckHandler)
 
+	s.router.OPTIONS("/*path", func(ctx *gin.Context) {
+		ctx.Status(204)
+	})
+
 	p := ginprometheus.NewPrometheus("gin")
 	p.MetricsPath = "/metricsz"
 	p.Use(s.router)

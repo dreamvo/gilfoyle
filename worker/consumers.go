@@ -87,12 +87,11 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			AudioBitrate := 192000
+			VideoFilter := fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", body.VideoWidth, body.VideoHeight)
 			HlsSegmentFilename := dstTmpPath + "/%03d.ts"
 			VideoProfile := "main"
-			VideoFilter := fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", body.VideoWidth, body.VideoHeight)
-			overwrite := true
 			preset := "medium"
+			overwrite := true
 
 			p := w.transcoder.
 				Process().
@@ -101,7 +100,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				WithOptions(transcoding.ProcessOptions{
 					AudioCodec:         &body.AudioCodec,
 					VideoCodec:         &body.VideoCodec,
-					AudioBitrate:       &AudioBitrate,
+					AudioBitrate:       &body.AudioBitrate,
 					VideoBitRate:       &body.VideoBitRate,
 					FrameRate:          &body.FrameRate,
 					HlsSegmentDuration: &body.HlsSegmentDuration,
@@ -115,8 +114,7 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				})
 			err = w.transcoder.Run(p)
 			if err != nil {
-				args := strings.Join(p.GetStrArguments(), " ")
-				w.logger.Error("Command execution error", zap.Error(err), zap.String("arguments", args))
+				w.logger.Error("Command execution error", zap.Error(err), zap.String("arguments", strings.Join(p.GetStrArguments(), " ")))
 				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
