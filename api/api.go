@@ -84,6 +84,8 @@ func registerMiddlewares(s *Server) {
 	//}))
 
 	s.router.Use(func(ctx *gin.Context) {
+		ctx.Header("Access-Control-Allow-Origin", "*")
+
 		ctx.Next()
 
 		path := ctx.Request.URL.Path

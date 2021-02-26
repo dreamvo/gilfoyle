@@ -28,7 +28,7 @@
         class="ml-3"
         to="/medias/create"
       >
-        <v-icon light>mdi-plus</v-icon>
+        <v-icon small>mdi-plus</v-icon>
         Create media
       </v-btn>
     </v-app-bar>
