@@ -106,10 +106,14 @@ func TestTranscoding(t *testing.T) {
 			WithOptions(ProcessOptions{
 				StreamIds: map[string]string{
 					"0": "33",
+					"1": "36",
 				},
 			})
 
-		assert.Equal(t, []string{"-i", "/tmp/input.mp4", "-streamid", "0:33", "/tmp/output.ts"}, p.GetStrArguments())
+		assert.Contains(t, [][]string{
+			{"-i", "/tmp/input.mp4", "-streamid", "0:33", "-streamid", "1:36", "/tmp/output.ts"},
+			{"-i", "/tmp/input.mp4", "-streamid", "1:36", "-streamid", "1:33", "/tmp/output.ts"},
+		}, p.GetStrArguments())
 	})
 
 	t.Run("should fail to execute command", func(t *testing.T) {
