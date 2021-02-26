@@ -32,7 +32,7 @@ type MediasMetadata struct {
 // @Summary Query medias
 // @Description Get latest created medias
 // @Produce  json
-// @Success 200 {object} util.DataResponse{data=[]ent.Media}
+// @Success 200 {object} util.DataResponse{data=[]ent.Media,metadata=api.MediasMetadata}
 // @Failure 500 {object} util.ErrorResponse
 // @Router /medias [get]
 // @Param limit query int false "Max number of results"
