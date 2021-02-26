@@ -20,7 +20,14 @@
         <span v-else>Instance status: Unavailable</span>
       </v-system-bar>
 
-      <v-btn small depressed dark color="primary" class="ml-3" to="/medias/create">
+      <v-btn
+        small
+        depressed
+        dark
+        color="primary"
+        class="ml-3"
+        to="/medias/create"
+      >
         <v-icon light>mdi-plus</v-icon>
         Create media
       </v-btn>

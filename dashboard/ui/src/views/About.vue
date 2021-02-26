@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import MediaForm from "../components/MediaForm.vue";
 import axios from "../services/axios";
 
 interface Data {
@@ -33,13 +32,11 @@ interface Data {
 }
 
 export default Vue.extend({
-  components: { MediaForm },
   data: (): Data => ({
     loading: true,
     commit: "unknown",
     version: "unknown"
   }),
-  methods: {},
   async created() {
     const res = await axios.get("/healthz");
 

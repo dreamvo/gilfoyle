@@ -12,39 +12,31 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <v-card outlined>
-                    <v-radio
-                        label="Video"
-                        value="video"
-                        class="ma-3"
-                    ></v-radio>
+                    <v-radio label="Video" value="video" class="ma-3"></v-radio>
                   </v-card>
                 </v-col>
-
 
                 <v-col cols="12" md="6">
                   <v-card outlined>
                     <v-radio
-                        label="Audio only"
-                        value="audio"
-                        class="ma-3"
+                      label="Audio only"
+                      value="audio"
+                      class="ma-3"
                     ></v-radio>
                   </v-card>
                 </v-col>
               </v-row>
             </v-radio-group>
 
-            <validation-provider
-                v-slot="{ errors, validate }"
-                rules="required"
-            >
+            <validation-provider v-slot="{ errors, validate }" rules="required">
               <v-file-input
-                  v-model="form.file"
-                  :error-messages="errors"
-                  label="Media file"
-                  prepend-icon=""
-                  show-size
-                  outlined
-                  @change="validate"
+                v-model="form.file"
+                :error-messages="errors"
+                label="Media file"
+                prepend-icon=""
+                show-size
+                outlined
+                @change="validate"
               ></v-file-input>
             </validation-provider>
 
@@ -52,11 +44,11 @@
               <v-spacer></v-spacer>
 
               <v-btn
-                  color="primary"
-                  class="mt-5"
-                  depressed
-                  :loading="loading"
-                  @click="handleSubmit(submit)"
+                color="primary"
+                class="mt-5"
+                depressed
+                :loading="loading"
+                @click="handleSubmit(submit)"
               >
                 <v-icon size="16" class="mr-1">mdi-upload</v-icon>
                 Upload
@@ -71,7 +63,11 @@
 
 <script lang="ts">
 import Vue from "vue";
-import {setInteractionMode, ValidationObserver, ValidationProvider} from "vee-validate";
+import {
+  setInteractionMode,
+  ValidationObserver,
+  ValidationProvider
+} from "vee-validate";
 import axios from "../services/axios";
 
 setInteractionMode("eager");
@@ -79,7 +75,7 @@ setInteractionMode("eager");
 interface Data {
   loading: boolean;
   form: {
-    kind: string
+    kind: string;
     file: File | null;
   };
 }
@@ -103,28 +99,28 @@ export default Vue.extend({
   data: (): Data => ({
     loading: true,
     form: {
-      kind: 'video',
-      file: null,
+      kind: "video",
+      file: null
     }
   }),
   methods: {
     async submit(): Promise<void> {
-      this.loading = true
+      this.loading = true;
 
-      const formData = new FormData()
-      formData.append('file', this.form.file as File)
+      const formData = new FormData();
+      formData.append("file", this.form.file as File);
 
       await axios.post(
-          `/medias/${this.mediaId}/upload/${this.form.kind}`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
+        `/medias/${this.mediaId}/upload/${this.form.kind}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
           }
+        }
       );
 
-      this.$router.go(0)
+      this.$router.go(0);
     }
   },
   async created() {

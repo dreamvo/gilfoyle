@@ -69,7 +69,9 @@ export default Vue.extend({
     },
     action: {
       type: Function,
-      default: () => {}
+      default: () => {
+        return;
+      }
     }
   },
   data() {

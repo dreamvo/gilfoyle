@@ -42,7 +42,12 @@
       <v-spacer></v-spacer>
 
       <v-card-actions class="justify-center">
-        <v-btn class="pl-5 pr-5" depressed color="primary" dark @click="loadMore"
+        <v-btn
+          class="pl-5 pr-5"
+          depressed
+          color="primary"
+          dark
+          @click="loadMore"
           >Load more
         </v-btn>
       </v-card-actions>
