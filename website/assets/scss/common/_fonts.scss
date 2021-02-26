@@ -69,3 +69,14 @@
     url("fonts/vendor/jost/jost-v4-latin-700italic.woff2") format("woff2"),
     url("fonts/vendor/jost/jost-v4-latin-700italic.woff") format("woff"); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
 }
+
+/* Open Sans Regular */
+@font-face {
+  font-family: "Open Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local("Open Sans"),
+    url("../../fonts/OpenSans-regular.ttf") format("ttf"),
+}
