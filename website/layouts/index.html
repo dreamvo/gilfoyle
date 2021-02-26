@@ -1,0 +1,59 @@
+{{ define "main" }}
+<section class="section container-fluid mt-n3 pb-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-12 text-center">
+      <h1 class="mt-0">{{ .Title }}</h1>
+    </div>
+    <div class="col-lg-9 col-xl-8 text-center">
+      <p class="lead">{{ .Params.lead | safeHTML }}</p>
+      <a class="btn btn-primary btn-lg px-4 mb-2" href="{{ "docs/prologue/introduction/" | absURL }}" role="button">Get started</a>
+      <p class="meta">100% open-source, no vendor lock in. Licensed under <a href="https://github.com/dreamvo/gilfoyle/blob/master/LICENSE">GPL-3.0</a>.</p>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ define "sidebar-prefooter" }}
+<section class="section section-sm">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-5">
+        <h2 class="h4">Easy to integrate</h2>
+        <p>Client SDKs are here to help the media streaming implementation to be as easy as possible in your application.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="h4">Cloud native architecture</h2>
+        <p>Thanks to cloud native methodologies, Gilfoyle can be deployed anywhere, especially on modern cloud infrastructures.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="h4">Monitoring</h2>
+        <p>Enjoy built-in Prometheus exporter with a bunch of monitoring metrics that helps keeping your instance healthy.</p>
+      </div>
+    </div>
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-5">
+        <h2 class="h4">Agnostic by design</h2>
+        <p>Gilfoyle was built with the vision of serving any technical use case that may exist in the media streaming industry.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="h4">100% open source</h2>
+        <p>Gilfoyle is free to use, modify and distribute. We don't empower any kind of vendor lock-in.</p>
+      </div>
+      <div class="col-lg-5">
+        <h2 class="h4">It's cheap!</h2>
+        <p>Video encoding can be painful because of performances it needs. Gilfoyle ensure resources are well used and allow you to scale at any time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
+
+{{ define "sidebar-footer" }}
+<section class="section section-sm container-fluid">
+  <div class="row justify-content-center text-center">
+    <div class="col-lg-9">
+      {{- .Content -}}
+    </div>
+  </div>
+</section>
+{{ end }}
