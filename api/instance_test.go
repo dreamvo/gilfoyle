@@ -13,6 +13,20 @@ import (
 
 func TestInstance(t *testing.T) {
 	s := NewServer(Options{
+		Config: config.Config{
+			Settings:config.SettingsConfig {
+				Debug: true,
+				MaxFileSize: 100,
+			},
+			Storage: config.StorageConfig{
+				Driver: "test_fs",
+			},
+			Services: config.ServicesConfig{
+				DB: config.DatabaseConfig{
+					Dialect: "pg",
+				},
+			},
+		},
 		Logger: zap.NewExample(),
 	})
 
@@ -27,6 +41,10 @@ func TestInstance(t *testing.T) {
 		assert.Equal(t, HealthCheckResponse{
 			Tag:    config.Version,
 			Commit: config.Commit,
+			Debug: true,
+			DatabaseDialect: "pg",
+			MaxFileSize: 100,
+			StorageDriver: "test_fs",
 		}, body)
 	})
 
