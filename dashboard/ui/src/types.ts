@@ -25,6 +25,7 @@ export interface Media {
 
 export interface ArrayResponse<T = unknown> {
   code: number;
+  metadata: { [key: string]: unknown };
   data: T[];
 }
 

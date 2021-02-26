@@ -218,7 +218,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		Size:             data.Format.Size,
 		BitRate:          data.Format.BitRate,
 		ProbeScore:       data.Format.ProbeScore,
-	})
+	}, nil)
 }
 
 // @Deprecated

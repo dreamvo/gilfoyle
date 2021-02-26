@@ -108,8 +108,8 @@
                   {{ item.resolution_width }}x{{ item.resolution_height }}
                 </td>
                 <td>{{ item.target_bandwidth }}</td>
-                <td>{{ item.framerate }}</td>
-                <td>{{ item.duration_seconds }}</td>
+                <td>{{ item.framerate }} FPS</td>
+                <td>{{ Math.round(item.duration_seconds) }} sec</td>
                 <td>{{ item.media_type }}</td>
               </tr>
             </tbody>

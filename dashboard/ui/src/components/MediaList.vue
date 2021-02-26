@@ -1,7 +1,9 @@
 <template>
   <v-card outlined :loading="loading">
     <v-card-title>{{ title }}</v-card-title>
-    <v-card-subtitle>{{ medias.length }} items</v-card-subtitle>
+    <v-card-subtitle
+      >Showing {{ medias.length }} items out of {{ total }}</v-card-subtitle
+    >
 
     <div v-if="medias.length">
       <v-container>
@@ -41,12 +43,13 @@
 
       <v-spacer></v-spacer>
 
-      <v-card-actions class="justify-center">
+      <v-card-actions class="justify-center" v-if="total > medias.length">
         <v-btn
           class="pl-5 pr-5"
           depressed
           color="primary"
           dark
+          :loading="loading"
           @click="loadMore"
           >Load more
         </v-btn>
@@ -63,18 +66,20 @@ import { AxiosResponse } from "axios";
 import { ArrayResponse, Media } from "../types";
 
 interface Data {
+  loading: boolean;
   title: string;
+  total: number;
   limit: number;
   offset: number;
   medias: Media[];
-  loading: boolean;
 }
 
 export default Vue.extend({
   name: "MediaList",
   data: (): Data => ({
     title: "Latest medias",
-    limit: 6,
+    total: 0,
+    limit: 8,
     offset: 0,
     medias: [],
     loading: true
@@ -84,13 +89,15 @@ export default Vue.extend({
       this.loading = true;
       const medias = await this.fetchMedias();
       this.medias.push(...medias);
-      this.loading = false;
       this.offset = this.medias.length;
+      this.loading = false;
     },
-    async fetchMedias() {
+    async fetchMedias(): Promise<Media[]> {
       const res: AxiosResponse<ArrayResponse<Media>> = await axios.get(
         `/medias?limit=${this.limit}&offset=${this.offset}`
       );
+      this.total = res.data.metadata.total as number;
+
       return res.data.data;
     }
   },

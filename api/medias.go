@@ -21,6 +21,12 @@ type UpdateMedia struct {
 	CreateMedia
 }
 
+type MediasMetadata struct {
+	Total  int `json:"total"`
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
+
 // @ID getAllMedias
 // @Tags Medias
 // @Summary Query medias
@@ -35,6 +41,12 @@ func (s *Server) getAllMedias(ctx *gin.Context) {
 	limit := ctx.GetInt("limit")
 	offset := ctx.GetInt("offset")
 
+	total, err := s.db.Media.Query().Count(context.Background())
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
+		return
+	}
+
 	medias, err := s.db.Media.
 		Query().
 		Order(ent.Desc(media.FieldCreatedAt)).
@@ -46,7 +58,11 @@ func (s *Server) getAllMedias(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, medias)
+	util.NewData(ctx, http.StatusOK, medias, MediasMetadata{
+		Total:  total,
+		Offset: ctx.GetInt("offset"),
+		Limit:  ctx.GetInt("limit"),
+	})
 }
 
 // @ID getMedia
@@ -82,7 +98,7 @@ func (s *Server) getMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, v)
+	util.NewData(ctx, http.StatusOK, v, nil)
 }
 
 // @ID deleteMedia
@@ -117,7 +133,7 @@ func (s *Server) deleteMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, nil)
+	util.NewData(ctx, http.StatusOK, nil, nil)
 }
 
 // @ID createMedia
@@ -153,7 +169,7 @@ func (s *Server) createMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, v)
+	util.NewData(ctx, http.StatusOK, v, nil)
 }
 
 // @ID updateMedia
@@ -204,5 +220,5 @@ func (s *Server) updateMedia(ctx *gin.Context) {
 		return
 	}
 
-	util.NewData(ctx, http.StatusOK, m)
+	util.NewData(ctx, http.StatusOK, m, nil)
 }

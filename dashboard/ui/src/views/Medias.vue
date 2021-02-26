@@ -1,7 +1,7 @@
 <template>
   <v-row>
     <v-col md="12">
-      <MediaList></MediaList>
+      <MediaList />
     </v-col>
   </v-row>
 </template>
