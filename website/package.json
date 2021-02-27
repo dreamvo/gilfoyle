@@ -18,7 +18,7 @@
     "build:preview": "npm run build -D -F",
     "clean": "rimraf public resources functions",
     "lint": "npm run -s lint:scripts && npm run -s lint:styles && npm run -s lint:markdown",
-    "lint:scripts": "eslint assets/js assets/lambda config",
+    "lint:scripts": "eslint assets/js config",
     "lint:styles": "stylelint \"assets/scss/**/*.{css,sass,scss,sss,less}\"",
     "lint:markdown": "markdownlint *.md content/**/*.md",
     "release": "standard-version",
