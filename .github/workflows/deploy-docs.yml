@@ -6,8 +6,14 @@ on:
       - master
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [15.x]
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,6 +30,12 @@ jobs:
         with:
           hugo-version: 'latest'
           extended: true
+
+      - name: Check install Hugo
+        run: hugo version
+
+      - name: Install dependencies
+        run: yarn --cwd website install
 
       - name: Build
         run: yarn --cwd website build
