@@ -11,32 +11,32 @@
   url = "/docs/getting-started/"
 
 [[docs]]
-  name = "Use cases"
+  name = "Concepts"
   weight = 12
+  identifier = "concepts"
+  url = "/docs/concepts/"
+
+[[docs]]
+  name = "Use cases"
+  weight = 13
   identifier = "usecases"
   url = "/docs/use-cases/"
 
 [[docs]]
   name = "Integrations"
-  weight = 13
+  weight = 14
   identifier = "integrations"
   url = "/docs/integrations/"
 
 [[docs]]
-  name = "Concepts"
-  weight = 14
-  identifier = "concepts"
-  url = "/docs/concepts/"
-
-[[docs]]
   name = "References"
-  weight = 14
+  weight = 15
   identifier = "refs"
   url = "/docs/references/"
 
 [[docs]]
   name = "Help"
-  weight = 15
+  weight = 16
   identifier = "help"
   url = "/docs/help/"
 
