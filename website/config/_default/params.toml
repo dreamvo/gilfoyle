@@ -1,0 +1,45 @@
+# Meta Data for SEO
+
+## Homepage
+title = "Gilfoyle"
+titleSeparator = "-"
+titleAddition = "Cloud native media streaming server for the 21th century"
+description = "Gilfoyle is a web application from the Dreamvo project that runs a self-hosted video streaming server. This application allows you to setup an enterprise-grade media encoding & streaming platform in minutes. Gilfoyle handles media upload, processing and streaming."
+
+## Open Graph + Twitter Cards
+images = []
+twitterSite = "dreamvoapp"
+twitterCreator = "dreamvoapp"
+ogLocale = "en_US"
+
+## JSON-LD
+schemaType = "Organization"
+schemaLogo = ""
+schemaTwitter = "https://twitter.com/dreamvoapp"
+schemaLinkedIn = "https://www.linkedin.com/in/henkverlinde/"
+schemaGitHub = "https://github.com/dreamvo"
+schemaSection = "blog"
+
+## Sitelinks Search Box
+siteLinksSearchBox = false
+
+## Chrome Browser
+themeColor = "#fff"
+
+# Images
+quality = 85
+bgColor = "#fff"
+landscapePhotoWidths = [900, 800, 700, 600, 500]
+portraitPhotoWidths = [800, 700, 600, 500]
+lqipWidth = "20x"
+
+# Footer
+footer = "Gilfoyle is maintained by <a href=\"https://www.dreamvo.com/\">Dreamvo</a>"
+
+# Alert
+alert = false
+alertText = "Like Doks? <a class=\"alert-link\" href=\"https://github.com/h-enk/doks/stargazers\">Star on GitHub</a>. Thanks!</a>"
+
+# Edit Page
+docsRepo = "https://github.com/dreamvo/gilfoyle"
+editPage = true

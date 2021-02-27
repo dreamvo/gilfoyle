@@ -1,0 +1,43 @@
+name: Documentation CI
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [15.x]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: 'latest'
+        extended: true
+    
+    - name: Check install Hugo
+      run: hugo version
+
+    - name: Install dependencies
+      run: yarn --cwd website install
+    
+    - name: Check for linting errors
+      run: yarn --cwd website test
+    
+    - name: Delete temporary directories
+      run: yarn --cwd website clean
+    
+    - name: Build production website
+      run: yarn --cwd website build

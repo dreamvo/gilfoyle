@@ -38,6 +38,11 @@ jobs:
           go generate ./...
           go build -v .
 
+      - name: Validate OpenAPI specs
+        run: |
+          npm install -g @apidevtools/swagger-cli
+          swagger-cli validate ./api/docs/swagger.json
+
   test:
     name: Test
     runs-on: ubuntu-latest
