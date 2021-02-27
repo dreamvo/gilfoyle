@@ -31,13 +31,13 @@ jobs:
       run: hugo version
 
     - name: Install dependencies
-      run: cd website && npm ci
+      run: yarn --cwd website install
     
     - name: Check for linting errors
-      run: npm test
+      run: yarn --cwd website test
     
     - name: Delete temporary directories
-      run: npm run clean
+      run: yarn --cwd website clean
     
     - name: Build production website
-      run: npm run build
+      run: yarn --cwd website build
