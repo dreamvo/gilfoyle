@@ -43,13 +43,15 @@ See [this document](DESIGN.md) for a high level design and goals.
 
 ## Roadmap
 
-### [Phase 1](https://github.com/dreamvo/gilfoyle/issues/40) *(v0.1)*
+### Phase 1 *(v0.1)*
 
 This first phase aim to build a first working version of this software with a minimum of test coverage and bug fixes. The first working version is v0.1.0 whose roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/40).
 
-### [Phase 2](https://github.com/dreamvo/gilfoyle/issues/101) *(v0.x - current)*
+### Phase 2 *(v0.x - current)*
 
-This second phase is about getting more contributors and feedbacks to fix more bugs and improve testing. Feedbacks and tests should make us able to validate design and create a roadmap for the first stable release (v1). The roadmap is [available here](https://github.com/dreamvo/gilfoyle/issues/101).
+This second phase is about getting more contributors and feedbacks to fix more bugs and improve testing. Feedbacks and tests should make us able to validate design and create a roadmap for the first stable release (v1.0.0).
+
+- [Roadmap for v0.2.0](https://github.com/dreamvo/gilfoyle/issues/101)
 
 ### Phase 3 (v1)
 
@@ -58,7 +60,7 @@ This third phase should allow us to make the program more stable and welcoming t
 ## Documentation
 
 - For **contributors**: see [godoc](https://pkg.go.dev/github.com/dreamvo/gilfoyle), [high-level design documentation](DESIGN.md)
-- For **users**: see [user guide](https://dreamvo.github.io/gilfoyle/) (WIP) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
+- For **users**: see [user guide](https://gilfoyle.dreamvo.com/) and [API documentation](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/dreamvo/gilfoyle/master/api/docs/swagger.json)
 - The [GPL v3](LICENSE) license
 
 ## Contributing
