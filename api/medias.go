@@ -15,7 +15,7 @@ import (
 )
 
 type CreateMedia struct {
-	Title string `json:"title" validate:"required,gte=1,lte=255" example:"Sheep Discovers How To Use A Trampoline"`
+	Title string `json:"title" validate:"required,gte=1,lte=200" example:"Sheep Discovers How To Use A Trampoline"`
 }
 
 type UpdateMedia struct {

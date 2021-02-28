@@ -167,26 +167,6 @@ func TestMedias(t *testing.T) {
 	})
 
 	t.Run("GET /medias/:id", func(t *testing.T) {
-		t.Run("should return error for invalid UUID", func(t *testing.T) {
-			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-			defer func() { _ = dbClient.Close() }()
-
-			s := NewServer(Options{
-				Database: dbClient,
-				Logger:   zap.NewExample(),
-			})
-
-			res, err := testutils.Send(s.router, http.MethodGet, "/medias/uuid", nil)
-			assert.NoError(t, err, "should be equal")
-
-			var body util.ErrorResponse
-			_ = json.NewDecoder(res.Body).Decode(&body)
-
-			assert.Equal(t, 400, res.Result().StatusCode, "should be equal")
-			assert.Equal(t, 400, body.Code)
-			assert.Equal(t, "invalid UUID provided", body.Message)
-		})
-
 		t.Run("should return media", func(t *testing.T) {
 			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer func() { _ = dbClient.Close() }()
@@ -214,6 +194,46 @@ func TestMedias(t *testing.T) {
 			assert.Equal(t, 200, res.Result().StatusCode, "should be equal")
 			assert.Equal(t, 200, body.Code)
 			assert.Equal(t, v.Title, body.Data.Title)
+		})
+
+		t.Run("should return error for invalid UUID", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias/uuid", nil)
+			assert.NoError(t, err, "should be equal")
+
+			var body util.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(t, 400, res.Result().StatusCode, "should be equal")
+			assert.Equal(t, 400, body.Code)
+			assert.Equal(t, "invalid UUID provided", body.Message)
+		})
+
+		t.Run("should return error for non-existing media", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			res, err := testutils.Send(s.router, http.MethodGet, "/medias/7446a090-8a5c-42ac-83d8-12d19ee5133d", nil)
+			assert.NoError(t, err, "should be equal")
+
+			var body util.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(t, 404, res.Result().StatusCode, "should be equal")
+			assert.Equal(t, 404, body.Code)
+			assert.Equal(t, ErrResourceNotFound.Error(), body.Message)
 		})
 	})
 
@@ -361,11 +381,35 @@ func TestMedias(t *testing.T) {
 			assert.Equal(t, 400, res.Result().StatusCode, "should be equal")
 			assert.Equal(t, "Some parameters are missing or invalid", body.Message)
 			assert.Equal(t, map[string]string{
-				"title": "Title must be at maximum 255 characters in length",
+				"title": "Title must be at maximum 200 characters in length",
 			}, body.Fields)
 		})
 
 		t.Run("should return validation error (2)", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			res, err := testutils.Send(s.router, http.MethodPost, "/medias", CreateMedia{
+				Title: "",
+			})
+			assert.NoError(t, err, "should be equal")
+
+			var body util.ValidationErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(t, 400, res.Result().StatusCode, "should be equal")
+			assert.Equal(t, "Some parameters are missing or invalid", body.Message)
+			assert.Equal(t, map[string]string{
+				"title": "Title is a required field",
+			}, body.Fields)
+		})
+
+		t.Run("should return validation error (3)", func(t *testing.T) {
 			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer func() { _ = dbClient.Close() }()
 
@@ -433,7 +477,7 @@ func TestMedias(t *testing.T) {
 			assert.NoError(t, err)
 
 			res, err := testutils.Send(s.router, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
-				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis eos quia. Sed autem inventore iure ducimus voluptas voluptas.",
+				Title: "Vitae sunt aspernatur quia sunt blanditiis at et excepturi. Doloribus non ut minus saepe. Quas enim minus modi possimus. Blanditiis eius in ipsam incidunt rem et. Rerum blanditiis consequatur facilis55",
 			})
 			assert.NoError(t, err, "should be equal")
 
@@ -443,11 +487,50 @@ func TestMedias(t *testing.T) {
 			assert.Equal(t, 400, res.Result().StatusCode, "should be equal")
 			assert.Equal(t, "Some parameters are missing or invalid", body.Message)
 			assert.Equal(t, map[string]string{
-				"title": "Title must be at maximum 255 characters in length",
+				"title": "Title must be at maximum 200 characters in length",
 			}, body.Fields)
 		})
 
-		t.Run("should return validation error because of bad UUID", func(t *testing.T) {})
-		t.Run("should return resource not found", func(t *testing.T) {})
+		t.Run("should return error because of bad UUID", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			res, err := testutils.Send(s.router, http.MethodPatch, "/medias/uuid", CreateMedia{
+				Title: "foo",
+			})
+			assert.NoError(t, err)
+
+			var body util.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(t, 400, body.Code)
+			assert.Equal(t, ErrInvalidUUID.Error(), body.Message)
+		})
+
+		t.Run("should return resource not found", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			res, err := testutils.Send(s.router, http.MethodPatch, "/medias/2028c250-ca4f-4dc4-b92c-ab56dbc5aa8b", CreateMedia{
+				Title: "foo",
+			})
+			assert.NoError(t, err)
+
+			var body util.ErrorResponse
+			_ = json.NewDecoder(res.Body).Decode(&body)
+
+			assert.Equal(t, 404, body.Code)
+			assert.Equal(t, ErrResourceNotFound.Error(), body.Message)
+		})
 	})
 }
