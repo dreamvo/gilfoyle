@@ -633,7 +633,7 @@ var doc = `{
                 }
             }
         },
-        "/medias/{media_id}/stream/playlists/{filename}": {
+        "/medias/{media_id}/stream/{filename}": {
             "get": {
                 "description": "Get HLS playlist file of a media",
                 "produces": [

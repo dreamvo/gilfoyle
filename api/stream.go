@@ -26,7 +26,7 @@ import (
 // @Header 200 {string} Content-Type "application/octet-stream"
 // @Param media_id path string true "Media identifier" validate(required)
 // @Param filename path string true "HLS filename" validate(required)
-// @Router /medias/{media_id}/stream/playlists/{filename} [get]
+// @Router /medias/{media_id}/stream/{filename} [get]
 func (s *Server) getMediaPlaylistFile(ctx *gin.Context) {
 	mediaUUID := ctx.Param("id")
 	filename := ctx.Param("filename")
