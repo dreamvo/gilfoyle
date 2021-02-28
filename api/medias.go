@@ -7,6 +7,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -124,6 +125,23 @@ func (s *Server) deleteMedia(ctx *gin.Context) {
 	v, _ := s.db.Media.Get(context.Background(), parsedUUID)
 	if v == nil {
 		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)
+		return
+	}
+
+	if v.Status == media.StatusProcessing {
+		util.NewError(ctx, http.StatusForbidden, errors.New("you can't delete a media while it's in processing state"))
+		return
+	}
+
+	_, err = s.db.MediaFile.Delete().Where(mediafile.HasMediaWith(media.ID(parsedUUID))).Exec(context.Background())
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
+		return
+	}
+
+	err = s.storage.Delete(context.Background(), parsedUUID.String())
+	if err != nil {
+		util.NewError(ctx, http.StatusInternalServerError, errors.Unwrap(err))
 		return
 	}
 

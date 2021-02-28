@@ -7,8 +7,10 @@ import (
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
+	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/x/testutils"
+	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -220,23 +222,44 @@ func TestMedias(t *testing.T) {
 			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer func() { _ = dbClient.Close() }()
 
+			mockedStorage := new(mocks.MockedStorage)
+
 			s := NewServer(Options{
 				Database: dbClient,
 				Logger:   zap.NewExample(),
+				Storage:  mockedStorage,
 			})
 
-			v, _ := dbClient.Media.
+			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
 				SetStatus(schema.MediaStatusAwaitingUpload).
 				Save(context.Background())
+			assert.NoError(t, err)
 
-			res, err := testutils.Send(s.router, http.MethodDelete, "/medias/"+v.ID.String(), nil)
+			_, err = dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("low").
+				SetFormat("hls").
+				SetTargetBandwidth(14000000).
+				SetVideoBitrate(14000000).
+				SetResolutionWidth(1920).
+				SetResolutionHeight(1080).
+				SetDurationSeconds(5).
+				SetFramerate(30).
+				SetMediaType(schema.MediaFileTypeVideo).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			mockedStorage.On("Delete", m.ID.String()).Return(nil)
+
+			res, err := testutils.Send(s.router, http.MethodDelete, "/medias/"+m.ID.String(), nil)
 			assert.NoError(t, err, "should be equal")
 
 			assert.Equal(t, res.Result().StatusCode, 200, "should be equal")
 
-			res, err = testutils.Send(s.router, http.MethodDelete, "/medias/"+v.ID.String(), nil)
+			res, err = testutils.Send(s.router, http.MethodDelete, "/medias/"+m.ID.String(), nil)
 			assert.NoError(t, err, "should be equal")
 
 			var body util.ErrorResponse
@@ -244,6 +267,34 @@ func TestMedias(t *testing.T) {
 
 			assert.Equal(t, 404, res.Code)
 			assert.Equal(t, "resource not found", body.Message)
+
+			count, err := dbClient.MediaFile.Query().Count(context.Background())
+			assert.NoError(t, err)
+			assert.Equal(t, 0, count)
+
+			mockedStorage.AssertExpectations(t)
+		})
+
+		t.Run("should not delete a media being processed", func(t *testing.T) {
+			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+			defer func() { _ = dbClient.Close() }()
+
+			s := NewServer(Options{
+				Database: dbClient,
+				Logger:   zap.NewExample(),
+			})
+
+			v, err := dbClient.Media.
+				Create().
+				SetTitle("test").
+				SetStatus(schema.MediaStatusProcessing).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			res, err := testutils.Send(s.router, http.MethodDelete, "/medias/"+v.ID.String(), nil)
+			assert.NoError(t, err, "should be equal")
+
+			assert.Equal(t, res.Result().StatusCode, 403, "should be equal")
 		})
 
 		t.Run("should return error on invalid uid", func(t *testing.T) {
@@ -353,7 +404,7 @@ func TestMedias(t *testing.T) {
 			assert.NoError(t, err)
 
 			res, err := testutils.Send(s.router, http.MethodPatch, "/medias/"+m.ID.String(), CreateMedia{
-				Title: "test2",
+				Title: "foo",
 			})
 			assert.NoError(t, err)
 
@@ -361,8 +412,8 @@ func TestMedias(t *testing.T) {
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
 			assert.Equal(t, 200, res.Result().StatusCode)
-			assert.Equal(t, "test2", body.Data.(map[string]interface{})["title"])
-			assert.Equal(t, "AwaitingUpload", body.Data.(map[string]interface{})["status"])
+			assert.Equal(t, "foo", body.Data.(map[string]interface{})["title"])
+			assert.Equal(t, media.StatusAwaitingUpload.String(), body.Data.(map[string]interface{})["status"])
 		})
 
 		t.Run("should return validation error", func(t *testing.T) {
