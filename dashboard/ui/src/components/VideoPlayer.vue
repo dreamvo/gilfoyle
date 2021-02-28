@@ -36,11 +36,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Hls from "hls.js";
-
-interface Source {
-  src: string;
-  type: string;
-}
+import { Source } from "../types";
 
 interface Data {}
 

@@ -1,7 +1,12 @@
 <template>
   <v-row>
     <v-col md="6" sm="12">
-      <v-card flat outlined :loading="loading || processing">
+      <v-card
+        flat
+        outlined
+        :loading="loading || processing"
+        :disabled="loading"
+      >
         <v-card-title
           >{{ media.title }}
           <v-chip :color="statusLevel" small class="ml-2"
@@ -68,6 +73,7 @@
         flat
         outlined
         :loading="loading"
+        :disabled="loading"
         class="mt-6"
         v-if="media.edges && media.edges.media_files"
       >
@@ -125,7 +131,7 @@
     </v-col>
 
     <v-col md="6" sm="12">
-      <v-card flat outlined :loading="loading">
+      <v-card flat outlined :loading="loading" :disabled="loading">
         <v-card-title>Streaming</v-card-title>
 
         <v-card-text
@@ -140,7 +146,8 @@
                 color="primary"
                 depressed
                 small
-                v-for="item in media.edges.media_files"
+                v-for="(item, i) in media.edges.media_files"
+                :key="i"
                 @click="rendition(item)"
               >
                 {{ item.rendition_name }}
@@ -151,7 +158,7 @@
                 color="primary"
                 outlined
                 small
-                @click="resetRenditions()"
+                @click="resetRenditions"
               >
                 Reset
               </v-btn>
@@ -166,7 +173,7 @@
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
 import { AxiosResponse } from "axios";
-import { DataResponse, Media, MediaFile } from "../types";
+import { DataResponse, Media, MediaFile, Source } from "../types";
 import axios from "../services/axios";
 import DeleteModal from "../components/DeleteModal.vue";
 import MediaUploadForm from "../components/MediaUploadForm.vue";
@@ -177,12 +184,12 @@ interface Data {
   streamReady: boolean;
   uploadDialog: boolean;
   media: Media;
-  sources: any[];
+  sources: Source[];
 }
 
 export default Vue.extend({
   components: { VideoPlayer, MediaUploadForm, DeleteModal },
-  data: () => ({
+  data: (): Data => ({
     loading: true,
     streamReady: false,
     uploadDialog: false,
