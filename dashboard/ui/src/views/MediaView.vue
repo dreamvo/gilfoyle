@@ -4,9 +4,9 @@
       <v-card flat outlined :loading="loading || processing">
         <v-card-title
           >{{ media.title }}
-          <v-chip :color="statusLevel" small class="ml-2">{{
-            media.status
-          }}</v-chip>
+          <v-chip :color="statusLevel" small class="ml-2"
+            >{{ media.status }}
+          </v-chip>
         </v-card-title>
         <v-card-subtitle>Created on {{ media.created_at }}</v-card-subtitle>
 
@@ -24,7 +24,7 @@
           <v-dialog v-model="uploadDialog" width="500">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                v-if="media.status === 'AwaitingUpload'"
+                v-if="awaitingUpload"
                 text
                 color="primary"
                 small
@@ -78,6 +78,9 @@
             <thead>
               <tr>
                 <th class="text-left">
+                  Status
+                </th>
+                <th class="text-left">
                   Name
                 </th>
                 <th class="text-left">
@@ -102,6 +105,9 @@
             </thead>
             <tbody>
               <tr v-for="item in media.edges.media_files" :key="item.id">
+                <td>
+                  <v-chip color="success" small>Ready</v-chip>
+                </td>
                 <td>{{ item.rendition_name }}</td>
                 <td>{{ item.format }}</td>
                 <td>
@@ -122,11 +128,35 @@
       <v-card flat outlined :loading="loading">
         <v-card-title>Streaming</v-card-title>
 
-        <v-card-text v-if="!streamReady"
-          >This media is not yet available for streaming.
-        </v-card-text>
-        <v-card-text v-show="streamReady">
-          <video ref="player" controls loop width="100%"></video>
+        <v-card-text
+          ><span v-if="!streamReady"
+            >This media is not yet available for streaming.</span
+          >
+          <div v-else>
+            <VideoPlayer :sources="sources" />
+            <div class="mt-5 d-flex justify-center">
+              <v-btn
+                class="mx-2"
+                color="primary"
+                depressed
+                small
+                v-for="item in media.edges.media_files"
+                @click="rendition(item)"
+              >
+                {{ item.rendition_name }}
+              </v-btn>
+
+              <v-btn
+                class="mx-2"
+                color="primary"
+                outlined
+                small
+                @click="resetRenditions()"
+              >
+                Reset
+              </v-btn>
+            </div>
+          </div>
         </v-card-text>
       </v-card>
     </v-col>
@@ -136,42 +166,50 @@
 <script lang="ts">
 import { Vue } from "vue-property-decorator";
 import { AxiosResponse } from "axios";
-import { DataResponse, Media } from "../types";
+import { DataResponse, Media, MediaFile } from "../types";
 import axios from "../services/axios";
-import Hls from "hls.js";
 import DeleteModal from "../components/DeleteModal.vue";
 import MediaUploadForm from "../components/MediaUploadForm.vue";
+import VideoPlayer from "../components/VideoPlayer.vue";
 
 interface Data {
   loading: boolean;
   streamReady: boolean;
   uploadDialog: boolean;
   media: Media;
+  sources: any[];
 }
 
 export default Vue.extend({
-  components: { MediaUploadForm, DeleteModal },
+  components: { VideoPlayer, MediaUploadForm, DeleteModal },
   data: () => ({
     loading: true,
     streamReady: false,
     uploadDialog: false,
-    media: {} as Media
+    media: {} as Media,
+    sources: []
   }),
   methods: {
-    stream() {
-      const hls = new Hls();
-      const stream = `${axios.defaults.baseURL}/medias/${this.media.id}/stream/master.m3u8`;
-      const video = this.$refs.player as HTMLMediaElement;
-
-      hls.loadSource(stream);
-      hls.attachMedia(video);
-
-      // hls.on(Hls.Events.MANIFEST_PARSED, () => {});
-    },
     async deleteMedia() {
       await axios.delete(`/medias/${this.$route.params.id}`);
 
       await this.$router.push({ name: "MediaAll" });
+    },
+    rendition(rendition: MediaFile) {
+      this.sources = [
+        {
+          src: `${axios.defaults.baseURL}/medias/${this.media.id}/stream/${rendition.rendition_name}/index.m3u8`,
+          type: "application/x-mpegURL"
+        }
+      ];
+    },
+    resetRenditions() {
+      this.sources = [
+        {
+          src: `${axios.defaults.baseURL}/medias/${this.media.id}/stream/master.m3u8`,
+          type: "application/x-mpegURL"
+        }
+      ];
     }
   },
   computed: {
@@ -183,6 +221,9 @@ export default Vue.extend({
       };
 
       return status[this.media.status] || "";
+    },
+    isReady(): boolean {
+      return this.media.status === "Ready";
     },
     processing(): boolean {
       return this.media.status === "Processing";
@@ -197,13 +238,11 @@ export default Vue.extend({
     );
 
     this.media = res.data.data;
-    this.streamReady =
-      this.media.status === "Ready" && Object.keys(this.media.edges).length > 0;
-    this.loading = false;
+    this.streamReady = this.isReady && Object.keys(this.media.edges).length > 0;
 
-    if (this.streamReady) {
-      this.stream();
-    }
+    this.resetRenditions();
+
+    this.loading = false;
   }
 });
 </script>
