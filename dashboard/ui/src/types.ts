@@ -33,3 +33,8 @@ export interface DataResponse<T = unknown> {
   code: number;
   data: T;
 }
+
+export interface Source {
+  src: string;
+  type: string;
+}
