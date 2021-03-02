@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Source } from "../types";
 import "video.js/dist/video-js.min.css";
 import videojs from "video.js";
 import "videojs-hls-quality-selector";
@@ -47,7 +46,7 @@ export default Vue.extend({
     },
     sources: {
       type: Array,
-      default: []
+      default: () => []
     },
     posterURL: {
       type: String,
@@ -55,7 +54,7 @@ export default Vue.extend({
     }
   },
   watch: {
-    sources(_: Source[]) {
+    sources(/*sources: Source[]*/) {
       this.stream();
     }
   },
