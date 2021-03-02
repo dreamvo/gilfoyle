@@ -13,7 +13,9 @@
             >{{ media.status }}
           </v-chip>
         </v-card-title>
-        <v-card-subtitle>Created on {{ media.created_at }}</v-card-subtitle>
+        <v-card-subtitle
+          >Created on {{ media.created_at | readableDateHour }}</v-card-subtitle
+        >
 
         <v-card-subtitle class="mt-1">
           <v-text-field
@@ -138,31 +140,8 @@
           ><span v-if="!streamReady"
             >This media is not yet available for streaming.</span
           >
-          <div v-else>
+          <div v-else class="">
             <VideoPlayer :sources="sources" />
-            <div class="mt-5 d-flex justify-center">
-              <v-btn
-                class="mx-2"
-                color="primary"
-                depressed
-                small
-                v-for="(item, i) in media.edges.media_files"
-                :key="i"
-                @click="rendition(item)"
-              >
-                {{ item.rendition_name }}
-              </v-btn>
-
-              <v-btn
-                class="mx-2"
-                color="primary"
-                outlined
-                small
-                @click="resetRenditions"
-              >
-                Reset
-              </v-btn>
-            </div>
           </div>
         </v-card-text>
       </v-card>
