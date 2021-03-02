@@ -3,6 +3,7 @@ package config
 
 import (
 	"github.com/jinzhu/configor"
+	"time"
 )
 
 // StorageDriver is a kind of storage backend
@@ -95,6 +96,13 @@ type Rendition struct {
 // File paths can be both relative and absolute.
 func NewConfig(files ...string) (*Config, error) {
 	var config Config
-	err := configor.Load(&config, files...)
+	err := configor.New(&configor.Config{
+		AutoReload:           false,
+		AutoReloadInterval:   30 * time.Second,
+		Debug:                false,
+		Silent:               false,
+		Verbose:              false,
+		ErrorOnUnmatchedKeys: true,
+	}).Load(&config, files...)
 	return &config, err
 }
