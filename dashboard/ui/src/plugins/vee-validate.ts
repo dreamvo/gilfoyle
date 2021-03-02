@@ -1,73 +1,73 @@
 import { extend } from "vee-validate";
 import {
   email,
+  ext,
+  integer,
+  max,
+  max_value as MaxValue,
   min,
   min_value as MinValue,
-  max_value as MaxValue,
+  regex,
   required,
-  max,
-  ext,
-  size,
-  integer,
-  regex
+  size
 } from "vee-validate/dist/rules";
 
 extend("required", {
   ...required,
-  message: "That field is required"
+  message: "This field is required"
 });
 
 extend("min", {
   ...min,
-  message: "Veuillez saisir au moins {length} caractères"
+  message: "Please enter at least {length} characters"
 });
 
 extend("max", {
   ...max,
-  message: "Veuillez ne pas dépasser {length} caractères"
+  message: "Please don't enter more than {length} characters"
 });
 
 extend("email", {
   ...email,
-  message: "Veuillez saisir une adresse email valide"
+  message: "Please enter a valid email address"
 });
 
 extend("min_value", {
   ...MinValue,
-  message: "Ce champs doit être supérieur à {min}"
+  message: "This value must be more than {min}"
 });
 
 extend("max_value", {
   ...MaxValue,
-  message: "Ce champs doit être inférieur à {max}"
+  message: "This value must be less than {max}"
 });
 
 extend("confirmedBy", {
   params: ["target"],
   // Target here is the value of the target field
-  validate(value, { target }: any) {
+  validate(value, { target }: { [key: string]: unknown }) {
     return value === target;
   },
   // here it is its name, because we are generating a message
-  message: "Ce champs doit être identique au champs {target}"
+  message: "This field must have the same value as {target}"
 });
 
 extend("ext", {
   ...ext,
-  message: "Ce type de fichier n'est pas supporté"
+  message: "That type of file extension is not supported"
 });
 
 extend("size", {
   ...size,
-  message: "Ce fichier dépasse la taille maximale autorisée : {size} kB"
+  message: "File exceed size limit : {size} kB"
 });
 
 extend("integer", {
   ...integer,
-  message: "Ce champs ne doit contenir qu'un nombre entier"
+  message: "This field must contain an integer"
 });
 
 extend("regex", {
   ...regex,
-  message: "Le format de ce champs est incorrect"
+  message: "The value of this field is incorrect"
 });

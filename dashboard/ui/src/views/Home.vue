@@ -28,7 +28,7 @@ import HealthGraph from "../components/HealthGraph.vue";
 import config from "../config";
 
 interface Data {
-  references: any;
+  references: { [key: string]: string };
 }
 
 export default Vue.extend({
