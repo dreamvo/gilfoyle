@@ -98,6 +98,9 @@ definitions:
         items:
           $ref: '#/definitions/ent.MediaFile'
         type: array
+      probe:
+        $ref: '#/definitions/ent.Probe'
+        description: Probe holds the value of the probe edge.
     type: object
   ent.MediaFile:
     properties:
@@ -144,6 +147,59 @@ definitions:
         type: integer
     type: object
   ent.MediaFileEdges:
+    properties:
+      media:
+        $ref: '#/definitions/ent.Media'
+        description: Media holds the value of the media edge.
+    type: object
+  ent.Probe:
+    properties:
+      aspect_ratio:
+        description: AspectRatio holds the value of the "aspect_ratio" field.
+        type: string
+      audio_bitrate:
+        description: AudioBitrate holds the value of the "audio_bitrate" field.
+        type: integer
+      checksum_sha256:
+        description: ChecksumSha256 holds the value of the "checksum_sha256" field.
+        type: string
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      duration_seconds:
+        description: DurationSeconds holds the value of the "duration_seconds" field.
+        type: number
+      edges:
+        $ref: '#/definitions/ent.ProbeEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the ProbeQuery when eager-loading is set.
+      filename:
+        description: Filename holds the value of the "filename" field.
+        type: string
+      filesize:
+        description: Filesize holds the value of the "filesize" field.
+        type: integer
+      height:
+        description: Height holds the value of the "height" field.
+        type: integer
+      id:
+        description: ID of the ent.
+        type: string
+      mimetype:
+        description: Mimetype holds the value of the "mimetype" field.
+        type: string
+      updated_at:
+        description: UpdatedAt holds the value of the "updated_at" field.
+        type: string
+      video_bitrate:
+        description: VideoBitrate holds the value of the "video_bitrate" field.
+        type: integer
+      width:
+        description: Width holds the value of the "width" field.
+        type: integer
+    type: object
+  ent.ProbeEdges:
     properties:
       media:
         $ref: '#/definitions/ent.Media'

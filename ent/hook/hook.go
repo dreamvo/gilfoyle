@@ -35,6 +35,19 @@ func (f MediaFileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	return f(ctx, mv)
 }
 
+// The ProbeFunc type is an adapter to allow the use of ordinary
+// function as Probe mutator.
+type ProbeFunc func(context.Context, *ent.ProbeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProbeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ProbeMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProbeMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 

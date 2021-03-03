@@ -10,6 +10,7 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 	"github.com/google/uuid"
@@ -95,6 +96,25 @@ func (mc *MediaCreate) AddMediaFiles(m ...*MediaFile) *MediaCreate {
 		ids[i] = m[i].ID
 	}
 	return mc.AddMediaFileIDs(ids...)
+}
+
+// SetProbeID sets the probe edge to Probe by id.
+func (mc *MediaCreate) SetProbeID(id uuid.UUID) *MediaCreate {
+	mc.mutation.SetProbeID(id)
+	return mc
+}
+
+// SetNillableProbeID sets the probe edge to Probe by id if the given value is not nil.
+func (mc *MediaCreate) SetNillableProbeID(id *uuid.UUID) *MediaCreate {
+	if id != nil {
+		mc = mc.SetProbeID(*id)
+	}
+	return mc
+}
+
+// SetProbe sets the probe edge to Probe.
+func (mc *MediaCreate) SetProbe(p *Probe) *MediaCreate {
+	return mc.SetProbeID(p.ID)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -276,6 +296,25 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.ProbeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
 				},
 			},
 		}

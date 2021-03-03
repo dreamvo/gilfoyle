@@ -12,6 +12,7 @@ import (
 
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 
 	"github.com/facebook/ent/dialect"
 	"github.com/facebook/ent/dialect/sql"
@@ -27,6 +28,8 @@ type Client struct {
 	Media *MediaClient
 	// MediaFile is the client for interacting with the MediaFile builders.
 	MediaFile *MediaFileClient
+	// Probe is the client for interacting with the Probe builders.
+	Probe *ProbeClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -42,6 +45,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Media = NewMediaClient(c.config)
 	c.MediaFile = NewMediaFileClient(c.config)
+	c.Probe = NewProbeClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -76,6 +80,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:    cfg,
 		Media:     NewMediaClient(cfg),
 		MediaFile: NewMediaFileClient(cfg),
+		Probe:     NewProbeClient(cfg),
 	}, nil
 }
 
@@ -93,6 +98,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:    cfg,
 		Media:     NewMediaClient(cfg),
 		MediaFile: NewMediaFileClient(cfg),
+		Probe:     NewProbeClient(cfg),
 	}, nil
 }
 
@@ -123,6 +129,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Media.Use(hooks...)
 	c.MediaFile.Use(hooks...)
+	c.Probe.Use(hooks...)
 }
 
 // MediaClient is a client for the Media schema.
@@ -217,6 +224,22 @@ func (c *MediaClient) QueryMediaFiles(m *Media) *MediaFileQuery {
 			sqlgraph.From(media.Table, media.FieldID, id),
 			sqlgraph.To(mediafile.Table, mediafile.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, media.MediaFilesTable, media.MediaFilesColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryProbe queries the probe edge of a Media.
+func (c *MediaClient) QueryProbe(m *Media) *ProbeQuery {
+	query := &ProbeQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(probe.Table, probe.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, media.ProbeTable, media.ProbeColumn),
 		)
 		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
 		return fromV, nil
@@ -331,4 +354,108 @@ func (c *MediaFileClient) QueryMedia(mf *MediaFile) *MediaQuery {
 // Hooks returns the client hooks.
 func (c *MediaFileClient) Hooks() []Hook {
 	return c.hooks.MediaFile
+}
+
+// ProbeClient is a client for the Probe schema.
+type ProbeClient struct {
+	config
+}
+
+// NewProbeClient returns a client for the Probe from the given config.
+func NewProbeClient(c config) *ProbeClient {
+	return &ProbeClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `probe.Hooks(f(g(h())))`.
+func (c *ProbeClient) Use(hooks ...Hook) {
+	c.hooks.Probe = append(c.hooks.Probe, hooks...)
+}
+
+// Create returns a create builder for Probe.
+func (c *ProbeClient) Create() *ProbeCreate {
+	mutation := newProbeMutation(c.config, OpCreate)
+	return &ProbeCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Probe entities.
+func (c *ProbeClient) CreateBulk(builders ...*ProbeCreate) *ProbeCreateBulk {
+	return &ProbeCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Probe.
+func (c *ProbeClient) Update() *ProbeUpdate {
+	mutation := newProbeMutation(c.config, OpUpdate)
+	return &ProbeUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ProbeClient) UpdateOne(pr *Probe) *ProbeUpdateOne {
+	mutation := newProbeMutation(c.config, OpUpdateOne, withProbe(pr))
+	return &ProbeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ProbeClient) UpdateOneID(id uuid.UUID) *ProbeUpdateOne {
+	mutation := newProbeMutation(c.config, OpUpdateOne, withProbeID(id))
+	return &ProbeUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Probe.
+func (c *ProbeClient) Delete() *ProbeDelete {
+	mutation := newProbeMutation(c.config, OpDelete)
+	return &ProbeDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ProbeClient) DeleteOne(pr *Probe) *ProbeDeleteOne {
+	return c.DeleteOneID(pr.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ProbeClient) DeleteOneID(id uuid.UUID) *ProbeDeleteOne {
+	builder := c.Delete().Where(probe.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ProbeDeleteOne{builder}
+}
+
+// Query returns a query builder for Probe.
+func (c *ProbeClient) Query() *ProbeQuery {
+	return &ProbeQuery{config: c.config}
+}
+
+// Get returns a Probe entity by its id.
+func (c *ProbeClient) Get(ctx context.Context, id uuid.UUID) (*Probe, error) {
+	return c.Query().Where(probe.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ProbeClient) GetX(ctx context.Context, id uuid.UUID) *Probe {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMedia queries the media edge of a Probe.
+func (c *ProbeClient) QueryMedia(pr *Probe) *MediaQuery {
+	query := &MediaQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := pr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(probe.Table, probe.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, true, probe.MediaTable, probe.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(pr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ProbeClient) Hooks() []Hook {
+	return c.hooks.Probe
 }

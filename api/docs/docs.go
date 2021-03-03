@@ -830,6 +830,10 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/ent.MediaFile"
                     }
+                },
+                "probe": {
+                    "description": "Probe holds the value of the probe edge.",
+                    "$ref": "#/definitions/ent.Probe"
                 }
             }
         },
@@ -891,6 +895,76 @@ var doc = `{
             }
         },
         "ent.MediaFileEdges": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "description": "Media holds the value of the media edge.",
+                    "$ref": "#/definitions/ent.Media"
+                }
+            }
+        },
+        "ent.Probe": {
+            "type": "object",
+            "properties": {
+                "aspect_ratio": {
+                    "description": "AspectRatio holds the value of the \"aspect_ratio\" field.",
+                    "type": "string"
+                },
+                "audio_bitrate": {
+                    "description": "AudioBitrate holds the value of the \"audio_bitrate\" field.",
+                    "type": "integer"
+                },
+                "checksum_sha256": {
+                    "description": "ChecksumSha256 holds the value of the \"checksum_sha256\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "duration_seconds": {
+                    "description": "DurationSeconds holds the value of the \"duration_seconds\" field.",
+                    "type": "number"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ProbeQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.ProbeEdges"
+                },
+                "filename": {
+                    "description": "Filename holds the value of the \"filename\" field.",
+                    "type": "string"
+                },
+                "filesize": {
+                    "description": "Filesize holds the value of the \"filesize\" field.",
+                    "type": "integer"
+                },
+                "height": {
+                    "description": "Height holds the value of the \"height\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "mimetype": {
+                    "description": "Mimetype holds the value of the \"mimetype\" field.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "video_bitrate": {
+                    "description": "VideoBitrate holds the value of the \"video_bitrate\" field.",
+                    "type": "integer"
+                },
+                "width": {
+                    "description": "Width holds the value of the \"width\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.ProbeEdges": {
             "type": "object",
             "properties": {
                 "media": {

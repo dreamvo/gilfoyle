@@ -16,6 +16,8 @@ type Tx struct {
 	Media *MediaClient
 	// MediaFile is the client for interacting with the MediaFile builders.
 	MediaFile *MediaFileClient
+	// Probe is the client for interacting with the Probe builders.
+	Probe *ProbeClient
 
 	// lazily loaded.
 	client     *Client
@@ -153,6 +155,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Media = NewMediaClient(tx.config)
 	tx.MediaFile = NewMediaFileClient(tx.config)
+	tx.Probe = NewProbeClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

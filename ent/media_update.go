@@ -10,6 +10,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -96,6 +97,25 @@ func (mu *MediaUpdate) AddMediaFiles(m ...*MediaFile) *MediaUpdate {
 	return mu.AddMediaFileIDs(ids...)
 }
 
+// SetProbeID sets the probe edge to Probe by id.
+func (mu *MediaUpdate) SetProbeID(id uuid.UUID) *MediaUpdate {
+	mu.mutation.SetProbeID(id)
+	return mu
+}
+
+// SetNillableProbeID sets the probe edge to Probe by id if the given value is not nil.
+func (mu *MediaUpdate) SetNillableProbeID(id *uuid.UUID) *MediaUpdate {
+	if id != nil {
+		mu = mu.SetProbeID(*id)
+	}
+	return mu
+}
+
+// SetProbe sets the probe edge to Probe.
+func (mu *MediaUpdate) SetProbe(p *Probe) *MediaUpdate {
+	return mu.SetProbeID(p.ID)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
@@ -120,6 +140,12 @@ func (mu *MediaUpdate) RemoveMediaFiles(m ...*MediaFile) *MediaUpdate {
 		ids[i] = m[i].ID
 	}
 	return mu.RemoveMediaFileIDs(ids...)
+}
+
+// ClearProbe clears the "probe" edge to type Probe.
+func (mu *MediaUpdate) ClearProbe() *MediaUpdate {
+	mu.mutation.ClearProbe()
+	return mu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -321,6 +347,41 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.ProbeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.ProbeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -406,6 +467,25 @@ func (muo *MediaUpdateOne) AddMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	return muo.AddMediaFileIDs(ids...)
 }
 
+// SetProbeID sets the probe edge to Probe by id.
+func (muo *MediaUpdateOne) SetProbeID(id uuid.UUID) *MediaUpdateOne {
+	muo.mutation.SetProbeID(id)
+	return muo
+}
+
+// SetNillableProbeID sets the probe edge to Probe by id if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableProbeID(id *uuid.UUID) *MediaUpdateOne {
+	if id != nil {
+		muo = muo.SetProbeID(*id)
+	}
+	return muo
+}
+
+// SetProbe sets the probe edge to Probe.
+func (muo *MediaUpdateOne) SetProbe(p *Probe) *MediaUpdateOne {
+	return muo.SetProbeID(p.ID)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
@@ -430,6 +510,12 @@ func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 		ids[i] = m[i].ID
 	}
 	return muo.RemoveMediaFileIDs(ids...)
+}
+
+// ClearProbe clears the "probe" edge to type Probe.
+func (muo *MediaUpdateOne) ClearProbe() *MediaUpdateOne {
+	muo.mutation.ClearProbe()
+	return muo
 }
 
 // Save executes the query and returns the updated entity.
@@ -621,6 +707,41 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.ProbeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.ProbeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
 				},
 			},
 		}

@@ -69,5 +69,9 @@ func (Media) Edges() []ent.Edge {
 		edge.To("media_files", MediaFile.Type).
 			StorageKey(edge.Column("media")).
 			StructTag(`json:"media_files,omitempty"`),
+		edge.To("probe", Probe.Type).
+			StorageKey(edge.Column("media")).
+			StructTag(`json:"probe,omitempty"`).
+			Unique(),
 	}
 }

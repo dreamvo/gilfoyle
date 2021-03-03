@@ -26,6 +26,7 @@ type config struct {
 type hooks struct {
 	Media     []ent.Hook
 	MediaFile []ent.Hook
+	Probe     []ent.Hook
 }
 
 // Options applies the options on the config object.

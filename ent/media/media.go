@@ -27,6 +27,8 @@ const (
 
 	// EdgeMediaFiles holds the string denoting the media_files edge name in mutations.
 	EdgeMediaFiles = "media_files"
+	// EdgeProbe holds the string denoting the probe edge name in mutations.
+	EdgeProbe = "probe"
 
 	// Table holds the table name of the media in the database.
 	Table = "media"
@@ -37,6 +39,13 @@ const (
 	MediaFilesInverseTable = "media_file"
 	// MediaFilesColumn is the table column denoting the media_files relation/edge.
 	MediaFilesColumn = "media"
+	// ProbeTable is the table the holds the probe relation/edge.
+	ProbeTable = "meida_probe"
+	// ProbeInverseTable is the table name for the Probe entity.
+	// It exists in this package in order to avoid circular dependency with the "probe" package.
+	ProbeInverseTable = "meida_probe"
+	// ProbeColumn is the table column denoting the probe relation/edge.
+	ProbeColumn = "media"
 )
 
 // Columns holds all SQL columns for media fields.

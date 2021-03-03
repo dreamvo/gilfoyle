@@ -586,6 +586,34 @@ func HasMediaFilesWith(preds ...predicate.MediaFile) predicate.Media {
 	})
 }
 
+// HasProbe applies the HasEdge predicate on the "probe" edge.
+func HasProbe() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ProbeTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ProbeTable, ProbeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProbeWith applies the HasEdge predicate on the "probe" edge with a given conditions (other predicates).
+func HasProbeWith(preds ...predicate.Probe) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ProbeInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ProbeTable, ProbeColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups list of predicates with the AND operator between them.
 func And(predicates ...predicate.Media) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {

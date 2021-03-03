@@ -11,6 +11,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/google/uuid"
 
 	"github.com/facebook/ent"
@@ -27,6 +28,7 @@ const (
 	// Node types.
 	TypeMedia     = "Media"
 	TypeMediaFile = "MediaFile"
+	TypeProbe     = "Probe"
 )
 
 // MediaMutation represents an operation that mutate the MediaSlice
@@ -45,6 +47,8 @@ type MediaMutation struct {
 	media_files        map[uuid.UUID]struct{}
 	removedmedia_files map[uuid.UUID]struct{}
 	clearedmedia_files bool
+	probe              *uuid.UUID
+	clearedprobe       bool
 	done               bool
 	oldValue           func(context.Context) (*Media, error)
 	predicates         []predicate.Media
@@ -386,6 +390,45 @@ func (m *MediaMutation) ResetMediaFiles() {
 	m.removedmedia_files = nil
 }
 
+// SetProbeID sets the probe edge to Probe by id.
+func (m *MediaMutation) SetProbeID(id uuid.UUID) {
+	m.probe = &id
+}
+
+// ClearProbe clears the probe edge to Probe.
+func (m *MediaMutation) ClearProbe() {
+	m.clearedprobe = true
+}
+
+// ProbeCleared returns if the edge probe was cleared.
+func (m *MediaMutation) ProbeCleared() bool {
+	return m.clearedprobe
+}
+
+// ProbeID returns the probe id in the mutation.
+func (m *MediaMutation) ProbeID() (id uuid.UUID, exists bool) {
+	if m.probe != nil {
+		return *m.probe, true
+	}
+	return
+}
+
+// ProbeIDs returns the probe ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// ProbeID instead. It exists only for internal usage by the builders.
+func (m *MediaMutation) ProbeIDs() (ids []uuid.UUID) {
+	if id := m.probe; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetProbe reset all changes of the "probe" edge.
+func (m *MediaMutation) ResetProbe() {
+	m.probe = nil
+	m.clearedprobe = false
+}
+
 // Op returns the operation name.
 func (m *MediaMutation) Op() Op {
 	return m.op
@@ -578,9 +621,12 @@ func (m *MediaMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *MediaMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.media_files != nil {
 		edges = append(edges, media.EdgeMediaFiles)
+	}
+	if m.probe != nil {
+		edges = append(edges, media.EdgeProbe)
 	}
 	return edges
 }
@@ -595,6 +641,10 @@ func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case media.EdgeProbe:
+		if id := m.probe; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
@@ -602,7 +652,7 @@ func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *MediaMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedmedia_files != nil {
 		edges = append(edges, media.EdgeMediaFiles)
 	}
@@ -626,9 +676,12 @@ func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *MediaMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedmedia_files {
 		edges = append(edges, media.EdgeMediaFiles)
+	}
+	if m.clearedprobe {
+		edges = append(edges, media.EdgeProbe)
 	}
 	return edges
 }
@@ -639,6 +692,8 @@ func (m *MediaMutation) EdgeCleared(name string) bool {
 	switch name {
 	case media.EdgeMediaFiles:
 		return m.clearedmedia_files
+	case media.EdgeProbe:
+		return m.clearedprobe
 	}
 	return false
 }
@@ -647,6 +702,9 @@ func (m *MediaMutation) EdgeCleared(name string) bool {
 // error if the edge name is not defined in the schema.
 func (m *MediaMutation) ClearEdge(name string) error {
 	switch name {
+	case media.EdgeProbe:
+		m.ClearProbe()
+		return nil
 	}
 	return fmt.Errorf("unknown Media unique edge %s", name)
 }
@@ -658,6 +716,9 @@ func (m *MediaMutation) ResetEdge(name string) error {
 	switch name {
 	case media.EdgeMediaFiles:
 		m.ResetMediaFiles()
+		return nil
+	case media.EdgeProbe:
+		m.ResetProbe()
 		return nil
 	}
 	return fmt.Errorf("unknown Media edge %s", name)
@@ -1781,4 +1842,1179 @@ func (m *MediaFileMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown MediaFile edge %s", name)
+}
+
+// ProbeMutation represents an operation that mutate the Probes
+// nodes in the graph.
+type ProbeMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *uuid.UUID
+	filename            *string
+	mimetype            *string
+	filesize            *int
+	addfilesize         *int
+	checksum_sha256     *string
+	aspect_ratio        *string
+	width               *int
+	addwidth            *int
+	height              *int
+	addheight           *int
+	duration_seconds    *float64
+	addduration_seconds *float64
+	video_bitrate       *int
+	addvideo_bitrate    *int
+	audio_bitrate       *int
+	addaudio_bitrate    *int
+	created_at          *time.Time
+	updated_at          *time.Time
+	clearedFields       map[string]struct{}
+	media               *uuid.UUID
+	clearedmedia        bool
+	done                bool
+	oldValue            func(context.Context) (*Probe, error)
+	predicates          []predicate.Probe
+}
+
+var _ ent.Mutation = (*ProbeMutation)(nil)
+
+// probeOption allows to manage the mutation configuration using functional options.
+type probeOption func(*ProbeMutation)
+
+// newProbeMutation creates new mutation for Probe.
+func newProbeMutation(c config, op Op, opts ...probeOption) *ProbeMutation {
+	m := &ProbeMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeProbe,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withProbeID sets the id field of the mutation.
+func withProbeID(id uuid.UUID) probeOption {
+	return func(m *ProbeMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Probe
+		)
+		m.oldValue = func(ctx context.Context) (*Probe, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Probe.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withProbe sets the old Probe of the mutation.
+func withProbe(node *Probe) probeOption {
+	return func(m *ProbeMutation) {
+		m.oldValue = func(context.Context) (*Probe, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ProbeMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ProbeMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that, this
+// operation is accepted only on Probe creation.
+func (m *ProbeMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the id value in the mutation. Note that, the id
+// is available only if it was provided to the builder.
+func (m *ProbeMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetFilename sets the filename field.
+func (m *ProbeMutation) SetFilename(s string) {
+	m.filename = &s
+}
+
+// Filename returns the filename value in the mutation.
+func (m *ProbeMutation) Filename() (r string, exists bool) {
+	v := m.filename
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFilename returns the old filename value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldFilename(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldFilename is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldFilename requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFilename: %w", err)
+	}
+	return oldValue.Filename, nil
+}
+
+// ResetFilename reset all changes of the "filename" field.
+func (m *ProbeMutation) ResetFilename() {
+	m.filename = nil
+}
+
+// SetMimetype sets the mimetype field.
+func (m *ProbeMutation) SetMimetype(s string) {
+	m.mimetype = &s
+}
+
+// Mimetype returns the mimetype value in the mutation.
+func (m *ProbeMutation) Mimetype() (r string, exists bool) {
+	v := m.mimetype
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMimetype returns the old mimetype value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldMimetype(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldMimetype is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldMimetype requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMimetype: %w", err)
+	}
+	return oldValue.Mimetype, nil
+}
+
+// ResetMimetype reset all changes of the "mimetype" field.
+func (m *ProbeMutation) ResetMimetype() {
+	m.mimetype = nil
+}
+
+// SetFilesize sets the filesize field.
+func (m *ProbeMutation) SetFilesize(i int) {
+	m.filesize = &i
+	m.addfilesize = nil
+}
+
+// Filesize returns the filesize value in the mutation.
+func (m *ProbeMutation) Filesize() (r int, exists bool) {
+	v := m.filesize
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFilesize returns the old filesize value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldFilesize(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldFilesize is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldFilesize requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFilesize: %w", err)
+	}
+	return oldValue.Filesize, nil
+}
+
+// AddFilesize adds i to filesize.
+func (m *ProbeMutation) AddFilesize(i int) {
+	if m.addfilesize != nil {
+		*m.addfilesize += i
+	} else {
+		m.addfilesize = &i
+	}
+}
+
+// AddedFilesize returns the value that was added to the filesize field in this mutation.
+func (m *ProbeMutation) AddedFilesize() (r int, exists bool) {
+	v := m.addfilesize
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetFilesize reset all changes of the "filesize" field.
+func (m *ProbeMutation) ResetFilesize() {
+	m.filesize = nil
+	m.addfilesize = nil
+}
+
+// SetChecksumSha256 sets the checksum_sha256 field.
+func (m *ProbeMutation) SetChecksumSha256(s string) {
+	m.checksum_sha256 = &s
+}
+
+// ChecksumSha256 returns the checksum_sha256 value in the mutation.
+func (m *ProbeMutation) ChecksumSha256() (r string, exists bool) {
+	v := m.checksum_sha256
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChecksumSha256 returns the old checksum_sha256 value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldChecksumSha256(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldChecksumSha256 is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldChecksumSha256 requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChecksumSha256: %w", err)
+	}
+	return oldValue.ChecksumSha256, nil
+}
+
+// ResetChecksumSha256 reset all changes of the "checksum_sha256" field.
+func (m *ProbeMutation) ResetChecksumSha256() {
+	m.checksum_sha256 = nil
+}
+
+// SetAspectRatio sets the aspect_ratio field.
+func (m *ProbeMutation) SetAspectRatio(s string) {
+	m.aspect_ratio = &s
+}
+
+// AspectRatio returns the aspect_ratio value in the mutation.
+func (m *ProbeMutation) AspectRatio() (r string, exists bool) {
+	v := m.aspect_ratio
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAspectRatio returns the old aspect_ratio value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldAspectRatio(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldAspectRatio is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldAspectRatio requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAspectRatio: %w", err)
+	}
+	return oldValue.AspectRatio, nil
+}
+
+// ResetAspectRatio reset all changes of the "aspect_ratio" field.
+func (m *ProbeMutation) ResetAspectRatio() {
+	m.aspect_ratio = nil
+}
+
+// SetWidth sets the width field.
+func (m *ProbeMutation) SetWidth(i int) {
+	m.width = &i
+	m.addwidth = nil
+}
+
+// Width returns the width value in the mutation.
+func (m *ProbeMutation) Width() (r int, exists bool) {
+	v := m.width
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldWidth returns the old width value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldWidth(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldWidth is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldWidth requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldWidth: %w", err)
+	}
+	return oldValue.Width, nil
+}
+
+// AddWidth adds i to width.
+func (m *ProbeMutation) AddWidth(i int) {
+	if m.addwidth != nil {
+		*m.addwidth += i
+	} else {
+		m.addwidth = &i
+	}
+}
+
+// AddedWidth returns the value that was added to the width field in this mutation.
+func (m *ProbeMutation) AddedWidth() (r int, exists bool) {
+	v := m.addwidth
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetWidth reset all changes of the "width" field.
+func (m *ProbeMutation) ResetWidth() {
+	m.width = nil
+	m.addwidth = nil
+}
+
+// SetHeight sets the height field.
+func (m *ProbeMutation) SetHeight(i int) {
+	m.height = &i
+	m.addheight = nil
+}
+
+// Height returns the height value in the mutation.
+func (m *ProbeMutation) Height() (r int, exists bool) {
+	v := m.height
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHeight returns the old height value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldHeight(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldHeight is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldHeight requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHeight: %w", err)
+	}
+	return oldValue.Height, nil
+}
+
+// AddHeight adds i to height.
+func (m *ProbeMutation) AddHeight(i int) {
+	if m.addheight != nil {
+		*m.addheight += i
+	} else {
+		m.addheight = &i
+	}
+}
+
+// AddedHeight returns the value that was added to the height field in this mutation.
+func (m *ProbeMutation) AddedHeight() (r int, exists bool) {
+	v := m.addheight
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHeight reset all changes of the "height" field.
+func (m *ProbeMutation) ResetHeight() {
+	m.height = nil
+	m.addheight = nil
+}
+
+// SetDurationSeconds sets the duration_seconds field.
+func (m *ProbeMutation) SetDurationSeconds(f float64) {
+	m.duration_seconds = &f
+	m.addduration_seconds = nil
+}
+
+// DurationSeconds returns the duration_seconds value in the mutation.
+func (m *ProbeMutation) DurationSeconds() (r float64, exists bool) {
+	v := m.duration_seconds
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDurationSeconds returns the old duration_seconds value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldDurationSeconds(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldDurationSeconds is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldDurationSeconds requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDurationSeconds: %w", err)
+	}
+	return oldValue.DurationSeconds, nil
+}
+
+// AddDurationSeconds adds f to duration_seconds.
+func (m *ProbeMutation) AddDurationSeconds(f float64) {
+	if m.addduration_seconds != nil {
+		*m.addduration_seconds += f
+	} else {
+		m.addduration_seconds = &f
+	}
+}
+
+// AddedDurationSeconds returns the value that was added to the duration_seconds field in this mutation.
+func (m *ProbeMutation) AddedDurationSeconds() (r float64, exists bool) {
+	v := m.addduration_seconds
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetDurationSeconds reset all changes of the "duration_seconds" field.
+func (m *ProbeMutation) ResetDurationSeconds() {
+	m.duration_seconds = nil
+	m.addduration_seconds = nil
+}
+
+// SetVideoBitrate sets the video_bitrate field.
+func (m *ProbeMutation) SetVideoBitrate(i int) {
+	m.video_bitrate = &i
+	m.addvideo_bitrate = nil
+}
+
+// VideoBitrate returns the video_bitrate value in the mutation.
+func (m *ProbeMutation) VideoBitrate() (r int, exists bool) {
+	v := m.video_bitrate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVideoBitrate returns the old video_bitrate value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldVideoBitrate(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldVideoBitrate is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldVideoBitrate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVideoBitrate: %w", err)
+	}
+	return oldValue.VideoBitrate, nil
+}
+
+// AddVideoBitrate adds i to video_bitrate.
+func (m *ProbeMutation) AddVideoBitrate(i int) {
+	if m.addvideo_bitrate != nil {
+		*m.addvideo_bitrate += i
+	} else {
+		m.addvideo_bitrate = &i
+	}
+}
+
+// AddedVideoBitrate returns the value that was added to the video_bitrate field in this mutation.
+func (m *ProbeMutation) AddedVideoBitrate() (r int, exists bool) {
+	v := m.addvideo_bitrate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetVideoBitrate reset all changes of the "video_bitrate" field.
+func (m *ProbeMutation) ResetVideoBitrate() {
+	m.video_bitrate = nil
+	m.addvideo_bitrate = nil
+}
+
+// SetAudioBitrate sets the audio_bitrate field.
+func (m *ProbeMutation) SetAudioBitrate(i int) {
+	m.audio_bitrate = &i
+	m.addaudio_bitrate = nil
+}
+
+// AudioBitrate returns the audio_bitrate value in the mutation.
+func (m *ProbeMutation) AudioBitrate() (r int, exists bool) {
+	v := m.audio_bitrate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAudioBitrate returns the old audio_bitrate value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldAudioBitrate(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldAudioBitrate is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldAudioBitrate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAudioBitrate: %w", err)
+	}
+	return oldValue.AudioBitrate, nil
+}
+
+// AddAudioBitrate adds i to audio_bitrate.
+func (m *ProbeMutation) AddAudioBitrate(i int) {
+	if m.addaudio_bitrate != nil {
+		*m.addaudio_bitrate += i
+	} else {
+		m.addaudio_bitrate = &i
+	}
+}
+
+// AddedAudioBitrate returns the value that was added to the audio_bitrate field in this mutation.
+func (m *ProbeMutation) AddedAudioBitrate() (r int, exists bool) {
+	v := m.addaudio_bitrate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAudioBitrate reset all changes of the "audio_bitrate" field.
+func (m *ProbeMutation) ResetAudioBitrate() {
+	m.audio_bitrate = nil
+	m.addaudio_bitrate = nil
+}
+
+// SetCreatedAt sets the created_at field.
+func (m *ProbeMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the created_at value in the mutation.
+func (m *ProbeMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old created_at value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt reset all changes of the "created_at" field.
+func (m *ProbeMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the updated_at field.
+func (m *ProbeMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the updated_at value in the mutation.
+func (m *ProbeMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old updated_at value of the Probe.
+// If the Probe object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *ProbeMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldUpdatedAt is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt reset all changes of the "updated_at" field.
+func (m *ProbeMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetMediaID sets the media edge to Media by id.
+func (m *ProbeMutation) SetMediaID(id uuid.UUID) {
+	m.media = &id
+}
+
+// ClearMedia clears the media edge to Media.
+func (m *ProbeMutation) ClearMedia() {
+	m.clearedmedia = true
+}
+
+// MediaCleared returns if the edge media was cleared.
+func (m *ProbeMutation) MediaCleared() bool {
+	return m.clearedmedia
+}
+
+// MediaID returns the media id in the mutation.
+func (m *ProbeMutation) MediaID() (id uuid.UUID, exists bool) {
+	if m.media != nil {
+		return *m.media, true
+	}
+	return
+}
+
+// MediaIDs returns the media ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// MediaID instead. It exists only for internal usage by the builders.
+func (m *ProbeMutation) MediaIDs() (ids []uuid.UUID) {
+	if id := m.media; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMedia reset all changes of the "media" edge.
+func (m *ProbeMutation) ResetMedia() {
+	m.media = nil
+	m.clearedmedia = false
+}
+
+// Op returns the operation name.
+func (m *ProbeMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (Probe).
+func (m *ProbeMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during
+// this mutation. Note that, in order to get all numeric
+// fields that were in/decremented, call AddedFields().
+func (m *ProbeMutation) Fields() []string {
+	fields := make([]string, 0, 12)
+	if m.filename != nil {
+		fields = append(fields, probe.FieldFilename)
+	}
+	if m.mimetype != nil {
+		fields = append(fields, probe.FieldMimetype)
+	}
+	if m.filesize != nil {
+		fields = append(fields, probe.FieldFilesize)
+	}
+	if m.checksum_sha256 != nil {
+		fields = append(fields, probe.FieldChecksumSha256)
+	}
+	if m.aspect_ratio != nil {
+		fields = append(fields, probe.FieldAspectRatio)
+	}
+	if m.width != nil {
+		fields = append(fields, probe.FieldWidth)
+	}
+	if m.height != nil {
+		fields = append(fields, probe.FieldHeight)
+	}
+	if m.duration_seconds != nil {
+		fields = append(fields, probe.FieldDurationSeconds)
+	}
+	if m.video_bitrate != nil {
+		fields = append(fields, probe.FieldVideoBitrate)
+	}
+	if m.audio_bitrate != nil {
+		fields = append(fields, probe.FieldAudioBitrate)
+	}
+	if m.created_at != nil {
+		fields = append(fields, probe.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, probe.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name.
+// The second boolean value indicates that this field was
+// not set, or was not define in the schema.
+func (m *ProbeMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case probe.FieldFilename:
+		return m.Filename()
+	case probe.FieldMimetype:
+		return m.Mimetype()
+	case probe.FieldFilesize:
+		return m.Filesize()
+	case probe.FieldChecksumSha256:
+		return m.ChecksumSha256()
+	case probe.FieldAspectRatio:
+		return m.AspectRatio()
+	case probe.FieldWidth:
+		return m.Width()
+	case probe.FieldHeight:
+		return m.Height()
+	case probe.FieldDurationSeconds:
+		return m.DurationSeconds()
+	case probe.FieldVideoBitrate:
+		return m.VideoBitrate()
+	case probe.FieldAudioBitrate:
+		return m.AudioBitrate()
+	case probe.FieldCreatedAt:
+		return m.CreatedAt()
+	case probe.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database.
+// An error is returned if the mutation operation is not UpdateOne,
+// or the query to the database was failed.
+func (m *ProbeMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case probe.FieldFilename:
+		return m.OldFilename(ctx)
+	case probe.FieldMimetype:
+		return m.OldMimetype(ctx)
+	case probe.FieldFilesize:
+		return m.OldFilesize(ctx)
+	case probe.FieldChecksumSha256:
+		return m.OldChecksumSha256(ctx)
+	case probe.FieldAspectRatio:
+		return m.OldAspectRatio(ctx)
+	case probe.FieldWidth:
+		return m.OldWidth(ctx)
+	case probe.FieldHeight:
+		return m.OldHeight(ctx)
+	case probe.FieldDurationSeconds:
+		return m.OldDurationSeconds(ctx)
+	case probe.FieldVideoBitrate:
+		return m.OldVideoBitrate(ctx)
+	case probe.FieldAudioBitrate:
+		return m.OldAudioBitrate(ctx)
+	case probe.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case probe.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown Probe field %s", name)
+}
+
+// SetField sets the value for the given name. It returns an
+// error if the field is not defined in the schema, or if the
+// type mismatch the field type.
+func (m *ProbeMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case probe.FieldFilename:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFilename(v)
+		return nil
+	case probe.FieldMimetype:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMimetype(v)
+		return nil
+	case probe.FieldFilesize:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFilesize(v)
+		return nil
+	case probe.FieldChecksumSha256:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChecksumSha256(v)
+		return nil
+	case probe.FieldAspectRatio:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAspectRatio(v)
+		return nil
+	case probe.FieldWidth:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetWidth(v)
+		return nil
+	case probe.FieldHeight:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHeight(v)
+		return nil
+	case probe.FieldDurationSeconds:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDurationSeconds(v)
+		return nil
+	case probe.FieldVideoBitrate:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVideoBitrate(v)
+		return nil
+	case probe.FieldAudioBitrate:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAudioBitrate(v)
+		return nil
+	case probe.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case probe.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Probe field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented
+// or decremented during this mutation.
+func (m *ProbeMutation) AddedFields() []string {
+	var fields []string
+	if m.addfilesize != nil {
+		fields = append(fields, probe.FieldFilesize)
+	}
+	if m.addwidth != nil {
+		fields = append(fields, probe.FieldWidth)
+	}
+	if m.addheight != nil {
+		fields = append(fields, probe.FieldHeight)
+	}
+	if m.addduration_seconds != nil {
+		fields = append(fields, probe.FieldDurationSeconds)
+	}
+	if m.addvideo_bitrate != nil {
+		fields = append(fields, probe.FieldVideoBitrate)
+	}
+	if m.addaudio_bitrate != nil {
+		fields = append(fields, probe.FieldAudioBitrate)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was in/decremented
+// from a field with the given name. The second value indicates
+// that this field was not set, or was not define in the schema.
+func (m *ProbeMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case probe.FieldFilesize:
+		return m.AddedFilesize()
+	case probe.FieldWidth:
+		return m.AddedWidth()
+	case probe.FieldHeight:
+		return m.AddedHeight()
+	case probe.FieldDurationSeconds:
+		return m.AddedDurationSeconds()
+	case probe.FieldVideoBitrate:
+		return m.AddedVideoBitrate()
+	case probe.FieldAudioBitrate:
+		return m.AddedAudioBitrate()
+	}
+	return nil, false
+}
+
+// AddField adds the value for the given name. It returns an
+// error if the field is not defined in the schema, or if the
+// type mismatch the field type.
+func (m *ProbeMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case probe.FieldFilesize:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFilesize(v)
+		return nil
+	case probe.FieldWidth:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddWidth(v)
+		return nil
+	case probe.FieldHeight:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHeight(v)
+		return nil
+	case probe.FieldDurationSeconds:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDurationSeconds(v)
+		return nil
+	case probe.FieldVideoBitrate:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddVideoBitrate(v)
+		return nil
+	case probe.FieldAudioBitrate:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAudioBitrate(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Probe numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared
+// during this mutation.
+func (m *ProbeMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicates if this field was
+// cleared in this mutation.
+func (m *ProbeMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value for the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ProbeMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Probe nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation regarding the
+// given field name. It returns an error if the field is not
+// defined in the schema.
+func (m *ProbeMutation) ResetField(name string) error {
+	switch name {
+	case probe.FieldFilename:
+		m.ResetFilename()
+		return nil
+	case probe.FieldMimetype:
+		m.ResetMimetype()
+		return nil
+	case probe.FieldFilesize:
+		m.ResetFilesize()
+		return nil
+	case probe.FieldChecksumSha256:
+		m.ResetChecksumSha256()
+		return nil
+	case probe.FieldAspectRatio:
+		m.ResetAspectRatio()
+		return nil
+	case probe.FieldWidth:
+		m.ResetWidth()
+		return nil
+	case probe.FieldHeight:
+		m.ResetHeight()
+		return nil
+	case probe.FieldDurationSeconds:
+		m.ResetDurationSeconds()
+		return nil
+	case probe.FieldVideoBitrate:
+		m.ResetVideoBitrate()
+		return nil
+	case probe.FieldAudioBitrate:
+		m.ResetAudioBitrate()
+		return nil
+	case probe.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case probe.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown Probe field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this
+// mutation.
+func (m *ProbeMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.media != nil {
+		edges = append(edges, probe.EdgeMedia)
+	}
+	return edges
+}
+
+// AddedIDs returns all ids (to other nodes) that were added for
+// the given edge name.
+func (m *ProbeMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case probe.EdgeMedia:
+		if id := m.media; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this
+// mutation.
+func (m *ProbeMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all ids (to other nodes) that were removed for
+// the given edge name.
+func (m *ProbeMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this
+// mutation.
+func (m *ProbeMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedmedia {
+		edges = append(edges, probe.EdgeMedia)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean indicates if this edge was
+// cleared in this mutation.
+func (m *ProbeMutation) EdgeCleared(name string) bool {
+	switch name {
+	case probe.EdgeMedia:
+		return m.clearedmedia
+	}
+	return false
+}
+
+// ClearEdge clears the value for the given name. It returns an
+// error if the edge name is not defined in the schema.
+func (m *ProbeMutation) ClearEdge(name string) error {
+	switch name {
+	case probe.EdgeMedia:
+		m.ClearMedia()
+		return nil
+	}
+	return fmt.Errorf("unknown Probe unique edge %s", name)
+}
+
+// ResetEdge resets all changes in the mutation regarding the
+// given edge name. It returns an error if the edge is not
+// defined in the schema.
+func (m *ProbeMutation) ResetEdge(name string) error {
+	switch name {
+	case probe.EdgeMedia:
+		m.ResetMedia()
+		return nil
+	}
+	return fmt.Errorf("unknown Probe edge %s", name)
 }

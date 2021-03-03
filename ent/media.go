@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/google/uuid"
 )
@@ -36,9 +37,11 @@ type Media struct {
 type MediaEdges struct {
 	// MediaFiles holds the value of the media_files edge.
 	MediaFiles []*MediaFile `json:"media_files,omitempty"`
+	// Probe holds the value of the probe edge.
+	Probe *Probe `json:"probe,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // MediaFilesOrErr returns the MediaFiles value or an error if the edge
@@ -48,6 +51,20 @@ func (e MediaEdges) MediaFilesOrErr() ([]*MediaFile, error) {
 		return e.MediaFiles, nil
 	}
 	return nil, &NotLoadedError{edge: "media_files"}
+}
+
+// ProbeOrErr returns the Probe value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MediaEdges) ProbeOrErr() (*Probe, error) {
+	if e.loadedTypes[1] {
+		if e.Probe == nil {
+			// The edge probe was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: probe.Label}
+		}
+		return e.Probe, nil
+	}
+	return nil, &NotLoadedError{edge: "probe"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -105,6 +122,11 @@ func (m *Media) assignValues(values ...interface{}) error {
 // QueryMediaFiles queries the media_files edge of the Media.
 func (m *Media) QueryMediaFiles() *MediaFileQuery {
 	return (&MediaClient{config: m.config}).QueryMediaFiles(m)
+}
+
+// QueryProbe queries the probe edge of the Media.
+func (m *Media) QueryProbe() *ProbeQuery {
+	return (&MediaClient{config: m.config}).QueryProbe(m)
 }
 
 // Update returns a builder for updating this Media.
