@@ -22,13 +22,17 @@ require (
 	github.com/jinzhu/configor v1.2.1
 	github.com/lib/pq v1.9.0
 	github.com/mailru/easyjson v0.7.7 // indirect
+	github.com/mattn/go-runewidth v0.0.9
 	github.com/mattn/go-sqlite3 v1.14.6
 	github.com/minio/minio-go/v7 v7.0.10
+	github.com/olekukonko/tablewriter v0.0.4
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v1.0.0-rc9 // indirect
 	github.com/orlangure/gnomock v0.12.0
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/rakyll/statik v0.1.7
+	github.com/russross/blackfriday/v2 v2.0.1
+	github.com/shurcooL/sanitized_anchor_name v1.0.0
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/streadway/amqp v1.0.0
