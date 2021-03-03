@@ -31,7 +31,7 @@ func TestConsumers(t *testing.T) {
 	gilfoyle.Config.Storage.Filesystem.DataPath = "./data"
 	defer func() { _ = os.RemoveAll(gilfoyle.Config.Storage.Filesystem.DataPath) }()
 
-	t.Run("videoTranscodingConsumer", func(t *testing.T) {
+	t.Run("hlsVideoEncodingConsumer", func(t *testing.T) {
 		t.Run("should receive one message and succeed", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
@@ -41,7 +41,7 @@ func TestConsumers(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			params := VideoTranscodingParams{
+			params := HlsVideoEncodingParams{
 				MediaUUID: m.ID,
 				OriginalFile: transcoding.OriginalFile{
 					DurationSeconds: 5.21,
@@ -96,7 +96,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go videoTranscodingConsumer(w, msgs)
+			go hlsVideoEncodingConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -129,7 +129,7 @@ func TestConsumers(t *testing.T) {
 
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go videoTranscodingConsumer(w, msgs)
+			go hlsVideoEncodingConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -139,7 +139,7 @@ func TestConsumers(t *testing.T) {
 		})
 	})
 
-	t.Run("mediaProcessingCallbackConsumer", func(t *testing.T) {
+	t.Run("mediaEncodingCallbackConsumer", func(t *testing.T) {
 		t.Run("should receive one message then requeue", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
@@ -149,7 +149,7 @@ func TestConsumers(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			params := MediaProcessingCallbackParams{
+			params := MediaEncodingCallbackParams{
 				MediaUUID:       m.ID,
 				MediaFilesCount: 1,
 			}
@@ -179,7 +179,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Nack", uint64(0), false, true).Return(nil)
 
-			go mediaProcessingCallbackConsumer(w, msgs)
+			go mediaEncodingCallbackConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -214,7 +214,7 @@ func TestConsumers(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			params := MediaProcessingCallbackParams{
+			params := MediaEncodingCallbackParams{
 				MediaUUID:       m.ID,
 				MediaFilesCount: 1,
 			}
@@ -256,7 +256,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go mediaProcessingCallbackConsumer(w, msgs)
+			go mediaEncodingCallbackConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -286,7 +286,7 @@ func TestConsumers(t *testing.T) {
 
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go mediaProcessingCallbackConsumer(w, msgs)
+			go mediaEncodingCallbackConsumer(w, msgs)
 
 			msgs <- delivery
 

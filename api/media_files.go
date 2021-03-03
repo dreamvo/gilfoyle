@@ -168,7 +168,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 			fps = r.Framerate
 		}
 
-		err = worker.VideoTranscodingProducer(ch, worker.VideoTranscodingParams{
+		err = worker.HlsVideoEncodingProducer(ch, worker.HlsVideoEncodingParams{
 			MediaUUID: m.ID,
 			OriginalFile: transcoding.OriginalFile{
 				Format:          format,
@@ -198,7 +198,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		RenditionsCount++
 	}
 
-	err = worker.MediaProcessingCallbackProducer(ch, worker.MediaProcessingCallbackParams{
+	err = worker.MediaEncodingCallbackProducer(ch, worker.MediaEncodingCallbackParams{
 		MediaUUID:       m.ID,
 		MediaFilesCount: RenditionsCount,
 	})

@@ -2,6 +2,7 @@ package worker
 
 import (
 	"fmt"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/storage"
@@ -10,9 +11,9 @@ import (
 )
 
 const (
-	VideoTranscodingQueue        string = "VideoTranscoding"
-	MediaProcessingCallbackQueue string = "MediaProcessingCallbackQueue"
-	//PreviewGenerationQueue       string = "PreviewGeneration"
+	HlsVideoEncodingQueue      string = "HlsVideoEncoding"
+	MediaEncodingCallbackQueue string = "MediaEncodingCallback"
+	EncodingEntrypointQueue    string = "EncodingEntrypoint"
 )
 
 type Channel interface {
@@ -33,22 +34,31 @@ type Queue struct {
 
 var queues = []Queue{
 	{
-		Name:       VideoTranscodingQueue,
+		Name:       HlsVideoEncodingQueue,
 		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    videoTranscodingConsumer,
+		Handler:    hlsVideoEncodingConsumer,
 	},
 	{
-		Name:       MediaProcessingCallbackQueue,
+		Name:       MediaEncodingCallbackQueue,
 		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    mediaProcessingCallbackConsumer,
+		Handler:    mediaEncodingCallbackConsumer,
+	},
+	{
+		Name:       EncodingEntrypointQueue,
+		Durable:    true,
+		AutoDelete: false,
+		Exclusive:  false,
+		NoWait:     false,
+		Args:       nil,
+		Handler:    encodingEntrypointConsumer,
 	},
 }
 
@@ -72,6 +82,7 @@ type Worker struct {
 	storage     storage.Storage
 	dbClient    *ent.Client
 	transcoder  transcoding.ITranscoder
+	config      config.Config
 }
 
 func New(opts Options) (*Worker, error) {

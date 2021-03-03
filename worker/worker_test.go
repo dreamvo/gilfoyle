@@ -65,7 +65,7 @@ func TestWorker(t *testing.T) {
 		ch, err := w.Client.Channel()
 		assert.NoError(t, err)
 
-		q, err := ch.QueueInspect(worker.VideoTranscodingQueue)
+		q, err := ch.QueueInspect(worker.HlsVideoEncodingQueue)
 		assert.NoError(t, err)
 
 		assert.Equal(t, 0, q.Messages)

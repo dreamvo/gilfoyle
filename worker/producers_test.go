@@ -12,9 +12,9 @@ import (
 )
 
 func TestProducers(t *testing.T) {
-	t.Run("VideoTranscodingProducer", func(t *testing.T) {
+	t.Run("HlsVideoEncodingProducer", func(t *testing.T) {
 		t.Run("should publish a new message", func(t *testing.T) {
-			params := VideoTranscodingParams{
+			params := HlsVideoEncodingParams{
 				MediaUUID: uuid.New(),
 				OriginalFile: transcoding.OriginalFile{
 					Filepath:        "uuid/test",
@@ -29,20 +29,20 @@ func TestProducers(t *testing.T) {
 
 			ch := new(mocks.MockedChannel)
 
-			ch.On("Publish", "", VideoTranscodingQueue, false, false, amqp.Publishing{
+			ch.On("Publish", "", HlsVideoEncodingQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
 				ContentType:  "application/json",
 				Body:         body,
 			}).Return(nil)
 
-			err = VideoTranscodingProducer(ch, params)
+			err = HlsVideoEncodingProducer(ch, params)
 			assert.NoError(t, err)
 
 			ch.AssertExpectations(t)
 		})
 
 		t.Run("should publish a new message with AMQP error", func(t *testing.T) {
-			params := VideoTranscodingParams{
+			params := HlsVideoEncodingParams{
 				MediaUUID: uuid.New(),
 				OriginalFile: transcoding.OriginalFile{
 					Filepath:        "uuid/test",
@@ -57,22 +57,22 @@ func TestProducers(t *testing.T) {
 
 			ch := new(mocks.MockedChannel)
 
-			ch.On("Publish", "", VideoTranscodingQueue, false, false, amqp.Publishing{
+			ch.On("Publish", "", HlsVideoEncodingQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
 				ContentType:  "application/json",
 				Body:         body,
 			}).Return(errors.New("test"))
 
-			err = VideoTranscodingProducer(ch, params)
+			err = HlsVideoEncodingProducer(ch, params)
 			assert.EqualError(t, err, "test")
 
 			ch.AssertExpectations(t)
 		})
 	})
 
-	t.Run("MediaProcessingCallbackProducer", func(t *testing.T) {
+	t.Run("MediaEncodingCallbackProducer", func(t *testing.T) {
 		t.Run("should publish a new message", func(t *testing.T) {
-			params := MediaProcessingCallbackParams{
+			params := MediaEncodingCallbackParams{
 				MediaUUID:       uuid.New(),
 				MediaFilesCount: 1,
 			}
@@ -82,20 +82,20 @@ func TestProducers(t *testing.T) {
 
 			ch := new(mocks.MockedChannel)
 
-			ch.On("Publish", "", MediaProcessingCallbackQueue, false, false, amqp.Publishing{
+			ch.On("Publish", "", MediaEncodingCallbackQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
 				ContentType:  "application/json",
 				Body:         body,
 			}).Return(nil)
 
-			err = MediaProcessingCallbackProducer(ch, params)
+			err = MediaEncodingCallbackProducer(ch, params)
 			assert.NoError(t, err)
 
 			ch.AssertExpectations(t)
 		})
 
 		t.Run("should publish a new message with AMQP error", func(t *testing.T) {
-			params := MediaProcessingCallbackParams{
+			params := MediaEncodingCallbackParams{
 				MediaUUID:       uuid.New(),
 				MediaFilesCount: 1,
 			}
@@ -105,13 +105,13 @@ func TestProducers(t *testing.T) {
 
 			ch := new(mocks.MockedChannel)
 
-			ch.On("Publish", "", MediaProcessingCallbackQueue, false, false, amqp.Publishing{
+			ch.On("Publish", "", MediaEncodingCallbackQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
 				ContentType:  "application/json",
 				Body:         body,
 			}).Return(errors.New("test"))
 
-			err = MediaProcessingCallbackProducer(ch, params)
+			err = MediaEncodingCallbackProducer(ch, params)
 			assert.EqualError(t, err, "test")
 
 			ch.AssertExpectations(t)

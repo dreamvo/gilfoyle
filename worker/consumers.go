@@ -2,15 +2,20 @@ package worker
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/ent/media"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
+	"gopkg.in/vansante/go-ffprobe.v2"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -30,10 +35,121 @@ func setMediaStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media
 	return nil
 }
 
-func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
+func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		func() {
-			var body VideoTranscodingParams
+			ctx := context.Background()
+			var body MediaEncodingEntrypoint
+
+			err := json.Unmarshal(d.Body, &body)
+			if err != nil {
+				w.logger.Error("Unmarshal error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			w.logger.Info("Starting media encoding", zap.String("MediaUUID", body.MediaUUID.String()))
+
+			m, err := w.dbClient.Media.Get(ctx, body.MediaUUID)
+			if err != nil {
+				w.logger.Error("Database error", zap.Error(err))
+				_ = d.Nack(false, true)
+				return
+			}
+
+			file, err := w.storage.Open(ctx, path.Join(m.ID.String(), m.OriginalFilename))
+			if err != nil {
+				w.logger.Error("Storage error", zap.Error(err))
+				_ = d.Nack(false, true)
+				return
+			}
+
+			ctxWithTimeout, cancelFn := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancelFn()
+
+			// Run original file analysis
+			data, err := ffprobe.ProbeReader(ctxWithTimeout, file)
+			if err != nil {
+				w.logger.Error("FFprobe error", zap.Error(err))
+				_ = d.Nack(false, true)
+				return
+			}
+
+			videoStreams := data.StreamType(ffprobe.StreamVideo)
+			if len(videoStreams) != 1 {
+				w.logger.Error("File input error", zap.Error(errors.New("uploaded media must have only 1 video stream")))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			audioStreams := data.StreamType(ffprobe.StreamAudio)
+			if len(audioStreams) != 1 {
+				w.logger.Error("File input error", zap.Error(errors.New("uploaded media must have only 1 audio stream")))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			//format := strings.Split(data.Format.FormatName, ",")[0]
+			//fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
+
+			mime, err := mimetype.DetectReader(file)
+			if err != nil {
+				w.logger.Error("Mimetype detection", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			fileBytes,err:=ioutil.ReadAll(file)
+			if err != nil {
+				w.logger.Error("File to bytes conversion error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			checksum := sha256.Sum256(fileBytes)
+
+			_, err = w.dbClient.Probe.
+				Create().
+				SetMedia(m).
+				SetFilename(m.OriginalFilename).
+				SetAspectRatio(data.FirstVideoStream().DisplayAspectRatio).
+				SetFilesize(0).
+				SetVideoBitrate(0).
+				SetAudioBitrate(0).
+				SetWidth(data.FirstVideoStream().Width).
+				SetHeight(data.FirstVideoStream().Height).
+				SetDurationSeconds(data.Format.Duration().Seconds()).
+				SetChecksumSha256(string(checksum[:])).
+				SetMimetype(mime.String()).
+				Save(ctx)
+			if err != nil {
+				w.logger.Error("Database error", zap.Error(err))
+				_ = d.Nack(false, false)
+				return
+			}
+
+			// Schedule encoding jobs
+			for _, rendition := range w.config.Settings.Encoding.Renditions {
+				_, err := w.dbClient.MediaFile.
+					Create().
+					SetMedia(m).
+					SetRenditionName(rendition.Name).
+					SetMediaType(schema.MediaFileTypeVideo).
+					Save(ctx)
+				if err != nil {
+					w.logger.Error("Database error", zap.Error(err))
+					_ = d.Nack(false, false)
+					return
+				}
+			}
+		}()
+	}
+}
+
+func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
+	for d := range msgs {
+		func() {
+			var body HlsVideoEncodingParams
 			ctx := context.Background()
 
 			err := json.Unmarshal(d.Body, &body)
@@ -177,11 +293,11 @@ func videoTranscodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	}
 }
 
-func mediaProcessingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
+func mediaEncodingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		func() {
 			ctx := context.Background()
-			var body MediaProcessingCallbackParams
+			var body MediaEncodingCallbackParams
 
 			err := json.Unmarshal(d.Body, &body)
 			if err != nil {

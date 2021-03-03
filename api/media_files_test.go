@@ -167,14 +167,14 @@ func TestMediaFiles(t *testing.T) {
 			ch, err := w.Client.Channel()
 			assert.NoError(t, err)
 
-			msg, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
+			msg, ok, err := ch.Get(worker.HlsVideoEncodingQueue, false)
 			assert.NoError(t, err)
 			assert.True(t, ok)
 
-			var msgBody worker.VideoTranscodingParams
+			var msgBody worker.HlsVideoEncodingParams
 			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody))
 
-			assert.Equal(t, worker.VideoTranscodingParams{
+			assert.Equal(t, worker.HlsVideoEncodingParams{
 				OriginalFile: transcoding.OriginalFile{
 					Filepath:        fmt.Sprintf("%s/original", m.ID.String()),
 					DurationSeconds: 5.312,
@@ -197,14 +197,14 @@ func TestMediaFiles(t *testing.T) {
 				TargetBandwidth:    896000,
 			}, msgBody)
 
-			msg, ok, err = ch.Get(worker.MediaProcessingCallbackQueue, false)
+			msg, ok, err = ch.Get(worker.MediaEncodingCallbackQueue, false)
 			assert.NoError(t, err)
 			assert.True(t, ok)
 
-			var msgBody2 worker.MediaProcessingCallbackParams
+			var msgBody2 worker.MediaEncodingCallbackParams
 			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody2))
 
-			assert.Equal(t, worker.MediaProcessingCallbackParams{
+			assert.Equal(t, worker.MediaEncodingCallbackParams{
 				MediaUUID:       m.ID,
 				MediaFilesCount: 1,
 			}, msgBody2)

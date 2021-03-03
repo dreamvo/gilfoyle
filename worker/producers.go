@@ -7,7 +7,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type VideoTranscodingParams struct {
+type HlsVideoEncodingParams struct {
 	OriginalFile       transcoding.OriginalFile `json:"original_file"`
 	MediaUUID          uuid.UUID                `json:"media_uuid"`
 	RenditionName      string                   `json:"preset_name"`
@@ -25,15 +25,19 @@ type VideoTranscodingParams struct {
 	TargetBandwidth    uint64                   `json:"target_bandwidth"`
 }
 
-type MediaProcessingCallbackParams struct {
+type MediaEncodingCallbackParams struct {
 	MediaUUID       uuid.UUID `json:"media_uuid"`
 	MediaFilesCount int       `json:"media_files_count"`
 }
 
-func VideoTranscodingProducer(ch Channel, data VideoTranscodingParams) error {
+type MediaEncodingEntrypoint struct {
+	MediaUUID       uuid.UUID `json:"media_uuid"`
+}
+
+func HlsVideoEncodingProducer(ch Channel, data HlsVideoEncodingParams) error {
 	body, _ := json.Marshal(data)
 
-	err := ch.Publish("", VideoTranscodingQueue, false, false, amqp.Publishing{
+	err := ch.Publish("", HlsVideoEncodingQueue, false, false, amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  "application/json",
 		Body:         body,
@@ -45,10 +49,10 @@ func VideoTranscodingProducer(ch Channel, data VideoTranscodingParams) error {
 	return nil
 }
 
-func MediaProcessingCallbackProducer(ch Channel, data MediaProcessingCallbackParams) error {
+func MediaEncodingCallbackProducer(ch Channel, data MediaEncodingCallbackParams) error {
 	body, _ := json.Marshal(data)
 
-	err := ch.Publish("", MediaProcessingCallbackQueue, false, false, amqp.Publishing{
+	err := ch.Publish("", MediaEncodingCallbackQueue, false, false, amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  "application/json",
 		Body:         body,
