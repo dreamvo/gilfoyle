@@ -46,7 +46,7 @@ export default Vue.extend({
     },
     sources: {
       type: Array,
-      default: () => []
+      default: (): videojs.Tech.SourceObject[] => []
     },
     posterURL: {
       type: String,

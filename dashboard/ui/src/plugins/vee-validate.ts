@@ -45,7 +45,7 @@ extend("max_value", {
 extend("confirmedBy", {
   params: ["target"],
   // Target here is the value of the target field
-  validate(value, { target }: { [key: string]: unknown }) {
+  validate(value: string, { target }: Record<string, any>) {
     return value === target;
   },
   // here it is its name, because we are generating a message
