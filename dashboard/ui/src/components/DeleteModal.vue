@@ -19,10 +19,8 @@
         {{ title }}
       </v-card-title>
 
-      <v-card-text
-        >Êtes vous sur de vouloir effectuer cette action ?
-      </v-card-text>
-      <v-card-text>Cette action est irréversible.</v-card-text>
+      <v-card-text>Are you sure you want to do this ? </v-card-text>
+      <v-card-text>This can't be undone.</v-card-text>
 
       <v-divider></v-divider>
 
@@ -53,11 +51,11 @@ export default Vue.extend({
   props: {
     title: {
       type: String,
-      default: "Suppression"
+      default: "Deletion"
     },
     btnText: {
       type: String,
-      default: "Supprimer"
+      default: "Delete"
     },
     btnSmall: {
       type: Boolean,
