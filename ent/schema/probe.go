@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-
-
 // Probe holds the schema definition for the Probe entity.
 type Probe struct {
 	ent.Schema

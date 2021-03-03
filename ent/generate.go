@@ -1,3 +1,6 @@
+//go:generate go run github.com/facebook/ent/cmd/ent generate ./schema
 package ent
 
-//go:generate go run github.com/facebook/ent/cmd/ent generate ./schema
+import (
+	_ "github.com/facebook/ent/entc/gen"
+)
