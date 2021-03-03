@@ -22,6 +22,12 @@ const (
 	FieldTargetBandwidth = "target_bandwidth"
 	// FieldVideoBitrate holds the string denoting the video_bitrate field in the database.
 	FieldVideoBitrate = "video_bitrate"
+	// FieldAudioBitrate holds the string denoting the audio_bitrate field in the database.
+	FieldAudioBitrate = "audio_bitrate"
+	// FieldVideoCodec holds the string denoting the video_codec field in the database.
+	FieldVideoCodec = "video_codec"
+	// FieldAudioCodec holds the string denoting the audio_codec field in the database.
+	FieldAudioCodec = "audio_codec"
 	// FieldResolutionWidth holds the string denoting the resolution_width field in the database.
 	FieldResolutionWidth = "resolution_width"
 	// FieldResolutionHeight holds the string denoting the resolution_height field in the database.
@@ -66,6 +72,9 @@ var Columns = []string{
 	FieldFormat,
 	FieldTargetBandwidth,
 	FieldVideoBitrate,
+	FieldAudioBitrate,
+	FieldVideoCodec,
+	FieldAudioCodec,
 	FieldResolutionWidth,
 	FieldResolutionHeight,
 	FieldFramerate,
@@ -108,6 +117,16 @@ var (
 	DefaultTargetBandwidth uint64
 	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	VideoBitrateValidator func(int64) error
+	// AudioBitrateValidator is a validator for the "audio_bitrate" field. It is called by the builders before save.
+	AudioBitrateValidator func(int64) error
+	// DefaultVideoCodec holds the default value on creation for the video_codec field.
+	DefaultVideoCodec string
+	// VideoCodecValidator is a validator for the "video_codec" field. It is called by the builders before save.
+	VideoCodecValidator func(string) error
+	// DefaultAudioCodec holds the default value on creation for the audio_codec field.
+	DefaultAudioCodec string
+	// AudioCodecValidator is a validator for the "audio_codec" field. It is called by the builders before save.
+	AudioCodecValidator func(string) error
 	// ResolutionWidthValidator is a validator for the "resolution_width" field. It is called by the builders before save.
 	ResolutionWidthValidator func(uint16) error
 	// ResolutionHeightValidator is a validator for the "resolution_height" field. It is called by the builders before save.

@@ -26,6 +26,12 @@ type MediaFile struct {
 	TargetBandwidth uint64 `json:"target_bandwidth,omitempty"`
 	// VideoBitrate holds the value of the "video_bitrate" field.
 	VideoBitrate int64 `json:"video_bitrate,omitempty"`
+	// AudioBitrate holds the value of the "audio_bitrate" field.
+	AudioBitrate int64 `json:"audio_bitrate,omitempty"`
+	// VideoCodec holds the value of the "video_codec" field.
+	VideoCodec string `json:"video_codec,omitempty"`
+	// AudioCodec holds the value of the "audio_codec" field.
+	AudioCodec string `json:"audio_codec,omitempty"`
 	// ResolutionWidth holds the value of the "resolution_width" field.
 	ResolutionWidth uint16 `json:"resolution_width,omitempty"`
 	// ResolutionHeight holds the value of the "resolution_height" field.
@@ -85,6 +91,9 @@ func (*MediaFile) scanValues() []interface{} {
 		&sql.NullString{},  // format
 		&sql.NullInt64{},   // target_bandwidth
 		&sql.NullInt64{},   // video_bitrate
+		&sql.NullInt64{},   // audio_bitrate
+		&sql.NullString{},  // video_codec
+		&sql.NullString{},  // audio_codec
 		&sql.NullInt64{},   // resolution_width
 		&sql.NullInt64{},   // resolution_height
 		&sql.NullInt64{},   // framerate
@@ -139,61 +148,76 @@ func (mf *MediaFile) assignValues(values ...interface{}) error {
 		mf.VideoBitrate = value.Int64
 	}
 	if value, ok := values[4].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field resolution_width", values[4])
+		return fmt.Errorf("unexpected type %T for field audio_bitrate", values[4])
+	} else if value.Valid {
+		mf.AudioBitrate = value.Int64
+	}
+	if value, ok := values[5].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field video_codec", values[5])
+	} else if value.Valid {
+		mf.VideoCodec = value.String
+	}
+	if value, ok := values[6].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field audio_codec", values[6])
+	} else if value.Valid {
+		mf.AudioCodec = value.String
+	}
+	if value, ok := values[7].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field resolution_width", values[7])
 	} else if value.Valid {
 		mf.ResolutionWidth = uint16(value.Int64)
 	}
-	if value, ok := values[5].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field resolution_height", values[5])
+	if value, ok := values[8].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field resolution_height", values[8])
 	} else if value.Valid {
 		mf.ResolutionHeight = uint16(value.Int64)
 	}
-	if value, ok := values[6].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field framerate", values[6])
+	if value, ok := values[9].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field framerate", values[9])
 	} else if value.Valid {
 		mf.Framerate = uint8(value.Int64)
 	}
-	if value, ok := values[7].(*sql.NullFloat64); !ok {
-		return fmt.Errorf("unexpected type %T for field duration_seconds", values[7])
+	if value, ok := values[10].(*sql.NullFloat64); !ok {
+		return fmt.Errorf("unexpected type %T for field duration_seconds", values[10])
 	} else if value.Valid {
 		mf.DurationSeconds = value.Float64
 	}
-	if value, ok := values[8].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field media_type", values[8])
+	if value, ok := values[11].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field media_type", values[11])
 	} else if value.Valid {
 		mf.MediaType = mediafile.MediaType(value.String)
 	}
-	if value, ok := values[9].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field status", values[9])
+	if value, ok := values[12].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field status", values[12])
 	} else if value.Valid {
 		mf.Status = mediafile.Status(value.String)
 	}
-	if value, ok := values[10].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field message", values[10])
+	if value, ok := values[13].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field message", values[13])
 	} else if value.Valid {
 		mf.Message = value.String
 	}
-	if value, ok := values[11].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field entry_file", values[11])
+	if value, ok := values[14].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field entry_file", values[14])
 	} else if value.Valid {
 		mf.EntryFile = value.String
 	}
-	if value, ok := values[12].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field mimetype", values[12])
+	if value, ok := values[15].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field mimetype", values[15])
 	} else if value.Valid {
 		mf.Mimetype = value.String
 	}
-	if value, ok := values[13].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[13])
+	if value, ok := values[16].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[16])
 	} else if value.Valid {
 		mf.CreatedAt = value.Time
 	}
-	if value, ok := values[14].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[14])
+	if value, ok := values[17].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[17])
 	} else if value.Valid {
 		mf.UpdatedAt = value.Time
 	}
-	values = values[15:]
+	values = values[18:]
 	if len(values) == len(mediafile.ForeignKeys) {
 		if value, ok := values[0].(*uuid.UUID); !ok {
 			return fmt.Errorf("unexpected type %T for field media", values[0])
@@ -240,6 +264,12 @@ func (mf *MediaFile) String() string {
 	builder.WriteString(fmt.Sprintf("%v", mf.TargetBandwidth))
 	builder.WriteString(", video_bitrate=")
 	builder.WriteString(fmt.Sprintf("%v", mf.VideoBitrate))
+	builder.WriteString(", audio_bitrate=")
+	builder.WriteString(fmt.Sprintf("%v", mf.AudioBitrate))
+	builder.WriteString(", video_codec=")
+	builder.WriteString(mf.VideoCodec)
+	builder.WriteString(", audio_codec=")
+	builder.WriteString(mf.AudioCodec)
 	builder.WriteString(", resolution_width=")
 	builder.WriteString(fmt.Sprintf("%v", mf.ResolutionWidth))
 	builder.WriteString(", resolution_height=")

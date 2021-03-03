@@ -54,6 +54,40 @@ func (mfc *MediaFileCreate) SetVideoBitrate(i int64) *MediaFileCreate {
 	return mfc
 }
 
+// SetAudioBitrate sets the audio_bitrate field.
+func (mfc *MediaFileCreate) SetAudioBitrate(i int64) *MediaFileCreate {
+	mfc.mutation.SetAudioBitrate(i)
+	return mfc
+}
+
+// SetVideoCodec sets the video_codec field.
+func (mfc *MediaFileCreate) SetVideoCodec(s string) *MediaFileCreate {
+	mfc.mutation.SetVideoCodec(s)
+	return mfc
+}
+
+// SetNillableVideoCodec sets the video_codec field if the given value is not nil.
+func (mfc *MediaFileCreate) SetNillableVideoCodec(s *string) *MediaFileCreate {
+	if s != nil {
+		mfc.SetVideoCodec(*s)
+	}
+	return mfc
+}
+
+// SetAudioCodec sets the audio_codec field.
+func (mfc *MediaFileCreate) SetAudioCodec(s string) *MediaFileCreate {
+	mfc.mutation.SetAudioCodec(s)
+	return mfc
+}
+
+// SetNillableAudioCodec sets the audio_codec field if the given value is not nil.
+func (mfc *MediaFileCreate) SetNillableAudioCodec(s *string) *MediaFileCreate {
+	if s != nil {
+		mfc.SetAudioCodec(*s)
+	}
+	return mfc
+}
+
 // SetResolutionWidth sets the resolution_width field.
 func (mfc *MediaFileCreate) SetResolutionWidth(u uint16) *MediaFileCreate {
 	mfc.mutation.SetResolutionWidth(u)
@@ -233,6 +267,14 @@ func (mfc *MediaFileCreate) defaults() {
 		v := mediafile.DefaultTargetBandwidth
 		mfc.mutation.SetTargetBandwidth(v)
 	}
+	if _, ok := mfc.mutation.VideoCodec(); !ok {
+		v := mediafile.DefaultVideoCodec
+		mfc.mutation.SetVideoCodec(v)
+	}
+	if _, ok := mfc.mutation.AudioCodec(); !ok {
+		v := mediafile.DefaultAudioCodec
+		mfc.mutation.SetAudioCodec(v)
+	}
 	if _, ok := mfc.mutation.Message(); !ok {
 		v := mediafile.DefaultMessage
 		mfc.mutation.SetMessage(v)
@@ -286,6 +328,30 @@ func (mfc *MediaFileCreate) check() error {
 	if v, ok := mfc.mutation.VideoBitrate(); ok {
 		if err := mediafile.VideoBitrateValidator(v); err != nil {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.AudioBitrate(); !ok {
+		return &ValidationError{Name: "audio_bitrate", err: errors.New("ent: missing required field \"audio_bitrate\"")}
+	}
+	if v, ok := mfc.mutation.AudioBitrate(); ok {
+		if err := mediafile.AudioBitrateValidator(v); err != nil {
+			return &ValidationError{Name: "audio_bitrate", err: fmt.Errorf("ent: validator failed for field \"audio_bitrate\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.VideoCodec(); !ok {
+		return &ValidationError{Name: "video_codec", err: errors.New("ent: missing required field \"video_codec\"")}
+	}
+	if v, ok := mfc.mutation.VideoCodec(); ok {
+		if err := mediafile.VideoCodecValidator(v); err != nil {
+			return &ValidationError{Name: "video_codec", err: fmt.Errorf("ent: validator failed for field \"video_codec\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.AudioCodec(); !ok {
+		return &ValidationError{Name: "audio_codec", err: errors.New("ent: missing required field \"audio_codec\"")}
+	}
+	if v, ok := mfc.mutation.AudioCodec(); ok {
+		if err := mediafile.AudioCodecValidator(v); err != nil {
+			return &ValidationError{Name: "audio_codec", err: fmt.Errorf("ent: validator failed for field \"audio_codec\": %w", err)}
 		}
 	}
 	if _, ok := mfc.mutation.ResolutionWidth(); !ok {
@@ -426,6 +492,30 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 			Column: mediafile.FieldVideoBitrate,
 		})
 		_node.VideoBitrate = value
+	}
+	if value, ok := mfc.mutation.AudioBitrate(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt64,
+			Value:  value,
+			Column: mediafile.FieldAudioBitrate,
+		})
+		_node.AudioBitrate = value
+	}
+	if value, ok := mfc.mutation.VideoCodec(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldVideoCodec,
+		})
+		_node.VideoCodec = value
+	}
+	if value, ok := mfc.mutation.AudioCodec(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldAudioCodec,
+		})
+		_node.AudioCodec = value
 	}
 	if value, ok := mfc.mutation.ResolutionWidth(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

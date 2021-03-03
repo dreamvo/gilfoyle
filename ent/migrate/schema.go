@@ -34,6 +34,9 @@ var (
 		{Name: "format", Type: field.TypeString},
 		{Name: "target_bandwidth", Type: field.TypeUint64, Default: 800000},
 		{Name: "video_bitrate", Type: field.TypeInt64},
+		{Name: "audio_bitrate", Type: field.TypeInt64},
+		{Name: "video_codec", Type: field.TypeString, Default: "h264"},
+		{Name: "audio_codec", Type: field.TypeString, Default: "aac"},
 		{Name: "resolution_width", Type: field.TypeUint16},
 		{Name: "resolution_height", Type: field.TypeUint16},
 		{Name: "framerate", Type: field.TypeUint8},
@@ -55,7 +58,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "media_file_media_media_files",
-				Columns: []*schema.Column{MediaFileColumns[16]},
+				Columns: []*schema.Column{MediaFileColumns[19]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,

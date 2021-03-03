@@ -811,6 +811,10 @@ type MediaFileMutation struct {
 	addtarget_bandwidth  *uint64
 	video_bitrate        *int64
 	addvideo_bitrate     *int64
+	audio_bitrate        *int64
+	addaudio_bitrate     *int64
+	video_codec          *string
+	audio_codec          *string
 	resolution_width     *uint16
 	addresolution_width  *uint16
 	resolution_height    *uint16
@@ -1105,6 +1109,137 @@ func (m *MediaFileMutation) AddedVideoBitrate() (r int64, exists bool) {
 func (m *MediaFileMutation) ResetVideoBitrate() {
 	m.video_bitrate = nil
 	m.addvideo_bitrate = nil
+}
+
+// SetAudioBitrate sets the audio_bitrate field.
+func (m *MediaFileMutation) SetAudioBitrate(i int64) {
+	m.audio_bitrate = &i
+	m.addaudio_bitrate = nil
+}
+
+// AudioBitrate returns the audio_bitrate value in the mutation.
+func (m *MediaFileMutation) AudioBitrate() (r int64, exists bool) {
+	v := m.audio_bitrate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAudioBitrate returns the old audio_bitrate value of the MediaFile.
+// If the MediaFile object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaFileMutation) OldAudioBitrate(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldAudioBitrate is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldAudioBitrate requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAudioBitrate: %w", err)
+	}
+	return oldValue.AudioBitrate, nil
+}
+
+// AddAudioBitrate adds i to audio_bitrate.
+func (m *MediaFileMutation) AddAudioBitrate(i int64) {
+	if m.addaudio_bitrate != nil {
+		*m.addaudio_bitrate += i
+	} else {
+		m.addaudio_bitrate = &i
+	}
+}
+
+// AddedAudioBitrate returns the value that was added to the audio_bitrate field in this mutation.
+func (m *MediaFileMutation) AddedAudioBitrate() (r int64, exists bool) {
+	v := m.addaudio_bitrate
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAudioBitrate reset all changes of the "audio_bitrate" field.
+func (m *MediaFileMutation) ResetAudioBitrate() {
+	m.audio_bitrate = nil
+	m.addaudio_bitrate = nil
+}
+
+// SetVideoCodec sets the video_codec field.
+func (m *MediaFileMutation) SetVideoCodec(s string) {
+	m.video_codec = &s
+}
+
+// VideoCodec returns the video_codec value in the mutation.
+func (m *MediaFileMutation) VideoCodec() (r string, exists bool) {
+	v := m.video_codec
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVideoCodec returns the old video_codec value of the MediaFile.
+// If the MediaFile object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaFileMutation) OldVideoCodec(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldVideoCodec is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldVideoCodec requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVideoCodec: %w", err)
+	}
+	return oldValue.VideoCodec, nil
+}
+
+// ResetVideoCodec reset all changes of the "video_codec" field.
+func (m *MediaFileMutation) ResetVideoCodec() {
+	m.video_codec = nil
+}
+
+// SetAudioCodec sets the audio_codec field.
+func (m *MediaFileMutation) SetAudioCodec(s string) {
+	m.audio_codec = &s
+}
+
+// AudioCodec returns the audio_codec value in the mutation.
+func (m *MediaFileMutation) AudioCodec() (r string, exists bool) {
+	v := m.audio_codec
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAudioCodec returns the old audio_codec value of the MediaFile.
+// If the MediaFile object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaFileMutation) OldAudioCodec(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldAudioCodec is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldAudioCodec requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAudioCodec: %w", err)
+	}
+	return oldValue.AudioCodec, nil
+}
+
+// ResetAudioCodec reset all changes of the "audio_codec" field.
+func (m *MediaFileMutation) ResetAudioCodec() {
+	m.audio_codec = nil
 }
 
 // SetResolutionWidth sets the resolution_width field.
@@ -1660,7 +1795,7 @@ func (m *MediaFileMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *MediaFileMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 18)
 	if m.rendition_name != nil {
 		fields = append(fields, mediafile.FieldRenditionName)
 	}
@@ -1672,6 +1807,15 @@ func (m *MediaFileMutation) Fields() []string {
 	}
 	if m.video_bitrate != nil {
 		fields = append(fields, mediafile.FieldVideoBitrate)
+	}
+	if m.audio_bitrate != nil {
+		fields = append(fields, mediafile.FieldAudioBitrate)
+	}
+	if m.video_codec != nil {
+		fields = append(fields, mediafile.FieldVideoCodec)
+	}
+	if m.audio_codec != nil {
+		fields = append(fields, mediafile.FieldAudioCodec)
 	}
 	if m.resolution_width != nil {
 		fields = append(fields, mediafile.FieldResolutionWidth)
@@ -1722,6 +1866,12 @@ func (m *MediaFileMutation) Field(name string) (ent.Value, bool) {
 		return m.TargetBandwidth()
 	case mediafile.FieldVideoBitrate:
 		return m.VideoBitrate()
+	case mediafile.FieldAudioBitrate:
+		return m.AudioBitrate()
+	case mediafile.FieldVideoCodec:
+		return m.VideoCodec()
+	case mediafile.FieldAudioCodec:
+		return m.AudioCodec()
 	case mediafile.FieldResolutionWidth:
 		return m.ResolutionWidth()
 	case mediafile.FieldResolutionHeight:
@@ -1761,6 +1911,12 @@ func (m *MediaFileMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldTargetBandwidth(ctx)
 	case mediafile.FieldVideoBitrate:
 		return m.OldVideoBitrate(ctx)
+	case mediafile.FieldAudioBitrate:
+		return m.OldAudioBitrate(ctx)
+	case mediafile.FieldVideoCodec:
+		return m.OldVideoCodec(ctx)
+	case mediafile.FieldAudioCodec:
+		return m.OldAudioCodec(ctx)
 	case mediafile.FieldResolutionWidth:
 		return m.OldResolutionWidth(ctx)
 	case mediafile.FieldResolutionHeight:
@@ -1819,6 +1975,27 @@ func (m *MediaFileMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetVideoBitrate(v)
+		return nil
+	case mediafile.FieldAudioBitrate:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAudioBitrate(v)
+		return nil
+	case mediafile.FieldVideoCodec:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVideoCodec(v)
+		return nil
+	case mediafile.FieldAudioCodec:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAudioCodec(v)
 		return nil
 	case mediafile.FieldResolutionWidth:
 		v, ok := value.(uint16)
@@ -1911,6 +2088,9 @@ func (m *MediaFileMutation) AddedFields() []string {
 	if m.addvideo_bitrate != nil {
 		fields = append(fields, mediafile.FieldVideoBitrate)
 	}
+	if m.addaudio_bitrate != nil {
+		fields = append(fields, mediafile.FieldAudioBitrate)
+	}
 	if m.addresolution_width != nil {
 		fields = append(fields, mediafile.FieldResolutionWidth)
 	}
@@ -1935,6 +2115,8 @@ func (m *MediaFileMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedTargetBandwidth()
 	case mediafile.FieldVideoBitrate:
 		return m.AddedVideoBitrate()
+	case mediafile.FieldAudioBitrate:
+		return m.AddedAudioBitrate()
 	case mediafile.FieldResolutionWidth:
 		return m.AddedResolutionWidth()
 	case mediafile.FieldResolutionHeight:
@@ -1965,6 +2147,13 @@ func (m *MediaFileMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddVideoBitrate(v)
+		return nil
+	case mediafile.FieldAudioBitrate:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAudioBitrate(v)
 		return nil
 	case mediafile.FieldResolutionWidth:
 		v, ok := value.(uint16)
@@ -2042,6 +2231,15 @@ func (m *MediaFileMutation) ResetField(name string) error {
 		return nil
 	case mediafile.FieldVideoBitrate:
 		m.ResetVideoBitrate()
+		return nil
+	case mediafile.FieldAudioBitrate:
+		m.ResetAudioBitrate()
+		return nil
+	case mediafile.FieldVideoCodec:
+		m.ResetVideoCodec()
+		return nil
+	case mediafile.FieldAudioCodec:
+		m.ResetAudioCodec()
 		return nil
 	case mediafile.FieldResolutionWidth:
 		m.ResetResolutionWidth()

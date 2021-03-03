@@ -90,7 +90,8 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			framerate := int(transcoding.ParseFrameRates(data.FirstVideoStream().RFrameRate))
+			videoStream := data.FirstVideoStream()
+			framerate := int(transcoding.ParseFrameRates(videoStream.RFrameRate))
 
 			mime, err := mimetype.DetectReader(file)
 			if err != nil {
@@ -112,12 +113,12 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				Create().
 				SetMedia(m).
 				SetFilename(m.OriginalFilename).
-				SetAspectRatio(data.FirstVideoStream().DisplayAspectRatio).
+				SetAspectRatio(videoStream.DisplayAspectRatio).
 				SetFilesize(0).
 				SetVideoBitrate(0).
 				SetAudioBitrate(0).
-				SetWidth(data.FirstVideoStream().Width).
-				SetHeight(data.FirstVideoStream().Height).
+				SetWidth(videoStream.Width).
+				SetHeight(videoStream.Height).
 				SetDurationSeconds(data.Format.Duration().Seconds()).
 				SetChecksumSha256(string(checksum[:])).
 				SetMimetype(mime.String()).
@@ -133,7 +134,16 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 
 			// Schedule encoding jobs
 			for _, rendition := range w.config.Settings.Encoding.Renditions {
-				_, err := w.dbClient.MediaFile.
+				// Ignore resolutions higher than original
+				if rendition.Width > videoStream.Width && rendition.Height > videoStream.Height {
+					continue
+				}
+
+				// Calculate resolution with original aspect ratio
+				var width = uint16((videoStream.Width / videoStream.Height) * rendition.Height)
+				var height = uint16((videoStream.Height / videoStream.Width) * rendition.Width)
+
+				mediaFile, err := w.dbClient.MediaFile.
 					Create().
 					SetMedia(m).
 					SetRenditionName(rendition.Name).
@@ -144,8 +154,11 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					SetMimetype("application/x-mpegURL").
 					SetTargetBandwidth(uint64(rendition.VideoBitrate + rendition.AudioBitrate)).
 					SetVideoBitrate(int64(rendition.VideoBitrate)).
-					SetResolutionWidth(uint16(rendition.Width)).
-					SetResolutionHeight(uint16(rendition.Height)).
+					SetAudioBitrate(int64(rendition.AudioBitrate)).
+					SetVideoCodec(rendition.VideoCodec).
+					SetAudioCodec(rendition.AudioCodec).
+					SetResolutionWidth(width).
+					SetResolutionHeight(height).
 					SetDurationSeconds(probe.DurationSeconds).
 					SetFramerate(uint8(rendition.Framerate)).
 					Save(ctx)
@@ -162,7 +175,12 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					return
 				}
 
-				err = HlsVideoEncodingProducer(ch, HlsVideoEncodingParams{})
+				err = HlsVideoEncodingProducer(ch, HlsVideoEncodingParams{
+					MediaFileUUID:      mediaFile.ID,
+					KeyframeInterval:   48,
+					HlsSegmentDuration: 4,
+					HlsPlaylistType:    "vod",
+				})
 				if err != nil {
 					w.logger.Error("HlsVideoEncoding job creation", zap.Error(err))
 					_ = d.Nack(false, false)
@@ -186,21 +204,22 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			w.logger.Info("Received video transcoding message", zap.String("MediaUUID", body.MediaUUID.String()))
+			w.logger.Info("Received video transcoding message", zap.String("MediaFileUUID", body.MediaFileUUID.String()))
 
-			m, err := w.dbClient.Media.
+			m, err := w.dbClient.MediaFile.
 				Query().
-				Where(media.ID(body.MediaUUID)).
+				Where(mediafile.ID(body.MediaFileUUID)).
+				WithMedia().
 				Only(context.Background())
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
 				return
 			}
 
-			r, err := w.storage.Open(ctx, fmt.Sprintf("%s/%s", body.MediaUUID.String(), transcoding.OriginalFileName))
+			r, err := w.storage.Open(ctx, path.Join(m.Edges.Media.String(), m.Edges.Media.OriginalFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 			defer func() { _ = r.Close() }()
@@ -211,14 +230,14 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err = os.MkdirAll(dstTmpPath, 0755)
 			if err != nil {
 				w.logger.Error("Error creating destination directory", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 
 			out, err := os.Create(srcTmpPath)
 			if err != nil {
 				w.logger.Error("File create error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 			defer func() { _ = out.Close() }()
@@ -226,26 +245,29 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			_, err = io.Copy(out, r)
 			if err != nil {
 				w.logger.Error("File copy error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 
-			VideoFilter := fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", body.VideoWidth, body.VideoHeight)
+			VideoFilter := fmt.Sprintf("scale=w=%d:h=%d:force_original_aspect_ratio=decrease", m.ResolutionWidth, m.ResolutionHeight)
 			HlsSegmentFilename := dstTmpPath + "/%03d.ts"
 			VideoProfile := "main"
 			preset := "medium"
 			overwrite := true
+			AudioBitrate := int(m.AudioBitrate)
+			VideoBitrate := int(m.VideoBitrate)
+			Framerate := int(m.Framerate)
 
 			p := w.transcoder.
 				Process().
 				SetInput(srcTmpPath).
 				SetOutput(fmt.Sprintf("%s/%s", dstTmpPath, transcoding.HLSPlaylistFilename)).
 				WithOptions(transcoding.ProcessOptions{
-					AudioCodec:         &body.AudioCodec,
-					VideoCodec:         &body.VideoCodec,
-					AudioBitrate:       &body.AudioBitrate,
-					VideoBitRate:       &body.VideoBitRate,
-					FrameRate:          &body.FrameRate,
+					AudioCodec:         &m.AudioCodec,
+					VideoCodec:         &m.VideoCodec,
+					AudioBitrate:       &AudioBitrate,
+					VideoBitRate:       &VideoBitrate,
+					FrameRate:          &Framerate,
 					HlsSegmentDuration: &body.HlsSegmentDuration,
 					HlsPlaylistType:    &body.HlsPlaylistType,
 					HlsSegmentFilename: &HlsSegmentFilename,
@@ -258,11 +280,11 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err = w.transcoder.Run(p)
 			if err != nil {
 				w.logger.Error("Command execution error", zap.Error(err), zap.String("arguments", strings.Join(p.GetStrArguments(), " ")))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 
-			err = filepath.Walk(dstTmpPath, func(path string, info os.FileInfo, err error) error {
+			err = filepath.Walk(dstTmpPath, func(filepath string, info os.FileInfo, err error) error {
 				if err != nil {
 					return err
 				}
@@ -271,16 +293,16 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					return nil
 				}
 
-				f, err := os.Open(path)
+				f, err := os.Open(filepath)
 				if err != nil {
 					return err
 				}
 				defer func() { _ = f.Close() }()
 
-				filename := strings.Replace(path, dstTmpPath, "", 1)
+				filename := strings.Replace(filepath, dstTmpPath, "", 1)
 
 				// Save the file
-				err = w.storage.Save(ctx, f, fmt.Sprintf("%s/%s/%s", body.MediaUUID.String(), body.RenditionName, filename))
+				err = w.storage.Save(ctx, f, path.Join(m.Edges.Media.ID.String(), m.RenditionName, filename))
 				if err != nil {
 					return err
 				}
@@ -289,32 +311,23 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			})
 			if err != nil {
 				w.logger.Error("Storage error (walk)", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 
-			_, err = w.dbClient.MediaFile.Create().
-				SetMedia(m).
-				SetRenditionName(body.RenditionName).
-				SetFormat("hls").
-				SetTargetBandwidth(body.TargetBandwidth).
-				SetVideoBitrate(int64(body.VideoBitRate)).
-				SetResolutionWidth(uint16(body.VideoWidth)).
-				SetResolutionHeight(uint16(body.VideoHeight)).
-				SetDurationSeconds(body.OriginalFile.DurationSeconds).
-				SetFramerate(body.OriginalFile.FrameRate).
-				SetMediaType(schema.MediaFileTypeVideo).
+			_, err = w.dbClient.MediaFile.UpdateOne(m).
+				SetStatus(mediafile.StatusReady).
 				Save(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 				return
 			}
 
 			err = d.Ack(false)
 			if err != nil {
 				w.logger.Error("Error trying to send ack", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
+				//_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored)
 			}
 		}()
 	}

@@ -122,6 +122,27 @@ func VideoBitrate(v int64) predicate.MediaFile {
 	})
 }
 
+// AudioBitrate applies equality check predicate on the "audio_bitrate" field. It's identical to AudioBitrateEQ.
+func AudioBitrate(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// VideoCodec applies equality check predicate on the "video_codec" field. It's identical to VideoCodecEQ.
+func VideoCodec(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldVideoCodec), v))
+	})
+}
+
+// AudioCodec applies equality check predicate on the "audio_codec" field. It's identical to AudioCodecEQ.
+func AudioCodec(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAudioCodec), v))
+	})
+}
+
 // ResolutionWidth applies equality check predicate on the "resolution_width" field. It's identical to ResolutionWidthEQ.
 func ResolutionWidth(v uint16) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
@@ -556,6 +577,304 @@ func VideoBitrateLT(v int64) predicate.MediaFile {
 func VideoBitrateLTE(v int64) predicate.MediaFile {
 	return predicate.MediaFile(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldVideoBitrate), v))
+	})
+}
+
+// AudioBitrateEQ applies the EQ predicate on the "audio_bitrate" field.
+func AudioBitrateEQ(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// AudioBitrateNEQ applies the NEQ predicate on the "audio_bitrate" field.
+func AudioBitrateNEQ(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// AudioBitrateIn applies the In predicate on the "audio_bitrate" field.
+func AudioBitrateIn(vs ...int64) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldAudioBitrate), v...))
+	})
+}
+
+// AudioBitrateNotIn applies the NotIn predicate on the "audio_bitrate" field.
+func AudioBitrateNotIn(vs ...int64) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldAudioBitrate), v...))
+	})
+}
+
+// AudioBitrateGT applies the GT predicate on the "audio_bitrate" field.
+func AudioBitrateGT(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// AudioBitrateGTE applies the GTE predicate on the "audio_bitrate" field.
+func AudioBitrateGTE(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// AudioBitrateLT applies the LT predicate on the "audio_bitrate" field.
+func AudioBitrateLT(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// AudioBitrateLTE applies the LTE predicate on the "audio_bitrate" field.
+func AudioBitrateLTE(v int64) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// VideoCodecEQ applies the EQ predicate on the "video_codec" field.
+func VideoCodecEQ(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecNEQ applies the NEQ predicate on the "video_codec" field.
+func VideoCodecNEQ(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecIn applies the In predicate on the "video_codec" field.
+func VideoCodecIn(vs ...string) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldVideoCodec), v...))
+	})
+}
+
+// VideoCodecNotIn applies the NotIn predicate on the "video_codec" field.
+func VideoCodecNotIn(vs ...string) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldVideoCodec), v...))
+	})
+}
+
+// VideoCodecGT applies the GT predicate on the "video_codec" field.
+func VideoCodecGT(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecGTE applies the GTE predicate on the "video_codec" field.
+func VideoCodecGTE(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecLT applies the LT predicate on the "video_codec" field.
+func VideoCodecLT(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecLTE applies the LTE predicate on the "video_codec" field.
+func VideoCodecLTE(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecContains applies the Contains predicate on the "video_codec" field.
+func VideoCodecContains(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecHasPrefix applies the HasPrefix predicate on the "video_codec" field.
+func VideoCodecHasPrefix(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecHasSuffix applies the HasSuffix predicate on the "video_codec" field.
+func VideoCodecHasSuffix(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecEqualFold applies the EqualFold predicate on the "video_codec" field.
+func VideoCodecEqualFold(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldVideoCodec), v))
+	})
+}
+
+// VideoCodecContainsFold applies the ContainsFold predicate on the "video_codec" field.
+func VideoCodecContainsFold(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldVideoCodec), v))
+	})
+}
+
+// AudioCodecEQ applies the EQ predicate on the "audio_codec" field.
+func AudioCodecEQ(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecNEQ applies the NEQ predicate on the "audio_codec" field.
+func AudioCodecNEQ(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecIn applies the In predicate on the "audio_codec" field.
+func AudioCodecIn(vs ...string) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldAudioCodec), v...))
+	})
+}
+
+// AudioCodecNotIn applies the NotIn predicate on the "audio_codec" field.
+func AudioCodecNotIn(vs ...string) predicate.MediaFile {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaFile(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldAudioCodec), v...))
+	})
+}
+
+// AudioCodecGT applies the GT predicate on the "audio_codec" field.
+func AudioCodecGT(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecGTE applies the GTE predicate on the "audio_codec" field.
+func AudioCodecGTE(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecLT applies the LT predicate on the "audio_codec" field.
+func AudioCodecLT(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecLTE applies the LTE predicate on the "audio_codec" field.
+func AudioCodecLTE(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecContains applies the Contains predicate on the "audio_codec" field.
+func AudioCodecContains(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecHasPrefix applies the HasPrefix predicate on the "audio_codec" field.
+func AudioCodecHasPrefix(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecHasSuffix applies the HasSuffix predicate on the "audio_codec" field.
+func AudioCodecHasSuffix(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecEqualFold applies the EqualFold predicate on the "audio_codec" field.
+func AudioCodecEqualFold(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldAudioCodec), v))
+	})
+}
+
+// AudioCodecContainsFold applies the ContainsFold predicate on the "audio_codec" field.
+func AudioCodecContainsFold(v string) predicate.MediaFile {
+	return predicate.MediaFile(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldAudioCodec), v))
 	})
 }
 
