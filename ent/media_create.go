@@ -49,6 +49,20 @@ func (mc *MediaCreate) SetStatus(m media.Status) *MediaCreate {
 	return mc
 }
 
+// SetMessage sets the message field.
+func (mc *MediaCreate) SetMessage(s string) *MediaCreate {
+	mc.mutation.SetMessage(s)
+	return mc
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mc *MediaCreate) SetNillableMessage(s *string) *MediaCreate {
+	if s != nil {
+		mc.SetMessage(*s)
+	}
+	return mc
+}
+
 // SetCreatedAt sets the created_at field.
 func (mc *MediaCreate) SetCreatedAt(t time.Time) *MediaCreate {
 	mc.mutation.SetCreatedAt(t)
@@ -173,6 +187,10 @@ func (mc *MediaCreate) defaults() {
 		v := media.DefaultOriginalFilename
 		mc.mutation.SetOriginalFilename(v)
 	}
+	if _, ok := mc.mutation.Message(); !ok {
+		v := media.DefaultMessage
+		mc.mutation.SetMessage(v)
+	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
 		v := media.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
@@ -208,6 +226,11 @@ func (mc *MediaCreate) check() error {
 	if v, ok := mc.mutation.Status(); ok {
 		if err := media.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mc.mutation.Message(); ok {
+		if err := media.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
 		}
 	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
@@ -268,6 +291,14 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Column: media.FieldStatus,
 		})
 		_node.Status = value
+	}
+	if value, ok := mc.mutation.Message(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldMessage,
+		})
+		_node.Message = value
 	}
 	if value, ok := mc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

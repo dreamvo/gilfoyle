@@ -31,7 +31,22 @@ type MediaEncodingCallbackParams struct {
 }
 
 type MediaEncodingEntrypoint struct {
-	MediaUUID       uuid.UUID `json:"media_uuid"`
+	MediaUUID uuid.UUID `json:"media_uuid"`
+}
+
+func MediaEncodingEntrypointProducer(ch Channel, data MediaEncodingEntrypoint) error {
+	body, _ := json.Marshal(data)
+
+	err := ch.Publish("", EncodingEntrypointQueue, false, false, amqp.Publishing{
+		DeliveryMode: amqp.Persistent,
+		ContentType:  "application/json",
+		Body:         body,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func HlsVideoEncodingProducer(ch Channel, data HlsVideoEncodingParams) error {

@@ -33,6 +33,12 @@ const (
 	FieldVideoBitrate = "video_bitrate"
 	// FieldAudioBitrate holds the string denoting the audio_bitrate field in the database.
 	FieldAudioBitrate = "audio_bitrate"
+	// FieldFramerate holds the string denoting the framerate field in the database.
+	FieldFramerate = "framerate"
+	// FieldFormat holds the string denoting the format field in the database.
+	FieldFormat = "format"
+	// FieldNbStreams holds the string denoting the nb_streams field in the database.
+	FieldNbStreams = "nb_streams"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -65,6 +71,9 @@ var Columns = []string{
 	FieldDurationSeconds,
 	FieldVideoBitrate,
 	FieldAudioBitrate,
+	FieldFramerate,
+	FieldFormat,
+	FieldNbStreams,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -120,6 +129,14 @@ var (
 	DefaultAudioBitrate int
 	// AudioBitrateValidator is a validator for the "audio_bitrate" field. It is called by the builders before save.
 	AudioBitrateValidator func(int) error
+	// FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
+	FramerateValidator func(int) error
+	// FormatValidator is a validator for the "format" field. It is called by the builders before save.
+	FormatValidator func(string) error
+	// DefaultNbStreams holds the default value on creation for the nb_streams field.
+	DefaultNbStreams int
+	// NbStreamsValidator is a validator for the "nb_streams" field. It is called by the builders before save.
+	NbStreamsValidator func(int) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.

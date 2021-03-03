@@ -20,6 +20,8 @@ const (
 	FieldOriginalFilename = "original_filename"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldMessage holds the string denoting the message field in the database.
+	FieldMessage = "message"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -54,6 +56,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldOriginalFilename,
 	FieldStatus,
+	FieldMessage,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -75,6 +78,10 @@ var (
 	DefaultOriginalFilename string
 	// OriginalFilenameValidator is a validator for the "original_filename" field. It is called by the builders before save.
 	OriginalFilenameValidator func(string) error
+	// DefaultMessage holds the default value on creation for the message field.
+	DefaultMessage string
+	// MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	MessageValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.

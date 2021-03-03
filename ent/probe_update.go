@@ -172,6 +172,46 @@ func (pu *ProbeUpdate) AddAudioBitrate(i int) *ProbeUpdate {
 	return pu
 }
 
+// SetFramerate sets the framerate field.
+func (pu *ProbeUpdate) SetFramerate(i int) *ProbeUpdate {
+	pu.mutation.ResetFramerate()
+	pu.mutation.SetFramerate(i)
+	return pu
+}
+
+// AddFramerate adds i to framerate.
+func (pu *ProbeUpdate) AddFramerate(i int) *ProbeUpdate {
+	pu.mutation.AddFramerate(i)
+	return pu
+}
+
+// SetFormat sets the format field.
+func (pu *ProbeUpdate) SetFormat(s string) *ProbeUpdate {
+	pu.mutation.SetFormat(s)
+	return pu
+}
+
+// SetNbStreams sets the nb_streams field.
+func (pu *ProbeUpdate) SetNbStreams(i int) *ProbeUpdate {
+	pu.mutation.ResetNbStreams()
+	pu.mutation.SetNbStreams(i)
+	return pu
+}
+
+// SetNillableNbStreams sets the nb_streams field if the given value is not nil.
+func (pu *ProbeUpdate) SetNillableNbStreams(i *int) *ProbeUpdate {
+	if i != nil {
+		pu.SetNbStreams(*i)
+	}
+	return pu
+}
+
+// AddNbStreams adds i to nb_streams.
+func (pu *ProbeUpdate) AddNbStreams(i int) *ProbeUpdate {
+	pu.mutation.AddNbStreams(i)
+	return pu
+}
+
 // SetCreatedAt sets the created_at field.
 func (pu *ProbeUpdate) SetCreatedAt(t time.Time) *ProbeUpdate {
 	pu.mutation.SetCreatedAt(t)
@@ -332,6 +372,21 @@ func (pu *ProbeUpdate) check() error {
 			return &ValidationError{Name: "audio_bitrate", err: fmt.Errorf("ent: validator failed for field \"audio_bitrate\": %w", err)}
 		}
 	}
+	if v, ok := pu.mutation.Framerate(); ok {
+		if err := probe.FramerateValidator(v); err != nil {
+			return &ValidationError{Name: "framerate", err: fmt.Errorf("ent: validator failed for field \"framerate\": %w", err)}
+		}
+	}
+	if v, ok := pu.mutation.Format(); ok {
+		if err := probe.FormatValidator(v); err != nil {
+			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
+		}
+	}
+	if v, ok := pu.mutation.NbStreams(); ok {
+		if err := probe.NbStreamsValidator(v); err != nil {
+			return &ValidationError{Name: "nb_streams", err: fmt.Errorf("ent: validator failed for field \"nb_streams\": %w", err)}
+		}
+	}
 	if _, ok := pu.mutation.MediaID(); pu.mutation.MediaCleared() && !ok {
 		return errors.New("ent: clearing a required unique edge \"media\"")
 	}
@@ -466,6 +521,41 @@ func (pu *ProbeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeInt,
 			Value:  value,
 			Column: probe.FieldAudioBitrate,
+		})
+	}
+	if value, ok := pu.mutation.Framerate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldFramerate,
+		})
+	}
+	if value, ok := pu.mutation.AddedFramerate(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldFramerate,
+		})
+	}
+	if value, ok := pu.mutation.Format(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: probe.FieldFormat,
+		})
+	}
+	if value, ok := pu.mutation.NbStreams(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldNbStreams,
+		})
+	}
+	if value, ok := pu.mutation.AddedNbStreams(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldNbStreams,
 		})
 	}
 	if value, ok := pu.mutation.CreatedAt(); ok {
@@ -677,6 +767,46 @@ func (puo *ProbeUpdateOne) AddAudioBitrate(i int) *ProbeUpdateOne {
 	return puo
 }
 
+// SetFramerate sets the framerate field.
+func (puo *ProbeUpdateOne) SetFramerate(i int) *ProbeUpdateOne {
+	puo.mutation.ResetFramerate()
+	puo.mutation.SetFramerate(i)
+	return puo
+}
+
+// AddFramerate adds i to framerate.
+func (puo *ProbeUpdateOne) AddFramerate(i int) *ProbeUpdateOne {
+	puo.mutation.AddFramerate(i)
+	return puo
+}
+
+// SetFormat sets the format field.
+func (puo *ProbeUpdateOne) SetFormat(s string) *ProbeUpdateOne {
+	puo.mutation.SetFormat(s)
+	return puo
+}
+
+// SetNbStreams sets the nb_streams field.
+func (puo *ProbeUpdateOne) SetNbStreams(i int) *ProbeUpdateOne {
+	puo.mutation.ResetNbStreams()
+	puo.mutation.SetNbStreams(i)
+	return puo
+}
+
+// SetNillableNbStreams sets the nb_streams field if the given value is not nil.
+func (puo *ProbeUpdateOne) SetNillableNbStreams(i *int) *ProbeUpdateOne {
+	if i != nil {
+		puo.SetNbStreams(*i)
+	}
+	return puo
+}
+
+// AddNbStreams adds i to nb_streams.
+func (puo *ProbeUpdateOne) AddNbStreams(i int) *ProbeUpdateOne {
+	puo.mutation.AddNbStreams(i)
+	return puo
+}
+
 // SetCreatedAt sets the created_at field.
 func (puo *ProbeUpdateOne) SetCreatedAt(t time.Time) *ProbeUpdateOne {
 	puo.mutation.SetCreatedAt(t)
@@ -837,6 +967,21 @@ func (puo *ProbeUpdateOne) check() error {
 			return &ValidationError{Name: "audio_bitrate", err: fmt.Errorf("ent: validator failed for field \"audio_bitrate\": %w", err)}
 		}
 	}
+	if v, ok := puo.mutation.Framerate(); ok {
+		if err := probe.FramerateValidator(v); err != nil {
+			return &ValidationError{Name: "framerate", err: fmt.Errorf("ent: validator failed for field \"framerate\": %w", err)}
+		}
+	}
+	if v, ok := puo.mutation.Format(); ok {
+		if err := probe.FormatValidator(v); err != nil {
+			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
+		}
+	}
+	if v, ok := puo.mutation.NbStreams(); ok {
+		if err := probe.NbStreamsValidator(v); err != nil {
+			return &ValidationError{Name: "nb_streams", err: fmt.Errorf("ent: validator failed for field \"nb_streams\": %w", err)}
+		}
+	}
 	if _, ok := puo.mutation.MediaID(); puo.mutation.MediaCleared() && !ok {
 		return errors.New("ent: clearing a required unique edge \"media\"")
 	}
@@ -969,6 +1114,41 @@ func (puo *ProbeUpdateOne) sqlSave(ctx context.Context) (_node *Probe, err error
 			Type:   field.TypeInt,
 			Value:  value,
 			Column: probe.FieldAudioBitrate,
+		})
+	}
+	if value, ok := puo.mutation.Framerate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldFramerate,
+		})
+	}
+	if value, ok := puo.mutation.AddedFramerate(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldFramerate,
+		})
+	}
+	if value, ok := puo.mutation.Format(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: probe.FieldFormat,
+		})
+	}
+	if value, ok := puo.mutation.NbStreams(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldNbStreams,
+		})
+	}
+	if value, ok := puo.mutation.AddedNbStreams(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldNbStreams,
 		})
 	}
 	if value, ok := puo.mutation.CreatedAt(); ok {

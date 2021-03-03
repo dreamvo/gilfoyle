@@ -36,6 +36,14 @@ type MediaFile struct {
 	DurationSeconds float64 `json:"duration_seconds,omitempty"`
 	// MediaType holds the value of the "media_type" field.
 	MediaType mediafile.MediaType `json:"media_type,omitempty"`
+	// Status holds the value of the "status" field.
+	Status mediafile.Status `json:"status,omitempty"`
+	// Message holds the value of the "message" field.
+	Message string `json:"message,omitempty"`
+	// EntryFile holds the value of the "entry_file" field.
+	EntryFile string `json:"entry_file,omitempty"`
+	// Mimetype holds the value of the "mimetype" field.
+	Mimetype string `json:"mimetype,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -82,6 +90,10 @@ func (*MediaFile) scanValues() []interface{} {
 		&sql.NullInt64{},   // framerate
 		&sql.NullFloat64{}, // duration_seconds
 		&sql.NullString{},  // media_type
+		&sql.NullString{},  // status
+		&sql.NullString{},  // message
+		&sql.NullString{},  // entry_file
+		&sql.NullString{},  // mimetype
 		&sql.NullTime{},    // created_at
 		&sql.NullTime{},    // updated_at
 	}
@@ -151,17 +163,37 @@ func (mf *MediaFile) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		mf.MediaType = mediafile.MediaType(value.String)
 	}
-	if value, ok := values[9].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[9])
+	if value, ok := values[9].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field status", values[9])
+	} else if value.Valid {
+		mf.Status = mediafile.Status(value.String)
+	}
+	if value, ok := values[10].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field message", values[10])
+	} else if value.Valid {
+		mf.Message = value.String
+	}
+	if value, ok := values[11].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field entry_file", values[11])
+	} else if value.Valid {
+		mf.EntryFile = value.String
+	}
+	if value, ok := values[12].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field mimetype", values[12])
+	} else if value.Valid {
+		mf.Mimetype = value.String
+	}
+	if value, ok := values[13].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[13])
 	} else if value.Valid {
 		mf.CreatedAt = value.Time
 	}
-	if value, ok := values[10].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[10])
+	if value, ok := values[14].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[14])
 	} else if value.Valid {
 		mf.UpdatedAt = value.Time
 	}
-	values = values[11:]
+	values = values[15:]
 	if len(values) == len(mediafile.ForeignKeys) {
 		if value, ok := values[0].(*uuid.UUID); !ok {
 			return fmt.Errorf("unexpected type %T for field media", values[0])
@@ -218,6 +250,14 @@ func (mf *MediaFile) String() string {
 	builder.WriteString(fmt.Sprintf("%v", mf.DurationSeconds))
 	builder.WriteString(", media_type=")
 	builder.WriteString(fmt.Sprintf("%v", mf.MediaType))
+	builder.WriteString(", status=")
+	builder.WriteString(fmt.Sprintf("%v", mf.Status))
+	builder.WriteString(", message=")
+	builder.WriteString(mf.Message)
+	builder.WriteString(", entry_file=")
+	builder.WriteString(mf.EntryFile)
+	builder.WriteString(", mimetype=")
+	builder.WriteString(mf.Mimetype)
 	builder.WriteString(", created_at=")
 	builder.WriteString(mf.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

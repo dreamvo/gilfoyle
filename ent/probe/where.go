@@ -164,6 +164,27 @@ func AudioBitrate(v int) predicate.Probe {
 	})
 }
 
+// Framerate applies equality check predicate on the "framerate" field. It's identical to FramerateEQ.
+func Framerate(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFramerate), v))
+	})
+}
+
+// Format applies equality check predicate on the "format" field. It's identical to FormatEQ.
+func Format(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFormat), v))
+	})
+}
+
+// NbStreams applies equality check predicate on the "nb_streams" field. It's identical to NbStreamsEQ.
+func NbStreams(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNbStreams), v))
+	})
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
@@ -1075,6 +1096,269 @@ func AudioBitrateLT(v int) predicate.Probe {
 func AudioBitrateLTE(v int) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldAudioBitrate), v))
+	})
+}
+
+// FramerateEQ applies the EQ predicate on the "framerate" field.
+func FramerateEQ(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFramerate), v))
+	})
+}
+
+// FramerateNEQ applies the NEQ predicate on the "framerate" field.
+func FramerateNEQ(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldFramerate), v))
+	})
+}
+
+// FramerateIn applies the In predicate on the "framerate" field.
+func FramerateIn(vs ...int) predicate.Probe {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Probe(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldFramerate), v...))
+	})
+}
+
+// FramerateNotIn applies the NotIn predicate on the "framerate" field.
+func FramerateNotIn(vs ...int) predicate.Probe {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Probe(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldFramerate), v...))
+	})
+}
+
+// FramerateGT applies the GT predicate on the "framerate" field.
+func FramerateGT(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldFramerate), v))
+	})
+}
+
+// FramerateGTE applies the GTE predicate on the "framerate" field.
+func FramerateGTE(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldFramerate), v))
+	})
+}
+
+// FramerateLT applies the LT predicate on the "framerate" field.
+func FramerateLT(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldFramerate), v))
+	})
+}
+
+// FramerateLTE applies the LTE predicate on the "framerate" field.
+func FramerateLTE(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldFramerate), v))
+	})
+}
+
+// FormatEQ applies the EQ predicate on the "format" field.
+func FormatEQ(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldFormat), v))
+	})
+}
+
+// FormatNEQ applies the NEQ predicate on the "format" field.
+func FormatNEQ(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldFormat), v))
+	})
+}
+
+// FormatIn applies the In predicate on the "format" field.
+func FormatIn(vs ...string) predicate.Probe {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Probe(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldFormat), v...))
+	})
+}
+
+// FormatNotIn applies the NotIn predicate on the "format" field.
+func FormatNotIn(vs ...string) predicate.Probe {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Probe(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldFormat), v...))
+	})
+}
+
+// FormatGT applies the GT predicate on the "format" field.
+func FormatGT(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldFormat), v))
+	})
+}
+
+// FormatGTE applies the GTE predicate on the "format" field.
+func FormatGTE(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldFormat), v))
+	})
+}
+
+// FormatLT applies the LT predicate on the "format" field.
+func FormatLT(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldFormat), v))
+	})
+}
+
+// FormatLTE applies the LTE predicate on the "format" field.
+func FormatLTE(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldFormat), v))
+	})
+}
+
+// FormatContains applies the Contains predicate on the "format" field.
+func FormatContains(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldFormat), v))
+	})
+}
+
+// FormatHasPrefix applies the HasPrefix predicate on the "format" field.
+func FormatHasPrefix(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldFormat), v))
+	})
+}
+
+// FormatHasSuffix applies the HasSuffix predicate on the "format" field.
+func FormatHasSuffix(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldFormat), v))
+	})
+}
+
+// FormatEqualFold applies the EqualFold predicate on the "format" field.
+func FormatEqualFold(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldFormat), v))
+	})
+}
+
+// FormatContainsFold applies the ContainsFold predicate on the "format" field.
+func FormatContainsFold(v string) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldFormat), v))
+	})
+}
+
+// NbStreamsEQ applies the EQ predicate on the "nb_streams" field.
+func NbStreamsEQ(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNbStreams), v))
+	})
+}
+
+// NbStreamsNEQ applies the NEQ predicate on the "nb_streams" field.
+func NbStreamsNEQ(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldNbStreams), v))
+	})
+}
+
+// NbStreamsIn applies the In predicate on the "nb_streams" field.
+func NbStreamsIn(vs ...int) predicate.Probe {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Probe(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldNbStreams), v...))
+	})
+}
+
+// NbStreamsNotIn applies the NotIn predicate on the "nb_streams" field.
+func NbStreamsNotIn(vs ...int) predicate.Probe {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Probe(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldNbStreams), v...))
+	})
+}
+
+// NbStreamsGT applies the GT predicate on the "nb_streams" field.
+func NbStreamsGT(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldNbStreams), v))
+	})
+}
+
+// NbStreamsGTE applies the GTE predicate on the "nb_streams" field.
+func NbStreamsGTE(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldNbStreams), v))
+	})
+}
+
+// NbStreamsLT applies the LT predicate on the "nb_streams" field.
+func NbStreamsLT(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldNbStreams), v))
+	})
+}
+
+// NbStreamsLTE applies the LTE predicate on the "nb_streams" field.
+func NbStreamsLTE(v int) predicate.Probe {
+	return predicate.Probe(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldNbStreams), v))
 	})
 }
 

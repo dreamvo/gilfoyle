@@ -32,6 +32,14 @@ const (
 	FieldDurationSeconds = "duration_seconds"
 	// FieldMediaType holds the string denoting the media_type field in the database.
 	FieldMediaType = "media_type"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldMessage holds the string denoting the message field in the database.
+	FieldMessage = "message"
+	// FieldEntryFile holds the string denoting the entry_file field in the database.
+	FieldEntryFile = "entry_file"
+	// FieldMimetype holds the string denoting the mimetype field in the database.
+	FieldMimetype = "mimetype"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -63,6 +71,10 @@ var Columns = []string{
 	FieldFramerate,
 	FieldDurationSeconds,
 	FieldMediaType,
+	FieldStatus,
+	FieldMessage,
+	FieldEntryFile,
+	FieldMimetype,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -104,6 +116,18 @@ var (
 	FramerateValidator func(uint8) error
 	// DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	DurationSecondsValidator func(float64) error
+	// DefaultMessage holds the default value on creation for the message field.
+	DefaultMessage string
+	// MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	MessageValidator func(string) error
+	// DefaultEntryFile holds the default value on creation for the entry_file field.
+	DefaultEntryFile string
+	// EntryFileValidator is a validator for the "entry_file" field. It is called by the builders before save.
+	EntryFileValidator func(string) error
+	// DefaultMimetype holds the default value on creation for the mimetype field.
+	DefaultMimetype string
+	// MimetypeValidator is a validator for the "mimetype" field. It is called by the builders before save.
+	MimetypeValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
@@ -134,5 +158,29 @@ func MediaTypeValidator(mt MediaType) error {
 		return nil
 	default:
 		return fmt.Errorf("mediafile: invalid enum value for media_type field: %q", mt)
+	}
+}
+
+// Status defines the type for the status enum field.
+type Status string
+
+// Status values.
+const (
+	StatusProcessing Status = "Processing"
+	StatusReady      Status = "Ready"
+	StatusErrored    Status = "Errored"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusProcessing, StatusReady, StatusErrored:
+		return nil
+	default:
+		return fmt.Errorf("mediafile: invalid enum value for status field: %q", s)
 	}
 }

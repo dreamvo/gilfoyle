@@ -43,12 +43,18 @@ func init() {
 	media.DefaultOriginalFilename = mediaDescOriginalFilename.Default.(string)
 	// media.OriginalFilenameValidator is a validator for the "original_filename" field. It is called by the builders before save.
 	media.OriginalFilenameValidator = mediaDescOriginalFilename.Validators[0].(func(string) error)
+	// mediaDescMessage is the schema descriptor for message field.
+	mediaDescMessage := mediaFields[4].Descriptor()
+	// media.DefaultMessage holds the default value on creation for the message field.
+	media.DefaultMessage = mediaDescMessage.Default.(string)
+	// media.MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	media.MessageValidator = mediaDescMessage.Validators[0].(func(string) error)
 	// mediaDescCreatedAt is the schema descriptor for created_at field.
-	mediaDescCreatedAt := mediaFields[4].Descriptor()
+	mediaDescCreatedAt := mediaFields[5].Descriptor()
 	// media.DefaultCreatedAt holds the default value on creation for the created_at field.
 	media.DefaultCreatedAt = mediaDescCreatedAt.Default.(func() time.Time)
 	// mediaDescUpdatedAt is the schema descriptor for updated_at field.
-	mediaDescUpdatedAt := mediaFields[5].Descriptor()
+	mediaDescUpdatedAt := mediaFields[6].Descriptor()
 	// media.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
 	// media.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -147,12 +153,30 @@ func init() {
 	mediafileDescDurationSeconds := mediafileFields[8].Descriptor()
 	// mediafile.DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	mediafile.DurationSecondsValidator = mediafileDescDurationSeconds.Validators[0].(func(float64) error)
+	// mediafileDescMessage is the schema descriptor for message field.
+	mediafileDescMessage := mediafileFields[11].Descriptor()
+	// mediafile.DefaultMessage holds the default value on creation for the message field.
+	mediafile.DefaultMessage = mediafileDescMessage.Default.(string)
+	// mediafile.MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	mediafile.MessageValidator = mediafileDescMessage.Validators[0].(func(string) error)
+	// mediafileDescEntryFile is the schema descriptor for entry_file field.
+	mediafileDescEntryFile := mediafileFields[12].Descriptor()
+	// mediafile.DefaultEntryFile holds the default value on creation for the entry_file field.
+	mediafile.DefaultEntryFile = mediafileDescEntryFile.Default.(string)
+	// mediafile.EntryFileValidator is a validator for the "entry_file" field. It is called by the builders before save.
+	mediafile.EntryFileValidator = mediafileDescEntryFile.Validators[0].(func(string) error)
+	// mediafileDescMimetype is the schema descriptor for mimetype field.
+	mediafileDescMimetype := mediafileFields[13].Descriptor()
+	// mediafile.DefaultMimetype holds the default value on creation for the mimetype field.
+	mediafile.DefaultMimetype = mediafileDescMimetype.Default.(string)
+	// mediafile.MimetypeValidator is a validator for the "mimetype" field. It is called by the builders before save.
+	mediafile.MimetypeValidator = mediafileDescMimetype.Validators[0].(func(string) error)
 	// mediafileDescCreatedAt is the schema descriptor for created_at field.
-	mediafileDescCreatedAt := mediafileFields[10].Descriptor()
+	mediafileDescCreatedAt := mediafileFields[14].Descriptor()
 	// mediafile.DefaultCreatedAt holds the default value on creation for the created_at field.
 	mediafile.DefaultCreatedAt = mediafileDescCreatedAt.Default.(func() time.Time)
 	// mediafileDescUpdatedAt is the schema descriptor for updated_at field.
-	mediafileDescUpdatedAt := mediafileFields[11].Descriptor()
+	mediafileDescUpdatedAt := mediafileFields[15].Descriptor()
 	// mediafile.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	mediafile.DefaultUpdatedAt = mediafileDescUpdatedAt.Default.(func() time.Time)
 	// mediafile.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
@@ -269,12 +293,26 @@ func init() {
 	probe.DefaultAudioBitrate = probeDescAudioBitrate.Default.(int)
 	// probe.AudioBitrateValidator is a validator for the "audio_bitrate" field. It is called by the builders before save.
 	probe.AudioBitrateValidator = probeDescAudioBitrate.Validators[0].(func(int) error)
+	// probeDescFramerate is the schema descriptor for framerate field.
+	probeDescFramerate := probeFields[11].Descriptor()
+	// probe.FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
+	probe.FramerateValidator = probeDescFramerate.Validators[0].(func(int) error)
+	// probeDescFormat is the schema descriptor for format field.
+	probeDescFormat := probeFields[12].Descriptor()
+	// probe.FormatValidator is a validator for the "format" field. It is called by the builders before save.
+	probe.FormatValidator = probeDescFormat.Validators[0].(func(string) error)
+	// probeDescNbStreams is the schema descriptor for nb_streams field.
+	probeDescNbStreams := probeFields[13].Descriptor()
+	// probe.DefaultNbStreams holds the default value on creation for the nb_streams field.
+	probe.DefaultNbStreams = probeDescNbStreams.Default.(int)
+	// probe.NbStreamsValidator is a validator for the "nb_streams" field. It is called by the builders before save.
+	probe.NbStreamsValidator = probeDescNbStreams.Validators[0].(func(int) error)
 	// probeDescCreatedAt is the schema descriptor for created_at field.
-	probeDescCreatedAt := probeFields[11].Descriptor()
+	probeDescCreatedAt := probeFields[14].Descriptor()
 	// probe.DefaultCreatedAt holds the default value on creation for the created_at field.
 	probe.DefaultCreatedAt = probeDescCreatedAt.Default.(func() time.Time)
 	// probeDescUpdatedAt is the schema descriptor for updated_at field.
-	probeDescUpdatedAt := probeFields[12].Descriptor()
+	probeDescUpdatedAt := probeFields[15].Descriptor()
 	// probe.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	probe.DefaultUpdatedAt = probeDescUpdatedAt.Default.(func() time.Time)
 	// probe.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

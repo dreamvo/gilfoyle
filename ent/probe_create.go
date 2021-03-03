@@ -122,6 +122,32 @@ func (pc *ProbeCreate) SetNillableAudioBitrate(i *int) *ProbeCreate {
 	return pc
 }
 
+// SetFramerate sets the framerate field.
+func (pc *ProbeCreate) SetFramerate(i int) *ProbeCreate {
+	pc.mutation.SetFramerate(i)
+	return pc
+}
+
+// SetFormat sets the format field.
+func (pc *ProbeCreate) SetFormat(s string) *ProbeCreate {
+	pc.mutation.SetFormat(s)
+	return pc
+}
+
+// SetNbStreams sets the nb_streams field.
+func (pc *ProbeCreate) SetNbStreams(i int) *ProbeCreate {
+	pc.mutation.SetNbStreams(i)
+	return pc
+}
+
+// SetNillableNbStreams sets the nb_streams field if the given value is not nil.
+func (pc *ProbeCreate) SetNillableNbStreams(i *int) *ProbeCreate {
+	if i != nil {
+		pc.SetNbStreams(*i)
+	}
+	return pc
+}
+
 // SetCreatedAt sets the created_at field.
 func (pc *ProbeCreate) SetCreatedAt(t time.Time) *ProbeCreate {
 	pc.mutation.SetCreatedAt(t)
@@ -239,6 +265,10 @@ func (pc *ProbeCreate) defaults() {
 		v := probe.DefaultAudioBitrate
 		pc.mutation.SetAudioBitrate(v)
 	}
+	if _, ok := pc.mutation.NbStreams(); !ok {
+		v := probe.DefaultNbStreams
+		pc.mutation.SetNbStreams(v)
+	}
 	if _, ok := pc.mutation.CreatedAt(); !ok {
 		v := probe.DefaultCreatedAt()
 		pc.mutation.SetCreatedAt(v)
@@ -333,6 +363,30 @@ func (pc *ProbeCreate) check() error {
 	if v, ok := pc.mutation.AudioBitrate(); ok {
 		if err := probe.AudioBitrateValidator(v); err != nil {
 			return &ValidationError{Name: "audio_bitrate", err: fmt.Errorf("ent: validator failed for field \"audio_bitrate\": %w", err)}
+		}
+	}
+	if _, ok := pc.mutation.Framerate(); !ok {
+		return &ValidationError{Name: "framerate", err: errors.New("ent: missing required field \"framerate\"")}
+	}
+	if v, ok := pc.mutation.Framerate(); ok {
+		if err := probe.FramerateValidator(v); err != nil {
+			return &ValidationError{Name: "framerate", err: fmt.Errorf("ent: validator failed for field \"framerate\": %w", err)}
+		}
+	}
+	if _, ok := pc.mutation.Format(); !ok {
+		return &ValidationError{Name: "format", err: errors.New("ent: missing required field \"format\"")}
+	}
+	if v, ok := pc.mutation.Format(); ok {
+		if err := probe.FormatValidator(v); err != nil {
+			return &ValidationError{Name: "format", err: fmt.Errorf("ent: validator failed for field \"format\": %w", err)}
+		}
+	}
+	if _, ok := pc.mutation.NbStreams(); !ok {
+		return &ValidationError{Name: "nb_streams", err: errors.New("ent: missing required field \"nb_streams\"")}
+	}
+	if v, ok := pc.mutation.NbStreams(); ok {
+		if err := probe.NbStreamsValidator(v); err != nil {
+			return &ValidationError{Name: "nb_streams", err: fmt.Errorf("ent: validator failed for field \"nb_streams\": %w", err)}
 		}
 	}
 	if _, ok := pc.mutation.CreatedAt(); !ok {
@@ -452,6 +506,30 @@ func (pc *ProbeCreate) createSpec() (*Probe, *sqlgraph.CreateSpec) {
 			Column: probe.FieldAudioBitrate,
 		})
 		_node.AudioBitrate = value
+	}
+	if value, ok := pc.mutation.Framerate(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldFramerate,
+		})
+		_node.Framerate = value
+	}
+	if value, ok := pc.mutation.Format(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: probe.FieldFormat,
+		})
+		_node.Format = value
+	}
+	if value, ok := pc.mutation.NbStreams(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt,
+			Value:  value,
+			Column: probe.FieldNbStreams,
+		})
+		_node.NbStreams = value
 	}
 	if value, ok := pc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

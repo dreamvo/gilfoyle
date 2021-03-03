@@ -62,6 +62,26 @@ func (mu *MediaUpdate) SetStatus(m media.Status) *MediaUpdate {
 	return mu
 }
 
+// SetMessage sets the message field.
+func (mu *MediaUpdate) SetMessage(s string) *MediaUpdate {
+	mu.mutation.SetMessage(s)
+	return mu
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mu *MediaUpdate) SetNillableMessage(s *string) *MediaUpdate {
+	if s != nil {
+		mu.SetMessage(*s)
+	}
+	return mu
+}
+
+// ClearMessage clears the value of message.
+func (mu *MediaUpdate) ClearMessage() *MediaUpdate {
+	mu.mutation.ClearMessage()
+	return mu
+}
+
 // SetCreatedAt sets the created_at field.
 func (mu *MediaUpdate) SetCreatedAt(t time.Time) *MediaUpdate {
 	mu.mutation.SetCreatedAt(t)
@@ -231,6 +251,11 @@ func (mu *MediaUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
 		}
 	}
+	if v, ok := mu.mutation.Message(); ok {
+		if err := media.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -277,6 +302,19 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: media.FieldStatus,
+		})
+	}
+	if value, ok := mu.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldMessage,
+		})
+	}
+	if mu.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: media.FieldMessage,
 		})
 	}
 	if value, ok := mu.mutation.CreatedAt(); ok {
@@ -429,6 +467,26 @@ func (muo *MediaUpdateOne) ClearOriginalFilename() *MediaUpdateOne {
 // SetStatus sets the status field.
 func (muo *MediaUpdateOne) SetStatus(m media.Status) *MediaUpdateOne {
 	muo.mutation.SetStatus(m)
+	return muo
+}
+
+// SetMessage sets the message field.
+func (muo *MediaUpdateOne) SetMessage(s string) *MediaUpdateOne {
+	muo.mutation.SetMessage(s)
+	return muo
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableMessage(s *string) *MediaUpdateOne {
+	if s != nil {
+		muo.SetMessage(*s)
+	}
+	return muo
+}
+
+// ClearMessage clears the value of message.
+func (muo *MediaUpdateOne) ClearMessage() *MediaUpdateOne {
+	muo.mutation.ClearMessage()
 	return muo
 }
 
@@ -601,6 +659,11 @@ func (muo *MediaUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
 		}
 	}
+	if v, ok := muo.mutation.Message(); ok {
+		if err := media.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -645,6 +708,19 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: media.FieldStatus,
+		})
+	}
+	if value, ok := muo.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldMessage,
+		})
+	}
+	if muo.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: media.FieldMessage,
 		})
 	}
 	if value, ok := muo.mutation.CreatedAt(); ok {

@@ -38,6 +38,12 @@ type Probe struct {
 	VideoBitrate int `json:"video_bitrate,omitempty"`
 	// AudioBitrate holds the value of the "audio_bitrate" field.
 	AudioBitrate int `json:"audio_bitrate,omitempty"`
+	// Framerate holds the value of the "framerate" field.
+	Framerate int `json:"framerate,omitempty"`
+	// Format holds the value of the "format" field.
+	Format string `json:"format,omitempty"`
+	// NbStreams holds the value of the "nb_streams" field.
+	NbStreams int `json:"nb_streams,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -85,6 +91,9 @@ func (*Probe) scanValues() []interface{} {
 		&sql.NullFloat64{}, // duration_seconds
 		&sql.NullInt64{},   // video_bitrate
 		&sql.NullInt64{},   // audio_bitrate
+		&sql.NullInt64{},   // framerate
+		&sql.NullString{},  // format
+		&sql.NullInt64{},   // nb_streams
 		&sql.NullTime{},    // created_at
 		&sql.NullTime{},    // updated_at
 	}
@@ -159,17 +168,32 @@ func (pr *Probe) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		pr.AudioBitrate = int(value.Int64)
 	}
-	if value, ok := values[10].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[10])
+	if value, ok := values[10].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field framerate", values[10])
+	} else if value.Valid {
+		pr.Framerate = int(value.Int64)
+	}
+	if value, ok := values[11].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field format", values[11])
+	} else if value.Valid {
+		pr.Format = value.String
+	}
+	if value, ok := values[12].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field nb_streams", values[12])
+	} else if value.Valid {
+		pr.NbStreams = int(value.Int64)
+	}
+	if value, ok := values[13].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[13])
 	} else if value.Valid {
 		pr.CreatedAt = value.Time
 	}
-	if value, ok := values[11].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[11])
+	if value, ok := values[14].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[14])
 	} else if value.Valid {
 		pr.UpdatedAt = value.Time
 	}
-	values = values[12:]
+	values = values[15:]
 	if len(values) == len(probe.ForeignKeys) {
 		if value, ok := values[0].(*uuid.UUID); !ok {
 			return fmt.Errorf("unexpected type %T for field media", values[0])
@@ -228,6 +252,12 @@ func (pr *Probe) String() string {
 	builder.WriteString(fmt.Sprintf("%v", pr.VideoBitrate))
 	builder.WriteString(", audio_bitrate=")
 	builder.WriteString(fmt.Sprintf("%v", pr.AudioBitrate))
+	builder.WriteString(", framerate=")
+	builder.WriteString(fmt.Sprintf("%v", pr.Framerate))
+	builder.WriteString(", format=")
+	builder.WriteString(pr.Format)
+	builder.WriteString(", nb_streams=")
+	builder.WriteString(fmt.Sprintf("%v", pr.NbStreams))
 	builder.WriteString(", created_at=")
 	builder.WriteString(pr.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

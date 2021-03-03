@@ -72,6 +72,7 @@ type Options struct {
 	Storage     storage.Storage
 	Database    *ent.Client
 	Transcoder  transcoding.ITranscoder
+	Config      config.Config
 }
 
 type Worker struct {
@@ -105,6 +106,7 @@ func New(opts Options) (*Worker, error) {
 		storage:     opts.Storage,
 		dbClient:    opts.Database,
 		transcoder:  opts.Transcoder,
+		config:      opts.Config,
 	}, nil
 }
 

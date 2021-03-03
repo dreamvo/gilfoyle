@@ -45,6 +45,9 @@ func (Probe) Fields() []ent.Field {
 		field.Float("duration_seconds").Min(0).Default(0),
 		field.Int("video_bitrate").Min(0).Default(0),
 		field.Int("audio_bitrate").Min(0).Default(0),
+		field.Int("framerate").Min(0),
+		field.String("format").MinLen(1),
+		field.Int("nb_streams").Min(1).Default(1),
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()
 		}),

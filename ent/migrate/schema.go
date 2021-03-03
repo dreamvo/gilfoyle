@@ -15,6 +15,7 @@ var (
 		{Name: "title", Type: field.TypeString, Size: 255},
 		{Name: "original_filename", Type: field.TypeString, Nullable: true, Size: 150, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"AwaitingUpload", "Processing", "Ready", "Errored"}},
+		{Name: "message", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}
@@ -38,6 +39,10 @@ var (
 		{Name: "framerate", Type: field.TypeUint8},
 		{Name: "duration_seconds", Type: field.TypeFloat64},
 		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"audio", "video"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"Processing", "Ready", "Errored"}},
+		{Name: "message", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
+		{Name: "entry_file", Type: field.TypeString, Size: 255, Default: "index.m3u8"},
+		{Name: "mimetype", Type: field.TypeString, Size: 255, Default: "application/x-mpegURL"},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "media", Type: field.TypeUUID, Nullable: true},
@@ -50,7 +55,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "media_file_media_media_files",
-				Columns: []*schema.Column{MediaFileColumns[12]},
+				Columns: []*schema.Column{MediaFileColumns[16]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,
@@ -71,6 +76,9 @@ var (
 		{Name: "duration_seconds", Type: field.TypeFloat64},
 		{Name: "video_bitrate", Type: field.TypeInt},
 		{Name: "audio_bitrate", Type: field.TypeInt},
+		{Name: "framerate", Type: field.TypeInt},
+		{Name: "format", Type: field.TypeString},
+		{Name: "nb_streams", Type: field.TypeInt, Default: 1},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "media", Type: field.TypeUUID, Unique: true, Nullable: true},
@@ -83,7 +91,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "meida_probe_media_probe",
-				Columns: []*schema.Column{MeidaProbeColumns[13]},
+				Columns: []*schema.Column{MeidaProbeColumns[16]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,

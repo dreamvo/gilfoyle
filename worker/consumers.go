@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/gabriel-vasile/mimetype"
@@ -89,8 +90,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			//format := strings.Split(data.Format.FormatName, ",")[0]
-			//fps := int(transcoding.ParseFrameRates(data.Streams[0].RFrameRate))
+			framerate := int(transcoding.ParseFrameRates(data.FirstVideoStream().RFrameRate))
 
 			mime, err := mimetype.DetectReader(file)
 			if err != nil {
@@ -99,7 +99,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				return
 			}
 
-			fileBytes,err:=ioutil.ReadAll(file)
+			fileBytes, err := ioutil.ReadAll(file)
 			if err != nil {
 				w.logger.Error("File to bytes conversion error", zap.Error(err))
 				_ = d.Nack(false, false)
@@ -108,7 +108,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 
 			checksum := sha256.Sum256(fileBytes)
 
-			_, err = w.dbClient.Probe.
+			probe, err := w.dbClient.Probe.
 				Create().
 				SetMedia(m).
 				SetFilename(m.OriginalFilename).
@@ -121,6 +121,9 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				SetDurationSeconds(data.Format.Duration().Seconds()).
 				SetChecksumSha256(string(checksum[:])).
 				SetMimetype(mime.String()).
+				SetFramerate(framerate).
+				SetFormat(data.Format.FormatName).
+				SetNbStreams(data.Format.NBStreams).
 				Save(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
@@ -135,9 +138,33 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					SetMedia(m).
 					SetRenditionName(rendition.Name).
 					SetMediaType(schema.MediaFileTypeVideo).
+					SetFormat("hls").
+					SetStatus(mediafile.StatusProcessing).
+					SetEntryFile("index.m3u8").
+					SetMimetype("application/x-mpegURL").
+					SetTargetBandwidth(uint64(rendition.VideoBitrate + rendition.AudioBitrate)).
+					SetVideoBitrate(int64(rendition.VideoBitrate)).
+					SetResolutionWidth(uint16(rendition.Width)).
+					SetResolutionHeight(uint16(rendition.Height)).
+					SetDurationSeconds(probe.DurationSeconds).
+					SetFramerate(uint8(rendition.Framerate)).
 					Save(ctx)
 				if err != nil {
 					w.logger.Error("Database error", zap.Error(err))
+					_ = d.Nack(false, false)
+					return
+				}
+
+				ch, err := w.Client.Channel()
+				if err != nil {
+					w.logger.Error("Worker channel", zap.Error(err))
+					_ = d.Nack(false, false)
+					return
+				}
+
+				err = HlsVideoEncodingProducer(ch, HlsVideoEncodingParams{})
+				if err != nil {
+					w.logger.Error("HlsVideoEncoding job creation", zap.Error(err))
 					_ = d.Nack(false, false)
 					return
 				}

@@ -134,6 +134,60 @@ func (mfu *MediaFileUpdate) SetMediaType(mt mediafile.MediaType) *MediaFileUpdat
 	return mfu
 }
 
+// SetStatus sets the status field.
+func (mfu *MediaFileUpdate) SetStatus(m mediafile.Status) *MediaFileUpdate {
+	mfu.mutation.SetStatus(m)
+	return mfu
+}
+
+// SetMessage sets the message field.
+func (mfu *MediaFileUpdate) SetMessage(s string) *MediaFileUpdate {
+	mfu.mutation.SetMessage(s)
+	return mfu
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableMessage(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetMessage(*s)
+	}
+	return mfu
+}
+
+// ClearMessage clears the value of message.
+func (mfu *MediaFileUpdate) ClearMessage() *MediaFileUpdate {
+	mfu.mutation.ClearMessage()
+	return mfu
+}
+
+// SetEntryFile sets the entry_file field.
+func (mfu *MediaFileUpdate) SetEntryFile(s string) *MediaFileUpdate {
+	mfu.mutation.SetEntryFile(s)
+	return mfu
+}
+
+// SetNillableEntryFile sets the entry_file field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableEntryFile(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetEntryFile(*s)
+	}
+	return mfu
+}
+
+// SetMimetype sets the mimetype field.
+func (mfu *MediaFileUpdate) SetMimetype(s string) *MediaFileUpdate {
+	mfu.mutation.SetMimetype(s)
+	return mfu
+}
+
+// SetNillableMimetype sets the mimetype field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableMimetype(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetMimetype(*s)
+	}
+	return mfu
+}
+
 // SetCreatedAt sets the created_at field.
 func (mfu *MediaFileUpdate) SetCreatedAt(t time.Time) *MediaFileUpdate {
 	mfu.mutation.SetCreatedAt(t)
@@ -284,6 +338,26 @@ func (mfu *MediaFileUpdate) check() error {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
 		}
 	}
+	if v, ok := mfu.mutation.Status(); ok {
+		if err := mediafile.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.Message(); ok {
+		if err := mediafile.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.EntryFile(); ok {
+		if err := mediafile.EntryFileValidator(v); err != nil {
+			return &ValidationError{Name: "entry_file", err: fmt.Errorf("ent: validator failed for field \"entry_file\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.Mimetype(); ok {
+		if err := mediafile.MimetypeValidator(v); err != nil {
+			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
+		}
+	}
 	if _, ok := mfu.mutation.MediaID(); mfu.mutation.MediaCleared() && !ok {
 		return errors.New("ent: clearing a required unique edge \"media\"")
 	}
@@ -411,6 +485,40 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: mediafile.FieldMediaType,
+		})
+	}
+	if value, ok := mfu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: mediafile.FieldStatus,
+		})
+	}
+	if value, ok := mfu.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if mfu.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if value, ok := mfu.mutation.EntryFile(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldEntryFile,
+		})
+	}
+	if value, ok := mfu.mutation.Mimetype(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMimetype,
 		})
 	}
 	if value, ok := mfu.mutation.CreatedAt(); ok {
@@ -584,6 +692,60 @@ func (mfuo *MediaFileUpdateOne) SetMediaType(mt mediafile.MediaType) *MediaFileU
 	return mfuo
 }
 
+// SetStatus sets the status field.
+func (mfuo *MediaFileUpdateOne) SetStatus(m mediafile.Status) *MediaFileUpdateOne {
+	mfuo.mutation.SetStatus(m)
+	return mfuo
+}
+
+// SetMessage sets the message field.
+func (mfuo *MediaFileUpdateOne) SetMessage(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetMessage(s)
+	return mfuo
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableMessage(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetMessage(*s)
+	}
+	return mfuo
+}
+
+// ClearMessage clears the value of message.
+func (mfuo *MediaFileUpdateOne) ClearMessage() *MediaFileUpdateOne {
+	mfuo.mutation.ClearMessage()
+	return mfuo
+}
+
+// SetEntryFile sets the entry_file field.
+func (mfuo *MediaFileUpdateOne) SetEntryFile(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetEntryFile(s)
+	return mfuo
+}
+
+// SetNillableEntryFile sets the entry_file field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableEntryFile(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetEntryFile(*s)
+	}
+	return mfuo
+}
+
+// SetMimetype sets the mimetype field.
+func (mfuo *MediaFileUpdateOne) SetMimetype(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetMimetype(s)
+	return mfuo
+}
+
+// SetNillableMimetype sets the mimetype field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableMimetype(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetMimetype(*s)
+	}
+	return mfuo
+}
+
 // SetCreatedAt sets the created_at field.
 func (mfuo *MediaFileUpdateOne) SetCreatedAt(t time.Time) *MediaFileUpdateOne {
 	mfuo.mutation.SetCreatedAt(t)
@@ -734,6 +896,26 @@ func (mfuo *MediaFileUpdateOne) check() error {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
 		}
 	}
+	if v, ok := mfuo.mutation.Status(); ok {
+		if err := mediafile.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.Message(); ok {
+		if err := mediafile.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.EntryFile(); ok {
+		if err := mediafile.EntryFileValidator(v); err != nil {
+			return &ValidationError{Name: "entry_file", err: fmt.Errorf("ent: validator failed for field \"entry_file\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.Mimetype(); ok {
+		if err := mediafile.MimetypeValidator(v); err != nil {
+			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
+		}
+	}
 	if _, ok := mfuo.mutation.MediaID(); mfuo.mutation.MediaCleared() && !ok {
 		return errors.New("ent: clearing a required unique edge \"media\"")
 	}
@@ -859,6 +1041,40 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: mediafile.FieldMediaType,
+		})
+	}
+	if value, ok := mfuo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: mediafile.FieldStatus,
+		})
+	}
+	if value, ok := mfuo.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if mfuo.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if value, ok := mfuo.mutation.EntryFile(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldEntryFile,
+		})
+	}
+	if value, ok := mfuo.mutation.Mimetype(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMimetype,
 		})
 	}
 	if value, ok := mfuo.mutation.CreatedAt(); ok {

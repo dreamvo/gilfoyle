@@ -84,6 +84,54 @@ func (mfc *MediaFileCreate) SetMediaType(mt mediafile.MediaType) *MediaFileCreat
 	return mfc
 }
 
+// SetStatus sets the status field.
+func (mfc *MediaFileCreate) SetStatus(m mediafile.Status) *MediaFileCreate {
+	mfc.mutation.SetStatus(m)
+	return mfc
+}
+
+// SetMessage sets the message field.
+func (mfc *MediaFileCreate) SetMessage(s string) *MediaFileCreate {
+	mfc.mutation.SetMessage(s)
+	return mfc
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mfc *MediaFileCreate) SetNillableMessage(s *string) *MediaFileCreate {
+	if s != nil {
+		mfc.SetMessage(*s)
+	}
+	return mfc
+}
+
+// SetEntryFile sets the entry_file field.
+func (mfc *MediaFileCreate) SetEntryFile(s string) *MediaFileCreate {
+	mfc.mutation.SetEntryFile(s)
+	return mfc
+}
+
+// SetNillableEntryFile sets the entry_file field if the given value is not nil.
+func (mfc *MediaFileCreate) SetNillableEntryFile(s *string) *MediaFileCreate {
+	if s != nil {
+		mfc.SetEntryFile(*s)
+	}
+	return mfc
+}
+
+// SetMimetype sets the mimetype field.
+func (mfc *MediaFileCreate) SetMimetype(s string) *MediaFileCreate {
+	mfc.mutation.SetMimetype(s)
+	return mfc
+}
+
+// SetNillableMimetype sets the mimetype field if the given value is not nil.
+func (mfc *MediaFileCreate) SetNillableMimetype(s *string) *MediaFileCreate {
+	if s != nil {
+		mfc.SetMimetype(*s)
+	}
+	return mfc
+}
+
 // SetCreatedAt sets the created_at field.
 func (mfc *MediaFileCreate) SetCreatedAt(t time.Time) *MediaFileCreate {
 	mfc.mutation.SetCreatedAt(t)
@@ -185,6 +233,18 @@ func (mfc *MediaFileCreate) defaults() {
 		v := mediafile.DefaultTargetBandwidth
 		mfc.mutation.SetTargetBandwidth(v)
 	}
+	if _, ok := mfc.mutation.Message(); !ok {
+		v := mediafile.DefaultMessage
+		mfc.mutation.SetMessage(v)
+	}
+	if _, ok := mfc.mutation.EntryFile(); !ok {
+		v := mediafile.DefaultEntryFile
+		mfc.mutation.SetEntryFile(v)
+	}
+	if _, ok := mfc.mutation.Mimetype(); !ok {
+		v := mediafile.DefaultMimetype
+		mfc.mutation.SetMimetype(v)
+	}
 	if _, ok := mfc.mutation.CreatedAt(); !ok {
 		v := mediafile.DefaultCreatedAt()
 		mfc.mutation.SetCreatedAt(v)
@@ -266,6 +326,35 @@ func (mfc *MediaFileCreate) check() error {
 	if v, ok := mfc.mutation.MediaType(); ok {
 		if err := mediafile.MediaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New("ent: missing required field \"status\"")}
+	}
+	if v, ok := mfc.mutation.Status(); ok {
+		if err := mediafile.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mfc.mutation.Message(); ok {
+		if err := mediafile.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.EntryFile(); !ok {
+		return &ValidationError{Name: "entry_file", err: errors.New("ent: missing required field \"entry_file\"")}
+	}
+	if v, ok := mfc.mutation.EntryFile(); ok {
+		if err := mediafile.EntryFileValidator(v); err != nil {
+			return &ValidationError{Name: "entry_file", err: fmt.Errorf("ent: validator failed for field \"entry_file\": %w", err)}
+		}
+	}
+	if _, ok := mfc.mutation.Mimetype(); !ok {
+		return &ValidationError{Name: "mimetype", err: errors.New("ent: missing required field \"mimetype\"")}
+	}
+	if v, ok := mfc.mutation.Mimetype(); ok {
+		if err := mediafile.MimetypeValidator(v); err != nil {
+			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
 		}
 	}
 	if _, ok := mfc.mutation.CreatedAt(); !ok {
@@ -377,6 +466,38 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 			Column: mediafile.FieldMediaType,
 		})
 		_node.MediaType = value
+	}
+	if value, ok := mfc.mutation.Status(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: mediafile.FieldStatus,
+		})
+		_node.Status = value
+	}
+	if value, ok := mfc.mutation.Message(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMessage,
+		})
+		_node.Message = value
+	}
+	if value, ok := mfc.mutation.EntryFile(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldEntryFile,
+		})
+		_node.EntryFile = value
+	}
+	if value, ok := mfc.mutation.Mimetype(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMimetype,
+		})
+		_node.Mimetype = value
 	}
 	if value, ok := mfc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

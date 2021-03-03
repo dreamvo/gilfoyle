@@ -803,6 +803,10 @@ var doc = `{
                     "description": "ID of the ent.",
                     "type": "string"
                 },
+                "message": {
+                    "description": "Message holds the value of the \"message\" field.",
+                    "type": "string"
+                },
                 "original_filename": {
                     "description": "OriginalFilename holds the value of the \"original_filename\" field.",
                     "type": "string"
@@ -852,6 +856,10 @@ var doc = `{
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
                     "$ref": "#/definitions/ent.MediaFileEdges"
                 },
+                "entry_file": {
+                    "description": "EntryFile holds the value of the \"entry_file\" field.",
+                    "type": "string"
+                },
                 "format": {
                     "description": "Format holds the value of the \"format\" field.",
                     "type": "string"
@@ -868,6 +876,14 @@ var doc = `{
                     "description": "MediaType holds the value of the \"media_type\" field.",
                     "type": "string"
                 },
+                "message": {
+                    "description": "Message holds the value of the \"message\" field.",
+                    "type": "string"
+                },
+                "mimetype": {
+                    "description": "Mimetype holds the value of the \"mimetype\" field.",
+                    "type": "string"
+                },
                 "rendition_name": {
                     "description": "RenditionName holds the value of the \"rendition_name\" field.",
                     "type": "string"
@@ -879,6 +895,10 @@ var doc = `{
                 "resolution_width": {
                     "description": "ResolutionWidth holds the value of the \"resolution_width\" field.",
                     "type": "integer"
+                },
+                "status": {
+                    "description": "Status holds the value of the \"status\" field.",
+                    "type": "string"
                 },
                 "target_bandwidth": {
                     "description": "TargetBandwidth holds the value of the \"target_bandwidth\" field.",
@@ -938,6 +958,14 @@ var doc = `{
                     "description": "Filesize holds the value of the \"filesize\" field.",
                     "type": "integer"
                 },
+                "format": {
+                    "description": "Format holds the value of the \"format\" field.",
+                    "type": "string"
+                },
+                "framerate": {
+                    "description": "Framerate holds the value of the \"framerate\" field.",
+                    "type": "integer"
+                },
                 "height": {
                     "description": "Height holds the value of the \"height\" field.",
                     "type": "integer"
@@ -949,6 +977,10 @@ var doc = `{
                 "mimetype": {
                     "description": "Mimetype holds the value of the \"mimetype\" field.",
                     "type": "string"
+                },
+                "nb_streams": {
+                    "description": "NbStreams holds the value of the \"nb_streams\" field.",
+                    "type": "integer"
                 },
                 "updated_at": {
                     "description": "UpdatedAt holds the value of the \"updated_at\" field.",
