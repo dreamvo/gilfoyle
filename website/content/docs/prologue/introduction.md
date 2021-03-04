@@ -19,7 +19,7 @@ Over time, media streaming evolved in a good way. Users can host videos for free
 
 As you may ask, why would we create another open-source video streaming server? [PeerTube](https://github.com/Chocobozzz/PeerTube), [D.Tube](https://d.tube/), already does the job, right? Yes. Gilfoyle takes those projects as an acknowledgment to create another solution to the common problem. Gilfoyle is also a bit different: it's not a social network or a federated video streaming platform. It's a self-hosted service that only handle video/audio hosting, transcoding and streaming.
 
-To resume, Gilfoyle is a **self-hosted** and **open source** version of existing SaaS such as [api.video](https://api.video/), [Dailymotion Cloud](https://dmcloud.net/), [Red5pro](https://www.red5pro.com/) or [mux](https://mux.com/).
+To resume, Gilfoyle is a **self-hosted** and **open source** alternative to existing SaaS (Software-As-A-Service) such as [api.video](https://api.video/), [Dailymotion Cloud](https://dmcloud.net/), [Red5pro](https://www.red5pro.com/) or [mux](https://mux.com/).
 
 ## Goals and Non-Goals
 
