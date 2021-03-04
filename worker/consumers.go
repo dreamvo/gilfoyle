@@ -24,8 +24,12 @@ import (
 	"time"
 )
 
-func setMediaStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media.Status) error {
-	_, err := w.dbClient.Media.UpdateOneID(uuid).SetStatus(status).Save(context.Background())
+func setMediaStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media.Status, errMessage error) error {
+	_, err := w.dbClient.Media.
+		UpdateOneID(uuid).
+		SetStatus(status).
+		SetMessage(errMessage.Error()).
+		Save(context.Background())
 	if err != nil {
 		return err
 	}
@@ -36,8 +40,12 @@ func setMediaStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status media
 	return nil
 }
 
-func setRenditionStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status mediafile.Status) error {
-	_, err := w.dbClient.MediaFile.UpdateOneID(uuid).SetStatus(status).Save(context.Background())
+func setRenditionStatusNack(w *Worker, d amqp.Delivery, uuid uuid.UUID, status mediafile.Status, errMessage error) error {
+	_, err := w.dbClient.MediaFile.
+		UpdateOneID(uuid).
+		SetStatus(status).
+		SetMessage(errMessage.Error()).
+		Save(context.Background())
 	if err != nil {
 		return err
 	}
@@ -57,7 +65,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err := json.Unmarshal(d.Body, &body)
 			if err != nil {
 				w.logger.Error("Unmarshal error", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
@@ -66,14 +74,14 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			m, err := w.dbClient.Media.Get(ctx, body.MediaUUID)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = d.Nack(false, true)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
 			file, err := w.storage.Open(ctx, path.Join(m.ID.String(), m.OriginalFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
-				_ = d.Nack(false, true)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
@@ -84,21 +92,23 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			data, err := ffprobe.ProbeReader(ctxWithTimeout, file)
 			if err != nil {
 				w.logger.Error("FFprobe error", zap.Error(err))
-				_ = d.Nack(false, true)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
 			videoStreams := data.StreamType(ffprobe.StreamVideo)
 			if len(videoStreams) != 1 {
-				w.logger.Error("File input error", zap.Error(errors.New("uploaded media must have only 1 video stream")))
-				_ = d.Nack(false, false)
+				err := errors.New("uploaded media must have only 1 video stream")
+				w.logger.Error("File input error", zap.Error(err))
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
 			audioStreams := data.StreamType(ffprobe.StreamAudio)
 			if len(audioStreams) != 1 {
-				w.logger.Error("File input error", zap.Error(errors.New("uploaded media must have only 1 audio stream")))
-				_ = d.Nack(false, false)
+				err := errors.New("uploaded media must have only 1 audio stream")
+				w.logger.Error("File input error", zap.Error(err))
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
@@ -108,14 +118,14 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			mime, err := mimetype.DetectReader(file)
 			if err != nil {
 				w.logger.Error("Mimetype detection", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
 			fileBytes, err := ioutil.ReadAll(file)
 			if err != nil {
 				w.logger.Error("File to bytes conversion error", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
@@ -140,7 +150,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				Save(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
@@ -162,8 +172,8 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					SetMediaType(schema.MediaFileTypeVideo).
 					SetFormat("hls").
 					SetStatus(mediafile.StatusProcessing).
-					SetEntryFile("index.m3u8").
-					SetMimetype("application/x-mpegURL").
+					SetEntryFile(transcoding.HLSPlaylistFilename).
+					SetMimetype(transcoding.HLSPlaylistMimeType).
 					SetTargetBandwidth(uint64(rendition.VideoBitrate + rendition.AudioBitrate)).
 					SetVideoBitrate(int64(rendition.VideoBitrate)).
 					SetAudioBitrate(int64(rendition.AudioBitrate)).
@@ -176,14 +186,14 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 					Save(ctx)
 				if err != nil {
 					w.logger.Error("Database error", zap.Error(err))
-					_ = d.Nack(false, false)
+					_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 					return
 				}
 
 				ch, err := w.Client.Channel()
 				if err != nil {
 					w.logger.Error("Worker channel", zap.Error(err))
-					_ = d.Nack(false, false)
+					_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 					return
 				}
 
@@ -195,7 +205,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				})
 				if err != nil {
 					w.logger.Error("HlsVideoEncoding job creation", zap.Error(err))
-					_ = d.Nack(false, false)
+					_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 					return
 				}
 			}
@@ -231,7 +241,7 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			r, err := w.storage.Open(ctx, path.Join(m.Edges.Media.String(), m.Edges.Media.OriginalFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 			defer func() { _ = r.Close() }()
@@ -242,14 +252,14 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err = os.MkdirAll(dstTmpPath, 0755)
 			if err != nil {
 				w.logger.Error("Error creating destination directory", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 
 			out, err := os.Create(srcTmpPath)
 			if err != nil {
 				w.logger.Error("File create error", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 			defer func() { _ = out.Close() }()
@@ -257,7 +267,7 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			_, err = io.Copy(out, r)
 			if err != nil {
 				w.logger.Error("File copy error", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 
@@ -292,7 +302,7 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err = w.transcoder.Run(p)
 			if err != nil {
 				w.logger.Error("Command execution error", zap.Error(err), zap.String("arguments", strings.Join(p.GetStrArguments(), " ")))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 
@@ -323,7 +333,7 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			})
 			if err != nil {
 				w.logger.Error("Storage error (walk)", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 
@@ -332,57 +342,69 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				Save(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 
 			err = d.Ack(false)
 			if err != nil {
 				w.logger.Error("Error trying to send ack", zap.Error(err))
-				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored)
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 			}
 		}()
 	}
 }
 
-func mediaEncodingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
+func encodingFinalizerConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		func() {
 			ctx := context.Background()
-			var body MediaEncodingCallbackParams
+			var body EncodingFinalizerParams
 
 			err := json.Unmarshal(d.Body, &body)
 			if err != nil {
 				w.logger.Error("Unmarshal error", zap.Error(err))
-				_ = d.Nack(false, false)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
-			w.logger.Info("Received media callback message", zap.String("MediaUUID", body.MediaUUID.String()), zap.Int("MediaFilesCount", body.MediaFilesCount))
+			w.logger.Info("Received media encoding callback message", zap.String("MediaUUID", body.MediaUUID.String()))
 
 			m, err := w.dbClient.Media.Query().Where(media.ID(body.MediaUUID)).WithMediaFiles().Only(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = d.Nack(false, true)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
-			if len(m.Edges.MediaFiles) != body.MediaFilesCount {
-				time.Sleep(2 * time.Second)
-				_ = d.Nack(false, m.Status == media.StatusProcessing)
-				return
-			}
-
-			masterPlaylist := transcoding.CreateMasterPlaylist(m.Edges.MediaFiles)
-
-			err = w.storage.Save(ctx, strings.NewReader(masterPlaylist), path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename))
+			// Create master playlist
+			masterPlaylistContent := transcoding.CreateMasterPlaylist(m.Edges.MediaFiles)
+			err = w.storage.Save(ctx, strings.NewReader(masterPlaylistContent), path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
 				_ = d.Nack(false, true)
 				return
 			}
 
-			_, err = w.dbClient.Media.UpdateOne(m).SetStatus(media.StatusReady).Save(ctx)
+			mediaStatus := media.StatusErrored
+			for _, r := range m.Edges.MediaFiles {
+				// If at least one media file is still in
+				// processing state then requeue the job in 15 sec.
+				if r.Status == mediafile.StatusProcessing {
+					time.AfterFunc(15*time.Second, func() {
+						_ = d.Nack(false, m.Status == media.StatusProcessing)
+					})
+					mediaStatus = media.StatusProcessing
+					break
+				}
+
+				if r.Status == mediafile.StatusReady {
+					mediaStatus = media.StatusReady
+					break
+				}
+			}
+
+			_, err = w.dbClient.Media.UpdateOne(m).SetStatus(mediaStatus).Save(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
 				_ = d.Nack(false, true)
@@ -391,7 +413,7 @@ func mediaEncodingCallbackConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 
 			err = d.Ack(false)
 			if err != nil {
-				w.logger.Error("Error trying to send ack", zap.Error(err))
+				w.logger.Error("Error trying to ack a message", zap.Error(err))
 			}
 		}()
 	}

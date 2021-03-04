@@ -197,14 +197,14 @@ func TestMediaFiles(t *testing.T) {
 				TargetBandwidth:    896000,
 			}, msgBody)
 
-			msg, ok, err = ch.Get(worker.MediaEncodingCallbackQueue, false)
+			msg, ok, err = ch.Get(worker.EncodingFinalizerQueue, false)
 			assert.NoError(t, err)
 			assert.True(t, ok)
 
-			var msgBody2 worker.MediaEncodingCallbackParams
+			var msgBody2 worker.EncodingFinalizerParams
 			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody2))
 
-			assert.Equal(t, worker.MediaEncodingCallbackParams{
+			assert.Equal(t, worker.EncodingFinalizerParams{
 				MediaUUID:       m.ID,
 				MediaFilesCount: 1,
 			}, msgBody2)

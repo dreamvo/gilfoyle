@@ -13,9 +13,8 @@ type HlsVideoEncodingParams struct {
 	HlsPlaylistType    string    `json:"hls_playlist_type"`
 }
 
-type MediaEncodingCallbackParams struct {
-	MediaUUID       uuid.UUID `json:"media_uuid"`
-	MediaFilesCount int       `json:"media_files_count"`
+type EncodingFinalizerParams struct {
+	MediaUUID uuid.UUID `json:"media_uuid"`
 }
 
 type MediaEncodingEntrypoint struct {
@@ -52,10 +51,10 @@ func HlsVideoEncodingProducer(ch Channel, data HlsVideoEncodingParams) error {
 	return nil
 }
 
-func MediaEncodingCallbackProducer(ch Channel, data MediaEncodingCallbackParams) error {
+func EncodingFinalizerProducer(ch Channel, data EncodingFinalizerParams) error {
 	body, _ := json.Marshal(data)
 
-	err := ch.Publish("", MediaEncodingCallbackQueue, false, false, amqp.Publishing{
+	err := ch.Publish("", EncodingFinalizerQueue, false, false, amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  "application/json",
 		Body:         body,

@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	HlsVideoEncodingQueue      string = "HlsVideoEncoding"
-	MediaEncodingCallbackQueue string = "MediaEncodingCallback"
-	EncodingEntrypointQueue    string = "EncodingEntrypoint"
+	HlsVideoEncodingQueue   string = "HlsVideoEncoding"
+	EncodingEntrypointQueue string = "EncodingEntrypoint"
+	EncodingFinalizerQueue  string = "MediaEncodingCallback"
 )
 
 type Channel interface {
@@ -43,13 +43,13 @@ var queues = []Queue{
 		Handler:    hlsVideoEncodingConsumer,
 	},
 	{
-		Name:       MediaEncodingCallbackQueue,
+		Name:       EncodingFinalizerQueue,
 		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    mediaEncodingCallbackConsumer,
+		Handler:    encodingFinalizerConsumer,
 	},
 	{
 		Name:       EncodingEntrypointQueue,

@@ -139,7 +139,7 @@ func TestConsumers(t *testing.T) {
 		})
 	})
 
-	t.Run("mediaEncodingCallbackConsumer", func(t *testing.T) {
+	t.Run("encodingFinalizerConsumer", func(t *testing.T) {
 		t.Run("should receive one message then requeue", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
@@ -149,7 +149,7 @@ func TestConsumers(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			params := MediaEncodingCallbackParams{
+			params := EncodingFinalizerParams{
 				MediaUUID:       m.ID,
 				MediaFilesCount: 1,
 			}
@@ -179,7 +179,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Nack", uint64(0), false, true).Return(nil)
 
-			go mediaEncodingCallbackConsumer(w, msgs)
+			go encodingFinalizerConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -214,7 +214,7 @@ func TestConsumers(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
-			params := MediaEncodingCallbackParams{
+			params := EncodingFinalizerParams{
 				MediaUUID:       m.ID,
 				MediaFilesCount: 1,
 			}
@@ -256,7 +256,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go mediaEncodingCallbackConsumer(w, msgs)
+			go encodingFinalizerConsumer(w, msgs)
 
 			msgs <- delivery
 
@@ -286,7 +286,7 @@ func TestConsumers(t *testing.T) {
 
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go mediaEncodingCallbackConsumer(w, msgs)
+			go encodingFinalizerConsumer(w, msgs)
 
 			msgs <- delivery
 

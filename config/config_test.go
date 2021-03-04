@@ -35,6 +35,10 @@ func TestConfig(t *testing.T) {
 				Worker: WorkerSettings{
 					Concurrency: 10,
 				},
+				Encoding: EncoderSettings{
+					Format:     "hls",
+					Renditions: []Rendition{},
+				},
 			},
 			Storage: StorageConfig{
 				Driver: "fs",

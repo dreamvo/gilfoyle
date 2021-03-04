@@ -70,9 +70,9 @@ func TestProducers(t *testing.T) {
 		})
 	})
 
-	t.Run("MediaEncodingCallbackProducer", func(t *testing.T) {
+	t.Run("EncodingFinalizerProducer", func(t *testing.T) {
 		t.Run("should publish a new message", func(t *testing.T) {
-			params := MediaEncodingCallbackParams{
+			params := EncodingFinalizerParams{
 				MediaUUID:       uuid.New(),
 				MediaFilesCount: 1,
 			}
@@ -82,20 +82,20 @@ func TestProducers(t *testing.T) {
 
 			ch := new(mocks.MockedChannel)
 
-			ch.On("Publish", "", MediaEncodingCallbackQueue, false, false, amqp.Publishing{
+			ch.On("Publish", "", EncodingFinalizerQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
 				ContentType:  "application/json",
 				Body:         body,
 			}).Return(nil)
 
-			err = MediaEncodingCallbackProducer(ch, params)
+			err = EncodingFinalizerProducer(ch, params)
 			assert.NoError(t, err)
 
 			ch.AssertExpectations(t)
 		})
 
 		t.Run("should publish a new message with AMQP error", func(t *testing.T) {
-			params := MediaEncodingCallbackParams{
+			params := EncodingFinalizerParams{
 				MediaUUID:       uuid.New(),
 				MediaFilesCount: 1,
 			}
@@ -105,13 +105,13 @@ func TestProducers(t *testing.T) {
 
 			ch := new(mocks.MockedChannel)
 
-			ch.On("Publish", "", MediaEncodingCallbackQueue, false, false, amqp.Publishing{
+			ch.On("Publish", "", EncodingFinalizerQueue, false, false, amqp.Publishing{
 				DeliveryMode: amqp.Persistent,
 				ContentType:  "application/json",
 				Body:         body,
 			}).Return(errors.New("test"))
 
-			err = MediaEncodingCallbackProducer(ch, params)
+			err = EncodingFinalizerProducer(ch, params)
 			assert.EqualError(t, err, "test")
 
 			ch.AssertExpectations(t)
