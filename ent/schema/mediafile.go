@@ -55,7 +55,7 @@ func (MediaFile) Fields() []ent.Field {
 		field.Uint8("framerate").Min(8).Max(120),
 		field.Float("duration_seconds").Min(0),
 		field.Enum("media_type").Values(MediaFileTypeAudio, MediaFileTypeVideo),
-		field.Enum("status").Values(MediaStatusProcessing, MediaStatusReady, MediaStatusErrored),
+		field.Enum("status").Values(MediaStatusPending, MediaStatusProcessing, MediaStatusReady, MediaStatusErrored),
 		field.String("message").Optional().MaxLen(255).Default(""),
 		field.String("entry_file").MaxLen(255).Default("index.m3u8"),
 		field.String("mimetype").MaxLen(255).Default("application/x-mpegURL"),

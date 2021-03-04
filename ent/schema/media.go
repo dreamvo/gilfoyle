@@ -20,6 +20,9 @@ const MediaStatusErrored = "Errored"
 // MediaStatusProcessing relates to the initial state of a media
 const MediaStatusProcessing = "Processing"
 
+// MediaStatusPending relates to the pending state of a media
+const MediaStatusPending = "Pending"
+
 // MediaStatusReady relates to the final state of a media
 const MediaStatusReady = "Ready"
 

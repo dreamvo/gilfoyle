@@ -42,7 +42,7 @@ var (
 		{Name: "framerate", Type: field.TypeUint8},
 		{Name: "duration_seconds", Type: field.TypeFloat64},
 		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"audio", "video"}},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"Processing", "Ready", "Errored"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"Pending", "Processing", "Ready", "Errored"}},
 		{Name: "message", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
 		{Name: "entry_file", Type: field.TypeString, Size: 255, Default: "index.m3u8"},
 		{Name: "mimetype", Type: field.TypeString, Size: 255, Default: "application/x-mpegURL"},

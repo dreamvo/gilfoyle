@@ -185,6 +185,7 @@ type Status string
 
 // Status values.
 const (
+	StatusPending    Status = "Pending"
 	StatusProcessing Status = "Processing"
 	StatusReady      Status = "Ready"
 	StatusErrored    Status = "Errored"
@@ -197,7 +198,7 @@ func (s Status) String() string {
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s Status) error {
 	switch s {
-	case StatusProcessing, StatusReady, StatusErrored:
+	case StatusPending, StatusProcessing, StatusReady, StatusErrored:
 		return nil
 	default:
 		return fmt.Errorf("mediafile: invalid enum value for status field: %q", s)

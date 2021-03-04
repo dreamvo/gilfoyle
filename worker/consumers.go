@@ -91,22 +91,14 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			// Run original file analysis
 			data, err := ffprobe.ProbeReader(ctxWithTimeout, file)
 			if err != nil {
-				w.logger.Error("FFprobe error", zap.Error(err))
+				w.logger.Error("ffprobe command failed", zap.Error(err))
 				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
 			videoStreams := data.StreamType(ffprobe.StreamVideo)
-			if len(videoStreams) != 1 {
-				err := errors.New("uploaded media must have only 1 video stream")
-				w.logger.Error("File input error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
-				return
-			}
-
-			audioStreams := data.StreamType(ffprobe.StreamAudio)
-			if len(audioStreams) != 1 {
-				err := errors.New("uploaded media must have only 1 audio stream")
+			if len(videoStreams) == 0 {
+				err := errors.New("uploaded media should have at least 1 video stream")
 				w.logger.Error("File input error", zap.Error(err))
 				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
