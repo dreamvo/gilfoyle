@@ -66,13 +66,13 @@ var (
 		},
 		Annotation: &entsql.Annotation{Table: "media_file"},
 	}
-	// MeidaProbeColumns holds the columns for the "meida_probe" table.
-	MeidaProbeColumns = []*schema.Column{
+	// MediaProbeColumns holds the columns for the "media_probe" table.
+	MediaProbeColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "filename", Type: field.TypeString, Size: 255},
 		{Name: "mimetype", Type: field.TypeString, Size: 255},
 		{Name: "filesize", Type: field.TypeInt},
-		{Name: "checksum_sha256", Type: field.TypeString, Size: 64},
+		{Name: "checksum_sha256", Type: field.TypeString, Size: 128},
 		{Name: "aspect_ratio", Type: field.TypeString, Size: 5, Default: "16:9"},
 		{Name: "width", Type: field.TypeInt},
 		{Name: "height", Type: field.TypeInt},
@@ -86,31 +86,31 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "media", Type: field.TypeUUID, Unique: true, Nullable: true},
 	}
-	// MeidaProbeTable holds the schema information for the "meida_probe" table.
-	MeidaProbeTable = &schema.Table{
-		Name:       "meida_probe",
-		Columns:    MeidaProbeColumns,
-		PrimaryKey: []*schema.Column{MeidaProbeColumns[0]},
+	// MediaProbeTable holds the schema information for the "media_probe" table.
+	MediaProbeTable = &schema.Table{
+		Name:       "media_probe",
+		Columns:    MediaProbeColumns,
+		PrimaryKey: []*schema.Column{MediaProbeColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:  "meida_probe_media_probe",
-				Columns: []*schema.Column{MeidaProbeColumns[16]},
+				Symbol:  "media_probe_media_probe",
+				Columns: []*schema.Column{MediaProbeColumns[16]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
-		Annotation: &entsql.Annotation{Table: "meida_probe"},
+		Annotation: &entsql.Annotation{Table: "media_probe"},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MediaTable,
 		MediaFileTable,
-		MeidaProbeTable,
+		MediaProbeTable,
 	}
 )
 
 func init() {
 	MediaFileTable.ForeignKeys[0].RefTable = MediaTable
-	MeidaProbeTable.ForeignKeys[0].RefTable = MediaTable
+	MediaProbeTable.ForeignKeys[0].RefTable = MediaTable
 }

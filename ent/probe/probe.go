@@ -48,9 +48,9 @@ const (
 	EdgeMedia = "media"
 
 	// Table holds the table name of the probe in the database.
-	Table = "meida_probe"
+	Table = "media_probe"
 	// MediaTable is the table the holds the media relation/edge.
-	MediaTable = "meida_probe"
+	MediaTable = "media_probe"
 	// MediaInverseTable is the table name for the Media entity.
 	// It exists in this package in order to avoid circular dependency with the "media" package.
 	MediaInverseTable = "media"

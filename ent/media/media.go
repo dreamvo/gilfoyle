@@ -42,10 +42,10 @@ const (
 	// MediaFilesColumn is the table column denoting the media_files relation/edge.
 	MediaFilesColumn = "media"
 	// ProbeTable is the table the holds the probe relation/edge.
-	ProbeTable = "meida_probe"
+	ProbeTable = "media_probe"
 	// ProbeInverseTable is the table name for the Probe entity.
 	// It exists in this package in order to avoid circular dependency with the "probe" package.
-	ProbeInverseTable = "meida_probe"
+	ProbeInverseTable = "media_probe"
 	// ProbeColumn is the table column denoting the probe relation/edge.
 	ProbeColumn = "media"
 )

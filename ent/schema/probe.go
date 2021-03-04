@@ -18,7 +18,7 @@ type Probe struct {
 
 func (Probe) Annotations() []schema.Annotation {
 	return []schema.Annotation{
-		entsql.Annotation{Table: "meida_probe"},
+		entsql.Annotation{Table: "media_probe"},
 	}
 }
 
@@ -38,8 +38,8 @@ func (Probe) Fields() []ent.Field {
 		field.String("filename").MinLen(1).MaxLen(255),
 		field.String("mimetype").MinLen(1).MaxLen(255),
 		field.Int("filesize").Default(0).Min(0),
-		field.String("checksum_sha256").MinLen(64).MaxLen(64),
-		field.String("aspect_ratio").MinLen(3).MaxLen(5).Default("16:9"),
+		field.String("checksum_sha256").MinLen(16).MaxLen(128),
+		field.String("aspect_ratio").MinLen(1).MaxLen(5).Default("16:9"),
 		field.Int("width").Min(1),
 		field.Int("height").Min(1),
 		field.Float("duration_seconds").Min(0).Default(0),

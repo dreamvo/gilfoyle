@@ -13,7 +13,7 @@ import (
 const (
 	HlsVideoEncodingQueue   string = "HlsVideoEncoding"
 	EncodingEntrypointQueue string = "EncodingEntrypoint"
-	EncodingFinalizerQueue  string = "MediaEncodingCallback"
+	EncodingFinalizerQueue  string = "EncodingFinalizer"
 )
 
 type Channel interface {
@@ -29,7 +29,7 @@ type Queue struct {
 	Exclusive  bool
 	NoWait     bool
 	Args       amqp.Table
-	Handler    func(*Worker, <-chan amqp.Delivery)
+	Handler    func(*Worker, amqp.Delivery)
 }
 
 var queues = []Queue{
@@ -164,10 +164,12 @@ func (w *Worker) Consume() error {
 			return fmt.Errorf("error consuming %s queue: %e", q.Name, err)
 		}
 
-		// Start N goroutines according to concurrency
-		for i := 0; i < int(w.concurrency); i++ {
-			go q.Handler(w, msgs)
-		}
+		// Start goroutines to consume messages
+		go func(q Queue) {
+			for d := range msgs {
+				go q.Handler(w, d)
+			}
+		}(q)
 	}
 
 	return nil
