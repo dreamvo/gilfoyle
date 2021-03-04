@@ -65,7 +65,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err := json.Unmarshal(d.Body, &body)
 			if err != nil {
 				w.logger.Error("Unmarshal error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+				_ = d.Nack(false, false)
 				return
 			}
 
@@ -235,10 +235,11 @@ func hlsVideoEncodingConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 				Only(context.Background())
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
+				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
 				return
 			}
 
-			r, err := w.storage.Open(ctx, path.Join(m.Edges.Media.String(), m.Edges.Media.OriginalFilename))
+			r, err := w.storage.Open(ctx, path.Join(m.Edges.Media.ID.String(), m.Edges.Media.OriginalFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
 				_ = setRenditionStatusNack(w, d, body.MediaFileUUID, mediafile.StatusErrored, err)
@@ -364,11 +365,11 @@ func encodingFinalizerConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err := json.Unmarshal(d.Body, &body)
 			if err != nil {
 				w.logger.Error("Unmarshal error", zap.Error(err))
-				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+				_ = d.Nack(false, false)
 				return
 			}
 
-			w.logger.Info("Received media encoding callback message", zap.String("MediaUUID", body.MediaUUID.String()))
+			w.logger.Info("Received encoding finalizer message", zap.String("MediaUUID", body.MediaUUID.String()))
 
 			m, err := w.dbClient.Media.Query().Where(media.ID(body.MediaUUID)).WithMediaFiles().Only(ctx)
 			if err != nil {
@@ -382,32 +383,46 @@ func encodingFinalizerConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 			err = w.storage.Save(ctx, strings.NewReader(masterPlaylistContent), path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename))
 			if err != nil {
 				w.logger.Error("Storage error", zap.Error(err))
-				_ = d.Nack(false, true)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 
 			mediaStatus := media.StatusErrored
+			mediaMessage := "All encoding jobs failed"
+
+			if len(m.Edges.MediaFiles) == 0 {
+				mediaMessage = "Media doesn't have any rendition"
+			}
+
 			for _, r := range m.Edges.MediaFiles {
 				// If at least one media file is still in
 				// processing state then requeue the job in 15 sec.
 				if r.Status == mediafile.StatusProcessing {
 					time.AfterFunc(15*time.Second, func() {
-						_ = d.Nack(false, m.Status == media.StatusProcessing)
+						err := d.Nack(false, m.Status == media.StatusProcessing)
+						if err != nil {
+							w.logger.Error("Failed to Nack message", zap.Error(err))
+						}
 					})
 					mediaStatus = media.StatusProcessing
+					mediaMessage = ""
 					break
 				}
 
+				// If at least one media file is ready
+				// the media is now available for streaming
+				// so we set the media status to ready.
 				if r.Status == mediafile.StatusReady {
 					mediaStatus = media.StatusReady
+					mediaMessage = "One or more rendition succeeded. Media is available for streaming"
 					break
 				}
 			}
 
-			_, err = w.dbClient.Media.UpdateOne(m).SetStatus(mediaStatus).Save(ctx)
+			_, err = w.dbClient.Media.UpdateOne(m).SetStatus(mediaStatus).SetMessage(mediaMessage).Save(ctx)
 			if err != nil {
 				w.logger.Error("Database error", zap.Error(err))
-				_ = d.Nack(false, true)
+				_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				return
 			}
 

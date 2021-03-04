@@ -3,6 +3,7 @@ package transcoding
 import (
 	"fmt"
 	"github.com/dreamvo/gilfoyle/ent"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/grafov/m3u8"
 	"path"
 	"strconv"
@@ -23,6 +24,10 @@ func CreateMasterPlaylist(mediaFiles []*ent.MediaFile) string {
 	p := m3u8.NewMasterPlaylist()
 
 	for _, mediaFile := range mediaFiles {
+		if mediaFile.Status != mediafile.StatusReady {
+			continue
+		}
+
 		p.Append(
 			path.Join(mediaFile.RenditionName, HLSPlaylistFilename),
 			&m3u8.MediaPlaylist{

@@ -10,7 +10,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
-	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/assert"
@@ -42,8 +41,29 @@ func TestConsumers(t *testing.T) {
 				Save(context.Background())
 			assert.NoError(t, err)
 
+			mediaFile, err := dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("test-rendition").
+				SetMediaType(schema.MediaFileTypeVideo).
+				SetFormat("hls").
+				SetStatus(mediafile.StatusProcessing).
+				SetEntryFile(transcoding.HLSPlaylistFilename).
+				SetMimetype(transcoding.HLSPlaylistMimeType).
+				SetTargetBandwidth(928000).
+				SetVideoBitrate(800000).
+				SetAudioBitrate(128000).
+				SetVideoCodec("h264").
+				SetAudioCodec("aac").
+				SetResolutionWidth(640).
+				SetResolutionHeight(360).
+				SetDurationSeconds(5).
+				SetFramerate(25).
+				Save(context.Background())
+			assert.NoError(t, err)
+
 			params := HlsVideoEncodingParams{
-				MediaFileUUID:      uuid.New(),
+				MediaFileUUID:      mediaFile.ID,
 				KeyframeInterval:   48,
 				HlsPlaylistType:    "vod",
 				HlsSegmentDuration: 4,
@@ -69,15 +89,15 @@ func TestConsumers(t *testing.T) {
 
 			msgs := make(chan amqp.Delivery)
 
+			loggerMock.On("Info", "Received HLS video encoding message", []zap.Field{
+				zap.String("MediaFileUUID", params.MediaFileUUID.String()),
+			}).Return()
+
 			storageMock.
 				On("Open", filepath.Join(m.ID.String(), transcoding.OriginalFileName)).
 				Return(ioutil.NopCloser(strings.NewReader("test")), nil)
 
-			loggerMock.On("Info", "Received video transcoding message", []zap.Field{
-				zap.String("MediaFileUUID", params.MediaFileUUID.String()),
-			}).Return()
-
-			transcoderMock.On("Process").Return(new(transcoding.Process))
+			transcoderMock.On("Process").Return()
 			transcoderMock.On("Run", mock.Anything).Return(nil)
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
@@ -92,8 +112,7 @@ func TestConsumers(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, 1, len(items))
-			assert.Equal(t, "360p", items[0].RenditionName)
-			assert.Equal(t, mediafile.MediaType(schema.MediaFileTypeVideo), items[0].MediaType)
+			assert.Equal(t, mediafile.StatusReady, items[0].Status)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
@@ -126,7 +145,7 @@ func TestConsumers(t *testing.T) {
 	})
 
 	t.Run("encodingFinalizerConsumer", func(t *testing.T) {
-		t.Run("should receive one message then requeue", func(t *testing.T) {
+		t.Run("should finalize a media with no rendition", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("my video").
@@ -157,24 +176,39 @@ func TestConsumers(t *testing.T) {
 
 			msgs := make(chan amqp.Delivery)
 
-			loggerMock.On("Info", "Received media callback message", []zap.Field{
+			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
 			}).Return()
 
-			AckMock.On("Nack", uint64(0), false, true).Return(nil)
+			storageMock.
+				On(
+					"Save",
+					strings.NewReader(`#EXTM3U
+#EXT-X-VERSION:3
+`),
+					path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename),
+				).
+				Return(nil)
+
+			AckMock.On("Ack", uint64(0), false).Return(nil)
 
 			go encodingFinalizerConsumer(w, msgs)
 
 			msgs <- delivery
 
-			time.Sleep(2200 * time.Millisecond)
+			time.Sleep(200 * time.Millisecond)
+
+			m, err = dbClient.Media.Get(context.Background(), m.ID)
+			assert.NoError(t, err)
+			assert.Equal(t, media.StatusErrored, m.Status)
+			assert.Equal(t, "Media doesn't have any rendition", m.Message)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
 			storageMock.AssertExpectations(t)
 		})
 
-		t.Run("should receive one message then succeed", func(t *testing.T) {
+		t.Run("should finalize a media with ready rendition", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("my video").
@@ -186,15 +220,21 @@ func TestConsumers(t *testing.T) {
 			_, err = dbClient.MediaFile.
 				Create().
 				SetMedia(m).
-				SetDurationSeconds(5).
-				SetTargetBandwidth(800000).
-				SetFramerate(25).
-				SetVideoBitrate(800000).
+				SetRenditionName("test-rendition").
+				SetMediaType(schema.MediaFileTypeVideo).
 				SetFormat("hls").
-				SetResolutionWidth(1920).
-				SetResolutionHeight(1080).
-				SetRenditionName("1080").
-				SetMediaType(mediafile.MediaTypeVideo).
+				SetStatus(mediafile.StatusReady).
+				SetEntryFile(transcoding.HLSPlaylistFilename).
+				SetMimetype(transcoding.HLSPlaylistMimeType).
+				SetTargetBandwidth(928000).
+				SetVideoBitrate(800000).
+				SetAudioBitrate(128000).
+				SetVideoCodec("h264").
+				SetAudioCodec("aac").
+				SetResolutionWidth(640).
+				SetResolutionHeight(360).
+				SetDurationSeconds(5).
+				SetFramerate(25).
 				Save(context.Background())
 			assert.NoError(t, err)
 
@@ -220,7 +260,7 @@ func TestConsumers(t *testing.T) {
 
 			msgs := make(chan amqp.Delivery)
 
-			loggerMock.On("Info", "Received media callback message", []zap.Field{
+			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
 			}).Return()
 
@@ -229,8 +269,8 @@ func TestConsumers(t *testing.T) {
 					"Save",
 					strings.NewReader(`#EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=800000,RESOLUTION=1920x1080,NAME="1080",FRAME-RATE=25.000
-1080/index.m3u8
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=928000,RESOLUTION=640x360,NAME="test-rendition",FRAME-RATE=25.000
+test-rendition/index.m3u8
 `),
 					path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename),
 				).
@@ -246,8 +286,137 @@ func TestConsumers(t *testing.T) {
 
 			m, err = dbClient.Media.Get(context.Background(), m.ID)
 			assert.NoError(t, err)
+			assert.Equal(t, media.StatusReady, m.Status)
+			assert.Equal(t, "One or more rendition succeeded. Media is available for streaming", m.Message)
 
-			assert.Equal(t, media.Status(schema.MediaStatusReady), m.Status)
+			loggerMock.AssertExpectations(t)
+			AckMock.AssertExpectations(t)
+			storageMock.AssertExpectations(t)
+		})
+
+		t.Run("should requeue if a media is in processing state", func(t *testing.T) {
+			m, err := dbClient.Media.
+				Create().
+				SetTitle("my video").
+				SetStatus(schema.MediaStatusProcessing).
+				SetOriginalFilename(transcoding.OriginalFileName).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			_, err = dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("test-rendition").
+				SetMediaType(schema.MediaFileTypeVideo).
+				SetFormat("hls").
+				SetStatus(mediafile.StatusProcessing).
+				SetEntryFile(transcoding.HLSPlaylistFilename).
+				SetMimetype(transcoding.HLSPlaylistMimeType).
+				SetTargetBandwidth(928000).
+				SetVideoBitrate(800000).
+				SetAudioBitrate(128000).
+				SetVideoCodec("h264").
+				SetAudioCodec("aac").
+				SetResolutionWidth(640).
+				SetResolutionHeight(360).
+				SetDurationSeconds(5).
+				SetFramerate(25).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			_, err = dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("test-rendition").
+				SetMediaType(schema.MediaFileTypeVideo).
+				SetFormat("hls").
+				SetStatus(mediafile.StatusErrored).
+				SetEntryFile(transcoding.HLSPlaylistFilename).
+				SetMimetype(transcoding.HLSPlaylistMimeType).
+				SetTargetBandwidth(928000).
+				SetVideoBitrate(800000).
+				SetAudioBitrate(128000).
+				SetVideoCodec("h264").
+				SetAudioCodec("aac").
+				SetResolutionWidth(640).
+				SetResolutionHeight(360).
+				SetDurationSeconds(5).
+				SetFramerate(25).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			_, err = dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("test-rendition").
+				SetMediaType(schema.MediaFileTypeVideo).
+				SetFormat("hls").
+				SetStatus(mediafile.StatusReady).
+				SetEntryFile(transcoding.HLSPlaylistFilename).
+				SetMimetype(transcoding.HLSPlaylistMimeType).
+				SetTargetBandwidth(928000).
+				SetVideoBitrate(800000).
+				SetAudioBitrate(128000).
+				SetVideoCodec("h264").
+				SetAudioCodec("aac").
+				SetResolutionWidth(640).
+				SetResolutionHeight(360).
+				SetDurationSeconds(5).
+				SetFramerate(25).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			params := EncodingFinalizerParams{
+				MediaUUID: m.ID,
+			}
+
+			body, _ := json.Marshal(params)
+
+			loggerMock := new(mocks.MockedLogger)
+			AckMock := new(mocks.MockedAcknowledger)
+			storageMock := new(mocks.MockedStorage)
+
+			w := &Worker{
+				logger:   loggerMock,
+				dbClient: dbClient,
+				storage:  storageMock,
+			}
+			delivery := amqp.Delivery{
+				Body:         body,
+				Acknowledger: AckMock,
+			}
+
+			msgs := make(chan amqp.Delivery)
+
+			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
+				zap.String("MediaUUID", params.MediaUUID.String()),
+			}).Return()
+
+			storageMock.
+				On(
+					"Save",
+					strings.NewReader(`#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:PROGRAM-ID=0,BANDWIDTH=928000,RESOLUTION=640x360,NAME="test-rendition",FRAME-RATE=25.000
+test-rendition/index.m3u8
+`),
+					path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename),
+				).
+				Return(nil)
+
+			AckMock.On("Ack", uint64(0), false).Return(nil)
+			AckMock.On("Nack", uint64(0), false, true).Return(nil)
+
+			go encodingFinalizerConsumer(w, msgs)
+
+			msgs <- delivery
+
+			time.Sleep(15000 * time.Millisecond)
+
+			m, err = dbClient.Media.Get(context.Background(), m.ID)
+			assert.NoError(t, err)
+			assert.Equal(t, media.StatusProcessing, m.Status)
+			assert.Equal(t, "", m.Message)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
