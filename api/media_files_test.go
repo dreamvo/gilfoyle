@@ -162,10 +162,10 @@ func TestMediaFiles(t *testing.T) {
 			assert.NoError(t, err)
 			assert.True(t, ok)
 
-			var msgBody worker.MediaEncodingEntrypoint
+			var msgBody worker.EncodingEntrypointParams
 			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody))
 
-			assert.Equal(t, worker.MediaEncodingEntrypoint{
+			assert.Equal(t, worker.EncodingEntrypointParams{
 				MediaUUID: m.ID,
 			}, msgBody)
 		})

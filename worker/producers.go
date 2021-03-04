@@ -6,6 +6,10 @@ import (
 	"github.com/streadway/amqp"
 )
 
+type EncodingEntrypointParams struct {
+	MediaUUID uuid.UUID `json:"media_uuid"`
+}
+
 type HlsVideoEncodingParams struct {
 	MediaFileUUID      uuid.UUID `json:"media_file_uuid"`
 	KeyframeInterval   int       `json:"keyframe_interval"`
@@ -17,11 +21,7 @@ type EncodingFinalizerParams struct {
 	MediaUUID uuid.UUID `json:"media_uuid"`
 }
 
-type MediaEncodingEntrypoint struct {
-	MediaUUID uuid.UUID `json:"media_uuid"`
-}
-
-func MediaEncodingEntrypointProducer(ch Channel, data MediaEncodingEntrypoint) error {
+func EncodingEntrypointProducer(ch Channel, data EncodingEntrypointParams) error {
 	body, _ := json.Marshal(data)
 
 	err := ch.Publish("", EncodingEntrypointQueue, false, false, amqp.Publishing{

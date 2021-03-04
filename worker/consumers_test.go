@@ -10,6 +10,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
+	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/assert"
@@ -42,25 +43,10 @@ func TestConsumers(t *testing.T) {
 			assert.NoError(t, err)
 
 			params := HlsVideoEncodingParams{
-				MediaUUID: m.ID,
-				OriginalFile: transcoding.OriginalFile{
-					DurationSeconds: 5.21,
-					Format:          "mp4",
-					FrameRate:       25,
-				},
-				VideoWidth:         1280,
-				VideoHeight:        720,
-				RenditionName:      "360p",
-				AudioCodec:         "aac",
-				VideoCodec:         "h264",
-				Crf:                20,
+				MediaFileUUID:      uuid.New(),
 				KeyframeInterval:   48,
-				HlsSegmentDuration: 4,
 				HlsPlaylistType:    "vod",
-				VideoBitRate:       800000,
-				AudioBitrate:       96000,
-				FrameRate:          30,
-				TargetBandwidth:    80000,
+				HlsSegmentDuration: 4,
 			}
 
 			body, _ := json.Marshal(params)
@@ -88,7 +74,7 @@ func TestConsumers(t *testing.T) {
 				Return(ioutil.NopCloser(strings.NewReader("test")), nil)
 
 			loggerMock.On("Info", "Received video transcoding message", []zap.Field{
-				zap.String("MediaUUID", params.MediaUUID.String()),
+				zap.String("MediaFileUUID", params.MediaFileUUID.String()),
 			}).Return()
 
 			transcoderMock.On("Process").Return(new(transcoding.Process))
@@ -150,8 +136,7 @@ func TestConsumers(t *testing.T) {
 			assert.NoError(t, err)
 
 			params := EncodingFinalizerParams{
-				MediaUUID:       m.ID,
-				MediaFilesCount: 1,
+				MediaUUID: m.ID,
 			}
 
 			body, _ := json.Marshal(params)
@@ -174,7 +159,6 @@ func TestConsumers(t *testing.T) {
 
 			loggerMock.On("Info", "Received media callback message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
-				zap.Int("MediaFilesCount", params.MediaFilesCount),
 			}).Return()
 
 			AckMock.On("Nack", uint64(0), false, true).Return(nil)
@@ -215,8 +199,7 @@ func TestConsumers(t *testing.T) {
 			assert.NoError(t, err)
 
 			params := EncodingFinalizerParams{
-				MediaUUID:       m.ID,
-				MediaFilesCount: 1,
+				MediaUUID: m.ID,
 			}
 
 			body, _ := json.Marshal(params)
@@ -239,7 +222,6 @@ func TestConsumers(t *testing.T) {
 
 			loggerMock.On("Info", "Received media callback message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
-				zap.Int("MediaFilesCount", params.MediaFilesCount),
 			}).Return()
 
 			storageMock.

@@ -60,7 +60,7 @@ func encodingEntrypointConsumer(w *Worker, msgs <-chan amqp.Delivery) {
 	for d := range msgs {
 		func() {
 			ctx := context.Background()
-			var body MediaEncodingEntrypoint
+			var body EncodingEntrypointParams
 
 			err := json.Unmarshal(d.Body, &body)
 			if err != nil {

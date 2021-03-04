@@ -108,7 +108,7 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	err = worker.MediaEncodingEntrypointProducer(ch, worker.MediaEncodingEntrypoint{
+	err = worker.EncodingEntrypointProducer(ch, worker.EncodingEntrypointParams{
 		MediaUUID: m.ID,
 	})
 	if err != nil {
