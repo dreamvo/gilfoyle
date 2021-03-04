@@ -8,6 +8,7 @@ import (
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/ent/enttest"
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/x/testutils"
 	"github.com/dreamvo/gilfoyle/x/testutils/mocks"
@@ -238,7 +239,7 @@ func TestMedias(t *testing.T) {
 	})
 
 	t.Run("DELETE /medias/:id", func(t *testing.T) {
-		t.Run("should delete newly created media", func(t *testing.T) {
+		t.Run("should delete media & media files", func(t *testing.T) {
 			dbClient := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
 			defer func() { _ = dbClient.Close() }()
 
@@ -262,8 +263,10 @@ func TestMedias(t *testing.T) {
 				SetMedia(m).
 				SetRenditionName("low").
 				SetFormat("hls").
+				SetStatus(mediafile.StatusReady).
 				SetTargetBandwidth(14000000).
 				SetVideoBitrate(14000000).
+				SetAudioBitrate(14000000).
 				SetResolutionWidth(1920).
 				SetResolutionHeight(1080).
 				SetDurationSeconds(5).
