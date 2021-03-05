@@ -16,6 +16,12 @@ const (
 	EncodingFinalizerQueue  string = "EncodingFinalizer"
 )
 
+type AMQPClient interface {
+	Channel() (*amqp.Channel, error)
+	Close() error
+	IsClosed() bool
+}
+
 type Channel interface {
 	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
 	QueueDeclare(name string, durable, autoDelete, exclusive, noWait bool, args amqp.Table) (amqp.Queue, error)
@@ -77,7 +83,7 @@ type Options struct {
 
 type Worker struct {
 	Queues      map[string]amqp.Queue
-	Client      *amqp.Connection
+	Client      AMQPClient
 	logger      logging.ILogger
 	concurrency uint
 	storage     storage.Storage

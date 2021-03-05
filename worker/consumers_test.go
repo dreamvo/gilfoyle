@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 )
 
 func TestConsumers(t *testing.T) {
@@ -87,8 +86,6 @@ func TestConsumers(t *testing.T) {
 				Acknowledger: AckMock,
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Info", "Received HLS video encoding message", []zap.Field{
 				zap.String("MediaFileUUID", params.MediaFileUUID.String()),
 			}).Return()
@@ -102,17 +99,14 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go hlsVideoEncodingConsumer(w, msgs)
-
-			msgs <- delivery
-
-			time.Sleep(200 * time.Millisecond)
+			hlsVideoEncodingConsumer(w, delivery)
 
 			items, err := m.QueryMediaFiles().All(context.Background())
 			assert.NoError(t, err)
 
 			assert.Equal(t, 1, len(items))
 			assert.Equal(t, mediafile.StatusReady, items[0].Status)
+			assert.Equal(t, "Encoding job succeeded", items[0].Message)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
@@ -130,15 +124,9 @@ func TestConsumers(t *testing.T) {
 				Body: []byte(""),
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go hlsVideoEncodingConsumer(w, msgs)
-
-			msgs <- delivery
-
-			time.Sleep(200 * time.Millisecond)
+			hlsVideoEncodingConsumer(w, delivery)
 
 			loggerMock.AssertExpectations(t)
 		})
@@ -174,8 +162,6 @@ func TestConsumers(t *testing.T) {
 				Acknowledger: AckMock,
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
 			}).Return()
@@ -192,11 +178,7 @@ func TestConsumers(t *testing.T) {
 
 			AckMock.On("Ack", uint64(0), false).Return(nil)
 
-			go encodingFinalizerConsumer(w, msgs)
-
-			msgs <- delivery
-
-			time.Sleep(200 * time.Millisecond)
+			encodingFinalizerConsumer(w, delivery)
 
 			m, err = dbClient.Media.Get(context.Background(), m.ID)
 			assert.NoError(t, err)
@@ -258,8 +240,6 @@ func TestConsumers(t *testing.T) {
 				Acknowledger: AckMock,
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
 			}).Return()
@@ -278,16 +258,90 @@ test-rendition/index.m3u8
 
 			AckMock.On("Ack", mock.Anything, false).Return(nil)
 
-			go encodingFinalizerConsumer(w, msgs)
-
-			msgs <- delivery
-
-			time.Sleep(200 * time.Millisecond)
+			encodingFinalizerConsumer(w, delivery)
 
 			m, err = dbClient.Media.Get(context.Background(), m.ID)
 			assert.NoError(t, err)
 			assert.Equal(t, media.StatusReady, m.Status)
 			assert.Equal(t, "One or more rendition succeeded. Media is available for streaming", m.Message)
+
+			loggerMock.AssertExpectations(t)
+			AckMock.AssertExpectations(t)
+			storageMock.AssertExpectations(t)
+		})
+
+		t.Run("should finalize a media with a errored rendition", func(t *testing.T) {
+			m, err := dbClient.Media.
+				Create().
+				SetTitle("my video").
+				SetStatus(schema.MediaStatusProcessing).
+				SetOriginalFilename(transcoding.OriginalFileName).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			_, err = dbClient.MediaFile.
+				Create().
+				SetMedia(m).
+				SetRenditionName("test-rendition").
+				SetMediaType(schema.MediaFileTypeVideo).
+				SetFormat("hls").
+				SetStatus(mediafile.StatusErrored).
+				SetEntryFile(transcoding.HLSPlaylistFilename).
+				SetMimetype(transcoding.HLSPlaylistMimeType).
+				SetTargetBandwidth(928000).
+				SetVideoBitrate(800000).
+				SetAudioBitrate(128000).
+				SetVideoCodec("h264").
+				SetAudioCodec("aac").
+				SetResolutionWidth(640).
+				SetResolutionHeight(360).
+				SetDurationSeconds(5).
+				SetFramerate(25).
+				Save(context.Background())
+			assert.NoError(t, err)
+
+			params := EncodingFinalizerParams{
+				MediaUUID: m.ID,
+			}
+
+			body, _ := json.Marshal(params)
+
+			loggerMock := new(mocks.MockedLogger)
+			AckMock := new(mocks.MockedAcknowledger)
+			storageMock := new(mocks.MockedStorage)
+
+			w := &Worker{
+				logger:   loggerMock,
+				dbClient: dbClient,
+				storage:  storageMock,
+			}
+			delivery := amqp.Delivery{
+				Body:         body,
+				Acknowledger: AckMock,
+			}
+
+			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
+				zap.String("MediaUUID", params.MediaUUID.String()),
+			}).Return()
+
+			storageMock.
+				On(
+					"Save",
+					strings.NewReader(`#EXTM3U
+#EXT-X-VERSION:3
+`),
+					path.Join(m.ID.String(), transcoding.HLSMasterPlaylistFilename),
+				).
+				Return(nil)
+
+			AckMock.On("Ack", uint64(0), false).Return(nil)
+
+			encodingFinalizerConsumer(w, delivery)
+
+			m, err = dbClient.Media.Get(context.Background(), m.ID)
+			assert.NoError(t, err)
+			assert.Equal(t, media.StatusErrored, m.Status)
+			assert.Equal(t, "All encoding jobs failed", m.Message)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
@@ -386,8 +440,6 @@ test-rendition/index.m3u8
 				Acknowledger: AckMock,
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Info", "Received encoding finalizer message", []zap.Field{
 				zap.String("MediaUUID", params.MediaUUID.String()),
 			}).Return()
@@ -405,18 +457,13 @@ test-rendition/index.m3u8
 				Return(nil)
 
 			AckMock.On("Ack", uint64(0), false).Return(nil)
-			AckMock.On("Nack", uint64(0), false, true).Return(nil)
 
-			go encodingFinalizerConsumer(w, msgs)
-
-			msgs <- delivery
-
-			time.Sleep(15000 * time.Millisecond)
+			encodingFinalizerConsumer(w, delivery)
 
 			m, err = dbClient.Media.Get(context.Background(), m.ID)
 			assert.NoError(t, err)
-			assert.Equal(t, media.StatusProcessing, m.Status)
-			assert.Equal(t, "", m.Message)
+			assert.Equal(t, media.StatusReady, m.Status)
+			assert.Equal(t, "One or more rendition succeeded. Media is available for streaming", m.Message)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)
@@ -433,15 +480,9 @@ test-rendition/index.m3u8
 				Body: []byte(""),
 			}
 
-			msgs := make(chan amqp.Delivery)
-
 			loggerMock.On("Error", "Unmarshal error", mock.Anything).Return()
 
-			go encodingFinalizerConsumer(w, msgs)
-
-			msgs <- delivery
-
-			time.Sleep(200 * time.Millisecond)
+			encodingFinalizerConsumer(w, delivery)
 
 			loggerMock.AssertExpectations(t)
 		})

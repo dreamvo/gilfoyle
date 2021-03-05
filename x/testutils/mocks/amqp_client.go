@@ -11,9 +11,13 @@ type MockedAMQPClient struct {
 
 func (m *MockedAMQPClient) Channel() (*amqp.Channel, error) {
 	args := m.Called()
-	return nil, args.Error(0)
+	return nil, args.Error(1)
 }
 
 func (m *MockedAMQPClient) Close() error {
 	return m.Called().Error(0)
+}
+
+func (m *MockedAMQPClient) IsClosed() bool {
+	return m.Called().Bool(0)
 }

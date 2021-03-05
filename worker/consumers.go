@@ -374,7 +374,6 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 		return
 	}
 
-	AckNeeded := true
 	mediaStatus := media.StatusErrored
 	mediaMessage := "All encoding jobs failed"
 
@@ -383,22 +382,28 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 	}
 
 	for _, r := range m.Edges.MediaFiles {
-		// If at least one media file is still in
+		// If at least one rendition is still in
 		// processing state then requeue the job in 15 sec.
 		if r.Status == mediafile.StatusProcessing {
 			go func(w *Worker, d amqp.Delivery, body EncodingFinalizerParams) {
 				time.Sleep(15 * time.Second)
-				err := d.Nack(false, r.Status == mediafile.StatusProcessing)
+
+				ch, err := w.Client.Channel()
 				if err != nil {
-					w.logger.Error("Failed to send Nack", zap.Error(err))
+					w.logger.Error("Worker channel", zap.Error(err))
+					_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+					return
+				}
+
+				err = EncodingFinalizerProducer(ch, body)
+				if err != nil {
+					w.logger.Error("Error creating encoding finalizer job", zap.Error(err))
 					_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 				}
 			}(w, d, body)
-			AckNeeded = false
 
 			mediaStatus = media.StatusProcessing
 			mediaMessage = "Media is not yet available for streaming"
-			break
 		}
 
 		// If at least one media file is ready
@@ -417,11 +422,9 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 		return
 	}
 
-	if AckNeeded {
-		err = d.Ack(false)
-		if err != nil {
-			w.logger.Error("Error trying to send ack", zap.Error(err))
-			_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
-		}
+	err = d.Ack(false)
+	if err != nil {
+		w.logger.Error("Error trying to send ack", zap.Error(err))
+		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 	}
 }
