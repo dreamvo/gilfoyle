@@ -28,12 +28,6 @@ func (pc *ProbeCreate) SetFilename(s string) *ProbeCreate {
 	return pc
 }
 
-// SetMimetype sets the mimetype field.
-func (pc *ProbeCreate) SetMimetype(s string) *ProbeCreate {
-	pc.mutation.SetMimetype(s)
-	return pc
-}
-
 // SetFilesize sets the filesize field.
 func (pc *ProbeCreate) SetFilesize(i int) *ProbeCreate {
 	pc.mutation.SetFilesize(i)
@@ -123,8 +117,8 @@ func (pc *ProbeCreate) SetNillableAudioBitrate(i *int) *ProbeCreate {
 }
 
 // SetFramerate sets the framerate field.
-func (pc *ProbeCreate) SetFramerate(i int) *ProbeCreate {
-	pc.mutation.SetFramerate(i)
+func (pc *ProbeCreate) SetFramerate(f float64) *ProbeCreate {
+	pc.mutation.SetFramerate(f)
 	return pc
 }
 
@@ -293,14 +287,6 @@ func (pc *ProbeCreate) check() error {
 			return &ValidationError{Name: "filename", err: fmt.Errorf("ent: validator failed for field \"filename\": %w", err)}
 		}
 	}
-	if _, ok := pc.mutation.Mimetype(); !ok {
-		return &ValidationError{Name: "mimetype", err: errors.New("ent: missing required field \"mimetype\"")}
-	}
-	if v, ok := pc.mutation.Mimetype(); ok {
-		if err := probe.MimetypeValidator(v); err != nil {
-			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
-		}
-	}
 	if _, ok := pc.mutation.Filesize(); !ok {
 		return &ValidationError{Name: "filesize", err: errors.New("ent: missing required field \"filesize\"")}
 	}
@@ -435,14 +421,6 @@ func (pc *ProbeCreate) createSpec() (*Probe, *sqlgraph.CreateSpec) {
 		})
 		_node.Filename = value
 	}
-	if value, ok := pc.mutation.Mimetype(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: probe.FieldMimetype,
-		})
-		_node.Mimetype = value
-	}
 	if value, ok := pc.mutation.Filesize(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeInt,
@@ -509,7 +487,7 @@ func (pc *ProbeCreate) createSpec() (*Probe, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := pc.mutation.Framerate(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: probe.FieldFramerate,
 		})

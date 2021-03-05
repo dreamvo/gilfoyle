@@ -10,7 +10,6 @@ import (
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/schema"
 	"github.com/dreamvo/gilfoyle/transcoding"
-	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
@@ -20,6 +19,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -67,7 +67,7 @@ func encodingEntrypointConsumer(w *Worker, d amqp.Delivery) {
 		return
 	}
 
-	w.logger.Info("Starting media encoding", zap.String("MediaUUID", body.MediaUUID.String()))
+	w.logger.Info("Media encoding entrypoint", zap.String("MediaUUID", body.MediaUUID.String()))
 
 	m, err := w.dbClient.Media.Get(ctx, body.MediaUUID)
 	if err != nil {
@@ -103,14 +103,8 @@ func encodingEntrypointConsumer(w *Worker, d amqp.Delivery) {
 	}
 
 	videoStream := data.FirstVideoStream()
-	framerate := int(transcoding.ParseFrameRates(videoStream.RFrameRate))
-
-	mime, err := mimetype.DetectReader(file)
-	if err != nil {
-		w.logger.Error("Mimetype detection", zap.Error(err))
-		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
-		return
-	}
+	nbFrames, _ := strconv.ParseFloat(videoStream.NbFrames, 64)
+	framerate := nbFrames / data.Format.Duration().Seconds()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, file); err != nil {
@@ -131,13 +125,19 @@ func encodingEntrypointConsumer(w *Worker, d amqp.Delivery) {
 		SetHeight(videoStream.Height).
 		SetDurationSeconds(data.Format.Duration().Seconds()).
 		SetChecksumSha256(fmt.Sprintf("%x", h.Sum(nil))).
-		SetMimetype(mime.String()).
 		SetFramerate(framerate).
 		SetFormat(data.Format.FormatName).
 		SetNbStreams(data.Format.NBStreams).
 		Save(ctx)
 	if err != nil {
 		w.logger.Error("Database error", zap.Error(err))
+		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+		return
+	}
+
+	ch, err := w.Client.Channel()
+	if err != nil {
+		w.logger.Error("Worker channel", zap.Error(err))
 		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 		return
 	}
@@ -178,13 +178,6 @@ func encodingEntrypointConsumer(w *Worker, d amqp.Delivery) {
 			return
 		}
 
-		ch, err := w.Client.Channel()
-		if err != nil {
-			w.logger.Error("Worker channel", zap.Error(err))
-			_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
-			return
-		}
-
 		err = HlsVideoEncodingProducer(ch, HlsVideoEncodingParams{
 			MediaFileUUID:      mediaFile.ID,
 			KeyframeInterval:   48,
@@ -196,13 +189,6 @@ func encodingEntrypointConsumer(w *Worker, d amqp.Delivery) {
 			_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
 			return
 		}
-	}
-
-	ch, err := w.Client.Channel()
-	if err != nil {
-		w.logger.Error("Worker channel", zap.Error(err))
-		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
-		return
 	}
 
 	err = EncodingFinalizerProducer(ch, EncodingFinalizerParams{MediaUUID: body.MediaUUID})
@@ -363,8 +349,6 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 	ctx := context.Background()
 	var body EncodingFinalizerParams
 
-	fmt.Println(111, "encodingFinalizerConsumer")
-
 	err := json.Unmarshal(d.Body, &body)
 	if err != nil {
 		w.logger.Error("Unmarshal error", zap.Error(err))
@@ -390,6 +374,7 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 		return
 	}
 
+	AckNeeded := true
 	mediaStatus := media.StatusErrored
 	mediaMessage := "All encoding jobs failed"
 
@@ -401,14 +386,18 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 		// If at least one media file is still in
 		// processing state then requeue the job in 15 sec.
 		if r.Status == mediafile.StatusProcessing {
-			time.Sleep(15 * time.Second)
-			err := d.Nack(false, r.Status == mediafile.StatusProcessing)
-			if err != nil {
-				w.logger.Error("Failed to send Nack", zap.Error(err))
-				return
-			}
+			go func(w *Worker, d amqp.Delivery, body EncodingFinalizerParams) {
+				time.Sleep(15 * time.Second)
+				err := d.Nack(false, r.Status == mediafile.StatusProcessing)
+				if err != nil {
+					w.logger.Error("Failed to send Nack", zap.Error(err))
+					_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+				}
+			}(w, d, body)
+			AckNeeded = false
+
 			mediaStatus = media.StatusProcessing
-			mediaMessage = ""
+			mediaMessage = "Media is not yet available for streaming"
 			break
 		}
 
@@ -428,9 +417,11 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 		return
 	}
 
-	err = d.Ack(false)
-	if err != nil {
-		w.logger.Error("Error trying to send ack", zap.Error(err))
-		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+	if AckNeeded {
+		err = d.Ack(false)
+		if err != nil {
+			w.logger.Error("Error trying to send ack", zap.Error(err))
+			_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+		}
 	}
 }

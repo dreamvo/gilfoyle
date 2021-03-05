@@ -20,8 +20,6 @@ type Probe struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Filename holds the value of the "filename" field.
 	Filename string `json:"filename,omitempty"`
-	// Mimetype holds the value of the "mimetype" field.
-	Mimetype string `json:"mimetype,omitempty"`
 	// Filesize holds the value of the "filesize" field.
 	Filesize int `json:"filesize,omitempty"`
 	// ChecksumSha256 holds the value of the "checksum_sha256" field.
@@ -39,7 +37,7 @@ type Probe struct {
 	// AudioBitrate holds the value of the "audio_bitrate" field.
 	AudioBitrate int `json:"audio_bitrate,omitempty"`
 	// Framerate holds the value of the "framerate" field.
-	Framerate int `json:"framerate,omitempty"`
+	Framerate float64 `json:"framerate,omitempty"`
 	// Format holds the value of the "format" field.
 	Format string `json:"format,omitempty"`
 	// NbStreams holds the value of the "nb_streams" field.
@@ -82,7 +80,6 @@ func (*Probe) scanValues() []interface{} {
 	return []interface{}{
 		&uuid.UUID{},       // id
 		&sql.NullString{},  // filename
-		&sql.NullString{},  // mimetype
 		&sql.NullInt64{},   // filesize
 		&sql.NullString{},  // checksum_sha256
 		&sql.NullString{},  // aspect_ratio
@@ -91,7 +88,7 @@ func (*Probe) scanValues() []interface{} {
 		&sql.NullFloat64{}, // duration_seconds
 		&sql.NullInt64{},   // video_bitrate
 		&sql.NullInt64{},   // audio_bitrate
-		&sql.NullInt64{},   // framerate
+		&sql.NullFloat64{}, // framerate
 		&sql.NullString{},  // format
 		&sql.NullInt64{},   // nb_streams
 		&sql.NullTime{},    // created_at
@@ -123,77 +120,72 @@ func (pr *Probe) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		pr.Filename = value.String
 	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field mimetype", values[1])
-	} else if value.Valid {
-		pr.Mimetype = value.String
-	}
-	if value, ok := values[2].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field filesize", values[2])
+	if value, ok := values[1].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field filesize", values[1])
 	} else if value.Valid {
 		pr.Filesize = int(value.Int64)
 	}
-	if value, ok := values[3].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field checksum_sha256", values[3])
+	if value, ok := values[2].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field checksum_sha256", values[2])
 	} else if value.Valid {
 		pr.ChecksumSha256 = value.String
 	}
-	if value, ok := values[4].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field aspect_ratio", values[4])
+	if value, ok := values[3].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field aspect_ratio", values[3])
 	} else if value.Valid {
 		pr.AspectRatio = value.String
 	}
-	if value, ok := values[5].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field width", values[5])
+	if value, ok := values[4].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field width", values[4])
 	} else if value.Valid {
 		pr.Width = int(value.Int64)
 	}
-	if value, ok := values[6].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field height", values[6])
+	if value, ok := values[5].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field height", values[5])
 	} else if value.Valid {
 		pr.Height = int(value.Int64)
 	}
-	if value, ok := values[7].(*sql.NullFloat64); !ok {
-		return fmt.Errorf("unexpected type %T for field duration_seconds", values[7])
+	if value, ok := values[6].(*sql.NullFloat64); !ok {
+		return fmt.Errorf("unexpected type %T for field duration_seconds", values[6])
 	} else if value.Valid {
 		pr.DurationSeconds = value.Float64
 	}
-	if value, ok := values[8].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field video_bitrate", values[8])
+	if value, ok := values[7].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field video_bitrate", values[7])
 	} else if value.Valid {
 		pr.VideoBitrate = int(value.Int64)
 	}
-	if value, ok := values[9].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field audio_bitrate", values[9])
+	if value, ok := values[8].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field audio_bitrate", values[8])
 	} else if value.Valid {
 		pr.AudioBitrate = int(value.Int64)
 	}
-	if value, ok := values[10].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field framerate", values[10])
+	if value, ok := values[9].(*sql.NullFloat64); !ok {
+		return fmt.Errorf("unexpected type %T for field framerate", values[9])
 	} else if value.Valid {
-		pr.Framerate = int(value.Int64)
+		pr.Framerate = value.Float64
 	}
-	if value, ok := values[11].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field format", values[11])
+	if value, ok := values[10].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field format", values[10])
 	} else if value.Valid {
 		pr.Format = value.String
 	}
-	if value, ok := values[12].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field nb_streams", values[12])
+	if value, ok := values[11].(*sql.NullInt64); !ok {
+		return fmt.Errorf("unexpected type %T for field nb_streams", values[11])
 	} else if value.Valid {
 		pr.NbStreams = int(value.Int64)
 	}
-	if value, ok := values[13].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[13])
+	if value, ok := values[12].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[12])
 	} else if value.Valid {
 		pr.CreatedAt = value.Time
 	}
-	if value, ok := values[14].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[14])
+	if value, ok := values[13].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[13])
 	} else if value.Valid {
 		pr.UpdatedAt = value.Time
 	}
-	values = values[15:]
+	values = values[14:]
 	if len(values) == len(probe.ForeignKeys) {
 		if value, ok := values[0].(*uuid.UUID); !ok {
 			return fmt.Errorf("unexpected type %T for field media", values[0])
@@ -234,8 +226,6 @@ func (pr *Probe) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v", pr.ID))
 	builder.WriteString(", filename=")
 	builder.WriteString(pr.Filename)
-	builder.WriteString(", mimetype=")
-	builder.WriteString(pr.Mimetype)
 	builder.WriteString(", filesize=")
 	builder.WriteString(fmt.Sprintf("%v", pr.Filesize))
 	builder.WriteString(", checksum_sha256=")

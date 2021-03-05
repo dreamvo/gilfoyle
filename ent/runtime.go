@@ -221,32 +221,14 @@ func init() {
 			return nil
 		}
 	}()
-	// probeDescMimetype is the schema descriptor for mimetype field.
-	probeDescMimetype := probeFields[2].Descriptor()
-	// probe.MimetypeValidator is a validator for the "mimetype" field. It is called by the builders before save.
-	probe.MimetypeValidator = func() func(string) error {
-		validators := probeDescMimetype.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(mimetype string) error {
-			for _, fn := range fns {
-				if err := fn(mimetype); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// probeDescFilesize is the schema descriptor for filesize field.
-	probeDescFilesize := probeFields[3].Descriptor()
+	probeDescFilesize := probeFields[2].Descriptor()
 	// probe.DefaultFilesize holds the default value on creation for the filesize field.
 	probe.DefaultFilesize = probeDescFilesize.Default.(int)
 	// probe.FilesizeValidator is a validator for the "filesize" field. It is called by the builders before save.
 	probe.FilesizeValidator = probeDescFilesize.Validators[0].(func(int) error)
 	// probeDescChecksumSha256 is the schema descriptor for checksum_sha256 field.
-	probeDescChecksumSha256 := probeFields[4].Descriptor()
+	probeDescChecksumSha256 := probeFields[3].Descriptor()
 	// probe.ChecksumSha256Validator is a validator for the "checksum_sha256" field. It is called by the builders before save.
 	probe.ChecksumSha256Validator = func() func(string) error {
 		validators := probeDescChecksumSha256.Validators
@@ -264,7 +246,7 @@ func init() {
 		}
 	}()
 	// probeDescAspectRatio is the schema descriptor for aspect_ratio field.
-	probeDescAspectRatio := probeFields[5].Descriptor()
+	probeDescAspectRatio := probeFields[4].Descriptor()
 	// probe.DefaultAspectRatio holds the default value on creation for the aspect_ratio field.
 	probe.DefaultAspectRatio = probeDescAspectRatio.Default.(string)
 	// probe.AspectRatioValidator is a validator for the "aspect_ratio" field. It is called by the builders before save.
@@ -284,51 +266,51 @@ func init() {
 		}
 	}()
 	// probeDescWidth is the schema descriptor for width field.
-	probeDescWidth := probeFields[6].Descriptor()
+	probeDescWidth := probeFields[5].Descriptor()
 	// probe.WidthValidator is a validator for the "width" field. It is called by the builders before save.
 	probe.WidthValidator = probeDescWidth.Validators[0].(func(int) error)
 	// probeDescHeight is the schema descriptor for height field.
-	probeDescHeight := probeFields[7].Descriptor()
+	probeDescHeight := probeFields[6].Descriptor()
 	// probe.HeightValidator is a validator for the "height" field. It is called by the builders before save.
 	probe.HeightValidator = probeDescHeight.Validators[0].(func(int) error)
 	// probeDescDurationSeconds is the schema descriptor for duration_seconds field.
-	probeDescDurationSeconds := probeFields[8].Descriptor()
+	probeDescDurationSeconds := probeFields[7].Descriptor()
 	// probe.DefaultDurationSeconds holds the default value on creation for the duration_seconds field.
 	probe.DefaultDurationSeconds = probeDescDurationSeconds.Default.(float64)
 	// probe.DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	probe.DurationSecondsValidator = probeDescDurationSeconds.Validators[0].(func(float64) error)
 	// probeDescVideoBitrate is the schema descriptor for video_bitrate field.
-	probeDescVideoBitrate := probeFields[9].Descriptor()
+	probeDescVideoBitrate := probeFields[8].Descriptor()
 	// probe.DefaultVideoBitrate holds the default value on creation for the video_bitrate field.
 	probe.DefaultVideoBitrate = probeDescVideoBitrate.Default.(int)
 	// probe.VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	probe.VideoBitrateValidator = probeDescVideoBitrate.Validators[0].(func(int) error)
 	// probeDescAudioBitrate is the schema descriptor for audio_bitrate field.
-	probeDescAudioBitrate := probeFields[10].Descriptor()
+	probeDescAudioBitrate := probeFields[9].Descriptor()
 	// probe.DefaultAudioBitrate holds the default value on creation for the audio_bitrate field.
 	probe.DefaultAudioBitrate = probeDescAudioBitrate.Default.(int)
 	// probe.AudioBitrateValidator is a validator for the "audio_bitrate" field. It is called by the builders before save.
 	probe.AudioBitrateValidator = probeDescAudioBitrate.Validators[0].(func(int) error)
 	// probeDescFramerate is the schema descriptor for framerate field.
-	probeDescFramerate := probeFields[11].Descriptor()
+	probeDescFramerate := probeFields[10].Descriptor()
 	// probe.FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
-	probe.FramerateValidator = probeDescFramerate.Validators[0].(func(int) error)
+	probe.FramerateValidator = probeDescFramerate.Validators[0].(func(float64) error)
 	// probeDescFormat is the schema descriptor for format field.
-	probeDescFormat := probeFields[12].Descriptor()
+	probeDescFormat := probeFields[11].Descriptor()
 	// probe.FormatValidator is a validator for the "format" field. It is called by the builders before save.
 	probe.FormatValidator = probeDescFormat.Validators[0].(func(string) error)
 	// probeDescNbStreams is the schema descriptor for nb_streams field.
-	probeDescNbStreams := probeFields[13].Descriptor()
+	probeDescNbStreams := probeFields[12].Descriptor()
 	// probe.DefaultNbStreams holds the default value on creation for the nb_streams field.
 	probe.DefaultNbStreams = probeDescNbStreams.Default.(int)
 	// probe.NbStreamsValidator is a validator for the "nb_streams" field. It is called by the builders before save.
 	probe.NbStreamsValidator = probeDescNbStreams.Validators[0].(func(int) error)
 	// probeDescCreatedAt is the schema descriptor for created_at field.
-	probeDescCreatedAt := probeFields[14].Descriptor()
+	probeDescCreatedAt := probeFields[13].Descriptor()
 	// probe.DefaultCreatedAt holds the default value on creation for the created_at field.
 	probe.DefaultCreatedAt = probeDescCreatedAt.Default.(func() time.Time)
 	// probeDescUpdatedAt is the schema descriptor for updated_at field.
-	probeDescUpdatedAt := probeFields[15].Descriptor()
+	probeDescUpdatedAt := probeFields[14].Descriptor()
 	// probe.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	probe.DefaultUpdatedAt = probeDescUpdatedAt.Default.(func() time.Time)
 	// probe.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

@@ -36,12 +36,6 @@ func (pu *ProbeUpdate) SetFilename(s string) *ProbeUpdate {
 	return pu
 }
 
-// SetMimetype sets the mimetype field.
-func (pu *ProbeUpdate) SetMimetype(s string) *ProbeUpdate {
-	pu.mutation.SetMimetype(s)
-	return pu
-}
-
 // SetFilesize sets the filesize field.
 func (pu *ProbeUpdate) SetFilesize(i int) *ProbeUpdate {
 	pu.mutation.ResetFilesize()
@@ -173,15 +167,15 @@ func (pu *ProbeUpdate) AddAudioBitrate(i int) *ProbeUpdate {
 }
 
 // SetFramerate sets the framerate field.
-func (pu *ProbeUpdate) SetFramerate(i int) *ProbeUpdate {
+func (pu *ProbeUpdate) SetFramerate(f float64) *ProbeUpdate {
 	pu.mutation.ResetFramerate()
-	pu.mutation.SetFramerate(i)
+	pu.mutation.SetFramerate(f)
 	return pu
 }
 
-// AddFramerate adds i to framerate.
-func (pu *ProbeUpdate) AddFramerate(i int) *ProbeUpdate {
-	pu.mutation.AddFramerate(i)
+// AddFramerate adds f to framerate.
+func (pu *ProbeUpdate) AddFramerate(f float64) *ProbeUpdate {
+	pu.mutation.AddFramerate(f)
 	return pu
 }
 
@@ -327,11 +321,6 @@ func (pu *ProbeUpdate) check() error {
 			return &ValidationError{Name: "filename", err: fmt.Errorf("ent: validator failed for field \"filename\": %w", err)}
 		}
 	}
-	if v, ok := pu.mutation.Mimetype(); ok {
-		if err := probe.MimetypeValidator(v); err != nil {
-			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
-		}
-	}
 	if v, ok := pu.mutation.Filesize(); ok {
 		if err := probe.FilesizeValidator(v); err != nil {
 			return &ValidationError{Name: "filesize", err: fmt.Errorf("ent: validator failed for field \"filesize\": %w", err)}
@@ -416,13 +405,6 @@ func (pu *ProbeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeString,
 			Value:  value,
 			Column: probe.FieldFilename,
-		})
-	}
-	if value, ok := pu.mutation.Mimetype(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: probe.FieldMimetype,
 		})
 	}
 	if value, ok := pu.mutation.Filesize(); ok {
@@ -525,14 +507,14 @@ func (pu *ProbeUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := pu.mutation.Framerate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: probe.FieldFramerate,
 		})
 	}
 	if value, ok := pu.mutation.AddedFramerate(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: probe.FieldFramerate,
 		})
@@ -628,12 +610,6 @@ type ProbeUpdateOne struct {
 // SetFilename sets the filename field.
 func (puo *ProbeUpdateOne) SetFilename(s string) *ProbeUpdateOne {
 	puo.mutation.SetFilename(s)
-	return puo
-}
-
-// SetMimetype sets the mimetype field.
-func (puo *ProbeUpdateOne) SetMimetype(s string) *ProbeUpdateOne {
-	puo.mutation.SetMimetype(s)
 	return puo
 }
 
@@ -768,15 +744,15 @@ func (puo *ProbeUpdateOne) AddAudioBitrate(i int) *ProbeUpdateOne {
 }
 
 // SetFramerate sets the framerate field.
-func (puo *ProbeUpdateOne) SetFramerate(i int) *ProbeUpdateOne {
+func (puo *ProbeUpdateOne) SetFramerate(f float64) *ProbeUpdateOne {
 	puo.mutation.ResetFramerate()
-	puo.mutation.SetFramerate(i)
+	puo.mutation.SetFramerate(f)
 	return puo
 }
 
-// AddFramerate adds i to framerate.
-func (puo *ProbeUpdateOne) AddFramerate(i int) *ProbeUpdateOne {
-	puo.mutation.AddFramerate(i)
+// AddFramerate adds f to framerate.
+func (puo *ProbeUpdateOne) AddFramerate(f float64) *ProbeUpdateOne {
+	puo.mutation.AddFramerate(f)
 	return puo
 }
 
@@ -922,11 +898,6 @@ func (puo *ProbeUpdateOne) check() error {
 			return &ValidationError{Name: "filename", err: fmt.Errorf("ent: validator failed for field \"filename\": %w", err)}
 		}
 	}
-	if v, ok := puo.mutation.Mimetype(); ok {
-		if err := probe.MimetypeValidator(v); err != nil {
-			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
-		}
-	}
 	if v, ok := puo.mutation.Filesize(); ok {
 		if err := probe.FilesizeValidator(v); err != nil {
 			return &ValidationError{Name: "filesize", err: fmt.Errorf("ent: validator failed for field \"filesize\": %w", err)}
@@ -1009,13 +980,6 @@ func (puo *ProbeUpdateOne) sqlSave(ctx context.Context) (_node *Probe, err error
 			Type:   field.TypeString,
 			Value:  value,
 			Column: probe.FieldFilename,
-		})
-	}
-	if value, ok := puo.mutation.Mimetype(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeString,
-			Value:  value,
-			Column: probe.FieldMimetype,
 		})
 	}
 	if value, ok := puo.mutation.Filesize(); ok {
@@ -1118,14 +1082,14 @@ func (puo *ProbeUpdateOne) sqlSave(ctx context.Context) (_node *Probe, err error
 	}
 	if value, ok := puo.mutation.Framerate(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: probe.FieldFramerate,
 		})
 	}
 	if value, ok := puo.mutation.AddedFramerate(); ok {
 		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
+			Type:   field.TypeFloat64,
 			Value:  value,
 			Column: probe.FieldFramerate,
 		})

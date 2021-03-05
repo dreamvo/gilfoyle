@@ -101,13 +101,6 @@ func Filename(v string) predicate.Probe {
 	})
 }
 
-// Mimetype applies equality check predicate on the "mimetype" field. It's identical to MimetypeEQ.
-func Mimetype(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMimetype), v))
-	})
-}
-
 // Filesize applies equality check predicate on the "filesize" field. It's identical to FilesizeEQ.
 func Filesize(v int) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
@@ -165,7 +158,7 @@ func AudioBitrate(v int) predicate.Probe {
 }
 
 // Framerate applies equality check predicate on the "framerate" field. It's identical to FramerateEQ.
-func Framerate(v int) predicate.Probe {
+func Framerate(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldFramerate), v))
 	})
@@ -307,117 +300,6 @@ func FilenameEqualFold(v string) predicate.Probe {
 func FilenameContainsFold(v string) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldFilename), v))
-	})
-}
-
-// MimetypeEQ applies the EQ predicate on the "mimetype" field.
-func MimetypeEQ(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeNEQ applies the NEQ predicate on the "mimetype" field.
-func MimetypeNEQ(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeIn applies the In predicate on the "mimetype" field.
-func MimetypeIn(vs ...string) predicate.Probe {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Probe(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.In(s.C(FieldMimetype), v...))
-	})
-}
-
-// MimetypeNotIn applies the NotIn predicate on the "mimetype" field.
-func MimetypeNotIn(vs ...string) predicate.Probe {
-	v := make([]interface{}, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Probe(func(s *sql.Selector) {
-		// if not arguments were provided, append the FALSE constants,
-		// since we can't apply "IN ()". This will make this predicate falsy.
-		if len(v) == 0 {
-			s.Where(sql.False())
-			return
-		}
-		s.Where(sql.NotIn(s.C(FieldMimetype), v...))
-	})
-}
-
-// MimetypeGT applies the GT predicate on the "mimetype" field.
-func MimetypeGT(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeGTE applies the GTE predicate on the "mimetype" field.
-func MimetypeGTE(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeLT applies the LT predicate on the "mimetype" field.
-func MimetypeLT(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeLTE applies the LTE predicate on the "mimetype" field.
-func MimetypeLTE(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeContains applies the Contains predicate on the "mimetype" field.
-func MimetypeContains(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeHasPrefix applies the HasPrefix predicate on the "mimetype" field.
-func MimetypeHasPrefix(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeHasSuffix applies the HasSuffix predicate on the "mimetype" field.
-func MimetypeHasSuffix(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeEqualFold applies the EqualFold predicate on the "mimetype" field.
-func MimetypeEqualFold(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldMimetype), v))
-	})
-}
-
-// MimetypeContainsFold applies the ContainsFold predicate on the "mimetype" field.
-func MimetypeContainsFold(v string) predicate.Probe {
-	return predicate.Probe(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldMimetype), v))
 	})
 }
 
@@ -1100,21 +982,21 @@ func AudioBitrateLTE(v int) predicate.Probe {
 }
 
 // FramerateEQ applies the EQ predicate on the "framerate" field.
-func FramerateEQ(v int) predicate.Probe {
+func FramerateEQ(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateNEQ applies the NEQ predicate on the "framerate" field.
-func FramerateNEQ(v int) predicate.Probe {
+func FramerateNEQ(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateIn applies the In predicate on the "framerate" field.
-func FramerateIn(vs ...int) predicate.Probe {
+func FramerateIn(vs ...float64) predicate.Probe {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -1131,7 +1013,7 @@ func FramerateIn(vs ...int) predicate.Probe {
 }
 
 // FramerateNotIn applies the NotIn predicate on the "framerate" field.
-func FramerateNotIn(vs ...int) predicate.Probe {
+func FramerateNotIn(vs ...float64) predicate.Probe {
 	v := make([]interface{}, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -1148,28 +1030,28 @@ func FramerateNotIn(vs ...int) predicate.Probe {
 }
 
 // FramerateGT applies the GT predicate on the "framerate" field.
-func FramerateGT(v int) predicate.Probe {
+func FramerateGT(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateGTE applies the GTE predicate on the "framerate" field.
-func FramerateGTE(v int) predicate.Probe {
+func FramerateGTE(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateLT applies the LT predicate on the "framerate" field.
-func FramerateLT(v int) predicate.Probe {
+func FramerateLT(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldFramerate), v))
 	})
 }
 
 // FramerateLTE applies the LTE predicate on the "framerate" field.
-func FramerateLTE(v int) predicate.Probe {
+func FramerateLTE(v float64) predicate.Probe {
 	return predicate.Probe(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldFramerate), v))
 	})

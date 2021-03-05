@@ -36,7 +36,6 @@ func (Probe) Fields() []ent.Field {
 			return uuid.New()
 		}).Immutable(),
 		field.String("filename").MinLen(1).MaxLen(255),
-		field.String("mimetype").MinLen(1).MaxLen(255),
 		field.Int("filesize").Default(0).Min(0),
 		field.String("checksum_sha256").MinLen(16).MaxLen(128),
 		field.String("aspect_ratio").MinLen(1).MaxLen(5).Default("16:9"),
@@ -45,7 +44,7 @@ func (Probe) Fields() []ent.Field {
 		field.Float("duration_seconds").Min(0).Default(0),
 		field.Int("video_bitrate").Min(0).Default(0),
 		field.Int("audio_bitrate").Min(0).Default(0),
-		field.Int("framerate").Min(0),
+		field.Float("framerate").Min(0),
 		field.String("format").MinLen(1),
 		field.Int("nb_streams").Min(1).Default(1),
 		field.Time("created_at").Default(func() time.Time {

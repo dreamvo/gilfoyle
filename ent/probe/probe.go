@@ -15,8 +15,6 @@ const (
 	FieldID = "id"
 	// FieldFilename holds the string denoting the filename field in the database.
 	FieldFilename = "filename"
-	// FieldMimetype holds the string denoting the mimetype field in the database.
-	FieldMimetype = "mimetype"
 	// FieldFilesize holds the string denoting the filesize field in the database.
 	FieldFilesize = "filesize"
 	// FieldChecksumSha256 holds the string denoting the checksum_sha256 field in the database.
@@ -62,7 +60,6 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldFilename,
-	FieldMimetype,
 	FieldFilesize,
 	FieldChecksumSha256,
 	FieldAspectRatio,
@@ -101,8 +98,6 @@ func ValidColumn(column string) bool {
 var (
 	// FilenameValidator is a validator for the "filename" field. It is called by the builders before save.
 	FilenameValidator func(string) error
-	// MimetypeValidator is a validator for the "mimetype" field. It is called by the builders before save.
-	MimetypeValidator func(string) error
 	// DefaultFilesize holds the default value on creation for the filesize field.
 	DefaultFilesize int
 	// FilesizeValidator is a validator for the "filesize" field. It is called by the builders before save.
@@ -130,7 +125,7 @@ var (
 	// AudioBitrateValidator is a validator for the "audio_bitrate" field. It is called by the builders before save.
 	AudioBitrateValidator func(int) error
 	// FramerateValidator is a validator for the "framerate" field. It is called by the builders before save.
-	FramerateValidator func(int) error
+	FramerateValidator func(float64) error
 	// FormatValidator is a validator for the "format" field. It is called by the builders before save.
 	FormatValidator func(string) error
 	// DefaultNbStreams holds the default value on creation for the nb_streams field.

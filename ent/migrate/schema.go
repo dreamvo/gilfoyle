@@ -70,7 +70,6 @@ var (
 	MediaProbeColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "filename", Type: field.TypeString, Size: 255},
-		{Name: "mimetype", Type: field.TypeString, Size: 255},
 		{Name: "filesize", Type: field.TypeInt},
 		{Name: "checksum_sha256", Type: field.TypeString, Size: 128},
 		{Name: "aspect_ratio", Type: field.TypeString, Size: 5, Default: "16:9"},
@@ -79,7 +78,7 @@ var (
 		{Name: "duration_seconds", Type: field.TypeFloat64},
 		{Name: "video_bitrate", Type: field.TypeInt},
 		{Name: "audio_bitrate", Type: field.TypeInt},
-		{Name: "framerate", Type: field.TypeInt},
+		{Name: "framerate", Type: field.TypeFloat64},
 		{Name: "format", Type: field.TypeString},
 		{Name: "nb_streams", Type: field.TypeInt, Default: 1},
 		{Name: "created_at", Type: field.TypeTime},
@@ -94,7 +93,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:  "media_probe_media_probe",
-				Columns: []*schema.Column{MediaProbeColumns[16]},
+				Columns: []*schema.Column{MediaProbeColumns[15]},
 
 				RefColumns: []*schema.Column{MediaColumns[0]},
 				OnDelete:   schema.SetNull,

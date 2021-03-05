@@ -2366,7 +2366,6 @@ type ProbeMutation struct {
 	typ                 string
 	id                  *uuid.UUID
 	filename            *string
-	mimetype            *string
 	filesize            *int
 	addfilesize         *int
 	checksum_sha256     *string
@@ -2381,8 +2380,8 @@ type ProbeMutation struct {
 	addvideo_bitrate    *int
 	audio_bitrate       *int
 	addaudio_bitrate    *int
-	framerate           *int
-	addframerate        *int
+	framerate           *float64
+	addframerate        *float64
 	format              *string
 	nb_streams          *int
 	addnb_streams       *int
@@ -2516,43 +2515,6 @@ func (m *ProbeMutation) OldFilename(ctx context.Context) (v string, err error) {
 // ResetFilename reset all changes of the "filename" field.
 func (m *ProbeMutation) ResetFilename() {
 	m.filename = nil
-}
-
-// SetMimetype sets the mimetype field.
-func (m *ProbeMutation) SetMimetype(s string) {
-	m.mimetype = &s
-}
-
-// Mimetype returns the mimetype value in the mutation.
-func (m *ProbeMutation) Mimetype() (r string, exists bool) {
-	v := m.mimetype
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldMimetype returns the old mimetype value of the Probe.
-// If the Probe object wasn't provided to the builder, the object is fetched
-// from the database.
-// An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *ProbeMutation) OldMimetype(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, fmt.Errorf("OldMimetype is allowed only on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, fmt.Errorf("OldMimetype requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldMimetype: %w", err)
-	}
-	return oldValue.Mimetype, nil
-}
-
-// ResetMimetype reset all changes of the "mimetype" field.
-func (m *ProbeMutation) ResetMimetype() {
-	m.mimetype = nil
 }
 
 // SetFilesize sets the filesize field.
@@ -2972,13 +2934,13 @@ func (m *ProbeMutation) ResetAudioBitrate() {
 }
 
 // SetFramerate sets the framerate field.
-func (m *ProbeMutation) SetFramerate(i int) {
-	m.framerate = &i
+func (m *ProbeMutation) SetFramerate(f float64) {
+	m.framerate = &f
 	m.addframerate = nil
 }
 
 // Framerate returns the framerate value in the mutation.
-func (m *ProbeMutation) Framerate() (r int, exists bool) {
+func (m *ProbeMutation) Framerate() (r float64, exists bool) {
 	v := m.framerate
 	if v == nil {
 		return
@@ -2990,7 +2952,7 @@ func (m *ProbeMutation) Framerate() (r int, exists bool) {
 // If the Probe object wasn't provided to the builder, the object is fetched
 // from the database.
 // An error is returned if the mutation operation is not UpdateOne, or database query fails.
-func (m *ProbeMutation) OldFramerate(ctx context.Context) (v int, err error) {
+func (m *ProbeMutation) OldFramerate(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, fmt.Errorf("OldFramerate is allowed only on UpdateOne operations")
 	}
@@ -3004,17 +2966,17 @@ func (m *ProbeMutation) OldFramerate(ctx context.Context) (v int, err error) {
 	return oldValue.Framerate, nil
 }
 
-// AddFramerate adds i to framerate.
-func (m *ProbeMutation) AddFramerate(i int) {
+// AddFramerate adds f to framerate.
+func (m *ProbeMutation) AddFramerate(f float64) {
 	if m.addframerate != nil {
-		*m.addframerate += i
+		*m.addframerate += f
 	} else {
-		m.addframerate = &i
+		m.addframerate = &f
 	}
 }
 
 // AddedFramerate returns the value that was added to the framerate field in this mutation.
-func (m *ProbeMutation) AddedFramerate() (r int, exists bool) {
+func (m *ProbeMutation) AddedFramerate() (r float64, exists bool) {
 	v := m.addframerate
 	if v == nil {
 		return
@@ -3249,12 +3211,9 @@ func (m *ProbeMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *ProbeMutation) Fields() []string {
-	fields := make([]string, 0, 15)
+	fields := make([]string, 0, 14)
 	if m.filename != nil {
 		fields = append(fields, probe.FieldFilename)
-	}
-	if m.mimetype != nil {
-		fields = append(fields, probe.FieldMimetype)
 	}
 	if m.filesize != nil {
 		fields = append(fields, probe.FieldFilesize)
@@ -3305,8 +3264,6 @@ func (m *ProbeMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case probe.FieldFilename:
 		return m.Filename()
-	case probe.FieldMimetype:
-		return m.Mimetype()
 	case probe.FieldFilesize:
 		return m.Filesize()
 	case probe.FieldChecksumSha256:
@@ -3344,8 +3301,6 @@ func (m *ProbeMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case probe.FieldFilename:
 		return m.OldFilename(ctx)
-	case probe.FieldMimetype:
-		return m.OldMimetype(ctx)
 	case probe.FieldFilesize:
 		return m.OldFilesize(ctx)
 	case probe.FieldChecksumSha256:
@@ -3387,13 +3342,6 @@ func (m *ProbeMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetFilename(v)
-		return nil
-	case probe.FieldMimetype:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetMimetype(v)
 		return nil
 	case probe.FieldFilesize:
 		v, ok := value.(int)
@@ -3452,7 +3400,7 @@ func (m *ProbeMutation) SetField(name string, value ent.Value) error {
 		m.SetAudioBitrate(v)
 		return nil
 	case probe.FieldFramerate:
-		v, ok := value.(int)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3594,7 +3542,7 @@ func (m *ProbeMutation) AddField(name string, value ent.Value) error {
 		m.AddAudioBitrate(v)
 		return nil
 	case probe.FieldFramerate:
-		v, ok := value.(int)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3637,9 +3585,6 @@ func (m *ProbeMutation) ResetField(name string) error {
 	switch name {
 	case probe.FieldFilename:
 		m.ResetFilename()
-		return nil
-	case probe.FieldMimetype:
-		m.ResetMimetype()
 		return nil
 	case probe.FieldFilesize:
 		m.ResetFilesize()
