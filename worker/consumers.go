@@ -404,6 +404,7 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 
 			mediaStatus = media.StatusProcessing
 			mediaMessage = "Media is not yet available for streaming"
+			break
 		}
 
 		// If at least one media file is ready
@@ -415,7 +416,22 @@ func encodingFinalizerConsumer(w *Worker, d amqp.Delivery) {
 		}
 	}
 
-	_, err = w.dbClient.Media.UpdateOne(m).SetStatus(mediaStatus).SetMessage(mediaMessage).Save(ctx)
+	countReadyRenditions, err := w.dbClient.MediaFile.
+		Query().
+		Where(mediafile.StatusEQ(mediafile.StatusReady), mediafile.HasMediaWith(media.ID(m.ID))).
+		Count(ctx)
+	if err != nil {
+		w.logger.Error("Database error", zap.Error(err))
+		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)
+		return
+	}
+
+	_, err = w.dbClient.Media.
+		UpdateOne(m).
+		SetStatus(mediaStatus).
+		SetMessage(mediaMessage).
+		SetPlayable(countReadyRenditions > 0).
+		Save(ctx)
 	if err != nil {
 		w.logger.Error("Database error", zap.Error(err))
 		_ = setMediaStatusNack(w, d, body.MediaUUID, media.StatusErrored, err)

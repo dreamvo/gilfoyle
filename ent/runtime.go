@@ -49,12 +49,16 @@ func init() {
 	media.DefaultMessage = mediaDescMessage.Default.(string)
 	// media.MessageValidator is a validator for the "message" field. It is called by the builders before save.
 	media.MessageValidator = mediaDescMessage.Validators[0].(func(string) error)
+	// mediaDescPlayable is the schema descriptor for playable field.
+	mediaDescPlayable := mediaFields[5].Descriptor()
+	// media.DefaultPlayable holds the default value on creation for the playable field.
+	media.DefaultPlayable = mediaDescPlayable.Default.(bool)
 	// mediaDescCreatedAt is the schema descriptor for created_at field.
-	mediaDescCreatedAt := mediaFields[5].Descriptor()
+	mediaDescCreatedAt := mediaFields[6].Descriptor()
 	// media.DefaultCreatedAt holds the default value on creation for the created_at field.
 	media.DefaultCreatedAt = mediaDescCreatedAt.Default.(func() time.Time)
 	// mediaDescUpdatedAt is the schema descriptor for updated_at field.
-	mediaDescUpdatedAt := mediaFields[6].Descriptor()
+	mediaDescUpdatedAt := mediaFields[7].Descriptor()
 	// media.DefaultUpdatedAt holds the default value on creation for the updated_at field.
 	media.DefaultUpdatedAt = mediaDescUpdatedAt.Default.(func() time.Time)
 	// media.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.

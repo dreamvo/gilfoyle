@@ -22,6 +22,8 @@ const (
 	FieldStatus = "status"
 	// FieldMessage holds the string denoting the message field in the database.
 	FieldMessage = "message"
+	// FieldPlayable holds the string denoting the playable field in the database.
+	FieldPlayable = "playable"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -57,6 +59,7 @@ var Columns = []string{
 	FieldOriginalFilename,
 	FieldStatus,
 	FieldMessage,
+	FieldPlayable,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -82,6 +85,8 @@ var (
 	DefaultMessage string
 	// MessageValidator is a validator for the "message" field. It is called by the builders before save.
 	MessageValidator func(string) error
+	// DefaultPlayable holds the default value on creation for the playable field.
+	DefaultPlayable bool
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.

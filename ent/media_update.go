@@ -82,6 +82,26 @@ func (mu *MediaUpdate) ClearMessage() *MediaUpdate {
 	return mu
 }
 
+// SetPlayable sets the playable field.
+func (mu *MediaUpdate) SetPlayable(b bool) *MediaUpdate {
+	mu.mutation.SetPlayable(b)
+	return mu
+}
+
+// SetNillablePlayable sets the playable field if the given value is not nil.
+func (mu *MediaUpdate) SetNillablePlayable(b *bool) *MediaUpdate {
+	if b != nil {
+		mu.SetPlayable(*b)
+	}
+	return mu
+}
+
+// ClearPlayable clears the value of playable.
+func (mu *MediaUpdate) ClearPlayable() *MediaUpdate {
+	mu.mutation.ClearPlayable()
+	return mu
+}
+
 // SetCreatedAt sets the created_at field.
 func (mu *MediaUpdate) SetCreatedAt(t time.Time) *MediaUpdate {
 	mu.mutation.SetCreatedAt(t)
@@ -317,6 +337,19 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: media.FieldMessage,
 		})
 	}
+	if value, ok := mu.mutation.Playable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: media.FieldPlayable,
+		})
+	}
+	if mu.mutation.PlayableCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Column: media.FieldPlayable,
+		})
+	}
 	if value, ok := mu.mutation.CreatedAt(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -487,6 +520,26 @@ func (muo *MediaUpdateOne) SetNillableMessage(s *string) *MediaUpdateOne {
 // ClearMessage clears the value of message.
 func (muo *MediaUpdateOne) ClearMessage() *MediaUpdateOne {
 	muo.mutation.ClearMessage()
+	return muo
+}
+
+// SetPlayable sets the playable field.
+func (muo *MediaUpdateOne) SetPlayable(b bool) *MediaUpdateOne {
+	muo.mutation.SetPlayable(b)
+	return muo
+}
+
+// SetNillablePlayable sets the playable field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillablePlayable(b *bool) *MediaUpdateOne {
+	if b != nil {
+		muo.SetPlayable(*b)
+	}
+	return muo
+}
+
+// ClearPlayable clears the value of playable.
+func (muo *MediaUpdateOne) ClearPlayable() *MediaUpdateOne {
+	muo.mutation.ClearPlayable()
 	return muo
 }
 
@@ -721,6 +774,19 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Column: media.FieldMessage,
+		})
+	}
+	if value, ok := muo.mutation.Playable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: media.FieldPlayable,
+		})
+	}
+	if muo.mutation.PlayableCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Column: media.FieldPlayable,
 		})
 	}
 	if value, ok := muo.mutation.CreatedAt(); ok {

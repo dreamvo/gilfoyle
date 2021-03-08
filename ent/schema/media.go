@@ -54,6 +54,7 @@ func (Media) Fields() []ent.Field {
 		field.String("original_filename").Optional().MaxLen(150).Default(""),
 		field.Enum("status").Values(MediaStatusAwaitingUpload, MediaStatusProcessing, MediaStatusReady, MediaStatusErrored),
 		field.String("message").Optional().MaxLen(255).Default(""),
+		field.Bool("playable").Default(false).Optional(),
 		field.Time("created_at").Default(func() time.Time {
 			return time.Now()
 		}),

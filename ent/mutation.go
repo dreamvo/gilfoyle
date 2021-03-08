@@ -42,6 +42,7 @@ type MediaMutation struct {
 	original_filename  *string
 	status             *media.Status
 	message            *string
+	playable           *bool
 	created_at         *time.Time
 	updated_at         *time.Time
 	clearedFields      map[string]struct{}
@@ -314,6 +315,56 @@ func (m *MediaMutation) ResetMessage() {
 	delete(m.clearedFields, media.FieldMessage)
 }
 
+// SetPlayable sets the playable field.
+func (m *MediaMutation) SetPlayable(b bool) {
+	m.playable = &b
+}
+
+// Playable returns the playable value in the mutation.
+func (m *MediaMutation) Playable() (r bool, exists bool) {
+	v := m.playable
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPlayable returns the old playable value of the Media.
+// If the Media object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaMutation) OldPlayable(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPlayable is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPlayable requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPlayable: %w", err)
+	}
+	return oldValue.Playable, nil
+}
+
+// ClearPlayable clears the value of playable.
+func (m *MediaMutation) ClearPlayable() {
+	m.playable = nil
+	m.clearedFields[media.FieldPlayable] = struct{}{}
+}
+
+// PlayableCleared returns if the field playable was cleared in this mutation.
+func (m *MediaMutation) PlayableCleared() bool {
+	_, ok := m.clearedFields[media.FieldPlayable]
+	return ok
+}
+
+// ResetPlayable reset all changes of the "playable" field.
+func (m *MediaMutation) ResetPlayable() {
+	m.playable = nil
+	delete(m.clearedFields, media.FieldPlayable)
+}
+
 // SetCreatedAt sets the created_at field.
 func (m *MediaMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -494,7 +545,7 @@ func (m *MediaMutation) Type() string {
 // this mutation. Note that, in order to get all numeric
 // fields that were in/decremented, call AddedFields().
 func (m *MediaMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.title != nil {
 		fields = append(fields, media.FieldTitle)
 	}
@@ -506,6 +557,9 @@ func (m *MediaMutation) Fields() []string {
 	}
 	if m.message != nil {
 		fields = append(fields, media.FieldMessage)
+	}
+	if m.playable != nil {
+		fields = append(fields, media.FieldPlayable)
 	}
 	if m.created_at != nil {
 		fields = append(fields, media.FieldCreatedAt)
@@ -529,6 +583,8 @@ func (m *MediaMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case media.FieldMessage:
 		return m.Message()
+	case media.FieldPlayable:
+		return m.Playable()
 	case media.FieldCreatedAt:
 		return m.CreatedAt()
 	case media.FieldUpdatedAt:
@@ -550,6 +606,8 @@ func (m *MediaMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldStatus(ctx)
 	case media.FieldMessage:
 		return m.OldMessage(ctx)
+	case media.FieldPlayable:
+		return m.OldPlayable(ctx)
 	case media.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case media.FieldUpdatedAt:
@@ -590,6 +648,13 @@ func (m *MediaMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMessage(v)
+		return nil
+	case media.FieldPlayable:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPlayable(v)
 		return nil
 	case media.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -641,6 +706,9 @@ func (m *MediaMutation) ClearedFields() []string {
 	if m.FieldCleared(media.FieldMessage) {
 		fields = append(fields, media.FieldMessage)
 	}
+	if m.FieldCleared(media.FieldPlayable) {
+		fields = append(fields, media.FieldPlayable)
+	}
 	return fields
 }
 
@@ -660,6 +728,9 @@ func (m *MediaMutation) ClearField(name string) error {
 		return nil
 	case media.FieldMessage:
 		m.ClearMessage()
+		return nil
+	case media.FieldPlayable:
+		m.ClearPlayable()
 		return nil
 	}
 	return fmt.Errorf("unknown Media nullable field %s", name)
@@ -681,6 +752,9 @@ func (m *MediaMutation) ResetField(name string) error {
 		return nil
 	case media.FieldMessage:
 		m.ResetMessage()
+		return nil
+	case media.FieldPlayable:
+		m.ResetPlayable()
 		return nil
 	case media.FieldCreatedAt:
 		m.ResetCreatedAt()

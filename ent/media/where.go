@@ -115,6 +115,13 @@ func Message(v string) predicate.Media {
 	})
 }
 
+// Playable applies equality check predicate on the "playable" field. It's identical to PlayableEQ.
+func Playable(v bool) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlayable), v))
+	})
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
@@ -535,6 +542,34 @@ func MessageEqualFold(v string) predicate.Media {
 func MessageContainsFold(v string) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldMessage), v))
+	})
+}
+
+// PlayableEQ applies the EQ predicate on the "playable" field.
+func PlayableEQ(v bool) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlayable), v))
+	})
+}
+
+// PlayableNEQ applies the NEQ predicate on the "playable" field.
+func PlayableNEQ(v bool) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPlayable), v))
+	})
+}
+
+// PlayableIsNil applies the IsNil predicate on the "playable" field.
+func PlayableIsNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldPlayable)))
+	})
+}
+
+// PlayableNotNil applies the NotNil predicate on the "playable" field.
+func PlayableNotNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldPlayable)))
 	})
 }
 

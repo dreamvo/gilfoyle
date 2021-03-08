@@ -16,6 +16,7 @@ var (
 		{Name: "original_filename", Type: field.TypeString, Nullable: true, Size: 150, Default: ""},
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"AwaitingUpload", "Processing", "Ready", "Errored"}},
 		{Name: "message", Type: field.TypeString, Nullable: true, Size: 255, Default: ""},
+		{Name: "playable", Type: field.TypeBool, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}

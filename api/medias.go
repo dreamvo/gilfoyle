@@ -89,6 +89,7 @@ func (s *Server) getMedia(ctx *gin.Context) {
 		Query().
 		Where(media.ID(parsedUUID)).
 		WithMediaFiles().
+		WithProbe().
 		Only(context.Background())
 	if v == nil {
 		util.NewError(ctx, http.StatusNotFound, ErrResourceNotFound)

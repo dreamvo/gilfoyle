@@ -63,6 +63,20 @@ func (mc *MediaCreate) SetNillableMessage(s *string) *MediaCreate {
 	return mc
 }
 
+// SetPlayable sets the playable field.
+func (mc *MediaCreate) SetPlayable(b bool) *MediaCreate {
+	mc.mutation.SetPlayable(b)
+	return mc
+}
+
+// SetNillablePlayable sets the playable field if the given value is not nil.
+func (mc *MediaCreate) SetNillablePlayable(b *bool) *MediaCreate {
+	if b != nil {
+		mc.SetPlayable(*b)
+	}
+	return mc
+}
+
 // SetCreatedAt sets the created_at field.
 func (mc *MediaCreate) SetCreatedAt(t time.Time) *MediaCreate {
 	mc.mutation.SetCreatedAt(t)
@@ -191,6 +205,10 @@ func (mc *MediaCreate) defaults() {
 		v := media.DefaultMessage
 		mc.mutation.SetMessage(v)
 	}
+	if _, ok := mc.mutation.Playable(); !ok {
+		v := media.DefaultPlayable
+		mc.mutation.SetPlayable(v)
+	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
 		v := media.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
@@ -299,6 +317,14 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 			Column: media.FieldMessage,
 		})
 		_node.Message = value
+	}
+	if value, ok := mc.mutation.Playable(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: media.FieldPlayable,
+		})
+		_node.Playable = value
 	}
 	if value, ok := mc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{

@@ -87,7 +87,7 @@ func TestStream(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
-				SetStatus(schema.MediaStatusProcessing).
+				SetStatus(schema.MediaStatusErrored).
 				Save(context.Background())
 			assert.NoError(t, err)
 
@@ -97,10 +97,9 @@ func TestStream(t *testing.T) {
 
 			_ = json.NewDecoder(res.Body).Decode(&body)
 
-			assert.Equal(t, http.StatusTooEarly, res.Result().StatusCode)
 			assert.Equal(t, util.ErrorResponse{
-				Code:    425,
-				Message: "media is not ready yet for streaming",
+				Code:    http.StatusBadRequest,
+				Message: "media contains errors",
 			}, body)
 		})
 

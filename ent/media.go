@@ -26,6 +26,8 @@ type Media struct {
 	Status media.Status `json:"status,omitempty"`
 	// Message holds the value of the "message" field.
 	Message string `json:"message,omitempty"`
+	// Playable holds the value of the "playable" field.
+	Playable bool `json:"playable,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -77,6 +79,7 @@ func (*Media) scanValues() []interface{} {
 		&sql.NullString{}, // original_filename
 		&sql.NullString{}, // status
 		&sql.NullString{}, // message
+		&sql.NullBool{},   // playable
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
 	}
@@ -114,13 +117,18 @@ func (m *Media) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		m.Message = value.String
 	}
-	if value, ok := values[4].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[4])
+	if value, ok := values[4].(*sql.NullBool); !ok {
+		return fmt.Errorf("unexpected type %T for field playable", values[4])
+	} else if value.Valid {
+		m.Playable = value.Bool
+	}
+	if value, ok := values[5].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[5])
 	} else if value.Valid {
 		m.CreatedAt = value.Time
 	}
-	if value, ok := values[5].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[5])
+	if value, ok := values[6].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[6])
 	} else if value.Valid {
 		m.UpdatedAt = value.Time
 	}
@@ -168,6 +176,8 @@ func (m *Media) String() string {
 	builder.WriteString(fmt.Sprintf("%v", m.Status))
 	builder.WriteString(", message=")
 	builder.WriteString(m.Message)
+	builder.WriteString(", playable=")
+	builder.WriteString(fmt.Sprintf("%v", m.Playable))
 	builder.WriteString(", created_at=")
 	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

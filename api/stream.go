@@ -43,8 +43,8 @@ func (s *Server) getMediaPlaylistFile(ctx *gin.Context) {
 		return
 	}
 
-	if m.Status != schema.MediaStatusReady {
-		util.NewError(ctx, http.StatusTooEarly, errors.New("media is not ready yet for streaming"))
+	if m.Status == schema.MediaStatusErrored {
+		util.NewError(ctx, http.StatusBadRequest, errors.New("media contains errors"))
 		return
 	}
 

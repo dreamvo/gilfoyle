@@ -27,6 +27,7 @@ import "video.js/dist/video-js.min.css";
 import videojs from "video.js";
 import "videojs-hls-quality-selector";
 import "videojs-contrib-quality-levels";
+import { Source } from "../types";
 
 interface Data {
   loading: boolean;

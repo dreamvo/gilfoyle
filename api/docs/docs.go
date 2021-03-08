@@ -390,7 +390,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.FileFormat"
+                                            "$ref": "#/definitions/api.UploadMediaFileResponse"
                                         }
                                     }
                                 }
@@ -460,7 +460,7 @@ var doc = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.FileFormat"
+                                            "$ref": "#/definitions/api.UploadMediaFileResponse"
                                         }
                                     }
                                 }
@@ -702,43 +702,6 @@ var doc = `{
                 }
             }
         },
-        "api.FileFormat": {
-            "type": "object",
-            "properties": {
-                "bit_rate": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "string",
-                    "example": "0"
-                },
-                "filename": {
-                    "type": "string"
-                },
-                "format_long_name": {
-                    "type": "string"
-                },
-                "format_name": {
-                    "type": "string"
-                },
-                "nb_programs": {
-                    "type": "integer"
-                },
-                "nb_streams": {
-                    "type": "integer"
-                },
-                "probe_score": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string",
-                    "example": "0"
-                }
-            }
-        },
         "api.HealthCheckResponse": {
             "type": "object",
             "properties": {
@@ -788,6 +751,14 @@ var doc = `{
                 }
             }
         },
+        "api.UploadMediaFileResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "ent.Media": {
             "type": "object",
             "properties": {
@@ -810,6 +781,10 @@ var doc = `{
                 "original_filename": {
                     "description": "OriginalFilename holds the value of the \"original_filename\" field.",
                     "type": "string"
+                },
+                "playable": {
+                    "description": "Playable holds the value of the \"playable\" field.",
+                    "type": "boolean"
                 },
                 "status": {
                     "description": "Status holds the value of the \"status\" field.",
@@ -844,6 +819,14 @@ var doc = `{
         "ent.MediaFile": {
             "type": "object",
             "properties": {
+                "audio_bitrate": {
+                    "description": "AudioBitrate holds the value of the \"audio_bitrate\" field.",
+                    "type": "integer"
+                },
+                "audio_codec": {
+                    "description": "AudioCodec holds the value of the \"audio_codec\" field.",
+                    "type": "string"
+                },
                 "created_at": {
                     "description": "CreatedAt holds the value of the \"created_at\" field.",
                     "type": "string"
@@ -911,6 +894,10 @@ var doc = `{
                 "video_bitrate": {
                     "description": "VideoBitrate holds the value of the \"video_bitrate\" field.",
                     "type": "integer"
+                },
+                "video_codec": {
+                    "description": "VideoCodec holds the value of the \"video_codec\" field.",
+                    "type": "string"
                 }
             }
         },
@@ -964,7 +951,7 @@ var doc = `{
                 },
                 "framerate": {
                     "description": "Framerate holds the value of the \"framerate\" field.",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "height": {
                     "description": "Height holds the value of the \"height\" field.",
@@ -972,10 +959,6 @@ var doc = `{
                 },
                 "id": {
                     "description": "ID of the ent.",
-                    "type": "string"
-                },
-                "mimetype": {
-                    "description": "Mimetype holds the value of the \"mimetype\" field.",
                     "type": "string"
                 },
                 "nb_streams": {
