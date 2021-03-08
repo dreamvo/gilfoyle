@@ -98,7 +98,7 @@ func TestMediaFiles(t *testing.T) {
 	r = s.router
 
 	t.Run("POST /medias/:id/upload/video", func(t *testing.T) {
-		t.Run("should upload file and return probe", func(t *testing.T) {
+		t.Run("should upload file and start encoding entrypoint job", func(t *testing.T) {
 			m, err := dbClient.Media.
 				Create().
 				SetTitle("test").
@@ -146,16 +146,7 @@ func TestMediaFiles(t *testing.T) {
 
 			assert.Equal(t, 200, res.Result().StatusCode)
 			assert.Equal(t, map[string]interface{}{
-				"bit_rate":         "",
-				"duration":         "5.312",
-				"filename":         "pipe:",
-				"format_long_name": "QuickTime / MOV",
-				"format_name":      "mov,mp4,m4a,3gp,3g2,mj2",
-				"nb_programs":      float64(0),
-				"nb_streams":       float64(2),
-				"probe_score":      float64(100),
-				"size":             "",
-				"start_time":       "0",
+				"success": true,
 			}, body.Data)
 
 			m, err = dbClient.Media.Get(context.Background(), m.ID)
@@ -167,47 +158,16 @@ func TestMediaFiles(t *testing.T) {
 			ch, err := w.Client.Channel()
 			assert.NoError(t, err)
 
-			msg, ok, err := ch.Get(worker.VideoTranscodingQueue, false)
+			msg, ok, err := ch.Get(worker.EncodingEntrypointQueue, false)
 			assert.NoError(t, err)
 			assert.True(t, ok)
 
-			var msgBody worker.VideoTranscodingParams
+			var msgBody worker.EncodingEntrypointParams
 			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody))
 
-			assert.Equal(t, worker.VideoTranscodingParams{
-				OriginalFile: transcoding.OriginalFile{
-					Filepath:        fmt.Sprintf("%s/original", m.ID.String()),
-					DurationSeconds: 5.312,
-					Format:          "mov",
-					FrameRate:       25,
-				},
-				MediaUUID:          m.ID,
-				RenditionName:      "360p",
-				VideoWidth:         640,
-				VideoHeight:        360,
-				AudioCodec:         "aac",
-				VideoCodec:         "h264",
-				Crf:                20,
-				KeyframeInterval:   48,
-				HlsSegmentDuration: 4,
-				HlsPlaylistType:    "vod",
-				VideoBitRate:       800000,
-				AudioBitrate:       96000,
-				FrameRate:          25,
-				TargetBandwidth:    896000,
+			assert.Equal(t, worker.EncodingEntrypointParams{
+				MediaUUID: m.ID,
 			}, msgBody)
-
-			msg, ok, err = ch.Get(worker.MediaProcessingCallbackQueue, false)
-			assert.NoError(t, err)
-			assert.True(t, ok)
-
-			var msgBody2 worker.MediaProcessingCallbackParams
-			assert.NoError(t, json.Unmarshal(msg.Body, &msgBody2))
-
-			assert.Equal(t, worker.MediaProcessingCallbackParams{
-				MediaUUID:       m.ID,
-				MediaFilesCount: 1,
-			}, msgBody2)
 		})
 
 		t.Run("should return 400 for invalid UUID", func(t *testing.T) {

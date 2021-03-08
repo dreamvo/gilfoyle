@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
@@ -61,6 +63,46 @@ func (mu *MediaUpdate) SetStatus(m media.Status) *MediaUpdate {
 	return mu
 }
 
+// SetMessage sets the message field.
+func (mu *MediaUpdate) SetMessage(s string) *MediaUpdate {
+	mu.mutation.SetMessage(s)
+	return mu
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mu *MediaUpdate) SetNillableMessage(s *string) *MediaUpdate {
+	if s != nil {
+		mu.SetMessage(*s)
+	}
+	return mu
+}
+
+// ClearMessage clears the value of message.
+func (mu *MediaUpdate) ClearMessage() *MediaUpdate {
+	mu.mutation.ClearMessage()
+	return mu
+}
+
+// SetPlayable sets the playable field.
+func (mu *MediaUpdate) SetPlayable(b bool) *MediaUpdate {
+	mu.mutation.SetPlayable(b)
+	return mu
+}
+
+// SetNillablePlayable sets the playable field if the given value is not nil.
+func (mu *MediaUpdate) SetNillablePlayable(b *bool) *MediaUpdate {
+	if b != nil {
+		mu.SetPlayable(*b)
+	}
+	return mu
+}
+
+// ClearPlayable clears the value of playable.
+func (mu *MediaUpdate) ClearPlayable() *MediaUpdate {
+	mu.mutation.ClearPlayable()
+	return mu
+}
+
 // SetCreatedAt sets the created_at field.
 func (mu *MediaUpdate) SetCreatedAt(t time.Time) *MediaUpdate {
 	mu.mutation.SetCreatedAt(t)
@@ -96,6 +138,40 @@ func (mu *MediaUpdate) AddMediaFiles(m ...*MediaFile) *MediaUpdate {
 	return mu.AddMediaFileIDs(ids...)
 }
 
+// SetProbeID sets the probe edge to Probe by id.
+func (mu *MediaUpdate) SetProbeID(id uuid.UUID) *MediaUpdate {
+	mu.mutation.SetProbeID(id)
+	return mu
+}
+
+// SetNillableProbeID sets the probe edge to Probe by id if the given value is not nil.
+func (mu *MediaUpdate) SetNillableProbeID(id *uuid.UUID) *MediaUpdate {
+	if id != nil {
+		mu = mu.SetProbeID(*id)
+	}
+	return mu
+}
+
+// SetProbe sets the probe edge to Probe.
+func (mu *MediaUpdate) SetProbe(p *Probe) *MediaUpdate {
+	return mu.SetProbeID(p.ID)
+}
+
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (mu *MediaUpdate) AddEventIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.AddEventIDs(ids...)
+	return mu
+}
+
+// AddEvents adds the events edges to MediaEvents.
+func (mu *MediaUpdate) AddEvents(m ...*MediaEvents) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.AddEventIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
@@ -120,6 +196,33 @@ func (mu *MediaUpdate) RemoveMediaFiles(m ...*MediaFile) *MediaUpdate {
 		ids[i] = m[i].ID
 	}
 	return mu.RemoveMediaFileIDs(ids...)
+}
+
+// ClearProbe clears the "probe" edge to type Probe.
+func (mu *MediaUpdate) ClearProbe() *MediaUpdate {
+	mu.mutation.ClearProbe()
+	return mu
+}
+
+// ClearEvents clears all "events" edges to type MediaEvents.
+func (mu *MediaUpdate) ClearEvents() *MediaUpdate {
+	mu.mutation.ClearEvents()
+	return mu
+}
+
+// RemoveEventIDs removes the events edge to MediaEvents by ids.
+func (mu *MediaUpdate) RemoveEventIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.RemoveEventIDs(ids...)
+	return mu
+}
+
+// RemoveEvents removes events edges to MediaEvents.
+func (mu *MediaUpdate) RemoveEvents(m ...*MediaEvents) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.RemoveEventIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -205,6 +308,11 @@ func (mu *MediaUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
 		}
 	}
+	if v, ok := mu.mutation.Message(); ok {
+		if err := media.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -251,6 +359,32 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: media.FieldStatus,
+		})
+	}
+	if value, ok := mu.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldMessage,
+		})
+	}
+	if mu.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: media.FieldMessage,
+		})
+	}
+	if value, ok := mu.mutation.Playable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: media.FieldPlayable,
+		})
+	}
+	if mu.mutation.PlayableCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Column: media.FieldPlayable,
 		})
 	}
 	if value, ok := mu.mutation.CreatedAt(); ok {
@@ -321,6 +455,95 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.ProbeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.ProbeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if mu.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedEventsIDs(); len(nodes) > 0 && !mu.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -371,6 +594,46 @@ func (muo *MediaUpdateOne) SetStatus(m media.Status) *MediaUpdateOne {
 	return muo
 }
 
+// SetMessage sets the message field.
+func (muo *MediaUpdateOne) SetMessage(s string) *MediaUpdateOne {
+	muo.mutation.SetMessage(s)
+	return muo
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableMessage(s *string) *MediaUpdateOne {
+	if s != nil {
+		muo.SetMessage(*s)
+	}
+	return muo
+}
+
+// ClearMessage clears the value of message.
+func (muo *MediaUpdateOne) ClearMessage() *MediaUpdateOne {
+	muo.mutation.ClearMessage()
+	return muo
+}
+
+// SetPlayable sets the playable field.
+func (muo *MediaUpdateOne) SetPlayable(b bool) *MediaUpdateOne {
+	muo.mutation.SetPlayable(b)
+	return muo
+}
+
+// SetNillablePlayable sets the playable field if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillablePlayable(b *bool) *MediaUpdateOne {
+	if b != nil {
+		muo.SetPlayable(*b)
+	}
+	return muo
+}
+
+// ClearPlayable clears the value of playable.
+func (muo *MediaUpdateOne) ClearPlayable() *MediaUpdateOne {
+	muo.mutation.ClearPlayable()
+	return muo
+}
+
 // SetCreatedAt sets the created_at field.
 func (muo *MediaUpdateOne) SetCreatedAt(t time.Time) *MediaUpdateOne {
 	muo.mutation.SetCreatedAt(t)
@@ -406,6 +669,40 @@ func (muo *MediaUpdateOne) AddMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	return muo.AddMediaFileIDs(ids...)
 }
 
+// SetProbeID sets the probe edge to Probe by id.
+func (muo *MediaUpdateOne) SetProbeID(id uuid.UUID) *MediaUpdateOne {
+	muo.mutation.SetProbeID(id)
+	return muo
+}
+
+// SetNillableProbeID sets the probe edge to Probe by id if the given value is not nil.
+func (muo *MediaUpdateOne) SetNillableProbeID(id *uuid.UUID) *MediaUpdateOne {
+	if id != nil {
+		muo = muo.SetProbeID(*id)
+	}
+	return muo
+}
+
+// SetProbe sets the probe edge to Probe.
+func (muo *MediaUpdateOne) SetProbe(p *Probe) *MediaUpdateOne {
+	return muo.SetProbeID(p.ID)
+}
+
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (muo *MediaUpdateOne) AddEventIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.AddEventIDs(ids...)
+	return muo
+}
+
+// AddEvents adds the events edges to MediaEvents.
+func (muo *MediaUpdateOne) AddEvents(m ...*MediaEvents) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.AddEventIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
@@ -430,6 +727,33 @@ func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 		ids[i] = m[i].ID
 	}
 	return muo.RemoveMediaFileIDs(ids...)
+}
+
+// ClearProbe clears the "probe" edge to type Probe.
+func (muo *MediaUpdateOne) ClearProbe() *MediaUpdateOne {
+	muo.mutation.ClearProbe()
+	return muo
+}
+
+// ClearEvents clears all "events" edges to type MediaEvents.
+func (muo *MediaUpdateOne) ClearEvents() *MediaUpdateOne {
+	muo.mutation.ClearEvents()
+	return muo
+}
+
+// RemoveEventIDs removes the events edge to MediaEvents by ids.
+func (muo *MediaUpdateOne) RemoveEventIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.RemoveEventIDs(ids...)
+	return muo
+}
+
+// RemoveEvents removes events edges to MediaEvents.
+func (muo *MediaUpdateOne) RemoveEvents(m ...*MediaEvents) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.RemoveEventIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -515,6 +839,11 @@ func (muo *MediaUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
 		}
 	}
+	if v, ok := muo.mutation.Message(); ok {
+		if err := media.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
 	return nil
 }
 
@@ -559,6 +888,32 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: media.FieldStatus,
+		})
+	}
+	if value, ok := muo.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldMessage,
+		})
+	}
+	if muo.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: media.FieldMessage,
+		})
+	}
+	if value, ok := muo.mutation.Playable(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: media.FieldPlayable,
+		})
+	}
+	if muo.mutation.PlayableCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Column: media.FieldPlayable,
 		})
 	}
 	if value, ok := muo.mutation.CreatedAt(); ok {
@@ -621,6 +976,95 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.ProbeCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.ProbeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedEventsIDs(); len(nodes) > 0 && !muo.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
 				},
 			},
 		}

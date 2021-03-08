@@ -76,6 +76,47 @@ func (mfu *MediaFileUpdate) AddVideoBitrate(i int64) *MediaFileUpdate {
 	return mfu
 }
 
+// SetAudioBitrate sets the audio_bitrate field.
+func (mfu *MediaFileUpdate) SetAudioBitrate(i int64) *MediaFileUpdate {
+	mfu.mutation.ResetAudioBitrate()
+	mfu.mutation.SetAudioBitrate(i)
+	return mfu
+}
+
+// AddAudioBitrate adds i to audio_bitrate.
+func (mfu *MediaFileUpdate) AddAudioBitrate(i int64) *MediaFileUpdate {
+	mfu.mutation.AddAudioBitrate(i)
+	return mfu
+}
+
+// SetVideoCodec sets the video_codec field.
+func (mfu *MediaFileUpdate) SetVideoCodec(s string) *MediaFileUpdate {
+	mfu.mutation.SetVideoCodec(s)
+	return mfu
+}
+
+// SetNillableVideoCodec sets the video_codec field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableVideoCodec(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetVideoCodec(*s)
+	}
+	return mfu
+}
+
+// SetAudioCodec sets the audio_codec field.
+func (mfu *MediaFileUpdate) SetAudioCodec(s string) *MediaFileUpdate {
+	mfu.mutation.SetAudioCodec(s)
+	return mfu
+}
+
+// SetNillableAudioCodec sets the audio_codec field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableAudioCodec(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetAudioCodec(*s)
+	}
+	return mfu
+}
+
 // SetResolutionWidth sets the resolution_width field.
 func (mfu *MediaFileUpdate) SetResolutionWidth(u uint16) *MediaFileUpdate {
 	mfu.mutation.ResetResolutionWidth()
@@ -131,6 +172,60 @@ func (mfu *MediaFileUpdate) AddDurationSeconds(f float64) *MediaFileUpdate {
 // SetMediaType sets the media_type field.
 func (mfu *MediaFileUpdate) SetMediaType(mt mediafile.MediaType) *MediaFileUpdate {
 	mfu.mutation.SetMediaType(mt)
+	return mfu
+}
+
+// SetStatus sets the status field.
+func (mfu *MediaFileUpdate) SetStatus(m mediafile.Status) *MediaFileUpdate {
+	mfu.mutation.SetStatus(m)
+	return mfu
+}
+
+// SetMessage sets the message field.
+func (mfu *MediaFileUpdate) SetMessage(s string) *MediaFileUpdate {
+	mfu.mutation.SetMessage(s)
+	return mfu
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableMessage(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetMessage(*s)
+	}
+	return mfu
+}
+
+// ClearMessage clears the value of message.
+func (mfu *MediaFileUpdate) ClearMessage() *MediaFileUpdate {
+	mfu.mutation.ClearMessage()
+	return mfu
+}
+
+// SetEntryFile sets the entry_file field.
+func (mfu *MediaFileUpdate) SetEntryFile(s string) *MediaFileUpdate {
+	mfu.mutation.SetEntryFile(s)
+	return mfu
+}
+
+// SetNillableEntryFile sets the entry_file field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableEntryFile(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetEntryFile(*s)
+	}
+	return mfu
+}
+
+// SetMimetype sets the mimetype field.
+func (mfu *MediaFileUpdate) SetMimetype(s string) *MediaFileUpdate {
+	mfu.mutation.SetMimetype(s)
+	return mfu
+}
+
+// SetNillableMimetype sets the mimetype field if the given value is not nil.
+func (mfu *MediaFileUpdate) SetNillableMimetype(s *string) *MediaFileUpdate {
+	if s != nil {
+		mfu.SetMimetype(*s)
+	}
 	return mfu
 }
 
@@ -259,6 +354,21 @@ func (mfu *MediaFileUpdate) check() error {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
 		}
 	}
+	if v, ok := mfu.mutation.AudioBitrate(); ok {
+		if err := mediafile.AudioBitrateValidator(v); err != nil {
+			return &ValidationError{Name: "audio_bitrate", err: fmt.Errorf("ent: validator failed for field \"audio_bitrate\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.VideoCodec(); ok {
+		if err := mediafile.VideoCodecValidator(v); err != nil {
+			return &ValidationError{Name: "video_codec", err: fmt.Errorf("ent: validator failed for field \"video_codec\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.AudioCodec(); ok {
+		if err := mediafile.AudioCodecValidator(v); err != nil {
+			return &ValidationError{Name: "audio_codec", err: fmt.Errorf("ent: validator failed for field \"audio_codec\": %w", err)}
+		}
+	}
 	if v, ok := mfu.mutation.ResolutionWidth(); ok {
 		if err := mediafile.ResolutionWidthValidator(v); err != nil {
 			return &ValidationError{Name: "resolution_width", err: fmt.Errorf("ent: validator failed for field \"resolution_width\": %w", err)}
@@ -282,6 +392,26 @@ func (mfu *MediaFileUpdate) check() error {
 	if v, ok := mfu.mutation.MediaType(); ok {
 		if err := mediafile.MediaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.Status(); ok {
+		if err := mediafile.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.Message(); ok {
+		if err := mediafile.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.EntryFile(); ok {
+		if err := mediafile.EntryFileValidator(v); err != nil {
+			return &ValidationError{Name: "entry_file", err: fmt.Errorf("ent: validator failed for field \"entry_file\": %w", err)}
+		}
+	}
+	if v, ok := mfu.mutation.Mimetype(); ok {
+		if err := mediafile.MimetypeValidator(v); err != nil {
+			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
 		}
 	}
 	if _, ok := mfu.mutation.MediaID(); mfu.mutation.MediaCleared() && !ok {
@@ -350,6 +480,34 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: mediafile.FieldVideoBitrate,
 		})
 	}
+	if value, ok := mfu.mutation.AudioBitrate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt64,
+			Value:  value,
+			Column: mediafile.FieldAudioBitrate,
+		})
+	}
+	if value, ok := mfu.mutation.AddedAudioBitrate(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt64,
+			Value:  value,
+			Column: mediafile.FieldAudioBitrate,
+		})
+	}
+	if value, ok := mfu.mutation.VideoCodec(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldVideoCodec,
+		})
+	}
+	if value, ok := mfu.mutation.AudioCodec(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldAudioCodec,
+		})
+	}
 	if value, ok := mfu.mutation.ResolutionWidth(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint16,
@@ -411,6 +569,40 @@ func (mfu *MediaFileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: mediafile.FieldMediaType,
+		})
+	}
+	if value, ok := mfu.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: mediafile.FieldStatus,
+		})
+	}
+	if value, ok := mfu.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if mfu.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if value, ok := mfu.mutation.EntryFile(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldEntryFile,
+		})
+	}
+	if value, ok := mfu.mutation.Mimetype(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMimetype,
 		})
 	}
 	if value, ok := mfu.mutation.CreatedAt(); ok {
@@ -526,6 +718,47 @@ func (mfuo *MediaFileUpdateOne) AddVideoBitrate(i int64) *MediaFileUpdateOne {
 	return mfuo
 }
 
+// SetAudioBitrate sets the audio_bitrate field.
+func (mfuo *MediaFileUpdateOne) SetAudioBitrate(i int64) *MediaFileUpdateOne {
+	mfuo.mutation.ResetAudioBitrate()
+	mfuo.mutation.SetAudioBitrate(i)
+	return mfuo
+}
+
+// AddAudioBitrate adds i to audio_bitrate.
+func (mfuo *MediaFileUpdateOne) AddAudioBitrate(i int64) *MediaFileUpdateOne {
+	mfuo.mutation.AddAudioBitrate(i)
+	return mfuo
+}
+
+// SetVideoCodec sets the video_codec field.
+func (mfuo *MediaFileUpdateOne) SetVideoCodec(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetVideoCodec(s)
+	return mfuo
+}
+
+// SetNillableVideoCodec sets the video_codec field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableVideoCodec(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetVideoCodec(*s)
+	}
+	return mfuo
+}
+
+// SetAudioCodec sets the audio_codec field.
+func (mfuo *MediaFileUpdateOne) SetAudioCodec(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetAudioCodec(s)
+	return mfuo
+}
+
+// SetNillableAudioCodec sets the audio_codec field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableAudioCodec(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetAudioCodec(*s)
+	}
+	return mfuo
+}
+
 // SetResolutionWidth sets the resolution_width field.
 func (mfuo *MediaFileUpdateOne) SetResolutionWidth(u uint16) *MediaFileUpdateOne {
 	mfuo.mutation.ResetResolutionWidth()
@@ -581,6 +814,60 @@ func (mfuo *MediaFileUpdateOne) AddDurationSeconds(f float64) *MediaFileUpdateOn
 // SetMediaType sets the media_type field.
 func (mfuo *MediaFileUpdateOne) SetMediaType(mt mediafile.MediaType) *MediaFileUpdateOne {
 	mfuo.mutation.SetMediaType(mt)
+	return mfuo
+}
+
+// SetStatus sets the status field.
+func (mfuo *MediaFileUpdateOne) SetStatus(m mediafile.Status) *MediaFileUpdateOne {
+	mfuo.mutation.SetStatus(m)
+	return mfuo
+}
+
+// SetMessage sets the message field.
+func (mfuo *MediaFileUpdateOne) SetMessage(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetMessage(s)
+	return mfuo
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableMessage(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetMessage(*s)
+	}
+	return mfuo
+}
+
+// ClearMessage clears the value of message.
+func (mfuo *MediaFileUpdateOne) ClearMessage() *MediaFileUpdateOne {
+	mfuo.mutation.ClearMessage()
+	return mfuo
+}
+
+// SetEntryFile sets the entry_file field.
+func (mfuo *MediaFileUpdateOne) SetEntryFile(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetEntryFile(s)
+	return mfuo
+}
+
+// SetNillableEntryFile sets the entry_file field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableEntryFile(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetEntryFile(*s)
+	}
+	return mfuo
+}
+
+// SetMimetype sets the mimetype field.
+func (mfuo *MediaFileUpdateOne) SetMimetype(s string) *MediaFileUpdateOne {
+	mfuo.mutation.SetMimetype(s)
+	return mfuo
+}
+
+// SetNillableMimetype sets the mimetype field if the given value is not nil.
+func (mfuo *MediaFileUpdateOne) SetNillableMimetype(s *string) *MediaFileUpdateOne {
+	if s != nil {
+		mfuo.SetMimetype(*s)
+	}
 	return mfuo
 }
 
@@ -709,6 +996,21 @@ func (mfuo *MediaFileUpdateOne) check() error {
 			return &ValidationError{Name: "video_bitrate", err: fmt.Errorf("ent: validator failed for field \"video_bitrate\": %w", err)}
 		}
 	}
+	if v, ok := mfuo.mutation.AudioBitrate(); ok {
+		if err := mediafile.AudioBitrateValidator(v); err != nil {
+			return &ValidationError{Name: "audio_bitrate", err: fmt.Errorf("ent: validator failed for field \"audio_bitrate\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.VideoCodec(); ok {
+		if err := mediafile.VideoCodecValidator(v); err != nil {
+			return &ValidationError{Name: "video_codec", err: fmt.Errorf("ent: validator failed for field \"video_codec\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.AudioCodec(); ok {
+		if err := mediafile.AudioCodecValidator(v); err != nil {
+			return &ValidationError{Name: "audio_codec", err: fmt.Errorf("ent: validator failed for field \"audio_codec\": %w", err)}
+		}
+	}
 	if v, ok := mfuo.mutation.ResolutionWidth(); ok {
 		if err := mediafile.ResolutionWidthValidator(v); err != nil {
 			return &ValidationError{Name: "resolution_width", err: fmt.Errorf("ent: validator failed for field \"resolution_width\": %w", err)}
@@ -732,6 +1034,26 @@ func (mfuo *MediaFileUpdateOne) check() error {
 	if v, ok := mfuo.mutation.MediaType(); ok {
 		if err := mediafile.MediaTypeValidator(v); err != nil {
 			return &ValidationError{Name: "media_type", err: fmt.Errorf("ent: validator failed for field \"media_type\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.Status(); ok {
+		if err := mediafile.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.Message(); ok {
+		if err := mediafile.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.EntryFile(); ok {
+		if err := mediafile.EntryFileValidator(v); err != nil {
+			return &ValidationError{Name: "entry_file", err: fmt.Errorf("ent: validator failed for field \"entry_file\": %w", err)}
+		}
+	}
+	if v, ok := mfuo.mutation.Mimetype(); ok {
+		if err := mediafile.MimetypeValidator(v); err != nil {
+			return &ValidationError{Name: "mimetype", err: fmt.Errorf("ent: validator failed for field \"mimetype\": %w", err)}
 		}
 	}
 	if _, ok := mfuo.mutation.MediaID(); mfuo.mutation.MediaCleared() && !ok {
@@ -798,6 +1120,34 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Column: mediafile.FieldVideoBitrate,
 		})
 	}
+	if value, ok := mfuo.mutation.AudioBitrate(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt64,
+			Value:  value,
+			Column: mediafile.FieldAudioBitrate,
+		})
+	}
+	if value, ok := mfuo.mutation.AddedAudioBitrate(); ok {
+		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
+			Type:   field.TypeInt64,
+			Value:  value,
+			Column: mediafile.FieldAudioBitrate,
+		})
+	}
+	if value, ok := mfuo.mutation.VideoCodec(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldVideoCodec,
+		})
+	}
+	if value, ok := mfuo.mutation.AudioCodec(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldAudioCodec,
+		})
+	}
 	if value, ok := mfuo.mutation.ResolutionWidth(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeUint16,
@@ -859,6 +1209,40 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 			Type:   field.TypeEnum,
 			Value:  value,
 			Column: mediafile.FieldMediaType,
+		})
+	}
+	if value, ok := mfuo.mutation.Status(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeEnum,
+			Value:  value,
+			Column: mediafile.FieldStatus,
+		})
+	}
+	if value, ok := mfuo.mutation.Message(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if mfuo.mutation.MessageCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: mediafile.FieldMessage,
+		})
+	}
+	if value, ok := mfuo.mutation.EntryFile(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldEntryFile,
+		})
+	}
+	if value, ok := mfuo.mutation.Mimetype(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: mediafile.FieldMimetype,
 		})
 	}
 	if value, ok := mfuo.mutation.CreatedAt(); ok {

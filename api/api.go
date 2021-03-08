@@ -1,9 +1,7 @@
-//go:generate go run github.com/swaggo/swag/cmd/swag init -g ./api.go --parseDependency
 package api
 
 import (
 	"errors"
-	_ "github.com/dreamvo/gilfoyle/api/docs"
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent"

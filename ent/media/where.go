@@ -108,6 +108,20 @@ func OriginalFilename(v string) predicate.Media {
 	})
 }
 
+// Message applies equality check predicate on the "message" field. It's identical to MessageEQ.
+func Message(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMessage), v))
+	})
+}
+
+// Playable applies equality check predicate on the "playable" field. It's identical to PlayableEQ.
+func Playable(v bool) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlayable), v))
+	})
+}
+
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
@@ -406,6 +420,159 @@ func StatusNotIn(vs ...Status) predicate.Media {
 	})
 }
 
+// MessageEQ applies the EQ predicate on the "message" field.
+func MessageEQ(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldMessage), v))
+	})
+}
+
+// MessageNEQ applies the NEQ predicate on the "message" field.
+func MessageNEQ(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldMessage), v))
+	})
+}
+
+// MessageIn applies the In predicate on the "message" field.
+func MessageIn(vs ...string) predicate.Media {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Media(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldMessage), v...))
+	})
+}
+
+// MessageNotIn applies the NotIn predicate on the "message" field.
+func MessageNotIn(vs ...string) predicate.Media {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Media(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldMessage), v...))
+	})
+}
+
+// MessageGT applies the GT predicate on the "message" field.
+func MessageGT(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldMessage), v))
+	})
+}
+
+// MessageGTE applies the GTE predicate on the "message" field.
+func MessageGTE(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldMessage), v))
+	})
+}
+
+// MessageLT applies the LT predicate on the "message" field.
+func MessageLT(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldMessage), v))
+	})
+}
+
+// MessageLTE applies the LTE predicate on the "message" field.
+func MessageLTE(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldMessage), v))
+	})
+}
+
+// MessageContains applies the Contains predicate on the "message" field.
+func MessageContains(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldMessage), v))
+	})
+}
+
+// MessageHasPrefix applies the HasPrefix predicate on the "message" field.
+func MessageHasPrefix(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldMessage), v))
+	})
+}
+
+// MessageHasSuffix applies the HasSuffix predicate on the "message" field.
+func MessageHasSuffix(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldMessage), v))
+	})
+}
+
+// MessageIsNil applies the IsNil predicate on the "message" field.
+func MessageIsNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldMessage)))
+	})
+}
+
+// MessageNotNil applies the NotNil predicate on the "message" field.
+func MessageNotNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldMessage)))
+	})
+}
+
+// MessageEqualFold applies the EqualFold predicate on the "message" field.
+func MessageEqualFold(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldMessage), v))
+	})
+}
+
+// MessageContainsFold applies the ContainsFold predicate on the "message" field.
+func MessageContainsFold(v string) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldMessage), v))
+	})
+}
+
+// PlayableEQ applies the EQ predicate on the "playable" field.
+func PlayableEQ(v bool) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPlayable), v))
+	})
+}
+
+// PlayableNEQ applies the NEQ predicate on the "playable" field.
+func PlayableNEQ(v bool) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPlayable), v))
+	})
+}
+
+// PlayableIsNil applies the IsNil predicate on the "playable" field.
+func PlayableIsNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldPlayable)))
+	})
+}
+
+// PlayableNotNil applies the NotNil predicate on the "playable" field.
+func PlayableNotNil() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldPlayable)))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Media {
 	return predicate.Media(func(s *sql.Selector) {
@@ -577,6 +744,62 @@ func HasMediaFilesWith(preds ...predicate.MediaFile) predicate.Media {
 			sqlgraph.From(Table, FieldID),
 			sqlgraph.To(MediaFilesInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, MediaFilesTable, MediaFilesColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasProbe applies the HasEdge predicate on the "probe" edge.
+func HasProbe() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ProbeTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ProbeTable, ProbeColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasProbeWith applies the HasEdge predicate on the "probe" edge with a given conditions (other predicates).
+func HasProbeWith(preds ...predicate.Probe) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ProbeInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, ProbeTable, ProbeColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasEvents applies the HasEdge predicate on the "events" edge.
+func HasEvents() predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(EventsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, EventsTable, EventsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEventsWith applies the HasEdge predicate on the "events" edge with a given conditions (other predicates).
+func HasEventsWith(preds ...predicate.MediaEvents) predicate.Media {
+	return predicate.Media(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(EventsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, EventsTable, EventsColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

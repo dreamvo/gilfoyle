@@ -66,6 +66,7 @@ var workerCmd = &cobra.Command{
 			Transcoder: transcoding.NewTranscoder(transcoding.Options{
 				FFmpegBinPath: "/usr/bin/ffmpeg",
 			}),
+			Config: gilfoyle.Config,
 		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))

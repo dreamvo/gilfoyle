@@ -17,6 +17,7 @@ settings:
   worker:
     concurrency: 10
   encoding:
+    format: hls
     renditions: []
 storage:
   driver: fs

@@ -24,8 +24,10 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
-	Media     []ent.Hook
-	MediaFile []ent.Hook
+	Media       []ent.Hook
+	MediaEvents []ent.Hook
+	MediaFile   []ent.Hook
+	Probe       []ent.Hook
 }
 
 // Options applies the options on the config object.

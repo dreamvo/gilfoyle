@@ -79,6 +79,7 @@ var serveCmd = &cobra.Command{
 			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
 			Logger:      logger,
 			Concurrency: 0,
+			Config:      gilfoyle.Config,
 		})
 		if err != nil {
 			logger.Fatal("Failed to connect to RabbitMQ", zap.Error(err))

@@ -9,7 +9,9 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
 	"github.com/facebook/ent/schema/field"
 	"github.com/google/uuid"
@@ -45,6 +47,34 @@ func (mc *MediaCreate) SetNillableOriginalFilename(s *string) *MediaCreate {
 // SetStatus sets the status field.
 func (mc *MediaCreate) SetStatus(m media.Status) *MediaCreate {
 	mc.mutation.SetStatus(m)
+	return mc
+}
+
+// SetMessage sets the message field.
+func (mc *MediaCreate) SetMessage(s string) *MediaCreate {
+	mc.mutation.SetMessage(s)
+	return mc
+}
+
+// SetNillableMessage sets the message field if the given value is not nil.
+func (mc *MediaCreate) SetNillableMessage(s *string) *MediaCreate {
+	if s != nil {
+		mc.SetMessage(*s)
+	}
+	return mc
+}
+
+// SetPlayable sets the playable field.
+func (mc *MediaCreate) SetPlayable(b bool) *MediaCreate {
+	mc.mutation.SetPlayable(b)
+	return mc
+}
+
+// SetNillablePlayable sets the playable field if the given value is not nil.
+func (mc *MediaCreate) SetNillablePlayable(b *bool) *MediaCreate {
+	if b != nil {
+		mc.SetPlayable(*b)
+	}
 	return mc
 }
 
@@ -95,6 +125,40 @@ func (mc *MediaCreate) AddMediaFiles(m ...*MediaFile) *MediaCreate {
 		ids[i] = m[i].ID
 	}
 	return mc.AddMediaFileIDs(ids...)
+}
+
+// SetProbeID sets the probe edge to Probe by id.
+func (mc *MediaCreate) SetProbeID(id uuid.UUID) *MediaCreate {
+	mc.mutation.SetProbeID(id)
+	return mc
+}
+
+// SetNillableProbeID sets the probe edge to Probe by id if the given value is not nil.
+func (mc *MediaCreate) SetNillableProbeID(id *uuid.UUID) *MediaCreate {
+	if id != nil {
+		mc = mc.SetProbeID(*id)
+	}
+	return mc
+}
+
+// SetProbe sets the probe edge to Probe.
+func (mc *MediaCreate) SetProbe(p *Probe) *MediaCreate {
+	return mc.SetProbeID(p.ID)
+}
+
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (mc *MediaCreate) AddEventIDs(ids ...uuid.UUID) *MediaCreate {
+	mc.mutation.AddEventIDs(ids...)
+	return mc
+}
+
+// AddEvents adds the events edges to MediaEvents.
+func (mc *MediaCreate) AddEvents(m ...*MediaEvents) *MediaCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mc.AddEventIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -153,6 +217,14 @@ func (mc *MediaCreate) defaults() {
 		v := media.DefaultOriginalFilename
 		mc.mutation.SetOriginalFilename(v)
 	}
+	if _, ok := mc.mutation.Message(); !ok {
+		v := media.DefaultMessage
+		mc.mutation.SetMessage(v)
+	}
+	if _, ok := mc.mutation.Playable(); !ok {
+		v := media.DefaultPlayable
+		mc.mutation.SetPlayable(v)
+	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
 		v := media.DefaultCreatedAt()
 		mc.mutation.SetCreatedAt(v)
@@ -188,6 +260,11 @@ func (mc *MediaCreate) check() error {
 	if v, ok := mc.mutation.Status(); ok {
 		if err := media.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf("ent: validator failed for field \"status\": %w", err)}
+		}
+	}
+	if v, ok := mc.mutation.Message(); ok {
+		if err := media.MessageValidator(v); err != nil {
+			return &ValidationError{Name: "message", err: fmt.Errorf("ent: validator failed for field \"message\": %w", err)}
 		}
 	}
 	if _, ok := mc.mutation.CreatedAt(); !ok {
@@ -249,6 +326,22 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 		})
 		_node.Status = value
 	}
+	if value, ok := mc.mutation.Message(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: media.FieldMessage,
+		})
+		_node.Message = value
+	}
+	if value, ok := mc.mutation.Playable(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: media.FieldPlayable,
+		})
+		_node.Playable = value
+	}
 	if value, ok := mc.mutation.CreatedAt(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
@@ -276,6 +369,44 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: mediafile.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.ProbeIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   media.ProbeTable,
+			Columns: []string{media.ProbeColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: probe.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
 				},
 			},
 		}

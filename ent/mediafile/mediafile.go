@@ -22,6 +22,12 @@ const (
 	FieldTargetBandwidth = "target_bandwidth"
 	// FieldVideoBitrate holds the string denoting the video_bitrate field in the database.
 	FieldVideoBitrate = "video_bitrate"
+	// FieldAudioBitrate holds the string denoting the audio_bitrate field in the database.
+	FieldAudioBitrate = "audio_bitrate"
+	// FieldVideoCodec holds the string denoting the video_codec field in the database.
+	FieldVideoCodec = "video_codec"
+	// FieldAudioCodec holds the string denoting the audio_codec field in the database.
+	FieldAudioCodec = "audio_codec"
 	// FieldResolutionWidth holds the string denoting the resolution_width field in the database.
 	FieldResolutionWidth = "resolution_width"
 	// FieldResolutionHeight holds the string denoting the resolution_height field in the database.
@@ -32,6 +38,14 @@ const (
 	FieldDurationSeconds = "duration_seconds"
 	// FieldMediaType holds the string denoting the media_type field in the database.
 	FieldMediaType = "media_type"
+	// FieldStatus holds the string denoting the status field in the database.
+	FieldStatus = "status"
+	// FieldMessage holds the string denoting the message field in the database.
+	FieldMessage = "message"
+	// FieldEntryFile holds the string denoting the entry_file field in the database.
+	FieldEntryFile = "entry_file"
+	// FieldMimetype holds the string denoting the mimetype field in the database.
+	FieldMimetype = "mimetype"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -58,11 +72,18 @@ var Columns = []string{
 	FieldFormat,
 	FieldTargetBandwidth,
 	FieldVideoBitrate,
+	FieldAudioBitrate,
+	FieldVideoCodec,
+	FieldAudioCodec,
 	FieldResolutionWidth,
 	FieldResolutionHeight,
 	FieldFramerate,
 	FieldDurationSeconds,
 	FieldMediaType,
+	FieldStatus,
+	FieldMessage,
+	FieldEntryFile,
+	FieldMimetype,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -96,6 +117,16 @@ var (
 	DefaultTargetBandwidth uint64
 	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	VideoBitrateValidator func(int64) error
+	// AudioBitrateValidator is a validator for the "audio_bitrate" field. It is called by the builders before save.
+	AudioBitrateValidator func(int64) error
+	// DefaultVideoCodec holds the default value on creation for the video_codec field.
+	DefaultVideoCodec string
+	// VideoCodecValidator is a validator for the "video_codec" field. It is called by the builders before save.
+	VideoCodecValidator func(string) error
+	// DefaultAudioCodec holds the default value on creation for the audio_codec field.
+	DefaultAudioCodec string
+	// AudioCodecValidator is a validator for the "audio_codec" field. It is called by the builders before save.
+	AudioCodecValidator func(string) error
 	// ResolutionWidthValidator is a validator for the "resolution_width" field. It is called by the builders before save.
 	ResolutionWidthValidator func(uint16) error
 	// ResolutionHeightValidator is a validator for the "resolution_height" field. It is called by the builders before save.
@@ -104,6 +135,18 @@ var (
 	FramerateValidator func(uint8) error
 	// DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	DurationSecondsValidator func(float64) error
+	// DefaultMessage holds the default value on creation for the message field.
+	DefaultMessage string
+	// MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	MessageValidator func(string) error
+	// DefaultEntryFile holds the default value on creation for the entry_file field.
+	DefaultEntryFile string
+	// EntryFileValidator is a validator for the "entry_file" field. It is called by the builders before save.
+	EntryFileValidator func(string) error
+	// DefaultMimetype holds the default value on creation for the mimetype field.
+	DefaultMimetype string
+	// MimetypeValidator is a validator for the "mimetype" field. It is called by the builders before save.
+	MimetypeValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
@@ -134,5 +177,30 @@ func MediaTypeValidator(mt MediaType) error {
 		return nil
 	default:
 		return fmt.Errorf("mediafile: invalid enum value for media_type field: %q", mt)
+	}
+}
+
+// Status defines the type for the status enum field.
+type Status string
+
+// Status values.
+const (
+	StatusPending    Status = "Pending"
+	StatusProcessing Status = "Processing"
+	StatusReady      Status = "Ready"
+	StatusErrored    Status = "Errored"
+)
+
+func (s Status) String() string {
+	return string(s)
+}
+
+// StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
+func StatusValidator(s Status) error {
+	switch s {
+	case StatusPending, StatusProcessing, StatusReady, StatusErrored:
+		return nil
+	default:
+		return fmt.Errorf("mediafile: invalid enum value for status field: %q", s)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql"
 	"github.com/google/uuid"
 )
@@ -23,6 +24,10 @@ type Media struct {
 	OriginalFilename string `json:"original_filename,omitempty"`
 	// Status holds the value of the "status" field.
 	Status media.Status `json:"status,omitempty"`
+	// Message holds the value of the "message" field.
+	Message string `json:"message,omitempty"`
+	// Playable holds the value of the "playable" field.
+	Playable bool `json:"playable,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -36,9 +41,13 @@ type Media struct {
 type MediaEdges struct {
 	// MediaFiles holds the value of the media_files edge.
 	MediaFiles []*MediaFile `json:"media_files,omitempty"`
+	// Probe holds the value of the probe edge.
+	Probe *Probe `json:"probe,omitempty"`
+	// Events holds the value of the events edge.
+	Events []*MediaEvents `json:"events,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [3]bool
 }
 
 // MediaFilesOrErr returns the MediaFiles value or an error if the edge
@@ -50,6 +59,29 @@ func (e MediaEdges) MediaFilesOrErr() ([]*MediaFile, error) {
 	return nil, &NotLoadedError{edge: "media_files"}
 }
 
+// ProbeOrErr returns the Probe value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MediaEdges) ProbeOrErr() (*Probe, error) {
+	if e.loadedTypes[1] {
+		if e.Probe == nil {
+			// The edge probe was loaded in eager-loading,
+			// but was not found.
+			return nil, &NotFoundError{label: probe.Label}
+		}
+		return e.Probe, nil
+	}
+	return nil, &NotLoadedError{edge: "probe"}
+}
+
+// EventsOrErr returns the Events value or an error if the edge
+// was not loaded in eager-loading.
+func (e MediaEdges) EventsOrErr() ([]*MediaEvents, error) {
+	if e.loadedTypes[2] {
+		return e.Events, nil
+	}
+	return nil, &NotLoadedError{edge: "events"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Media) scanValues() []interface{} {
 	return []interface{}{
@@ -57,6 +89,8 @@ func (*Media) scanValues() []interface{} {
 		&sql.NullString{}, // title
 		&sql.NullString{}, // original_filename
 		&sql.NullString{}, // status
+		&sql.NullString{}, // message
+		&sql.NullBool{},   // playable
 		&sql.NullTime{},   // created_at
 		&sql.NullTime{},   // updated_at
 	}
@@ -89,13 +123,23 @@ func (m *Media) assignValues(values ...interface{}) error {
 	} else if value.Valid {
 		m.Status = media.Status(value.String)
 	}
-	if value, ok := values[3].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[3])
+	if value, ok := values[3].(*sql.NullString); !ok {
+		return fmt.Errorf("unexpected type %T for field message", values[3])
+	} else if value.Valid {
+		m.Message = value.String
+	}
+	if value, ok := values[4].(*sql.NullBool); !ok {
+		return fmt.Errorf("unexpected type %T for field playable", values[4])
+	} else if value.Valid {
+		m.Playable = value.Bool
+	}
+	if value, ok := values[5].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field created_at", values[5])
 	} else if value.Valid {
 		m.CreatedAt = value.Time
 	}
-	if value, ok := values[4].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[4])
+	if value, ok := values[6].(*sql.NullTime); !ok {
+		return fmt.Errorf("unexpected type %T for field updated_at", values[6])
 	} else if value.Valid {
 		m.UpdatedAt = value.Time
 	}
@@ -105,6 +149,16 @@ func (m *Media) assignValues(values ...interface{}) error {
 // QueryMediaFiles queries the media_files edge of the Media.
 func (m *Media) QueryMediaFiles() *MediaFileQuery {
 	return (&MediaClient{config: m.config}).QueryMediaFiles(m)
+}
+
+// QueryProbe queries the probe edge of the Media.
+func (m *Media) QueryProbe() *ProbeQuery {
+	return (&MediaClient{config: m.config}).QueryProbe(m)
+}
+
+// QueryEvents queries the events edge of the Media.
+func (m *Media) QueryEvents() *MediaEventsQuery {
+	return (&MediaClient{config: m.config}).QueryEvents(m)
 }
 
 // Update returns a builder for updating this Media.
@@ -136,6 +190,10 @@ func (m *Media) String() string {
 	builder.WriteString(m.OriginalFilename)
 	builder.WriteString(", status=")
 	builder.WriteString(fmt.Sprintf("%v", m.Status))
+	builder.WriteString(", message=")
+	builder.WriteString(m.Message)
+	builder.WriteString(", playable=")
+	builder.WriteString(fmt.Sprintf("%v", m.Playable))
 	builder.WriteString(", created_at=")
 	builder.WriteString(m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", updated_at=")

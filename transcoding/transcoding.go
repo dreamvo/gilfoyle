@@ -11,6 +11,7 @@ const (
 	OriginalFileName          string = "original"
 	HLSMasterPlaylistFilename string = "master.m3u8"
 	HLSPlaylistFilename       string = "index.m3u8"
+	HLSPlaylistMimeType       string = "application/x-mpegURL"
 )
 
 type OriginalFile struct {

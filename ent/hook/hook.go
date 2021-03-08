@@ -22,6 +22,19 @@ func (f MediaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return f(ctx, mv)
 }
 
+// The MediaEventsFunc type is an adapter to allow the use of ordinary
+// function as MediaEvents mutator.
+type MediaEventsFunc func(context.Context, *ent.MediaEventsMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MediaEventsFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.MediaEventsMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MediaEventsMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The MediaFileFunc type is an adapter to allow the use of ordinary
 // function as MediaFile mutator.
 type MediaFileFunc func(context.Context, *ent.MediaFileMutation) (ent.Value, error)
@@ -31,6 +44,19 @@ func (f MediaFileFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 	mv, ok := m.(*ent.MediaFileMutation)
 	if !ok {
 		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MediaFileMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The ProbeFunc type is an adapter to allow the use of ordinary
+// function as Probe mutator.
+type ProbeFunc func(context.Context, *ent.ProbeMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ProbeFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ProbeMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ProbeMutation", m)
 	}
 	return f(ctx, mv)
 }

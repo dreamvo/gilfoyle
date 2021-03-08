@@ -379,7 +379,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.FileFormat"
+                                            "$ref": "#/definitions/api.UploadMediaFileResponse"
                                         }
                                     }
                                 }
@@ -449,7 +449,7 @@
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.FileFormat"
+                                            "$ref": "#/definitions/api.UploadMediaFileResponse"
                                         }
                                     }
                                 }
@@ -691,43 +691,6 @@
                 }
             }
         },
-        "api.FileFormat": {
-            "type": "object",
-            "properties": {
-                "bit_rate": {
-                    "type": "string"
-                },
-                "duration": {
-                    "type": "string",
-                    "example": "0"
-                },
-                "filename": {
-                    "type": "string"
-                },
-                "format_long_name": {
-                    "type": "string"
-                },
-                "format_name": {
-                    "type": "string"
-                },
-                "nb_programs": {
-                    "type": "integer"
-                },
-                "nb_streams": {
-                    "type": "integer"
-                },
-                "probe_score": {
-                    "type": "integer"
-                },
-                "size": {
-                    "type": "string"
-                },
-                "start_time": {
-                    "type": "string",
-                    "example": "0"
-                }
-            }
-        },
         "api.HealthCheckResponse": {
             "type": "object",
             "properties": {
@@ -777,6 +740,14 @@
                 }
             }
         },
+        "api.UploadMediaFileResponse": {
+            "type": "object",
+            "properties": {
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
         "ent.Media": {
             "type": "object",
             "properties": {
@@ -792,9 +763,17 @@
                     "description": "ID of the ent.",
                     "type": "string"
                 },
+                "message": {
+                    "description": "Message holds the value of the \"message\" field.",
+                    "type": "string"
+                },
                 "original_filename": {
                     "description": "OriginalFilename holds the value of the \"original_filename\" field.",
                     "type": "string"
+                },
+                "playable": {
+                    "description": "Playable holds the value of the \"playable\" field.",
+                    "type": "boolean"
                 },
                 "status": {
                     "description": "Status holds the value of the \"status\" field.",
@@ -813,18 +792,75 @@
         "ent.MediaEdges": {
             "type": "object",
             "properties": {
+                "events": {
+                    "description": "Events holds the value of the events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.MediaEvents"
+                    }
+                },
                 "media_files": {
                     "description": "MediaFiles holds the value of the media_files edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ent.MediaFile"
                     }
+                },
+                "probe": {
+                    "description": "Probe holds the value of the probe edge.",
+                    "$ref": "#/definitions/ent.Probe"
+                }
+            }
+        },
+        "ent.MediaEvents": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaEventsQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.MediaEventsEdges"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "level": {
+                    "description": "Level holds the value of the \"level\" field.",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Message holds the value of the \"message\" field.",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "Reason holds the value of the \"reason\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.MediaEventsEdges": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "description": "Media holds the value of the media edge.",
+                    "$ref": "#/definitions/ent.Media"
                 }
             }
         },
         "ent.MediaFile": {
             "type": "object",
             "properties": {
+                "audio_bitrate": {
+                    "description": "AudioBitrate holds the value of the \"audio_bitrate\" field.",
+                    "type": "integer"
+                },
+                "audio_codec": {
+                    "description": "AudioCodec holds the value of the \"audio_codec\" field.",
+                    "type": "string"
+                },
                 "created_at": {
                     "description": "CreatedAt holds the value of the \"created_at\" field.",
                     "type": "string"
@@ -836,6 +872,10 @@
                 "edges": {
                     "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaFileQuery when eager-loading is set.",
                     "$ref": "#/definitions/ent.MediaFileEdges"
+                },
+                "entry_file": {
+                    "description": "EntryFile holds the value of the \"entry_file\" field.",
+                    "type": "string"
                 },
                 "format": {
                     "description": "Format holds the value of the \"format\" field.",
@@ -853,6 +893,14 @@
                     "description": "MediaType holds the value of the \"media_type\" field.",
                     "type": "string"
                 },
+                "message": {
+                    "description": "Message holds the value of the \"message\" field.",
+                    "type": "string"
+                },
+                "mimetype": {
+                    "description": "Mimetype holds the value of the \"mimetype\" field.",
+                    "type": "string"
+                },
                 "rendition_name": {
                     "description": "RenditionName holds the value of the \"rendition_name\" field.",
                     "type": "string"
@@ -865,6 +913,10 @@
                     "description": "ResolutionWidth holds the value of the \"resolution_width\" field.",
                     "type": "integer"
                 },
+                "status": {
+                    "description": "Status holds the value of the \"status\" field.",
+                    "type": "string"
+                },
                 "target_bandwidth": {
                     "description": "TargetBandwidth holds the value of the \"target_bandwidth\" field.",
                     "type": "integer"
@@ -876,10 +928,92 @@
                 "video_bitrate": {
                     "description": "VideoBitrate holds the value of the \"video_bitrate\" field.",
                     "type": "integer"
+                },
+                "video_codec": {
+                    "description": "VideoCodec holds the value of the \"video_codec\" field.",
+                    "type": "string"
                 }
             }
         },
         "ent.MediaFileEdges": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "description": "Media holds the value of the media edge.",
+                    "$ref": "#/definitions/ent.Media"
+                }
+            }
+        },
+        "ent.Probe": {
+            "type": "object",
+            "properties": {
+                "aspect_ratio": {
+                    "description": "AspectRatio holds the value of the \"aspect_ratio\" field.",
+                    "type": "string"
+                },
+                "audio_bitrate": {
+                    "description": "AudioBitrate holds the value of the \"audio_bitrate\" field.",
+                    "type": "integer"
+                },
+                "checksum_sha256": {
+                    "description": "ChecksumSha256 holds the value of the \"checksum_sha256\" field.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "duration_seconds": {
+                    "description": "DurationSeconds holds the value of the \"duration_seconds\" field.",
+                    "type": "number"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the ProbeQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.ProbeEdges"
+                },
+                "filename": {
+                    "description": "Filename holds the value of the \"filename\" field.",
+                    "type": "string"
+                },
+                "filesize": {
+                    "description": "Filesize holds the value of the \"filesize\" field.",
+                    "type": "integer"
+                },
+                "format": {
+                    "description": "Format holds the value of the \"format\" field.",
+                    "type": "string"
+                },
+                "framerate": {
+                    "description": "Framerate holds the value of the \"framerate\" field.",
+                    "type": "number"
+                },
+                "height": {
+                    "description": "Height holds the value of the \"height\" field.",
+                    "type": "integer"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "nb_streams": {
+                    "description": "NbStreams holds the value of the \"nb_streams\" field.",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt holds the value of the \"updated_at\" field.",
+                    "type": "string"
+                },
+                "video_bitrate": {
+                    "description": "VideoBitrate holds the value of the \"video_bitrate\" field.",
+                    "type": "integer"
+                },
+                "width": {
+                    "description": "Width holds the value of the \"width\" field.",
+                    "type": "integer"
+                }
+            }
+        },
+        "ent.ProbeEdges": {
             "type": "object",
             "properties": {
                 "media": {

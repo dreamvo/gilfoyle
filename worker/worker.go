@@ -2,6 +2,7 @@ package worker
 
 import (
 	"fmt"
+	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/storage"
@@ -10,10 +11,16 @@ import (
 )
 
 const (
-	VideoTranscodingQueue        string = "VideoTranscoding"
-	MediaProcessingCallbackQueue string = "MediaProcessingCallbackQueue"
-	//PreviewGenerationQueue       string = "PreviewGeneration"
+	HlsVideoEncodingQueue   string = "HlsVideoEncoding"
+	EncodingEntrypointQueue string = "EncodingEntrypoint"
+	EncodingFinalizerQueue  string = "EncodingFinalizer"
 )
+
+type AMQPClient interface {
+	Channel() (*amqp.Channel, error)
+	Close() error
+	IsClosed() bool
+}
 
 type Channel interface {
 	Publish(exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error
@@ -28,27 +35,36 @@ type Queue struct {
 	Exclusive  bool
 	NoWait     bool
 	Args       amqp.Table
-	Handler    func(*Worker, <-chan amqp.Delivery)
+	Handler    func(*Worker, amqp.Delivery)
 }
 
 var queues = []Queue{
 	{
-		Name:       VideoTranscodingQueue,
+		Name:       HlsVideoEncodingQueue,
 		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    videoTranscodingConsumer,
+		Handler:    hlsVideoEncodingConsumer,
 	},
 	{
-		Name:       MediaProcessingCallbackQueue,
+		Name:       EncodingFinalizerQueue,
 		Durable:    true,
 		AutoDelete: false,
 		Exclusive:  false,
 		NoWait:     false,
 		Args:       nil,
-		Handler:    mediaProcessingCallbackConsumer,
+		Handler:    encodingFinalizerConsumer,
+	},
+	{
+		Name:       EncodingEntrypointQueue,
+		Durable:    true,
+		AutoDelete: false,
+		Exclusive:  false,
+		NoWait:     false,
+		Args:       nil,
+		Handler:    encodingEntrypointConsumer,
 	},
 }
 
@@ -62,16 +78,18 @@ type Options struct {
 	Storage     storage.Storage
 	Database    *ent.Client
 	Transcoder  transcoding.ITranscoder
+	Config      config.Config
 }
 
 type Worker struct {
 	Queues      map[string]amqp.Queue
-	Client      *amqp.Connection
+	Client      AMQPClient
 	logger      logging.ILogger
 	concurrency uint
 	storage     storage.Storage
 	dbClient    *ent.Client
 	transcoder  transcoding.ITranscoder
+	config      config.Config
 }
 
 func New(opts Options) (*Worker, error) {
@@ -94,6 +112,7 @@ func New(opts Options) (*Worker, error) {
 		storage:     opts.Storage,
 		dbClient:    opts.Database,
 		transcoder:  opts.Transcoder,
+		config:      opts.Config,
 	}, nil
 }
 
@@ -151,10 +170,12 @@ func (w *Worker) Consume() error {
 			return fmt.Errorf("error consuming %s queue: %e", q.Name, err)
 		}
 
-		// Start N goroutines according to concurrency
-		for i := 0; i < int(w.concurrency); i++ {
-			go q.Handler(w, msgs)
-		}
+		// Start goroutines to consume messages
+		go func(q Queue) {
+			for d := range msgs {
+				go q.Handler(w, d)
+			}
+		}(q)
 	}
 
 	return nil

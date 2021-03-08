@@ -20,6 +20,10 @@ const (
 	FieldOriginalFilename = "original_filename"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
+	// FieldMessage holds the string denoting the message field in the database.
+	FieldMessage = "message"
+	// FieldPlayable holds the string denoting the playable field in the database.
+	FieldPlayable = "playable"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -27,6 +31,10 @@ const (
 
 	// EdgeMediaFiles holds the string denoting the media_files edge name in mutations.
 	EdgeMediaFiles = "media_files"
+	// EdgeProbe holds the string denoting the probe edge name in mutations.
+	EdgeProbe = "probe"
+	// EdgeEvents holds the string denoting the events edge name in mutations.
+	EdgeEvents = "events"
 
 	// Table holds the table name of the media in the database.
 	Table = "media"
@@ -37,6 +45,20 @@ const (
 	MediaFilesInverseTable = "media_file"
 	// MediaFilesColumn is the table column denoting the media_files relation/edge.
 	MediaFilesColumn = "media"
+	// ProbeTable is the table the holds the probe relation/edge.
+	ProbeTable = "media_probe"
+	// ProbeInverseTable is the table name for the Probe entity.
+	// It exists in this package in order to avoid circular dependency with the "probe" package.
+	ProbeInverseTable = "media_probe"
+	// ProbeColumn is the table column denoting the probe relation/edge.
+	ProbeColumn = "media"
+	// EventsTable is the table the holds the events relation/edge.
+	EventsTable = "media_events"
+	// EventsInverseTable is the table name for the MediaEvents entity.
+	// It exists in this package in order to avoid circular dependency with the "mediaevents" package.
+	EventsInverseTable = "media_events"
+	// EventsColumn is the table column denoting the events relation/edge.
+	EventsColumn = "media"
 )
 
 // Columns holds all SQL columns for media fields.
@@ -45,6 +67,8 @@ var Columns = []string{
 	FieldTitle,
 	FieldOriginalFilename,
 	FieldStatus,
+	FieldMessage,
+	FieldPlayable,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -66,6 +90,12 @@ var (
 	DefaultOriginalFilename string
 	// OriginalFilenameValidator is a validator for the "original_filename" field. It is called by the builders before save.
 	OriginalFilenameValidator func(string) error
+	// DefaultMessage holds the default value on creation for the message field.
+	DefaultMessage string
+	// MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	MessageValidator func(string) error
+	// DefaultPlayable holds the default value on creation for the playable field.
+	DefaultPlayable bool
 	// DefaultCreatedAt holds the default value on creation for the created_at field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the updated_at field.

@@ -77,7 +77,8 @@ type WorkerSettings struct {
 }
 
 type EncoderSettings struct {
-	Renditions []Rendition `json:"renditions" yaml:"renditions"`
+	Format     string      `json:"format" yaml:"format" default:"hls"`
+	Renditions []Rendition `json:"renditions" yaml:"renditions" default:"[]"`
 }
 
 type Rendition struct {
