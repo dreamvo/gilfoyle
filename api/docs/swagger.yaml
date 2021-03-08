@@ -79,6 +79,11 @@ definitions:
     type: object
   ent.MediaEdges:
     properties:
+      events:
+        description: Events holds the value of the events edge.
+        items:
+          $ref: '#/definitions/ent.MediaEvents'
+        type: array
       media_files:
         description: MediaFiles holds the value of the media_files edge.
         items:
@@ -87,6 +92,35 @@ definitions:
       probe:
         $ref: '#/definitions/ent.Probe'
         description: Probe holds the value of the probe edge.
+    type: object
+  ent.MediaEvents:
+    properties:
+      created_at:
+        description: CreatedAt holds the value of the "created_at" field.
+        type: string
+      edges:
+        $ref: '#/definitions/ent.MediaEventsEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the MediaEventsQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      level:
+        description: Level holds the value of the "level" field.
+        type: string
+      message:
+        description: Message holds the value of the "message" field.
+        type: string
+      reason:
+        description: Reason holds the value of the "reason" field.
+        type: string
+    type: object
+  ent.MediaEventsEdges:
+    properties:
+      media:
+        $ref: '#/definitions/ent.Media'
+        description: Media holds the value of the media edge.
     type: object
   ent.MediaFile:
     properties:

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/dreamvo/gilfoyle/ent/schema"
@@ -67,6 +68,52 @@ func init() {
 	mediaDescID := mediaFields[0].Descriptor()
 	// media.DefaultID holds the default value on creation for the id field.
 	media.DefaultID = mediaDescID.Default.(func() uuid.UUID)
+	mediaeventsFields := schema.MediaEvents{}.Fields()
+	_ = mediaeventsFields
+	// mediaeventsDescReason is the schema descriptor for reason field.
+	mediaeventsDescReason := mediaeventsFields[2].Descriptor()
+	// mediaevents.ReasonValidator is a validator for the "reason" field. It is called by the builders before save.
+	mediaevents.ReasonValidator = func() func(string) error {
+		validators := mediaeventsDescReason.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(reason string) error {
+			for _, fn := range fns {
+				if err := fn(reason); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// mediaeventsDescMessage is the schema descriptor for message field.
+	mediaeventsDescMessage := mediaeventsFields[3].Descriptor()
+	// mediaevents.MessageValidator is a validator for the "message" field. It is called by the builders before save.
+	mediaevents.MessageValidator = func() func(string) error {
+		validators := mediaeventsDescMessage.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(message string) error {
+			for _, fn := range fns {
+				if err := fn(message); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// mediaeventsDescCreatedAt is the schema descriptor for created_at field.
+	mediaeventsDescCreatedAt := mediaeventsFields[4].Descriptor()
+	// mediaevents.DefaultCreatedAt holds the default value on creation for the created_at field.
+	mediaevents.DefaultCreatedAt = mediaeventsDescCreatedAt.Default.(func() time.Time)
+	// mediaeventsDescID is the schema descriptor for id field.
+	mediaeventsDescID := mediaeventsFields[0].Descriptor()
+	// mediaevents.DefaultID holds the default value on creation for the id field.
+	mediaevents.DefaultID = mediaeventsDescID.Default.(func() uuid.UUID)
 	mediafileFields := schema.MediaFile{}.Fields()
 	_ = mediafileFields
 	// mediafileDescRenditionName is the schema descriptor for rendition_name field.

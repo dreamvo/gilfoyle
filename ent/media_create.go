@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/probe"
 	"github.com/facebook/ent/dialect/sql/sqlgraph"
@@ -143,6 +144,21 @@ func (mc *MediaCreate) SetNillableProbeID(id *uuid.UUID) *MediaCreate {
 // SetProbe sets the probe edge to Probe.
 func (mc *MediaCreate) SetProbe(p *Probe) *MediaCreate {
 	return mc.SetProbeID(p.ID)
+}
+
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (mc *MediaCreate) AddEventIDs(ids ...uuid.UUID) *MediaCreate {
+	mc.mutation.AddEventIDs(ids...)
+	return mc
+}
+
+// AddEvents adds the events edges to MediaEvents.
+func (mc *MediaCreate) AddEvents(m ...*MediaEvents) *MediaCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mc.AddEventIDs(ids...)
 }
 
 // Mutation returns the MediaMutation object of the builder.
@@ -372,6 +388,25 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: probe.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := mc.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
 				},
 			},
 		}

@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/probe"
 
@@ -26,6 +27,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Media is the client for interacting with the Media builders.
 	Media *MediaClient
+	// MediaEvents is the client for interacting with the MediaEvents builders.
+	MediaEvents *MediaEventsClient
 	// MediaFile is the client for interacting with the MediaFile builders.
 	MediaFile *MediaFileClient
 	// Probe is the client for interacting with the Probe builders.
@@ -44,6 +47,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Media = NewMediaClient(c.config)
+	c.MediaEvents = NewMediaEventsClient(c.config)
 	c.MediaFile = NewMediaFileClient(c.config)
 	c.Probe = NewProbeClient(c.config)
 }
@@ -76,11 +80,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	}
 	cfg := config{driver: tx, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		ctx:       ctx,
-		config:    cfg,
-		Media:     NewMediaClient(cfg),
-		MediaFile: NewMediaFileClient(cfg),
-		Probe:     NewProbeClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		Media:       NewMediaClient(cfg),
+		MediaEvents: NewMediaEventsClient(cfg),
+		MediaFile:   NewMediaFileClient(cfg),
+		Probe:       NewProbeClient(cfg),
 	}, nil
 }
 
@@ -95,10 +100,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	}
 	cfg := config{driver: &txDriver{tx: tx, drv: c.driver}, log: c.log, debug: c.debug, hooks: c.hooks}
 	return &Tx{
-		config:    cfg,
-		Media:     NewMediaClient(cfg),
-		MediaFile: NewMediaFileClient(cfg),
-		Probe:     NewProbeClient(cfg),
+		config:      cfg,
+		Media:       NewMediaClient(cfg),
+		MediaEvents: NewMediaEventsClient(cfg),
+		MediaFile:   NewMediaFileClient(cfg),
+		Probe:       NewProbeClient(cfg),
 	}, nil
 }
 
@@ -128,6 +134,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Media.Use(hooks...)
+	c.MediaEvents.Use(hooks...)
 	c.MediaFile.Use(hooks...)
 	c.Probe.Use(hooks...)
 }
@@ -247,9 +254,129 @@ func (c *MediaClient) QueryProbe(m *Media) *ProbeQuery {
 	return query
 }
 
+// QueryEvents queries the events edge of a Media.
+func (c *MediaClient) QueryEvents(m *Media) *MediaEventsQuery {
+	query := &MediaEventsQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, id),
+			sqlgraph.To(mediaevents.Table, mediaevents.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.EventsTable, media.EventsColumn),
+		)
+		fromV = sqlgraph.Neighbors(m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *MediaClient) Hooks() []Hook {
 	return c.hooks.Media
+}
+
+// MediaEventsClient is a client for the MediaEvents schema.
+type MediaEventsClient struct {
+	config
+}
+
+// NewMediaEventsClient returns a client for the MediaEvents from the given config.
+func NewMediaEventsClient(c config) *MediaEventsClient {
+	return &MediaEventsClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `mediaevents.Hooks(f(g(h())))`.
+func (c *MediaEventsClient) Use(hooks ...Hook) {
+	c.hooks.MediaEvents = append(c.hooks.MediaEvents, hooks...)
+}
+
+// Create returns a create builder for MediaEvents.
+func (c *MediaEventsClient) Create() *MediaEventsCreate {
+	mutation := newMediaEventsMutation(c.config, OpCreate)
+	return &MediaEventsCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MediaEvents entities.
+func (c *MediaEventsClient) CreateBulk(builders ...*MediaEventsCreate) *MediaEventsCreateBulk {
+	return &MediaEventsCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MediaEvents.
+func (c *MediaEventsClient) Update() *MediaEventsUpdate {
+	mutation := newMediaEventsMutation(c.config, OpUpdate)
+	return &MediaEventsUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MediaEventsClient) UpdateOne(me *MediaEvents) *MediaEventsUpdateOne {
+	mutation := newMediaEventsMutation(c.config, OpUpdateOne, withMediaEvents(me))
+	return &MediaEventsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MediaEventsClient) UpdateOneID(id uuid.UUID) *MediaEventsUpdateOne {
+	mutation := newMediaEventsMutation(c.config, OpUpdateOne, withMediaEventsID(id))
+	return &MediaEventsUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MediaEvents.
+func (c *MediaEventsClient) Delete() *MediaEventsDelete {
+	mutation := newMediaEventsMutation(c.config, OpDelete)
+	return &MediaEventsDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *MediaEventsClient) DeleteOne(me *MediaEvents) *MediaEventsDeleteOne {
+	return c.DeleteOneID(me.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *MediaEventsClient) DeleteOneID(id uuid.UUID) *MediaEventsDeleteOne {
+	builder := c.Delete().Where(mediaevents.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MediaEventsDeleteOne{builder}
+}
+
+// Query returns a query builder for MediaEvents.
+func (c *MediaEventsClient) Query() *MediaEventsQuery {
+	return &MediaEventsQuery{config: c.config}
+}
+
+// Get returns a MediaEvents entity by its id.
+func (c *MediaEventsClient) Get(ctx context.Context, id uuid.UUID) (*MediaEvents, error) {
+	return c.Query().Where(mediaevents.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MediaEventsClient) GetX(ctx context.Context, id uuid.UUID) *MediaEvents {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMedia queries the media edge of a MediaEvents.
+func (c *MediaEventsClient) QueryMedia(me *MediaEvents) *MediaQuery {
+	query := &MediaQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := me.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mediaevents.Table, mediaevents.FieldID, id),
+			sqlgraph.To(media.Table, media.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mediaevents.MediaTable, mediaevents.MediaColumn),
+		)
+		fromV = sqlgraph.Neighbors(me.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MediaEventsClient) Hooks() []Hook {
+	return c.hooks.MediaEvents
 }
 
 // MediaFileClient is a client for the MediaFile schema.

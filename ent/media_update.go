@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/dreamvo/gilfoyle/ent/probe"
@@ -156,6 +157,21 @@ func (mu *MediaUpdate) SetProbe(p *Probe) *MediaUpdate {
 	return mu.SetProbeID(p.ID)
 }
 
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (mu *MediaUpdate) AddEventIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.AddEventIDs(ids...)
+	return mu
+}
+
+// AddEvents adds the events edges to MediaEvents.
+func (mu *MediaUpdate) AddEvents(m ...*MediaEvents) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.AddEventIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
@@ -186,6 +202,27 @@ func (mu *MediaUpdate) RemoveMediaFiles(m ...*MediaFile) *MediaUpdate {
 func (mu *MediaUpdate) ClearProbe() *MediaUpdate {
 	mu.mutation.ClearProbe()
 	return mu
+}
+
+// ClearEvents clears all "events" edges to type MediaEvents.
+func (mu *MediaUpdate) ClearEvents() *MediaUpdate {
+	mu.mutation.ClearEvents()
+	return mu
+}
+
+// RemoveEventIDs removes the events edge to MediaEvents by ids.
+func (mu *MediaUpdate) RemoveEventIDs(ids ...uuid.UUID) *MediaUpdate {
+	mu.mutation.RemoveEventIDs(ids...)
+	return mu
+}
+
+// RemoveEvents removes events edges to MediaEvents.
+func (mu *MediaUpdate) RemoveEvents(m ...*MediaEvents) *MediaUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return mu.RemoveEventIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -453,6 +490,60 @@ func (mu *MediaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if mu.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.RemovedEventsIDs(); len(nodes) > 0 && !mu.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mu.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, mu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}
@@ -597,6 +688,21 @@ func (muo *MediaUpdateOne) SetProbe(p *Probe) *MediaUpdateOne {
 	return muo.SetProbeID(p.ID)
 }
 
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (muo *MediaUpdateOne) AddEventIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.AddEventIDs(ids...)
+	return muo
+}
+
+// AddEvents adds the events edges to MediaEvents.
+func (muo *MediaUpdateOne) AddEvents(m ...*MediaEvents) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.AddEventIDs(ids...)
+}
+
 // Mutation returns the MediaMutation object of the builder.
 func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
@@ -627,6 +733,27 @@ func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 func (muo *MediaUpdateOne) ClearProbe() *MediaUpdateOne {
 	muo.mutation.ClearProbe()
 	return muo
+}
+
+// ClearEvents clears all "events" edges to type MediaEvents.
+func (muo *MediaUpdateOne) ClearEvents() *MediaUpdateOne {
+	muo.mutation.ClearEvents()
+	return muo
+}
+
+// RemoveEventIDs removes the events edge to MediaEvents by ids.
+func (muo *MediaUpdateOne) RemoveEventIDs(ids ...uuid.UUID) *MediaUpdateOne {
+	muo.mutation.RemoveEventIDs(ids...)
+	return muo
+}
+
+// RemoveEvents removes events edges to MediaEvents.
+func (muo *MediaUpdateOne) RemoveEvents(m ...*MediaEvents) *MediaUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return muo.RemoveEventIDs(ids...)
 }
 
 // Save executes the query and returns the updated entity.
@@ -884,6 +1011,60 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: probe.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if muo.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.RemovedEventsIDs(); len(nodes) > 0 && !muo.mutation.EventsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := muo.mutation.EventsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   media.EventsTable,
+			Columns: []string{media.EventsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: mediaevents.FieldID,
 				},
 			},
 		}

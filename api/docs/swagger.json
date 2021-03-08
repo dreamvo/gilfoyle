@@ -792,6 +792,13 @@
         "ent.MediaEdges": {
             "type": "object",
             "properties": {
+                "events": {
+                    "description": "Events holds the value of the events edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.MediaEvents"
+                    }
+                },
                 "media_files": {
                     "description": "MediaFiles holds the value of the media_files edge.",
                     "type": "array",
@@ -802,6 +809,44 @@
                 "probe": {
                     "description": "Probe holds the value of the probe edge.",
                     "$ref": "#/definitions/ent.Probe"
+                }
+            }
+        },
+        "ent.MediaEvents": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "CreatedAt holds the value of the \"created_at\" field.",
+                    "type": "string"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the MediaEventsQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.MediaEventsEdges"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "level": {
+                    "description": "Level holds the value of the \"level\" field.",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "Message holds the value of the \"message\" field.",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "Reason holds the value of the \"reason\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.MediaEventsEdges": {
+            "type": "object",
+            "properties": {
+                "media": {
+                    "description": "Media holds the value of the media edge.",
+                    "$ref": "#/definitions/ent.Media"
                 }
             }
         },

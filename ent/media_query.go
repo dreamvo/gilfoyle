@@ -10,6 +10,7 @@ import (
 	"math"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/dreamvo/gilfoyle/ent/probe"
@@ -29,6 +30,7 @@ type MediaQuery struct {
 	// eager-loading edges.
 	withMediaFiles *MediaFileQuery
 	withProbe      *ProbeQuery
+	withEvents     *MediaEventsQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -95,6 +97,28 @@ func (mq *MediaQuery) QueryProbe() *ProbeQuery {
 			sqlgraph.From(media.Table, media.FieldID, selector),
 			sqlgraph.To(probe.Table, probe.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, media.ProbeTable, media.ProbeColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryEvents chains the current query on the events edge.
+func (mq *MediaQuery) QueryEvents() *MediaEventsQuery {
+	query := &MediaEventsQuery{config: mq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := mq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := mq.sqlQuery()
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(media.Table, media.FieldID, selector),
+			sqlgraph.To(mediaevents.Table, mediaevents.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, media.EventsTable, media.EventsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mq.driver.Dialect(), step)
 		return fromU, nil
@@ -279,6 +303,7 @@ func (mq *MediaQuery) Clone() *MediaQuery {
 		predicates:     append([]predicate.Media{}, mq.predicates...),
 		withMediaFiles: mq.withMediaFiles.Clone(),
 		withProbe:      mq.withProbe.Clone(),
+		withEvents:     mq.withEvents.Clone(),
 		// clone intermediate query.
 		sql:  mq.sql.Clone(),
 		path: mq.path,
@@ -304,6 +329,17 @@ func (mq *MediaQuery) WithProbe(opts ...func(*ProbeQuery)) *MediaQuery {
 		opt(query)
 	}
 	mq.withProbe = query
+	return mq
+}
+
+//  WithEvents tells the query-builder to eager-loads the nodes that are connected to
+// the "events" edge. The optional arguments used to configure the query builder of the edge.
+func (mq *MediaQuery) WithEvents(opts ...func(*MediaEventsQuery)) *MediaQuery {
+	query := &MediaEventsQuery{config: mq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	mq.withEvents = query
 	return mq
 }
 
@@ -373,9 +409,10 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 	var (
 		nodes       = []*Media{}
 		_spec       = mq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			mq.withMediaFiles != nil,
 			mq.withProbe != nil,
+			mq.withEvents != nil,
 		}
 	)
 	_spec.ScanValues = func() []interface{} {
@@ -453,6 +490,35 @@ func (mq *MediaQuery) sqlAll(ctx context.Context) ([]*Media, error) {
 				return nil, fmt.Errorf(`unexpected foreign-key "media" returned %v for node %v`, *fk, n.ID)
 			}
 			node.Edges.Probe = n
+		}
+	}
+
+	if query := mq.withEvents; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[uuid.UUID]*Media)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Events = []*MediaEvents{}
+		}
+		query.withFKs = true
+		query.Where(predicate.MediaEvents(func(s *sql.Selector) {
+			s.Where(sql.InValues(media.EventsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.media
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "media" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "media" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Events = append(node.Edges.Events, n)
 		}
 	}
 

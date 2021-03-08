@@ -43,9 +43,11 @@ type MediaEdges struct {
 	MediaFiles []*MediaFile `json:"media_files,omitempty"`
 	// Probe holds the value of the probe edge.
 	Probe *Probe `json:"probe,omitempty"`
+	// Events holds the value of the events edge.
+	Events []*MediaEvents `json:"events,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes [3]bool
 }
 
 // MediaFilesOrErr returns the MediaFiles value or an error if the edge
@@ -69,6 +71,15 @@ func (e MediaEdges) ProbeOrErr() (*Probe, error) {
 		return e.Probe, nil
 	}
 	return nil, &NotLoadedError{edge: "probe"}
+}
+
+// EventsOrErr returns the Events value or an error if the edge
+// was not loaded in eager-loading.
+func (e MediaEdges) EventsOrErr() ([]*MediaEvents, error) {
+	if e.loadedTypes[2] {
+		return e.Events, nil
+	}
+	return nil, &NotLoadedError{edge: "events"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -143,6 +154,11 @@ func (m *Media) QueryMediaFiles() *MediaFileQuery {
 // QueryProbe queries the probe edge of the Media.
 func (m *Media) QueryProbe() *ProbeQuery {
 	return (&MediaClient{config: m.config}).QueryProbe(m)
+}
+
+// QueryEvents queries the events edge of the Media.
+func (m *Media) QueryEvents() *MediaEventsQuery {
+	return (&MediaClient{config: m.config}).QueryEvents(m)
 }
 
 // Update returns a builder for updating this Media.

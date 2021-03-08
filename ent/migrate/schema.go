@@ -28,6 +28,31 @@ var (
 		ForeignKeys: []*schema.ForeignKey{},
 		Annotation:  &entsql.Annotation{Table: "media"},
 	}
+	// MediaEventsColumns holds the columns for the "media_events" table.
+	MediaEventsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "level", Type: field.TypeEnum, Enums: []string{"Normal", "Warning", "Error"}, Default: "Normal"},
+		{Name: "reason", Type: field.TypeString, Size: 255},
+		{Name: "message", Type: field.TypeString, Size: 255},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "media", Type: field.TypeUUID, Nullable: true},
+	}
+	// MediaEventsTable holds the schema information for the "media_events" table.
+	MediaEventsTable = &schema.Table{
+		Name:       "media_events",
+		Columns:    MediaEventsColumns,
+		PrimaryKey: []*schema.Column{MediaEventsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:  "media_events_media_events",
+				Columns: []*schema.Column{MediaEventsColumns[5]},
+
+				RefColumns: []*schema.Column{MediaColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Annotation: &entsql.Annotation{Table: "media_events"},
+	}
 	// MediaFileColumns holds the columns for the "media_file" table.
 	MediaFileColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -105,12 +130,14 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MediaTable,
+		MediaEventsTable,
 		MediaFileTable,
 		MediaProbeTable,
 	}
 )
 
 func init() {
+	MediaEventsTable.ForeignKeys[0].RefTable = MediaTable
 	MediaFileTable.ForeignKeys[0].RefTable = MediaTable
 	MediaProbeTable.ForeignKeys[0].RefTable = MediaTable
 }

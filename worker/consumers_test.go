@@ -462,8 +462,8 @@ test-rendition/index.m3u8
 
 			m, err = dbClient.Media.Get(context.Background(), m.ID)
 			assert.NoError(t, err)
-			assert.Equal(t, media.StatusReady, m.Status)
-			assert.Equal(t, "One or more rendition succeeded. Media is available for streaming", m.Message)
+			assert.Equal(t, media.StatusProcessing, m.Status)
+			assert.Equal(t, "Media is not yet available for streaming", m.Message)
 
 			loggerMock.AssertExpectations(t)
 			AckMock.AssertExpectations(t)

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/dreamvo/gilfoyle/ent/media"
+	"github.com/dreamvo/gilfoyle/ent/mediaevents"
 	"github.com/dreamvo/gilfoyle/ent/mediafile"
 	"github.com/dreamvo/gilfoyle/ent/predicate"
 	"github.com/dreamvo/gilfoyle/ent/probe"
@@ -26,9 +27,10 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeMedia     = "Media"
-	TypeMediaFile = "MediaFile"
-	TypeProbe     = "Probe"
+	TypeMedia       = "Media"
+	TypeMediaEvents = "MediaEvents"
+	TypeMediaFile   = "MediaFile"
+	TypeProbe       = "Probe"
 )
 
 // MediaMutation represents an operation that mutate the MediaSlice
@@ -51,6 +53,9 @@ type MediaMutation struct {
 	clearedmedia_files bool
 	probe              *uuid.UUID
 	clearedprobe       bool
+	events             map[uuid.UUID]struct{}
+	removedevents      map[uuid.UUID]struct{}
+	clearedevents      bool
 	done               bool
 	oldValue           func(context.Context) (*Media, error)
 	predicates         []predicate.Media
@@ -531,6 +536,59 @@ func (m *MediaMutation) ResetProbe() {
 	m.clearedprobe = false
 }
 
+// AddEventIDs adds the events edge to MediaEvents by ids.
+func (m *MediaMutation) AddEventIDs(ids ...uuid.UUID) {
+	if m.events == nil {
+		m.events = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.events[ids[i]] = struct{}{}
+	}
+}
+
+// ClearEvents clears the events edge to MediaEvents.
+func (m *MediaMutation) ClearEvents() {
+	m.clearedevents = true
+}
+
+// EventsCleared returns if the edge events was cleared.
+func (m *MediaMutation) EventsCleared() bool {
+	return m.clearedevents
+}
+
+// RemoveEventIDs removes the events edge to MediaEvents by ids.
+func (m *MediaMutation) RemoveEventIDs(ids ...uuid.UUID) {
+	if m.removedevents == nil {
+		m.removedevents = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.removedevents[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedEvents returns the removed ids of events.
+func (m *MediaMutation) RemovedEventsIDs() (ids []uuid.UUID) {
+	for id := range m.removedevents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// EventsIDs returns the events ids in the mutation.
+func (m *MediaMutation) EventsIDs() (ids []uuid.UUID) {
+	for id := range m.events {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetEvents reset all changes of the "events" edge.
+func (m *MediaMutation) ResetEvents() {
+	m.events = nil
+	m.clearedevents = false
+	m.removedevents = nil
+}
+
 // Op returns the operation name.
 func (m *MediaMutation) Op() Op {
 	return m.op
@@ -769,12 +827,15 @@ func (m *MediaMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this
 // mutation.
 func (m *MediaMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.media_files != nil {
 		edges = append(edges, media.EdgeMediaFiles)
 	}
 	if m.probe != nil {
 		edges = append(edges, media.EdgeProbe)
+	}
+	if m.events != nil {
+		edges = append(edges, media.EdgeEvents)
 	}
 	return edges
 }
@@ -793,6 +854,12 @@ func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 		if id := m.probe; id != nil {
 			return []ent.Value{*id}
 		}
+	case media.EdgeEvents:
+		ids := make([]ent.Value, 0, len(m.events))
+		for id := range m.events {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -800,9 +867,12 @@ func (m *MediaMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this
 // mutation.
 func (m *MediaMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedmedia_files != nil {
 		edges = append(edges, media.EdgeMediaFiles)
+	}
+	if m.removedevents != nil {
+		edges = append(edges, media.EdgeEvents)
 	}
 	return edges
 }
@@ -817,6 +887,12 @@ func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case media.EdgeEvents:
+		ids := make([]ent.Value, 0, len(m.removedevents))
+		for id := range m.removedevents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
@@ -824,12 +900,15 @@ func (m *MediaMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this
 // mutation.
 func (m *MediaMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedmedia_files {
 		edges = append(edges, media.EdgeMediaFiles)
 	}
 	if m.clearedprobe {
 		edges = append(edges, media.EdgeProbe)
+	}
+	if m.clearedevents {
+		edges = append(edges, media.EdgeEvents)
 	}
 	return edges
 }
@@ -842,6 +921,8 @@ func (m *MediaMutation) EdgeCleared(name string) bool {
 		return m.clearedmedia_files
 	case media.EdgeProbe:
 		return m.clearedprobe
+	case media.EdgeEvents:
+		return m.clearedevents
 	}
 	return false
 }
@@ -868,8 +949,545 @@ func (m *MediaMutation) ResetEdge(name string) error {
 	case media.EdgeProbe:
 		m.ResetProbe()
 		return nil
+	case media.EdgeEvents:
+		m.ResetEvents()
+		return nil
 	}
 	return fmt.Errorf("unknown Media edge %s", name)
+}
+
+// MediaEventsMutation represents an operation that mutate the MediaEventsSlice
+// nodes in the graph.
+type MediaEventsMutation struct {
+	config
+	op            Op
+	typ           string
+	id            *uuid.UUID
+	level         *mediaevents.Level
+	reason        *string
+	message       *string
+	created_at    *time.Time
+	clearedFields map[string]struct{}
+	media         *uuid.UUID
+	clearedmedia  bool
+	done          bool
+	oldValue      func(context.Context) (*MediaEvents, error)
+	predicates    []predicate.MediaEvents
+}
+
+var _ ent.Mutation = (*MediaEventsMutation)(nil)
+
+// mediaeventsOption allows to manage the mutation configuration using functional options.
+type mediaeventsOption func(*MediaEventsMutation)
+
+// newMediaEventsMutation creates new mutation for MediaEvents.
+func newMediaEventsMutation(c config, op Op, opts ...mediaeventsOption) *MediaEventsMutation {
+	m := &MediaEventsMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeMediaEvents,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withMediaEventsID sets the id field of the mutation.
+func withMediaEventsID(id uuid.UUID) mediaeventsOption {
+	return func(m *MediaEventsMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *MediaEvents
+		)
+		m.oldValue = func(ctx context.Context) (*MediaEvents, error) {
+			once.Do(func() {
+				if m.done {
+					err = fmt.Errorf("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().MediaEvents.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withMediaEvents sets the old MediaEvents of the mutation.
+func withMediaEvents(node *MediaEvents) mediaeventsOption {
+	return func(m *MediaEventsMutation) {
+		m.oldValue = func(context.Context) (*MediaEvents, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m MediaEventsMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m MediaEventsMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, fmt.Errorf("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that, this
+// operation is accepted only on MediaEvents creation.
+func (m *MediaEventsMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the id value in the mutation. Note that, the id
+// is available only if it was provided to the builder.
+func (m *MediaEventsMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// SetLevel sets the level field.
+func (m *MediaEventsMutation) SetLevel(value mediaevents.Level) {
+	m.level = &value
+}
+
+// Level returns the level value in the mutation.
+func (m *MediaEventsMutation) Level() (r mediaevents.Level, exists bool) {
+	v := m.level
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldLevel returns the old level value of the MediaEvents.
+// If the MediaEvents object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaEventsMutation) OldLevel(ctx context.Context) (v mediaevents.Level, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldLevel is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldLevel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldLevel: %w", err)
+	}
+	return oldValue.Level, nil
+}
+
+// ResetLevel reset all changes of the "level" field.
+func (m *MediaEventsMutation) ResetLevel() {
+	m.level = nil
+}
+
+// SetReason sets the reason field.
+func (m *MediaEventsMutation) SetReason(s string) {
+	m.reason = &s
+}
+
+// Reason returns the reason value in the mutation.
+func (m *MediaEventsMutation) Reason() (r string, exists bool) {
+	v := m.reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReason returns the old reason value of the MediaEvents.
+// If the MediaEvents object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaEventsMutation) OldReason(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldReason is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReason: %w", err)
+	}
+	return oldValue.Reason, nil
+}
+
+// ResetReason reset all changes of the "reason" field.
+func (m *MediaEventsMutation) ResetReason() {
+	m.reason = nil
+}
+
+// SetMessage sets the message field.
+func (m *MediaEventsMutation) SetMessage(s string) {
+	m.message = &s
+}
+
+// Message returns the message value in the mutation.
+func (m *MediaEventsMutation) Message() (r string, exists bool) {
+	v := m.message
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMessage returns the old message value of the MediaEvents.
+// If the MediaEvents object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaEventsMutation) OldMessage(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldMessage is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldMessage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMessage: %w", err)
+	}
+	return oldValue.Message, nil
+}
+
+// ResetMessage reset all changes of the "message" field.
+func (m *MediaEventsMutation) ResetMessage() {
+	m.message = nil
+}
+
+// SetCreatedAt sets the created_at field.
+func (m *MediaEventsMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the created_at value in the mutation.
+func (m *MediaEventsMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old created_at value of the MediaEvents.
+// If the MediaEvents object wasn't provided to the builder, the object is fetched
+// from the database.
+// An error is returned if the mutation operation is not UpdateOne, or database query fails.
+func (m *MediaEventsMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldCreatedAt is allowed only on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt reset all changes of the "created_at" field.
+func (m *MediaEventsMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetMediaID sets the media edge to Media by id.
+func (m *MediaEventsMutation) SetMediaID(id uuid.UUID) {
+	m.media = &id
+}
+
+// ClearMedia clears the media edge to Media.
+func (m *MediaEventsMutation) ClearMedia() {
+	m.clearedmedia = true
+}
+
+// MediaCleared returns if the edge media was cleared.
+func (m *MediaEventsMutation) MediaCleared() bool {
+	return m.clearedmedia
+}
+
+// MediaID returns the media id in the mutation.
+func (m *MediaEventsMutation) MediaID() (id uuid.UUID, exists bool) {
+	if m.media != nil {
+		return *m.media, true
+	}
+	return
+}
+
+// MediaIDs returns the media ids in the mutation.
+// Note that ids always returns len(ids) <= 1 for unique edges, and you should use
+// MediaID instead. It exists only for internal usage by the builders.
+func (m *MediaEventsMutation) MediaIDs() (ids []uuid.UUID) {
+	if id := m.media; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMedia reset all changes of the "media" edge.
+func (m *MediaEventsMutation) ResetMedia() {
+	m.media = nil
+	m.clearedmedia = false
+}
+
+// Op returns the operation name.
+func (m *MediaEventsMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (MediaEvents).
+func (m *MediaEventsMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during
+// this mutation. Note that, in order to get all numeric
+// fields that were in/decremented, call AddedFields().
+func (m *MediaEventsMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.level != nil {
+		fields = append(fields, mediaevents.FieldLevel)
+	}
+	if m.reason != nil {
+		fields = append(fields, mediaevents.FieldReason)
+	}
+	if m.message != nil {
+		fields = append(fields, mediaevents.FieldMessage)
+	}
+	if m.created_at != nil {
+		fields = append(fields, mediaevents.FieldCreatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name.
+// The second boolean value indicates that this field was
+// not set, or was not define in the schema.
+func (m *MediaEventsMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case mediaevents.FieldLevel:
+		return m.Level()
+	case mediaevents.FieldReason:
+		return m.Reason()
+	case mediaevents.FieldMessage:
+		return m.Message()
+	case mediaevents.FieldCreatedAt:
+		return m.CreatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database.
+// An error is returned if the mutation operation is not UpdateOne,
+// or the query to the database was failed.
+func (m *MediaEventsMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case mediaevents.FieldLevel:
+		return m.OldLevel(ctx)
+	case mediaevents.FieldReason:
+		return m.OldReason(ctx)
+	case mediaevents.FieldMessage:
+		return m.OldMessage(ctx)
+	case mediaevents.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown MediaEvents field %s", name)
+}
+
+// SetField sets the value for the given name. It returns an
+// error if the field is not defined in the schema, or if the
+// type mismatch the field type.
+func (m *MediaEventsMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case mediaevents.FieldLevel:
+		v, ok := value.(mediaevents.Level)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetLevel(v)
+		return nil
+	case mediaevents.FieldReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReason(v)
+		return nil
+	case mediaevents.FieldMessage:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMessage(v)
+		return nil
+	case mediaevents.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MediaEvents field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented
+// or decremented during this mutation.
+func (m *MediaEventsMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was in/decremented
+// from a field with the given name. The second value indicates
+// that this field was not set, or was not define in the schema.
+func (m *MediaEventsMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value for the given name. It returns an
+// error if the field is not defined in the schema, or if the
+// type mismatch the field type.
+func (m *MediaEventsMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown MediaEvents numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared
+// during this mutation.
+func (m *MediaEventsMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicates if this field was
+// cleared in this mutation.
+func (m *MediaEventsMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value for the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *MediaEventsMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown MediaEvents nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation regarding the
+// given field name. It returns an error if the field is not
+// defined in the schema.
+func (m *MediaEventsMutation) ResetField(name string) error {
+	switch name {
+	case mediaevents.FieldLevel:
+		m.ResetLevel()
+		return nil
+	case mediaevents.FieldReason:
+		m.ResetReason()
+		return nil
+	case mediaevents.FieldMessage:
+		m.ResetMessage()
+		return nil
+	case mediaevents.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaEvents field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this
+// mutation.
+func (m *MediaEventsMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.media != nil {
+		edges = append(edges, mediaevents.EdgeMedia)
+	}
+	return edges
+}
+
+// AddedIDs returns all ids (to other nodes) that were added for
+// the given edge name.
+func (m *MediaEventsMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case mediaevents.EdgeMedia:
+		if id := m.media; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this
+// mutation.
+func (m *MediaEventsMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all ids (to other nodes) that were removed for
+// the given edge name.
+func (m *MediaEventsMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this
+// mutation.
+func (m *MediaEventsMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedmedia {
+		edges = append(edges, mediaevents.EdgeMedia)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean indicates if this edge was
+// cleared in this mutation.
+func (m *MediaEventsMutation) EdgeCleared(name string) bool {
+	switch name {
+	case mediaevents.EdgeMedia:
+		return m.clearedmedia
+	}
+	return false
+}
+
+// ClearEdge clears the value for the given name. It returns an
+// error if the edge name is not defined in the schema.
+func (m *MediaEventsMutation) ClearEdge(name string) error {
+	switch name {
+	case mediaevents.EdgeMedia:
+		m.ClearMedia()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaEvents unique edge %s", name)
+}
+
+// ResetEdge resets all changes in the mutation regarding the
+// given edge name. It returns an error if the edge is not
+// defined in the schema.
+func (m *MediaEventsMutation) ResetEdge(name string) error {
+	switch name {
+	case mediaevents.EdgeMedia:
+		m.ResetMedia()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaEvents edge %s", name)
 }
 
 // MediaFileMutation represents an operation that mutate the MediaFiles
