@@ -20,15 +20,15 @@ It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and run
 - Handle media compression and encoding with [FFmpeg](https://ffmpeg.org/)
 - Customize media renditions
 - Monitoring: Prometheus exported metrics, embedded Web UI
-- Media attachments: attach files such as captions or images to medias
+- Media thumbnail & video preview generation
 - Enjoy highly scalable & cloud-native architecture
 
 ### What's next ?
 
-- Media asset generation (thumbnail, video preview...)
-- More supported formats (e.g: *360° videos, 60fps*...)
-- Multi stream support (e.g: one audio stream per language)
 - Authentication and delegated upload
+- Caption support
+- Player customization
+- Multi stream support (e.g: one audio stream per language)
 - Live streaming
 - [IPFS](https://ipfs.io/) support
 - Encryption support
