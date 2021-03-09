@@ -1,8 +1,28 @@
-# gilfoyle [![Go Reference](https://pkg.go.dev/badge/github.com/dreamvo/gilfoyle.svg)](https://pkg.go.dev/github.com/dreamvo/gilfoyle) [![build](https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master)](https://github.com/dreamvo/gilfoyle/actions) [![goreport](https://goreportcard.com/badge/github.com/dreamvo/gilfoyle)](https://goreportcard.com/report/github.com/dreamvo/gilfoyle) [![Coverage Status](https://coveralls.io/repos/github/dreamvo/gilfoyle/badge.svg?branch=master)](https://coveralls.io/github/dreamvo/gilfoyle?branch=master) [![release](https://img.shields.io/github/release/dreamvo/gilfoyle.svg)](https://github.com/dreamvo/gilfoyle/releases)
+<p align="center">
+  <img width="500" src="./website/static/logo_white_bg.png" alt="gilfoyle logo">
+</p>
 
-Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) that runs a self-hosted video streaming server. This application allows you to setup an enterprise-grade media encoding & streaming platform in minutes. Gilfoyle handles media upload, processing and streaming.
+<p align="center">
+    <a href="https://pkg.go.dev/github.com/dreamvo/gilfoyle">
+        <img src="https://pkg.go.dev/badge/github.com/dreamvo/gilfoyle.svg"/>
+    </a>
+    <a href="https://github.com/dreamvo/gilfoyle/actions">
+        <img src="https://img.shields.io/endpoint.svg?url=https://actions-badge.atrox.dev/dreamvo/gilfoyle/badge?ref=master"/>
+    </a>
+    <a href="https://goreportcard.com/report/github.com/dreamvo/gilfoyle">
+        <img src="https://goreportcard.com/badge/github.com/dreamvo/gilfoyle"/>
+    </a>
+    <a href="https://coveralls.io/github/dreamvo/gilfoyle?branch=master">
+        <img src="https://coveralls.io/repos/github/dreamvo/gilfoyle/badge.svg?branch=master"/>
+    </a>
+    <a href="https://github.com/dreamvo/gilfoyle/releases">
+        <img src="https://img.shields.io/github/release/dreamvo/gilfoyle.svg"/>
+    </a>
+</p>
 
-It's written in Golang, designed for [Kubernetes](http://kubernetes.io/) and runs as a single Linux binary with [PostgreSQL](https://www.postgresql.org/) and [RabbitMQ](https://www.rabbitmq.com/).
+Gilfoyle is a web application from the [Dreamvo project](https://dreamvo.com) that runs a self-hosted media streaming server. Allowing you to easily implement media streaming in any application at any scale.
+
+It's written in Golang, mostly designed for [Kubernetes](http://kubernetes.io/) and runs as a single Linux binary with [PostgreSQL](https://www.postgresql.org/) and [RabbitMQ](https://www.rabbitmq.com/).
 
 ## Table of content
 
