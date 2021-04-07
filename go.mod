@@ -14,7 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
-	github.com/go-playground/validator/v10 v10.4.2
+	github.com/go-playground/validator/v10 v10.5.0
 	github.com/google/uuid v1.2.0
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/grafov/m3u8 v0.11.1
