@@ -20,7 +20,7 @@ type MediaFileDelete struct {
 	mutation *MediaFileMutation
 }
 
-// Where adds a new predicate to the delete builder.
+// Where adds a new predicate to the MediaFileDelete builder.
 func (mfd *MediaFileDelete) Where(ps ...predicate.MediaFile) *MediaFileDelete {
 	mfd.mutation.predicates = append(mfd.mutation.predicates, ps...)
 	return mfd

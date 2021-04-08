@@ -92,7 +92,7 @@ var (
 	RenditionNameValidator func(string) error
 	// FormatValidator is a validator for the "format" field. It is called by the builders before save.
 	FormatValidator func(string) error
-	// DefaultTargetBandwidth holds the default value on creation for the target_bandwidth field.
+	// DefaultTargetBandwidth holds the default value on creation for the "target_bandwidth" field.
 	DefaultTargetBandwidth uint64
 	// VideoBitrateValidator is a validator for the "video_bitrate" field. It is called by the builders before save.
 	VideoBitrateValidator func(int64) error
@@ -104,17 +104,17 @@ var (
 	FramerateValidator func(uint8) error
 	// DurationSecondsValidator is a validator for the "duration_seconds" field. It is called by the builders before save.
 	DurationSecondsValidator func(float64) error
-	// DefaultCreatedAt holds the default value on creation for the created_at field.
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
-	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
-	// UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultID holds the default value on creation for the id field.
+	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
 
-// MediaType defines the type for the media_type enum field.
+// MediaType defines the type for the "media_type" enum field.
 type MediaType string
 
 // MediaType values.

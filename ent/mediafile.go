@@ -70,122 +70,134 @@ func (e MediaFileEdges) MediaOrErr() (*Media, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*MediaFile) scanValues() []interface{} {
-	return []interface{}{
-		&uuid.UUID{},       // id
-		&sql.NullString{},  // rendition_name
-		&sql.NullString{},  // format
-		&sql.NullInt64{},   // target_bandwidth
-		&sql.NullInt64{},   // video_bitrate
-		&sql.NullInt64{},   // resolution_width
-		&sql.NullInt64{},   // resolution_height
-		&sql.NullInt64{},   // framerate
-		&sql.NullFloat64{}, // duration_seconds
-		&sql.NullString{},  // media_type
-		&sql.NullTime{},    // created_at
-		&sql.NullTime{},    // updated_at
+func (*MediaFile) scanValues(columns []string) ([]interface{}, error) {
+	values := make([]interface{}, len(columns))
+	for i := range columns {
+		switch columns[i] {
+		case mediafile.FieldDurationSeconds:
+			values[i] = &sql.NullFloat64{}
+		case mediafile.FieldTargetBandwidth, mediafile.FieldVideoBitrate, mediafile.FieldResolutionWidth, mediafile.FieldResolutionHeight, mediafile.FieldFramerate:
+			values[i] = &sql.NullInt64{}
+		case mediafile.FieldRenditionName, mediafile.FieldFormat, mediafile.FieldMediaType:
+			values[i] = &sql.NullString{}
+		case mediafile.FieldCreatedAt, mediafile.FieldUpdatedAt:
+			values[i] = &sql.NullTime{}
+		case mediafile.FieldID:
+			values[i] = &uuid.UUID{}
+		case mediafile.ForeignKeys[0]: // media
+			values[i] = &uuid.UUID{}
+		default:
+			return nil, fmt.Errorf("unexpected column %q for type MediaFile", columns[i])
+		}
 	}
-}
-
-// fkValues returns the types for scanning foreign-keys values from sql.Rows.
-func (*MediaFile) fkValues() []interface{} {
-	return []interface{}{
-		&uuid.UUID{}, // media
-	}
+	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the MediaFile fields.
-func (mf *MediaFile) assignValues(values ...interface{}) error {
-	if m, n := len(values), len(mediafile.Columns); m < n {
+func (mf *MediaFile) assignValues(columns []string, values []interface{}) error {
+	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
-	if value, ok := values[0].(*uuid.UUID); !ok {
-		return fmt.Errorf("unexpected type %T for field id", values[0])
-	} else if value != nil {
-		mf.ID = *value
-	}
-	values = values[1:]
-	if value, ok := values[0].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field rendition_name", values[0])
-	} else if value.Valid {
-		mf.RenditionName = value.String
-	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field format", values[1])
-	} else if value.Valid {
-		mf.Format = value.String
-	}
-	if value, ok := values[2].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field target_bandwidth", values[2])
-	} else if value.Valid {
-		mf.TargetBandwidth = uint64(value.Int64)
-	}
-	if value, ok := values[3].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field video_bitrate", values[3])
-	} else if value.Valid {
-		mf.VideoBitrate = value.Int64
-	}
-	if value, ok := values[4].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field resolution_width", values[4])
-	} else if value.Valid {
-		mf.ResolutionWidth = uint16(value.Int64)
-	}
-	if value, ok := values[5].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field resolution_height", values[5])
-	} else if value.Valid {
-		mf.ResolutionHeight = uint16(value.Int64)
-	}
-	if value, ok := values[6].(*sql.NullInt64); !ok {
-		return fmt.Errorf("unexpected type %T for field framerate", values[6])
-	} else if value.Valid {
-		mf.Framerate = uint8(value.Int64)
-	}
-	if value, ok := values[7].(*sql.NullFloat64); !ok {
-		return fmt.Errorf("unexpected type %T for field duration_seconds", values[7])
-	} else if value.Valid {
-		mf.DurationSeconds = value.Float64
-	}
-	if value, ok := values[8].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field media_type", values[8])
-	} else if value.Valid {
-		mf.MediaType = mediafile.MediaType(value.String)
-	}
-	if value, ok := values[9].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[9])
-	} else if value.Valid {
-		mf.CreatedAt = value.Time
-	}
-	if value, ok := values[10].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[10])
-	} else if value.Valid {
-		mf.UpdatedAt = value.Time
-	}
-	values = values[11:]
-	if len(values) == len(mediafile.ForeignKeys) {
-		if value, ok := values[0].(*uuid.UUID); !ok {
-			return fmt.Errorf("unexpected type %T for field media", values[0])
-		} else if value != nil {
-			mf.media = value
+	for i := range columns {
+		switch columns[i] {
+		case mediafile.FieldID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				mf.ID = *value
+			}
+		case mediafile.FieldRenditionName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field rendition_name", values[i])
+			} else if value.Valid {
+				mf.RenditionName = value.String
+			}
+		case mediafile.FieldFormat:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field format", values[i])
+			} else if value.Valid {
+				mf.Format = value.String
+			}
+		case mediafile.FieldTargetBandwidth:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field target_bandwidth", values[i])
+			} else if value.Valid {
+				mf.TargetBandwidth = uint64(value.Int64)
+			}
+		case mediafile.FieldVideoBitrate:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field video_bitrate", values[i])
+			} else if value.Valid {
+				mf.VideoBitrate = value.Int64
+			}
+		case mediafile.FieldResolutionWidth:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field resolution_width", values[i])
+			} else if value.Valid {
+				mf.ResolutionWidth = uint16(value.Int64)
+			}
+		case mediafile.FieldResolutionHeight:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field resolution_height", values[i])
+			} else if value.Valid {
+				mf.ResolutionHeight = uint16(value.Int64)
+			}
+		case mediafile.FieldFramerate:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field framerate", values[i])
+			} else if value.Valid {
+				mf.Framerate = uint8(value.Int64)
+			}
+		case mediafile.FieldDurationSeconds:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field duration_seconds", values[i])
+			} else if value.Valid {
+				mf.DurationSeconds = value.Float64
+			}
+		case mediafile.FieldMediaType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field media_type", values[i])
+			} else if value.Valid {
+				mf.MediaType = mediafile.MediaType(value.String)
+			}
+		case mediafile.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				mf.CreatedAt = value.Time
+			}
+		case mediafile.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				mf.UpdatedAt = value.Time
+			}
+		case mediafile.ForeignKeys[0]:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field media", values[i])
+			} else if value != nil {
+				mf.media = value
+			}
 		}
 	}
 	return nil
 }
 
-// QueryMedia queries the media edge of the MediaFile.
+// QueryMedia queries the "media" edge of the MediaFile entity.
 func (mf *MediaFile) QueryMedia() *MediaQuery {
 	return (&MediaFileClient{config: mf.config}).QueryMedia(mf)
 }
 
 // Update returns a builder for updating this MediaFile.
-// Note that, you need to call MediaFile.Unwrap() before calling this method, if this MediaFile
+// Note that you need to call MediaFile.Unwrap() before calling this method if this MediaFile
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (mf *MediaFile) Update() *MediaFileUpdateOne {
 	return (&MediaFileClient{config: mf.config}).UpdateOne(mf)
 }
 
-// Unwrap unwraps the entity that was returned from a transaction after it was closed,
-// so that all next queries will be executed through the driver which created the transaction.
+// Unwrap unwraps the MediaFile entity that was returned from a transaction after it was closed,
+// so that all future queries will be executed through the driver which created the transaction.
 func (mf *MediaFile) Unwrap() *MediaFile {
 	tx, ok := mf.config.driver.(*txDriver)
 	if !ok {

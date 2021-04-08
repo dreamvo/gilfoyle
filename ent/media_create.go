@@ -22,19 +22,19 @@ type MediaCreate struct {
 	hooks    []Hook
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (mc *MediaCreate) SetTitle(s string) *MediaCreate {
 	mc.mutation.SetTitle(s)
 	return mc
 }
 
-// SetOriginalFilename sets the original_filename field.
+// SetOriginalFilename sets the "original_filename" field.
 func (mc *MediaCreate) SetOriginalFilename(s string) *MediaCreate {
 	mc.mutation.SetOriginalFilename(s)
 	return mc
 }
 
-// SetNillableOriginalFilename sets the original_filename field if the given value is not nil.
+// SetNillableOriginalFilename sets the "original_filename" field if the given value is not nil.
 func (mc *MediaCreate) SetNillableOriginalFilename(s *string) *MediaCreate {
 	if s != nil {
 		mc.SetOriginalFilename(*s)
@@ -42,19 +42,19 @@ func (mc *MediaCreate) SetNillableOriginalFilename(s *string) *MediaCreate {
 	return mc
 }
 
-// SetStatus sets the status field.
+// SetStatus sets the "status" field.
 func (mc *MediaCreate) SetStatus(m media.Status) *MediaCreate {
 	mc.mutation.SetStatus(m)
 	return mc
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (mc *MediaCreate) SetCreatedAt(t time.Time) *MediaCreate {
 	mc.mutation.SetCreatedAt(t)
 	return mc
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (mc *MediaCreate) SetNillableCreatedAt(t *time.Time) *MediaCreate {
 	if t != nil {
 		mc.SetCreatedAt(*t)
@@ -62,13 +62,13 @@ func (mc *MediaCreate) SetNillableCreatedAt(t *time.Time) *MediaCreate {
 	return mc
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (mc *MediaCreate) SetUpdatedAt(t time.Time) *MediaCreate {
 	mc.mutation.SetUpdatedAt(t)
 	return mc
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
 func (mc *MediaCreate) SetNillableUpdatedAt(t *time.Time) *MediaCreate {
 	if t != nil {
 		mc.SetUpdatedAt(*t)
@@ -76,19 +76,19 @@ func (mc *MediaCreate) SetNillableUpdatedAt(t *time.Time) *MediaCreate {
 	return mc
 }
 
-// SetID sets the id field.
+// SetID sets the "id" field.
 func (mc *MediaCreate) SetID(u uuid.UUID) *MediaCreate {
 	mc.mutation.SetID(u)
 	return mc
 }
 
-// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+// AddMediaFileIDs adds the "media_files" edge to the MediaFile entity by IDs.
 func (mc *MediaCreate) AddMediaFileIDs(ids ...uuid.UUID) *MediaCreate {
 	mc.mutation.AddMediaFileIDs(ids...)
 	return mc
 }
 
-// AddMediaFiles adds the media_files edges to MediaFile.
+// AddMediaFiles adds the "media_files" edges to the MediaFile entity.
 func (mc *MediaCreate) AddMediaFiles(m ...*MediaFile) *MediaCreate {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
@@ -287,7 +287,7 @@ func (mc *MediaCreate) createSpec() (*Media, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// MediaCreateBulk is the builder for creating a bulk of Media entities.
+// MediaCreateBulk is the builder for creating many Media entities in bulk.
 type MediaCreateBulk struct {
 	config
 	builders []*MediaCreate
@@ -343,7 +343,7 @@ func (mcb *MediaCreateBulk) Save(ctx context.Context) ([]*Media, error) {
 	return nodes, nil
 }
 
-// SaveX calls Save and panics if Save returns an error.
+// SaveX is like Save, but panics if an error occurs.
 func (mcb *MediaCreateBulk) SaveX(ctx context.Context) []*Media {
 	v, err := mcb.Save(ctx)
 	if err != nil {

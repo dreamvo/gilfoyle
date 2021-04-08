@@ -24,32 +24,32 @@ type MediaFileUpdate struct {
 	mutation *MediaFileMutation
 }
 
-// Where adds a new predicate for the builder.
+// Where adds a new predicate for the MediaFileUpdate builder.
 func (mfu *MediaFileUpdate) Where(ps ...predicate.MediaFile) *MediaFileUpdate {
 	mfu.mutation.predicates = append(mfu.mutation.predicates, ps...)
 	return mfu
 }
 
-// SetRenditionName sets the rendition_name field.
+// SetRenditionName sets the "rendition_name" field.
 func (mfu *MediaFileUpdate) SetRenditionName(s string) *MediaFileUpdate {
 	mfu.mutation.SetRenditionName(s)
 	return mfu
 }
 
-// SetFormat sets the format field.
+// SetFormat sets the "format" field.
 func (mfu *MediaFileUpdate) SetFormat(s string) *MediaFileUpdate {
 	mfu.mutation.SetFormat(s)
 	return mfu
 }
 
-// SetTargetBandwidth sets the target_bandwidth field.
+// SetTargetBandwidth sets the "target_bandwidth" field.
 func (mfu *MediaFileUpdate) SetTargetBandwidth(u uint64) *MediaFileUpdate {
 	mfu.mutation.ResetTargetBandwidth()
 	mfu.mutation.SetTargetBandwidth(u)
 	return mfu
 }
 
-// SetNillableTargetBandwidth sets the target_bandwidth field if the given value is not nil.
+// SetNillableTargetBandwidth sets the "target_bandwidth" field if the given value is not nil.
 func (mfu *MediaFileUpdate) SetNillableTargetBandwidth(u *uint64) *MediaFileUpdate {
 	if u != nil {
 		mfu.SetTargetBandwidth(*u)
@@ -57,90 +57,90 @@ func (mfu *MediaFileUpdate) SetNillableTargetBandwidth(u *uint64) *MediaFileUpda
 	return mfu
 }
 
-// AddTargetBandwidth adds u to target_bandwidth.
+// AddTargetBandwidth adds u to the "target_bandwidth" field.
 func (mfu *MediaFileUpdate) AddTargetBandwidth(u uint64) *MediaFileUpdate {
 	mfu.mutation.AddTargetBandwidth(u)
 	return mfu
 }
 
-// SetVideoBitrate sets the video_bitrate field.
+// SetVideoBitrate sets the "video_bitrate" field.
 func (mfu *MediaFileUpdate) SetVideoBitrate(i int64) *MediaFileUpdate {
 	mfu.mutation.ResetVideoBitrate()
 	mfu.mutation.SetVideoBitrate(i)
 	return mfu
 }
 
-// AddVideoBitrate adds i to video_bitrate.
+// AddVideoBitrate adds i to the "video_bitrate" field.
 func (mfu *MediaFileUpdate) AddVideoBitrate(i int64) *MediaFileUpdate {
 	mfu.mutation.AddVideoBitrate(i)
 	return mfu
 }
 
-// SetResolutionWidth sets the resolution_width field.
+// SetResolutionWidth sets the "resolution_width" field.
 func (mfu *MediaFileUpdate) SetResolutionWidth(u uint16) *MediaFileUpdate {
 	mfu.mutation.ResetResolutionWidth()
 	mfu.mutation.SetResolutionWidth(u)
 	return mfu
 }
 
-// AddResolutionWidth adds u to resolution_width.
+// AddResolutionWidth adds u to the "resolution_width" field.
 func (mfu *MediaFileUpdate) AddResolutionWidth(u uint16) *MediaFileUpdate {
 	mfu.mutation.AddResolutionWidth(u)
 	return mfu
 }
 
-// SetResolutionHeight sets the resolution_height field.
+// SetResolutionHeight sets the "resolution_height" field.
 func (mfu *MediaFileUpdate) SetResolutionHeight(u uint16) *MediaFileUpdate {
 	mfu.mutation.ResetResolutionHeight()
 	mfu.mutation.SetResolutionHeight(u)
 	return mfu
 }
 
-// AddResolutionHeight adds u to resolution_height.
+// AddResolutionHeight adds u to the "resolution_height" field.
 func (mfu *MediaFileUpdate) AddResolutionHeight(u uint16) *MediaFileUpdate {
 	mfu.mutation.AddResolutionHeight(u)
 	return mfu
 }
 
-// SetFramerate sets the framerate field.
+// SetFramerate sets the "framerate" field.
 func (mfu *MediaFileUpdate) SetFramerate(u uint8) *MediaFileUpdate {
 	mfu.mutation.ResetFramerate()
 	mfu.mutation.SetFramerate(u)
 	return mfu
 }
 
-// AddFramerate adds u to framerate.
+// AddFramerate adds u to the "framerate" field.
 func (mfu *MediaFileUpdate) AddFramerate(u uint8) *MediaFileUpdate {
 	mfu.mutation.AddFramerate(u)
 	return mfu
 }
 
-// SetDurationSeconds sets the duration_seconds field.
+// SetDurationSeconds sets the "duration_seconds" field.
 func (mfu *MediaFileUpdate) SetDurationSeconds(f float64) *MediaFileUpdate {
 	mfu.mutation.ResetDurationSeconds()
 	mfu.mutation.SetDurationSeconds(f)
 	return mfu
 }
 
-// AddDurationSeconds adds f to duration_seconds.
+// AddDurationSeconds adds f to the "duration_seconds" field.
 func (mfu *MediaFileUpdate) AddDurationSeconds(f float64) *MediaFileUpdate {
 	mfu.mutation.AddDurationSeconds(f)
 	return mfu
 }
 
-// SetMediaType sets the media_type field.
+// SetMediaType sets the "media_type" field.
 func (mfu *MediaFileUpdate) SetMediaType(mt mediafile.MediaType) *MediaFileUpdate {
 	mfu.mutation.SetMediaType(mt)
 	return mfu
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (mfu *MediaFileUpdate) SetCreatedAt(t time.Time) *MediaFileUpdate {
 	mfu.mutation.SetCreatedAt(t)
 	return mfu
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (mfu *MediaFileUpdate) SetNillableCreatedAt(t *time.Time) *MediaFileUpdate {
 	if t != nil {
 		mfu.SetCreatedAt(*t)
@@ -148,19 +148,19 @@ func (mfu *MediaFileUpdate) SetNillableCreatedAt(t *time.Time) *MediaFileUpdate 
 	return mfu
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (mfu *MediaFileUpdate) SetUpdatedAt(t time.Time) *MediaFileUpdate {
 	mfu.mutation.SetUpdatedAt(t)
 	return mfu
 }
 
-// SetMediaID sets the media edge to Media by id.
+// SetMediaID sets the "media" edge to the Media entity by ID.
 func (mfu *MediaFileUpdate) SetMediaID(id uuid.UUID) *MediaFileUpdate {
 	mfu.mutation.SetMediaID(id)
 	return mfu
 }
 
-// SetMedia sets the media edge to Media.
+// SetMedia sets the "media" edge to the Media entity.
 func (mfu *MediaFileUpdate) SetMedia(m *Media) *MediaFileUpdate {
 	return mfu.SetMediaID(m.ID)
 }
@@ -170,7 +170,7 @@ func (mfu *MediaFileUpdate) Mutation() *MediaFileMutation {
 	return mfu.mutation
 }
 
-// ClearMedia clears the "media" edge to type Media.
+// ClearMedia clears the "media" edge to the Media entity.
 func (mfu *MediaFileUpdate) ClearMedia() *MediaFileUpdate {
 	mfu.mutation.ClearMedia()
 	return mfu
@@ -480,26 +480,26 @@ type MediaFileUpdateOne struct {
 	mutation *MediaFileMutation
 }
 
-// SetRenditionName sets the rendition_name field.
+// SetRenditionName sets the "rendition_name" field.
 func (mfuo *MediaFileUpdateOne) SetRenditionName(s string) *MediaFileUpdateOne {
 	mfuo.mutation.SetRenditionName(s)
 	return mfuo
 }
 
-// SetFormat sets the format field.
+// SetFormat sets the "format" field.
 func (mfuo *MediaFileUpdateOne) SetFormat(s string) *MediaFileUpdateOne {
 	mfuo.mutation.SetFormat(s)
 	return mfuo
 }
 
-// SetTargetBandwidth sets the target_bandwidth field.
+// SetTargetBandwidth sets the "target_bandwidth" field.
 func (mfuo *MediaFileUpdateOne) SetTargetBandwidth(u uint64) *MediaFileUpdateOne {
 	mfuo.mutation.ResetTargetBandwidth()
 	mfuo.mutation.SetTargetBandwidth(u)
 	return mfuo
 }
 
-// SetNillableTargetBandwidth sets the target_bandwidth field if the given value is not nil.
+// SetNillableTargetBandwidth sets the "target_bandwidth" field if the given value is not nil.
 func (mfuo *MediaFileUpdateOne) SetNillableTargetBandwidth(u *uint64) *MediaFileUpdateOne {
 	if u != nil {
 		mfuo.SetTargetBandwidth(*u)
@@ -507,90 +507,90 @@ func (mfuo *MediaFileUpdateOne) SetNillableTargetBandwidth(u *uint64) *MediaFile
 	return mfuo
 }
 
-// AddTargetBandwidth adds u to target_bandwidth.
+// AddTargetBandwidth adds u to the "target_bandwidth" field.
 func (mfuo *MediaFileUpdateOne) AddTargetBandwidth(u uint64) *MediaFileUpdateOne {
 	mfuo.mutation.AddTargetBandwidth(u)
 	return mfuo
 }
 
-// SetVideoBitrate sets the video_bitrate field.
+// SetVideoBitrate sets the "video_bitrate" field.
 func (mfuo *MediaFileUpdateOne) SetVideoBitrate(i int64) *MediaFileUpdateOne {
 	mfuo.mutation.ResetVideoBitrate()
 	mfuo.mutation.SetVideoBitrate(i)
 	return mfuo
 }
 
-// AddVideoBitrate adds i to video_bitrate.
+// AddVideoBitrate adds i to the "video_bitrate" field.
 func (mfuo *MediaFileUpdateOne) AddVideoBitrate(i int64) *MediaFileUpdateOne {
 	mfuo.mutation.AddVideoBitrate(i)
 	return mfuo
 }
 
-// SetResolutionWidth sets the resolution_width field.
+// SetResolutionWidth sets the "resolution_width" field.
 func (mfuo *MediaFileUpdateOne) SetResolutionWidth(u uint16) *MediaFileUpdateOne {
 	mfuo.mutation.ResetResolutionWidth()
 	mfuo.mutation.SetResolutionWidth(u)
 	return mfuo
 }
 
-// AddResolutionWidth adds u to resolution_width.
+// AddResolutionWidth adds u to the "resolution_width" field.
 func (mfuo *MediaFileUpdateOne) AddResolutionWidth(u uint16) *MediaFileUpdateOne {
 	mfuo.mutation.AddResolutionWidth(u)
 	return mfuo
 }
 
-// SetResolutionHeight sets the resolution_height field.
+// SetResolutionHeight sets the "resolution_height" field.
 func (mfuo *MediaFileUpdateOne) SetResolutionHeight(u uint16) *MediaFileUpdateOne {
 	mfuo.mutation.ResetResolutionHeight()
 	mfuo.mutation.SetResolutionHeight(u)
 	return mfuo
 }
 
-// AddResolutionHeight adds u to resolution_height.
+// AddResolutionHeight adds u to the "resolution_height" field.
 func (mfuo *MediaFileUpdateOne) AddResolutionHeight(u uint16) *MediaFileUpdateOne {
 	mfuo.mutation.AddResolutionHeight(u)
 	return mfuo
 }
 
-// SetFramerate sets the framerate field.
+// SetFramerate sets the "framerate" field.
 func (mfuo *MediaFileUpdateOne) SetFramerate(u uint8) *MediaFileUpdateOne {
 	mfuo.mutation.ResetFramerate()
 	mfuo.mutation.SetFramerate(u)
 	return mfuo
 }
 
-// AddFramerate adds u to framerate.
+// AddFramerate adds u to the "framerate" field.
 func (mfuo *MediaFileUpdateOne) AddFramerate(u uint8) *MediaFileUpdateOne {
 	mfuo.mutation.AddFramerate(u)
 	return mfuo
 }
 
-// SetDurationSeconds sets the duration_seconds field.
+// SetDurationSeconds sets the "duration_seconds" field.
 func (mfuo *MediaFileUpdateOne) SetDurationSeconds(f float64) *MediaFileUpdateOne {
 	mfuo.mutation.ResetDurationSeconds()
 	mfuo.mutation.SetDurationSeconds(f)
 	return mfuo
 }
 
-// AddDurationSeconds adds f to duration_seconds.
+// AddDurationSeconds adds f to the "duration_seconds" field.
 func (mfuo *MediaFileUpdateOne) AddDurationSeconds(f float64) *MediaFileUpdateOne {
 	mfuo.mutation.AddDurationSeconds(f)
 	return mfuo
 }
 
-// SetMediaType sets the media_type field.
+// SetMediaType sets the "media_type" field.
 func (mfuo *MediaFileUpdateOne) SetMediaType(mt mediafile.MediaType) *MediaFileUpdateOne {
 	mfuo.mutation.SetMediaType(mt)
 	return mfuo
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (mfuo *MediaFileUpdateOne) SetCreatedAt(t time.Time) *MediaFileUpdateOne {
 	mfuo.mutation.SetCreatedAt(t)
 	return mfuo
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (mfuo *MediaFileUpdateOne) SetNillableCreatedAt(t *time.Time) *MediaFileUpdateOne {
 	if t != nil {
 		mfuo.SetCreatedAt(*t)
@@ -598,19 +598,19 @@ func (mfuo *MediaFileUpdateOne) SetNillableCreatedAt(t *time.Time) *MediaFileUpd
 	return mfuo
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (mfuo *MediaFileUpdateOne) SetUpdatedAt(t time.Time) *MediaFileUpdateOne {
 	mfuo.mutation.SetUpdatedAt(t)
 	return mfuo
 }
 
-// SetMediaID sets the media edge to Media by id.
+// SetMediaID sets the "media" edge to the Media entity by ID.
 func (mfuo *MediaFileUpdateOne) SetMediaID(id uuid.UUID) *MediaFileUpdateOne {
 	mfuo.mutation.SetMediaID(id)
 	return mfuo
 }
 
-// SetMedia sets the media edge to Media.
+// SetMedia sets the "media" edge to the Media entity.
 func (mfuo *MediaFileUpdateOne) SetMedia(m *Media) *MediaFileUpdateOne {
 	return mfuo.SetMediaID(m.ID)
 }
@@ -620,13 +620,13 @@ func (mfuo *MediaFileUpdateOne) Mutation() *MediaFileMutation {
 	return mfuo.mutation
 }
 
-// ClearMedia clears the "media" edge to type Media.
+// ClearMedia clears the "media" edge to the Media entity.
 func (mfuo *MediaFileUpdateOne) ClearMedia() *MediaFileUpdateOne {
 	mfuo.mutation.ClearMedia()
 	return mfuo
 }
 
-// Save executes the query and returns the updated entity.
+// Save executes the query and returns the updated MediaFile entity.
 func (mfuo *MediaFileUpdateOne) Save(ctx context.Context) (*MediaFile, error) {
 	var (
 		err  error
@@ -912,7 +912,7 @@ func (mfuo *MediaFileUpdateOne) sqlSave(ctx context.Context) (_node *MediaFile, 
 	}
 	_node = &MediaFile{config: mfuo.config}
 	_spec.Assign = _node.assignValues
-	_spec.ScanValues = _node.scanValues()
+	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, mfuo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{mediafile.Label}

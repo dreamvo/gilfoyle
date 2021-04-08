@@ -22,25 +22,25 @@ type MediaFileCreate struct {
 	hooks    []Hook
 }
 
-// SetRenditionName sets the rendition_name field.
+// SetRenditionName sets the "rendition_name" field.
 func (mfc *MediaFileCreate) SetRenditionName(s string) *MediaFileCreate {
 	mfc.mutation.SetRenditionName(s)
 	return mfc
 }
 
-// SetFormat sets the format field.
+// SetFormat sets the "format" field.
 func (mfc *MediaFileCreate) SetFormat(s string) *MediaFileCreate {
 	mfc.mutation.SetFormat(s)
 	return mfc
 }
 
-// SetTargetBandwidth sets the target_bandwidth field.
+// SetTargetBandwidth sets the "target_bandwidth" field.
 func (mfc *MediaFileCreate) SetTargetBandwidth(u uint64) *MediaFileCreate {
 	mfc.mutation.SetTargetBandwidth(u)
 	return mfc
 }
 
-// SetNillableTargetBandwidth sets the target_bandwidth field if the given value is not nil.
+// SetNillableTargetBandwidth sets the "target_bandwidth" field if the given value is not nil.
 func (mfc *MediaFileCreate) SetNillableTargetBandwidth(u *uint64) *MediaFileCreate {
 	if u != nil {
 		mfc.SetTargetBandwidth(*u)
@@ -48,49 +48,49 @@ func (mfc *MediaFileCreate) SetNillableTargetBandwidth(u *uint64) *MediaFileCrea
 	return mfc
 }
 
-// SetVideoBitrate sets the video_bitrate field.
+// SetVideoBitrate sets the "video_bitrate" field.
 func (mfc *MediaFileCreate) SetVideoBitrate(i int64) *MediaFileCreate {
 	mfc.mutation.SetVideoBitrate(i)
 	return mfc
 }
 
-// SetResolutionWidth sets the resolution_width field.
+// SetResolutionWidth sets the "resolution_width" field.
 func (mfc *MediaFileCreate) SetResolutionWidth(u uint16) *MediaFileCreate {
 	mfc.mutation.SetResolutionWidth(u)
 	return mfc
 }
 
-// SetResolutionHeight sets the resolution_height field.
+// SetResolutionHeight sets the "resolution_height" field.
 func (mfc *MediaFileCreate) SetResolutionHeight(u uint16) *MediaFileCreate {
 	mfc.mutation.SetResolutionHeight(u)
 	return mfc
 }
 
-// SetFramerate sets the framerate field.
+// SetFramerate sets the "framerate" field.
 func (mfc *MediaFileCreate) SetFramerate(u uint8) *MediaFileCreate {
 	mfc.mutation.SetFramerate(u)
 	return mfc
 }
 
-// SetDurationSeconds sets the duration_seconds field.
+// SetDurationSeconds sets the "duration_seconds" field.
 func (mfc *MediaFileCreate) SetDurationSeconds(f float64) *MediaFileCreate {
 	mfc.mutation.SetDurationSeconds(f)
 	return mfc
 }
 
-// SetMediaType sets the media_type field.
+// SetMediaType sets the "media_type" field.
 func (mfc *MediaFileCreate) SetMediaType(mt mediafile.MediaType) *MediaFileCreate {
 	mfc.mutation.SetMediaType(mt)
 	return mfc
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (mfc *MediaFileCreate) SetCreatedAt(t time.Time) *MediaFileCreate {
 	mfc.mutation.SetCreatedAt(t)
 	return mfc
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (mfc *MediaFileCreate) SetNillableCreatedAt(t *time.Time) *MediaFileCreate {
 	if t != nil {
 		mfc.SetCreatedAt(*t)
@@ -98,13 +98,13 @@ func (mfc *MediaFileCreate) SetNillableCreatedAt(t *time.Time) *MediaFileCreate 
 	return mfc
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (mfc *MediaFileCreate) SetUpdatedAt(t time.Time) *MediaFileCreate {
 	mfc.mutation.SetUpdatedAt(t)
 	return mfc
 }
 
-// SetNillableUpdatedAt sets the updated_at field if the given value is not nil.
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
 func (mfc *MediaFileCreate) SetNillableUpdatedAt(t *time.Time) *MediaFileCreate {
 	if t != nil {
 		mfc.SetUpdatedAt(*t)
@@ -112,19 +112,19 @@ func (mfc *MediaFileCreate) SetNillableUpdatedAt(t *time.Time) *MediaFileCreate 
 	return mfc
 }
 
-// SetID sets the id field.
+// SetID sets the "id" field.
 func (mfc *MediaFileCreate) SetID(u uuid.UUID) *MediaFileCreate {
 	mfc.mutation.SetID(u)
 	return mfc
 }
 
-// SetMediaID sets the media edge to Media by id.
+// SetMediaID sets the "media" edge to the Media entity by ID.
 func (mfc *MediaFileCreate) SetMediaID(id uuid.UUID) *MediaFileCreate {
 	mfc.mutation.SetMediaID(id)
 	return mfc
 }
 
-// SetMedia sets the media edge to Media.
+// SetMedia sets the "media" edge to the Media entity.
 func (mfc *MediaFileCreate) SetMedia(m *Media) *MediaFileCreate {
 	return mfc.SetMediaID(m.ID)
 }
@@ -416,7 +416,7 @@ func (mfc *MediaFileCreate) createSpec() (*MediaFile, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// MediaFileCreateBulk is the builder for creating a bulk of MediaFile entities.
+// MediaFileCreateBulk is the builder for creating many MediaFile entities in bulk.
 type MediaFileCreateBulk struct {
 	config
 	builders []*MediaFileCreate
@@ -472,7 +472,7 @@ func (mfcb *MediaFileCreateBulk) Save(ctx context.Context) ([]*MediaFile, error)
 	return nodes, nil
 }
 
-// SaveX calls Save and panics if Save returns an error.
+// SaveX is like Save, but panics if an error occurs.
 func (mfcb *MediaFileCreateBulk) SaveX(ctx context.Context) []*MediaFile {
 	v, err := mfcb.Save(ctx)
 	if err != nil {

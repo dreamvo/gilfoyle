@@ -23,6 +23,7 @@ type MediaFileQuery struct {
 	limit      *int
 	offset     *int
 	order      []OrderFunc
+	fields     []string
 	predicates []predicate.MediaFile
 	// eager-loading edges.
 	withMedia *MediaQuery
@@ -32,7 +33,7 @@ type MediaFileQuery struct {
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the builder.
+// Where adds a new predicate for the MediaFileQuery builder.
 func (mfq *MediaFileQuery) Where(ps ...predicate.MediaFile) *MediaFileQuery {
 	mfq.predicates = append(mfq.predicates, ps...)
 	return mfq
@@ -56,7 +57,7 @@ func (mfq *MediaFileQuery) Order(o ...OrderFunc) *MediaFileQuery {
 	return mfq
 }
 
-// QueryMedia chains the current query on the media edge.
+// QueryMedia chains the current query on the "media" edge.
 func (mfq *MediaFileQuery) QueryMedia() *MediaQuery {
 	query := &MediaQuery{config: mfq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
@@ -78,7 +79,8 @@ func (mfq *MediaFileQuery) QueryMedia() *MediaQuery {
 	return query
 }
 
-// First returns the first MediaFile entity in the query. Returns *NotFoundError when no mediafile was found.
+// First returns the first MediaFile entity from the query.
+// Returns a *NotFoundError when no MediaFile was found.
 func (mfq *MediaFileQuery) First(ctx context.Context) (*MediaFile, error) {
 	nodes, err := mfq.Limit(1).All(ctx)
 	if err != nil {
@@ -99,7 +101,8 @@ func (mfq *MediaFileQuery) FirstX(ctx context.Context) *MediaFile {
 	return node
 }
 
-// FirstID returns the first MediaFile id in the query. Returns *NotFoundError when no id was found.
+// FirstID returns the first MediaFile ID from the query.
+// Returns a *NotFoundError when no MediaFile ID was found.
 func (mfq *MediaFileQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = mfq.Limit(1).IDs(ctx); err != nil {
@@ -121,7 +124,9 @@ func (mfq *MediaFileQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// Only returns the only MediaFile entity in the query, returns an error if not exactly one entity was returned.
+// Only returns a single MediaFile entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when exactly one MediaFile entity is not found.
+// Returns a *NotFoundError when no MediaFile entities are found.
 func (mfq *MediaFileQuery) Only(ctx context.Context) (*MediaFile, error) {
 	nodes, err := mfq.Limit(2).All(ctx)
 	if err != nil {
@@ -146,7 +151,9 @@ func (mfq *MediaFileQuery) OnlyX(ctx context.Context) *MediaFile {
 	return node
 }
 
-// OnlyID returns the only MediaFile id in the query, returns an error if not exactly one id was returned.
+// OnlyID is like Only, but returns the only MediaFile ID in the query.
+// Returns a *NotSingularError when exactly one MediaFile ID is not found.
+// Returns a *NotFoundError when no entities are found.
 func (mfq *MediaFileQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = mfq.Limit(2).IDs(ctx); err != nil {
@@ -189,7 +196,7 @@ func (mfq *MediaFileQuery) AllX(ctx context.Context) []*MediaFile {
 	return nodes
 }
 
-// IDs executes the query and returns a list of MediaFile ids.
+// IDs executes the query and returns a list of MediaFile IDs.
 func (mfq *MediaFileQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	var ids []uuid.UUID
 	if err := mfq.Select(mediafile.FieldID).Scan(ctx, &ids); err != nil {
@@ -241,7 +248,7 @@ func (mfq *MediaFileQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the query builder, including all associated steps. It can be
+// Clone returns a duplicate of the MediaFileQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
 func (mfq *MediaFileQuery) Clone() *MediaFileQuery {
 	if mfq == nil {
@@ -260,8 +267,8 @@ func (mfq *MediaFileQuery) Clone() *MediaFileQuery {
 	}
 }
 
-//  WithMedia tells the query-builder to eager-loads the nodes that are connected to
-// the "media" edge. The optional arguments used to configure the query builder of the edge.
+// WithMedia tells the query-builder to eager-load the nodes that are connected to
+// the "media" edge. The optional arguments are used to configure the query builder of the edge.
 func (mfq *MediaFileQuery) WithMedia(opts ...func(*MediaQuery)) *MediaFileQuery {
 	query := &MediaQuery{config: mfq.config}
 	for _, opt := range opts {
@@ -271,7 +278,7 @@ func (mfq *MediaFileQuery) WithMedia(opts ...func(*MediaQuery)) *MediaFileQuery 
 	return mfq
 }
 
-// GroupBy used to group vertices by one or more fields/columns.
+// GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
 //
 // Example:
@@ -298,7 +305,8 @@ func (mfq *MediaFileQuery) GroupBy(field string, fields ...string) *MediaFileGro
 	return group
 }
 
-// Select one or more fields from the given query.
+// Select allows the selection one or more fields/columns for the given query,
+// instead of selecting all fields in the entity.
 //
 // Example:
 //
@@ -311,18 +319,16 @@ func (mfq *MediaFileQuery) GroupBy(field string, fields ...string) *MediaFileGro
 //		Scan(ctx, &v)
 //
 func (mfq *MediaFileQuery) Select(field string, fields ...string) *MediaFileSelect {
-	selector := &MediaFileSelect{config: mfq.config}
-	selector.fields = append([]string{field}, fields...)
-	selector.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := mfq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return mfq.sqlQuery(), nil
-	}
-	return selector
+	mfq.fields = append([]string{field}, fields...)
+	return &MediaFileSelect{MediaFileQuery: mfq}
 }
 
 func (mfq *MediaFileQuery) prepareQuery(ctx context.Context) error {
+	for _, f := range mfq.fields {
+		if !mediafile.ValidColumn(f) {
+			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
+		}
+	}
 	if mfq.path != nil {
 		prev, err := mfq.path(ctx)
 		if err != nil {
@@ -348,22 +354,18 @@ func (mfq *MediaFileQuery) sqlAll(ctx context.Context) ([]*MediaFile, error) {
 	if withFKs {
 		_spec.Node.Columns = append(_spec.Node.Columns, mediafile.ForeignKeys...)
 	}
-	_spec.ScanValues = func() []interface{} {
+	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &MediaFile{config: mfq.config}
 		nodes = append(nodes, node)
-		values := node.scanValues()
-		if withFKs {
-			values = append(values, node.fkValues()...)
-		}
-		return values
+		return node.scanValues(columns)
 	}
-	_spec.Assign = func(values ...interface{}) error {
+	_spec.Assign = func(columns []string, values []interface{}) error {
 		if len(nodes) == 0 {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
 		node.Edges.loadedTypes = loadedTypes
-		return node.assignValues(values...)
+		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, mfq.driver, _spec); err != nil {
 		return nil, err
@@ -426,6 +428,15 @@ func (mfq *MediaFileQuery) querySpec() *sqlgraph.QuerySpec {
 		From:   mfq.sql,
 		Unique: true,
 	}
+	if fields := mfq.fields; len(fields) > 0 {
+		_spec.Node.Columns = make([]string, 0, len(fields))
+		_spec.Node.Columns = append(_spec.Node.Columns, mediafile.FieldID)
+		for i := range fields {
+			if fields[i] != mediafile.FieldID {
+				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
+			}
+		}
+	}
 	if ps := mfq.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -474,7 +485,7 @@ func (mfq *MediaFileQuery) sqlQuery() *sql.Selector {
 	return selector
 }
 
-// MediaFileGroupBy is the builder for group-by MediaFile entities.
+// MediaFileGroupBy is the group-by builder for MediaFile entities.
 type MediaFileGroupBy struct {
 	config
 	fields []string
@@ -490,7 +501,7 @@ func (mfgb *MediaFileGroupBy) Aggregate(fns ...AggregateFunc) *MediaFileGroupBy 
 	return mfgb
 }
 
-// Scan applies the group-by query and scan the result into the given value.
+// Scan applies the group-by query and scans the result into the given value.
 func (mfgb *MediaFileGroupBy) Scan(ctx context.Context, v interface{}) error {
 	query, err := mfgb.path(ctx)
 	if err != nil {
@@ -507,7 +518,8 @@ func (mfgb *MediaFileGroupBy) ScanX(ctx context.Context, v interface{}) {
 	}
 }
 
-// Strings returns list of strings from group-by. It is only allowed when querying group-by with one field.
+// Strings returns list of strings from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Strings(ctx context.Context) ([]string, error) {
 	if len(mfgb.fields) > 1 {
 		return nil, errors.New("ent: MediaFileGroupBy.Strings is not achievable when grouping more than 1 field")
@@ -528,7 +540,8 @@ func (mfgb *MediaFileGroupBy) StringsX(ctx context.Context) []string {
 	return v
 }
 
-// String returns a single string from group-by. It is only allowed when querying group-by with one field.
+// String returns a single string from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = mfgb.Strings(ctx); err != nil {
@@ -554,7 +567,8 @@ func (mfgb *MediaFileGroupBy) StringX(ctx context.Context) string {
 	return v
 }
 
-// Ints returns list of ints from group-by. It is only allowed when querying group-by with one field.
+// Ints returns list of ints from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Ints(ctx context.Context) ([]int, error) {
 	if len(mfgb.fields) > 1 {
 		return nil, errors.New("ent: MediaFileGroupBy.Ints is not achievable when grouping more than 1 field")
@@ -575,7 +589,8 @@ func (mfgb *MediaFileGroupBy) IntsX(ctx context.Context) []int {
 	return v
 }
 
-// Int returns a single int from group-by. It is only allowed when querying group-by with one field.
+// Int returns a single int from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = mfgb.Ints(ctx); err != nil {
@@ -601,7 +616,8 @@ func (mfgb *MediaFileGroupBy) IntX(ctx context.Context) int {
 	return v
 }
 
-// Float64s returns list of float64s from group-by. It is only allowed when querying group-by with one field.
+// Float64s returns list of float64s from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Float64s(ctx context.Context) ([]float64, error) {
 	if len(mfgb.fields) > 1 {
 		return nil, errors.New("ent: MediaFileGroupBy.Float64s is not achievable when grouping more than 1 field")
@@ -622,7 +638,8 @@ func (mfgb *MediaFileGroupBy) Float64sX(ctx context.Context) []float64 {
 	return v
 }
 
-// Float64 returns a single float64 from group-by. It is only allowed when querying group-by with one field.
+// Float64 returns a single float64 from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = mfgb.Float64s(ctx); err != nil {
@@ -648,7 +665,8 @@ func (mfgb *MediaFileGroupBy) Float64X(ctx context.Context) float64 {
 	return v
 }
 
-// Bools returns list of bools from group-by. It is only allowed when querying group-by with one field.
+// Bools returns list of bools from group-by.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Bools(ctx context.Context) ([]bool, error) {
 	if len(mfgb.fields) > 1 {
 		return nil, errors.New("ent: MediaFileGroupBy.Bools is not achievable when grouping more than 1 field")
@@ -669,7 +687,8 @@ func (mfgb *MediaFileGroupBy) BoolsX(ctx context.Context) []bool {
 	return v
 }
 
-// Bool returns a single bool from group-by. It is only allowed when querying group-by with one field.
+// Bool returns a single bool from a group-by query.
+// It is only allowed when executing a group-by query with one field.
 func (mfgb *MediaFileGroupBy) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = mfgb.Bools(ctx); err != nil {
@@ -724,22 +743,19 @@ func (mfgb *MediaFileGroupBy) sqlQuery() *sql.Selector {
 	return selector.Select(columns...).GroupBy(mfgb.fields...)
 }
 
-// MediaFileSelect is the builder for select fields of MediaFile entities.
+// MediaFileSelect is the builder for selecting fields of MediaFile entities.
 type MediaFileSelect struct {
-	config
-	fields []string
+	*MediaFileQuery
 	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	sql *sql.Selector
 }
 
-// Scan applies the selector query and scan the result into the given value.
+// Scan applies the selector query and scans the result into the given value.
 func (mfs *MediaFileSelect) Scan(ctx context.Context, v interface{}) error {
-	query, err := mfs.path(ctx)
-	if err != nil {
+	if err := mfs.prepareQuery(ctx); err != nil {
 		return err
 	}
-	mfs.sql = query
+	mfs.sql = mfs.MediaFileQuery.sqlQuery()
 	return mfs.sqlScan(ctx, v)
 }
 
@@ -750,7 +766,7 @@ func (mfs *MediaFileSelect) ScanX(ctx context.Context, v interface{}) {
 	}
 }
 
-// Strings returns list of strings from selector. It is only allowed when selecting one field.
+// Strings returns list of strings from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Strings(ctx context.Context) ([]string, error) {
 	if len(mfs.fields) > 1 {
 		return nil, errors.New("ent: MediaFileSelect.Strings is not achievable when selecting more than 1 field")
@@ -771,7 +787,7 @@ func (mfs *MediaFileSelect) StringsX(ctx context.Context) []string {
 	return v
 }
 
-// String returns a single string from selector. It is only allowed when selecting one field.
+// String returns a single string from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) String(ctx context.Context) (_ string, err error) {
 	var v []string
 	if v, err = mfs.Strings(ctx); err != nil {
@@ -797,7 +813,7 @@ func (mfs *MediaFileSelect) StringX(ctx context.Context) string {
 	return v
 }
 
-// Ints returns list of ints from selector. It is only allowed when selecting one field.
+// Ints returns list of ints from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Ints(ctx context.Context) ([]int, error) {
 	if len(mfs.fields) > 1 {
 		return nil, errors.New("ent: MediaFileSelect.Ints is not achievable when selecting more than 1 field")
@@ -818,7 +834,7 @@ func (mfs *MediaFileSelect) IntsX(ctx context.Context) []int {
 	return v
 }
 
-// Int returns a single int from selector. It is only allowed when selecting one field.
+// Int returns a single int from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Int(ctx context.Context) (_ int, err error) {
 	var v []int
 	if v, err = mfs.Ints(ctx); err != nil {
@@ -844,7 +860,7 @@ func (mfs *MediaFileSelect) IntX(ctx context.Context) int {
 	return v
 }
 
-// Float64s returns list of float64s from selector. It is only allowed when selecting one field.
+// Float64s returns list of float64s from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Float64s(ctx context.Context) ([]float64, error) {
 	if len(mfs.fields) > 1 {
 		return nil, errors.New("ent: MediaFileSelect.Float64s is not achievable when selecting more than 1 field")
@@ -865,7 +881,7 @@ func (mfs *MediaFileSelect) Float64sX(ctx context.Context) []float64 {
 	return v
 }
 
-// Float64 returns a single float64 from selector. It is only allowed when selecting one field.
+// Float64 returns a single float64 from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Float64(ctx context.Context) (_ float64, err error) {
 	var v []float64
 	if v, err = mfs.Float64s(ctx); err != nil {
@@ -891,7 +907,7 @@ func (mfs *MediaFileSelect) Float64X(ctx context.Context) float64 {
 	return v
 }
 
-// Bools returns list of bools from selector. It is only allowed when selecting one field.
+// Bools returns list of bools from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Bools(ctx context.Context) ([]bool, error) {
 	if len(mfs.fields) > 1 {
 		return nil, errors.New("ent: MediaFileSelect.Bools is not achievable when selecting more than 1 field")
@@ -912,7 +928,7 @@ func (mfs *MediaFileSelect) BoolsX(ctx context.Context) []bool {
 	return v
 }
 
-// Bool returns a single bool from selector. It is only allowed when selecting one field.
+// Bool returns a single bool from a selector. It is only allowed when selecting one field.
 func (mfs *MediaFileSelect) Bool(ctx context.Context) (_ bool, err error) {
 	var v []bool
 	if v, err = mfs.Bools(ctx); err != nil {
@@ -939,11 +955,6 @@ func (mfs *MediaFileSelect) BoolX(ctx context.Context) bool {
 }
 
 func (mfs *MediaFileSelect) sqlScan(ctx context.Context, v interface{}) error {
-	for _, f := range mfs.fields {
-		if !mediafile.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for selection", f)}
-		}
-	}
 	rows := &sql.Rows{}
 	query, args := mfs.sqlQuery().Query()
 	if err := mfs.driver.Query(ctx, query, args, rows); err != nil {

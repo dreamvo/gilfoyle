@@ -62,21 +62,21 @@ func ValidColumn(column string) bool {
 var (
 	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	TitleValidator func(string) error
-	// DefaultOriginalFilename holds the default value on creation for the original_filename field.
+	// DefaultOriginalFilename holds the default value on creation for the "original_filename" field.
 	DefaultOriginalFilename string
 	// OriginalFilenameValidator is a validator for the "original_filename" field. It is called by the builders before save.
 	OriginalFilenameValidator func(string) error
-	// DefaultCreatedAt holds the default value on creation for the created_at field.
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
-	// DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
 	DefaultUpdatedAt func() time.Time
-	// UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
-	// DefaultID holds the default value on creation for the id field.
+	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
 
-// Status defines the type for the status enum field.
+// Status defines the type for the "status" enum field.
 type Status string
 
 // Status values.
