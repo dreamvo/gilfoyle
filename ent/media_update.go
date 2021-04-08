@@ -23,25 +23,25 @@ type MediaUpdate struct {
 	mutation *MediaMutation
 }
 
-// Where adds a new predicate for the builder.
+// Where adds a new predicate for the MediaUpdate builder.
 func (mu *MediaUpdate) Where(ps ...predicate.Media) *MediaUpdate {
 	mu.mutation.predicates = append(mu.mutation.predicates, ps...)
 	return mu
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (mu *MediaUpdate) SetTitle(s string) *MediaUpdate {
 	mu.mutation.SetTitle(s)
 	return mu
 }
 
-// SetOriginalFilename sets the original_filename field.
+// SetOriginalFilename sets the "original_filename" field.
 func (mu *MediaUpdate) SetOriginalFilename(s string) *MediaUpdate {
 	mu.mutation.SetOriginalFilename(s)
 	return mu
 }
 
-// SetNillableOriginalFilename sets the original_filename field if the given value is not nil.
+// SetNillableOriginalFilename sets the "original_filename" field if the given value is not nil.
 func (mu *MediaUpdate) SetNillableOriginalFilename(s *string) *MediaUpdate {
 	if s != nil {
 		mu.SetOriginalFilename(*s)
@@ -49,25 +49,25 @@ func (mu *MediaUpdate) SetNillableOriginalFilename(s *string) *MediaUpdate {
 	return mu
 }
 
-// ClearOriginalFilename clears the value of original_filename.
+// ClearOriginalFilename clears the value of the "original_filename" field.
 func (mu *MediaUpdate) ClearOriginalFilename() *MediaUpdate {
 	mu.mutation.ClearOriginalFilename()
 	return mu
 }
 
-// SetStatus sets the status field.
+// SetStatus sets the "status" field.
 func (mu *MediaUpdate) SetStatus(m media.Status) *MediaUpdate {
 	mu.mutation.SetStatus(m)
 	return mu
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (mu *MediaUpdate) SetCreatedAt(t time.Time) *MediaUpdate {
 	mu.mutation.SetCreatedAt(t)
 	return mu
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (mu *MediaUpdate) SetNillableCreatedAt(t *time.Time) *MediaUpdate {
 	if t != nil {
 		mu.SetCreatedAt(*t)
@@ -75,19 +75,19 @@ func (mu *MediaUpdate) SetNillableCreatedAt(t *time.Time) *MediaUpdate {
 	return mu
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (mu *MediaUpdate) SetUpdatedAt(t time.Time) *MediaUpdate {
 	mu.mutation.SetUpdatedAt(t)
 	return mu
 }
 
-// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+// AddMediaFileIDs adds the "media_files" edge to the MediaFile entity by IDs.
 func (mu *MediaUpdate) AddMediaFileIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.AddMediaFileIDs(ids...)
 	return mu
 }
 
-// AddMediaFiles adds the media_files edges to MediaFile.
+// AddMediaFiles adds the "media_files" edges to the MediaFile entity.
 func (mu *MediaUpdate) AddMediaFiles(m ...*MediaFile) *MediaUpdate {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
@@ -101,19 +101,19 @@ func (mu *MediaUpdate) Mutation() *MediaMutation {
 	return mu.mutation
 }
 
-// ClearMediaFiles clears all "media_files" edges to type MediaFile.
+// ClearMediaFiles clears all "media_files" edges to the MediaFile entity.
 func (mu *MediaUpdate) ClearMediaFiles() *MediaUpdate {
 	mu.mutation.ClearMediaFiles()
 	return mu
 }
 
-// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+// RemoveMediaFileIDs removes the "media_files" edge to MediaFile entities by IDs.
 func (mu *MediaUpdate) RemoveMediaFileIDs(ids ...uuid.UUID) *MediaUpdate {
 	mu.mutation.RemoveMediaFileIDs(ids...)
 	return mu
 }
 
-// RemoveMediaFiles removes media_files edges to MediaFile.
+// RemoveMediaFiles removes "media_files" edges to MediaFile entities.
 func (mu *MediaUpdate) RemoveMediaFiles(m ...*MediaFile) *MediaUpdate {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
@@ -339,19 +339,19 @@ type MediaUpdateOne struct {
 	mutation *MediaMutation
 }
 
-// SetTitle sets the title field.
+// SetTitle sets the "title" field.
 func (muo *MediaUpdateOne) SetTitle(s string) *MediaUpdateOne {
 	muo.mutation.SetTitle(s)
 	return muo
 }
 
-// SetOriginalFilename sets the original_filename field.
+// SetOriginalFilename sets the "original_filename" field.
 func (muo *MediaUpdateOne) SetOriginalFilename(s string) *MediaUpdateOne {
 	muo.mutation.SetOriginalFilename(s)
 	return muo
 }
 
-// SetNillableOriginalFilename sets the original_filename field if the given value is not nil.
+// SetNillableOriginalFilename sets the "original_filename" field if the given value is not nil.
 func (muo *MediaUpdateOne) SetNillableOriginalFilename(s *string) *MediaUpdateOne {
 	if s != nil {
 		muo.SetOriginalFilename(*s)
@@ -359,25 +359,25 @@ func (muo *MediaUpdateOne) SetNillableOriginalFilename(s *string) *MediaUpdateOn
 	return muo
 }
 
-// ClearOriginalFilename clears the value of original_filename.
+// ClearOriginalFilename clears the value of the "original_filename" field.
 func (muo *MediaUpdateOne) ClearOriginalFilename() *MediaUpdateOne {
 	muo.mutation.ClearOriginalFilename()
 	return muo
 }
 
-// SetStatus sets the status field.
+// SetStatus sets the "status" field.
 func (muo *MediaUpdateOne) SetStatus(m media.Status) *MediaUpdateOne {
 	muo.mutation.SetStatus(m)
 	return muo
 }
 
-// SetCreatedAt sets the created_at field.
+// SetCreatedAt sets the "created_at" field.
 func (muo *MediaUpdateOne) SetCreatedAt(t time.Time) *MediaUpdateOne {
 	muo.mutation.SetCreatedAt(t)
 	return muo
 }
 
-// SetNillableCreatedAt sets the created_at field if the given value is not nil.
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
 func (muo *MediaUpdateOne) SetNillableCreatedAt(t *time.Time) *MediaUpdateOne {
 	if t != nil {
 		muo.SetCreatedAt(*t)
@@ -385,19 +385,19 @@ func (muo *MediaUpdateOne) SetNillableCreatedAt(t *time.Time) *MediaUpdateOne {
 	return muo
 }
 
-// SetUpdatedAt sets the updated_at field.
+// SetUpdatedAt sets the "updated_at" field.
 func (muo *MediaUpdateOne) SetUpdatedAt(t time.Time) *MediaUpdateOne {
 	muo.mutation.SetUpdatedAt(t)
 	return muo
 }
 
-// AddMediaFileIDs adds the media_files edge to MediaFile by ids.
+// AddMediaFileIDs adds the "media_files" edge to the MediaFile entity by IDs.
 func (muo *MediaUpdateOne) AddMediaFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.AddMediaFileIDs(ids...)
 	return muo
 }
 
-// AddMediaFiles adds the media_files edges to MediaFile.
+// AddMediaFiles adds the "media_files" edges to the MediaFile entity.
 func (muo *MediaUpdateOne) AddMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
@@ -411,19 +411,19 @@ func (muo *MediaUpdateOne) Mutation() *MediaMutation {
 	return muo.mutation
 }
 
-// ClearMediaFiles clears all "media_files" edges to type MediaFile.
+// ClearMediaFiles clears all "media_files" edges to the MediaFile entity.
 func (muo *MediaUpdateOne) ClearMediaFiles() *MediaUpdateOne {
 	muo.mutation.ClearMediaFiles()
 	return muo
 }
 
-// RemoveMediaFileIDs removes the media_files edge to MediaFile by ids.
+// RemoveMediaFileIDs removes the "media_files" edge to MediaFile entities by IDs.
 func (muo *MediaUpdateOne) RemoveMediaFileIDs(ids ...uuid.UUID) *MediaUpdateOne {
 	muo.mutation.RemoveMediaFileIDs(ids...)
 	return muo
 }
 
-// RemoveMediaFiles removes media_files edges to MediaFile.
+// RemoveMediaFiles removes "media_files" edges to MediaFile entities.
 func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	ids := make([]uuid.UUID, len(m))
 	for i := range m {
@@ -432,7 +432,7 @@ func (muo *MediaUpdateOne) RemoveMediaFiles(m ...*MediaFile) *MediaUpdateOne {
 	return muo.RemoveMediaFileIDs(ids...)
 }
 
-// Save executes the query and returns the updated entity.
+// Save executes the query and returns the updated Media entity.
 func (muo *MediaUpdateOne) Save(ctx context.Context) (*Media, error) {
 	var (
 		err  error
@@ -631,7 +631,7 @@ func (muo *MediaUpdateOne) sqlSave(ctx context.Context) (_node *Media, err error
 	}
 	_node = &Media{config: muo.config}
 	_spec.Assign = _node.assignValues
-	_spec.ScanValues = _node.scanValues()
+	_spec.ScanValues = _node.scanValues
 	if err = sqlgraph.UpdateNode(ctx, muo.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{media.Label}

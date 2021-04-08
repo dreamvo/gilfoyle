@@ -51,71 +51,86 @@ func (e MediaEdges) MediaFilesOrErr() ([]*MediaFile, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Media) scanValues() []interface{} {
-	return []interface{}{
-		&uuid.UUID{},      // id
-		&sql.NullString{}, // title
-		&sql.NullString{}, // original_filename
-		&sql.NullString{}, // status
-		&sql.NullTime{},   // created_at
-		&sql.NullTime{},   // updated_at
+func (*Media) scanValues(columns []string) ([]interface{}, error) {
+	values := make([]interface{}, len(columns))
+	for i := range columns {
+		switch columns[i] {
+		case media.FieldTitle, media.FieldOriginalFilename, media.FieldStatus:
+			values[i] = &sql.NullString{}
+		case media.FieldCreatedAt, media.FieldUpdatedAt:
+			values[i] = &sql.NullTime{}
+		case media.FieldID:
+			values[i] = &uuid.UUID{}
+		default:
+			return nil, fmt.Errorf("unexpected column %q for type Media", columns[i])
+		}
 	}
+	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Media fields.
-func (m *Media) assignValues(values ...interface{}) error {
-	if m, n := len(values), len(media.Columns); m < n {
+func (m *Media) assignValues(columns []string, values []interface{}) error {
+	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
-	if value, ok := values[0].(*uuid.UUID); !ok {
-		return fmt.Errorf("unexpected type %T for field id", values[0])
-	} else if value != nil {
-		m.ID = *value
-	}
-	values = values[1:]
-	if value, ok := values[0].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field title", values[0])
-	} else if value.Valid {
-		m.Title = value.String
-	}
-	if value, ok := values[1].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field original_filename", values[1])
-	} else if value.Valid {
-		m.OriginalFilename = value.String
-	}
-	if value, ok := values[2].(*sql.NullString); !ok {
-		return fmt.Errorf("unexpected type %T for field status", values[2])
-	} else if value.Valid {
-		m.Status = media.Status(value.String)
-	}
-	if value, ok := values[3].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field created_at", values[3])
-	} else if value.Valid {
-		m.CreatedAt = value.Time
-	}
-	if value, ok := values[4].(*sql.NullTime); !ok {
-		return fmt.Errorf("unexpected type %T for field updated_at", values[4])
-	} else if value.Valid {
-		m.UpdatedAt = value.Time
+	for i := range columns {
+		switch columns[i] {
+		case media.FieldID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				m.ID = *value
+			}
+		case media.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				m.Title = value.String
+			}
+		case media.FieldOriginalFilename:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field original_filename", values[i])
+			} else if value.Valid {
+				m.OriginalFilename = value.String
+			}
+		case media.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				m.Status = media.Status(value.String)
+			}
+		case media.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				m.CreatedAt = value.Time
+			}
+		case media.FieldUpdatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
+			} else if value.Valid {
+				m.UpdatedAt = value.Time
+			}
+		}
 	}
 	return nil
 }
 
-// QueryMediaFiles queries the media_files edge of the Media.
+// QueryMediaFiles queries the "media_files" edge of the Media entity.
 func (m *Media) QueryMediaFiles() *MediaFileQuery {
 	return (&MediaClient{config: m.config}).QueryMediaFiles(m)
 }
 
 // Update returns a builder for updating this Media.
-// Note that, you need to call Media.Unwrap() before calling this method, if this Media
+// Note that you need to call Media.Unwrap() before calling this method if this Media
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (m *Media) Update() *MediaUpdateOne {
 	return (&MediaClient{config: m.config}).UpdateOne(m)
 }
 
-// Unwrap unwraps the entity that was returned from a transaction after it was closed,
-// so that all next queries will be executed through the driver which created the transaction.
+// Unwrap unwraps the Media entity that was returned from a transaction after it was closed,
+// so that all future queries will be executed through the driver which created the transaction.
 func (m *Media) Unwrap() *Media {
 	tx, ok := m.config.driver.(*txDriver)
 	if !ok {
