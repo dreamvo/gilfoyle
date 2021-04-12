@@ -23,3 +23,6 @@ config.yml
 
 data
 **/logs
+
+/bin/*
+!/bin/.gitkeep
