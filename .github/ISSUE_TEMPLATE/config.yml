@@ -1,5 +1,5 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
   - name: '📝 Documentation'
     url: https://gilfoyle.dreamvo.com/
-    about: Please the documentation before opening new issues
+    about: Please read the documentation before opening new issues
