@@ -1,16 +1,16 @@
 package gilfoyle
 
 import (
+	"log"
+	"os"
+
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api/db"
-	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/transcoding"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"log"
-	"os"
 )
 
 var concurrency uint
@@ -28,37 +28,37 @@ var workerCmd = &cobra.Command{
 	Long:    "Multiple worker nodes represent a worker pool. We usually recommend to launch a minimum of 3 worker nodes to ensure automatic fail over and high availability.",
 	Example: "gilfoyle worker",
 	Run: func(cmd *cobra.Command, args []string) {
-		logger, err := logging.NewLogger(gilfoyle.Config.Settings.Debug, true)
+		logger, err := logging.NewLogger(cfg.Settings.Debug, true)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		logger.Info("Initializing worker node")
-		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
+		logger.Info("Environment", zap.Bool("debug", cfg.Settings.Debug))
 
-		storage, err := gilfoyle.NewStorage(config.StorageDriver(gilfoyle.Config.Storage.Driver))
+		storage, err := gilfoyle.NewStorage(*cfg)
 		if err != nil {
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}
 
 		if concurrency == 0 {
-			concurrency = gilfoyle.Config.Settings.Worker.Concurrency
+			concurrency = cfg.Settings.Worker.Concurrency
 		}
 
-		if gilfoyle.Config.Settings.Debug {
+		if cfg.Settings.Debug {
 			_ = os.Setenv("PGSSLMODE", "disable")
 		}
 
-		dbClient, err := db.NewClient(gilfoyle.Config.Services.DB)
+		dbClient, err := db.NewClient(cfg.Services.DB)
 		if err != nil {
 			logger.Fatal("failed opening connection", zap.Error(err))
 		}
 
 		w, err := worker.New(worker.Options{
-			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
-			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
-			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
-			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
+			Host:        cfg.Services.RabbitMQ.Host,
+			Port:        cfg.Services.RabbitMQ.Port,
+			Username:    cfg.Services.RabbitMQ.Username,
+			Password:    cfg.Services.RabbitMQ.Password,
 			Logger:      logger,
 			Concurrency: concurrency,
 			Storage:     storage,

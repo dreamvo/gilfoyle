@@ -2,13 +2,15 @@ package gilfoyle
 
 import (
 	"fmt"
-	"github.com/dreamvo/gilfoyle"
 	"log"
 	"os"
+
+	"github.com/dreamvo/gilfoyle/config"
 
 	"github.com/spf13/cobra"
 )
 
+var cfg *config.Config
 var cfgFile string
 var httpPort int
 var addr string
@@ -27,17 +29,19 @@ func init() {
 
 func initConfig() {
 	if cfgFile != "" {
-		_, err := gilfoyle.NewConfig(cfgFile)
+		c, err := config.NewConfig(cfgFile)
 		if err != nil {
 			log.Fatal(err)
 		}
+		cfg = c
 		return
 	}
 
-	_, err := gilfoyle.NewConfig()
+	c, err := config.NewConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
+	cfg = c
 }
 
 // Execute is a function that executes the root command

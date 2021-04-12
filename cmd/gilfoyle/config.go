@@ -2,7 +2,7 @@ package gilfoyle
 
 import (
 	"fmt"
-	"github.com/dreamvo/gilfoyle"
+
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 )
@@ -16,7 +16,7 @@ var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Print configuration",
 	Run: func(cmd *cobra.Command, args []string) {
-		d, err := yaml.Marshal(gilfoyle.Config)
+		d, err := yaml.Marshal(cfg)
 		if err != nil {
 			panic(err)
 		}
