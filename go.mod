@@ -3,7 +3,7 @@ module github.com/dreamvo/gilfoyle
 go 1.13
 
 require (
-	cloud.google.com/go/storage v1.14.0
+	cloud.google.com/go/storage v1.15.0
 	github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78 // indirect
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
