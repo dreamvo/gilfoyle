@@ -15,7 +15,7 @@ GOFMT=$(GOCMD) fmt
 .PHONY: FORCE
 
 .PHONY: all
-all: fmt lint test build
+all: deps gen build test lint fmt
 
 .PHONY: build
 build:
@@ -32,6 +32,9 @@ coverage: test
 .PHONY: fmt
 fmt:
 	$(GOFMT) ./...
+	if [ -n "$(git status --porcelain)" ]; then
+	  exit 1;
+	fi
 
 .PHONY: clean
 clean:
