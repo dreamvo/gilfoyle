@@ -23,7 +23,7 @@ require (
 	github.com/lib/pq v1.10.1
 	github.com/mailru/easyjson v0.7.3 // indirect
 	github.com/mattn/go-sqlite3 v1.14.7
-	github.com/minio/minio-go/v7 v7.0.10
+	github.com/minio/minio-go/v7 v7.0.11
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/opencontainers/runc v1.0.0-rc9 // indirect
