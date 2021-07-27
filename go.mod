@@ -14,7 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
-	github.com/go-playground/validator/v10 v10.5.0
+	github.com/go-playground/validator/v10 v10.8.0
 	github.com/google/uuid v1.2.0
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/grafov/m3u8 v0.11.1
@@ -39,7 +39,6 @@ require (
 	github.com/swaggo/swag v1.7.0
 	github.com/zsais/go-gin-prometheus v0.1.0
 	go.uber.org/zap v1.16.0
-	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
 	google.golang.org/api v0.46.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/h2non/gock.v1 v1.0.16
