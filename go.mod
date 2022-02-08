@@ -38,7 +38,7 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/zsais/go-gin-prometheus v0.1.0
-	go.uber.org/zap v1.16.0
+	go.uber.org/zap v1.21.0
 	google.golang.org/api v0.65.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/h2non/gock.v1 v1.0.16
