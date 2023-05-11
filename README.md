@@ -1,3 +1,5 @@
+⚠️ **Development on this project has been stopped due to lack of activity. Project should be considered as unstable and outdated.**
+
 <p align="center">
   <img width="280" src="./website/static/logo_white_bg.png" alt="gilfoyle logo">
 </p>
