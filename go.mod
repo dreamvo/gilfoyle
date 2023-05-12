@@ -41,7 +41,7 @@ require (
 	go.uber.org/zap v1.16.0
 	google.golang.org/api v0.65.0
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gopkg.in/h2non/gock.v1 v1.0.16
+	gopkg.in/h2non/gock.v1 v1.1.2
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.0.2
