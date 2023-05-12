@@ -62,7 +62,54 @@ Federation is for P2P-based platforms for which reliability is a top priority. A
 
 ## Design
 
-TODO
+### Definitions
+
+- **Media** : A multimedia entity representing either a video or audio only that users can download.
+- **Media rendition** : A version of media with specific encoding parameters. 
+- **Media format** : hls, dash, mp4
+- **Media event** : Log events about a single media. Providing useful information about the status of a media and how's the encoding going.
+- **Media probe** : Information about the source file of a media.
+- **Media source file** : The original file provided by the end-user.
+- **Storage driver** : The interface used to interact with a storage backend (e.g.: S3, local filesystem, GCS...).
+- **Workload** : all the resources necessary to run a Gilfoyle instance
+
+### Workload architecture
+
+Gilfoyle is composed of the following parts : 
+
+- A PostgreSQL database
+- A RabbitMQ server
+- A REST API
+- A set of worker nodes
+
+Worker nodes are processing messages from the RabbitMQ server directly. A Gilfoyle instance only needs 1 worker node to run properly but multiple nodes are recommanded in production.
+
+### Lifecycle of a media
+
+```
+1. User creates a media --> Media A gets created with status "AwaitingUpload"
+2. User uploads a file for media A --> File is stored, the media status change to "ScheduledProcessing", a job is scheduled to start the encoding process
+3. In background, a worker process the jobs and start encoding all the necessary renditions. Media status change to "Processing"
+4. If one rendition fails, the worker will reschedule the job X times (defined by user)
+5. Once encoding jobs are finished, another job finalize the process and set the media status either to "Ready" or "Errored"
+6. If the encoding failed, the administrator can look at media events to see what happened at each step
+7. When media becomes available for streaming, user can retrieve the stream either using a CDN or the Gilfoyle API directly
+```
+
+### How we handle fail over
+
+#### External services
+
+We can't control the availability of external services so we'll simply delegate that to the user. User is responsible for the availability of the PSGL database and the RabbitMQ server.
+
+#### Workers
+
+We may experience issues in the following situations :
+
+- The RabbitMQ client disconnect unexpectedly
+- The worker panic while processing a job and terminate
+
+...
 
 ### Dependencies
 
