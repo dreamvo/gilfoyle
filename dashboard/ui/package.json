@@ -15,7 +15,7 @@
     "dayjs": "1.10.4",
     "hls.js": "0.14.17",
     "vee-validate": "3.4.5",
-    "video.js": "7.11.4",
+    "video.js": "7.14.3",
     "videojs-contrib-quality-levels": "2.0.9",
     "videojs-hls-quality-selector": "1.1.4",
     "vue": "2.6.11",
