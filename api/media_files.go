@@ -4,7 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/dreamvo/gilfoyle"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	"github.com/dreamvo/gilfoyle/api/util"
 	"github.com/dreamvo/gilfoyle/ent"
 	_ "github.com/dreamvo/gilfoyle/ent"
@@ -14,11 +19,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gopkg.in/vansante/go-ffprobe.v2"
-	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
 )
 
 type FileFormat struct {
@@ -75,8 +75,8 @@ func (s *Server) uploadVideoFile(ctx *gin.Context) {
 		return
 	}
 
-	if file.Size > gilfoyle.Config.Settings.MaxFileSize {
-		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf("uploaded file's size exceed limit of %v", gilfoyle.Config.Settings.MaxFileSize))
+	if file.Size > s.config.Settings.MaxFileSize {
+		util.NewError(ctx, http.StatusBadRequest, fmt.Errorf("uploaded file's size exceed limit of %v", s.config.Settings.MaxFileSize))
 		return
 	}
 

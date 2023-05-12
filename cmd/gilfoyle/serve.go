@@ -3,18 +3,18 @@ package gilfoyle
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/dreamvo/gilfoyle"
 	"github.com/dreamvo/gilfoyle/api"
 	"github.com/dreamvo/gilfoyle/api/db"
-	"github.com/dreamvo/gilfoyle/config"
 	"github.com/dreamvo/gilfoyle/ent/migrate"
 	"github.com/dreamvo/gilfoyle/logging"
 	"github.com/dreamvo/gilfoyle/worker"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
-	"log"
-	"os"
 )
 
 func init() {
@@ -31,27 +31,27 @@ var serveCmd = &cobra.Command{
 	Short:   "Launch REST API",
 	Example: "gilfoyle serve -p 3000 -c /app/config.yml",
 	Run: func(cmd *cobra.Command, args []string) {
-		logger, err := logging.NewLogger(gilfoyle.Config.Settings.Debug, true)
+		logger, err := logging.NewLogger(cfg.Settings.Debug, true)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		logger.Info("Initializing API server")
-		logger.Info("Environment", zap.Bool("debug", gilfoyle.Config.Settings.Debug))
+		logger.Info("Environment", zap.Bool("debug", cfg.Settings.Debug))
 
-		if !gilfoyle.Config.Settings.Debug {
+		if !cfg.Settings.Debug {
 			gin.SetMode(gin.ReleaseMode)
 		} else {
 			_ = os.Setenv("PGSSLMODE", "disable")
 			gin.SetMode(gin.DebugMode)
 		}
 
-		dbClient, err := db.NewClient(gilfoyle.Config.Services.DB)
+		dbClient, err := db.NewClient(cfg.Services.DB)
 		if err != nil {
 			logger.Fatal("failed opening connection", zap.Error(err))
 		}
 
-		if !gilfoyle.Config.Settings.Debug {
+		if !cfg.Settings.Debug {
 			dbClient = dbClient.Debug()
 		}
 
@@ -67,16 +67,16 @@ var serveCmd = &cobra.Command{
 
 		logger.Info("Successfully executed database auto migration")
 
-		s, err := gilfoyle.NewStorage(config.StorageDriver(gilfoyle.Config.Storage.Driver))
+		s, err := gilfoyle.NewStorage(*cfg)
 		if err != nil {
 			logger.Fatal("Error initializing storage backend", zap.Error(err))
 		}
 
 		w, err := worker.New(worker.Options{
-			Host:        gilfoyle.Config.Services.RabbitMQ.Host,
-			Port:        gilfoyle.Config.Services.RabbitMQ.Port,
-			Username:    gilfoyle.Config.Services.RabbitMQ.Username,
-			Password:    gilfoyle.Config.Services.RabbitMQ.Password,
+			Host:        cfg.Services.RabbitMQ.Host,
+			Port:        cfg.Services.RabbitMQ.Port,
+			Username:    cfg.Services.RabbitMQ.Username,
+			Password:    cfg.Services.RabbitMQ.Password,
 			Logger:      logger,
 			Concurrency: 0,
 		})
@@ -94,7 +94,7 @@ var serveCmd = &cobra.Command{
 			Logger:   logger,
 			Worker:   w,
 			Database: dbClient,
-			Config:   gilfoyle.Config,
+			Config:   *cfg,
 			Storage:  s,
 		})
 
