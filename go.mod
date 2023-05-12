@@ -25,7 +25,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.7
 	github.com/minio/minio-go/v7 v7.0.20
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
-	github.com/opencontainers/image-spec v1.0.1 // indirect
+	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/opencontainers/runc v1.0.0-rc9 // indirect
 	github.com/orlangure/gnomock v0.12.1
 	github.com/ory/dockertest v3.3.5+incompatible
